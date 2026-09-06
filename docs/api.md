@@ -105,3 +105,19 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 14. Instagram Feed & Announcement Parser
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.instagram_parser
+   :members:
+   :show-inheritance:
+```
+
+## 15. Instagram Crawler & Session Cache
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.instagram_crawler
+   :members:
+   :show-inheritance:
+```

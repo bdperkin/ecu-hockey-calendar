@@ -131,7 +131,7 @@ ______________________________________________________________________
 
 #### 2.2.3. Phase 2.3: Social & Opponent Reverse Crawlers
 
-- [ ] **[#6](https://github.com/bdperkin/ecu-hockey-calendar/issues/6) - feat(ingestion): create resilient Instagram feed parser for game announcements**
+- [x] **[#6](https://github.com/bdperkin/ecu-hockey-calendar/issues/6) - feat(ingestion): create resilient Instagram feed parser for game announcements**
   - **Summary:** Extract schedule announcements and time changes from `https://www.instagram.com/ecuicehockey/`.
   - **Description:** Integrate Instagram Graph API / resilient feed parser with exponential backoff and rate-limit mitigation.
 - [ ] **[#7](https://github.com/bdperkin/ecu-hockey-calendar/issues/7) - feat(ingestion): automated opponent schedule reverse lookup and cross-check**
