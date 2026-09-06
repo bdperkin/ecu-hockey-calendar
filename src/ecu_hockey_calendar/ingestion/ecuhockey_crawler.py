@@ -302,6 +302,7 @@ class ECUHockeyCrawler:
                 if records:
                     return records, raw_text, content_hash, "application/json"
             except (httpx.HTTPError, ValueError, TypeError, KeyError):
+                # Fall back to HTML scraping if primary API fails.
                 pass
 
         records, raw_text, content_hash = await self.fetch_html_games()
