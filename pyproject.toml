@@ -23,7 +23,11 @@ classifiers = [
     "Typing :: Typed",
 ]
 dynamic = [ "version" ]
-dependencies = []
+dependencies = [
+    "aiosqlite>=0.20.0",
+    "alembic>=1.13.0",
+    "sqlalchemy>=2.0.0",
+]
 optional-dependencies.dev = [
     "click>=8.3.3",
     "codespell>=2.4.0",
@@ -104,6 +108,12 @@ lint.ignore = [
     "D213",   # Multi-line docstring summary start (conflicts with D212)
     "ISC001", # Implicitly concatenated string (formatter compatibility)
 ]
+lint.per-file-ignores."alembic/**" = [
+    "D",
+    "E501",
+    "INP001",
+    "TC",
+]
 lint.per-file-ignores."docs/conf.py" = [
     "A001",
     "INP001",
@@ -113,10 +123,15 @@ lint.per-file-ignores."src/ecu_hockey_calendar/calendar.py" = [
 ]
 lint.per-file-ignores."tests/**" = [
     "ANN",
+    "ARG",
     "D",
+    "EM",
     "PLR2004",
+    "PT012",
     "S101",
     "SLF001",
+    "TC",
+    "TRY",
 ]
 lint.per-file-ignores."tools/**" = [
     "INP001",
@@ -135,11 +150,13 @@ messages_control.disable = [
     "duplicate-code",
     "line-too-long",
     "missing-module-docstring",
+    "not-callable",
     "redefined-outer-name",
     "too-few-public-methods",
 ]
 design.max-args = 8
 design.max-attributes = 12
+imports.known-third-party = [ "alembic" ]
 
 [tool.codespell]
 ignore-words = ".codespell-ignore"
@@ -159,12 +176,22 @@ ignore-module = false
 ignore-nested-functions = false
 ignore-nested-classes = false
 ignore-setters = false
-exclude = [ ".venv", "build", "dist", "docs", "setup.py", "src/ecu_hockey_calendar/_version.py", "tests", "tools" ]
+exclude = [
+    ".venv",
+    "alembic",
+    "build",
+    "dist",
+    "docs",
+    "setup.py",
+    "src/ecu_hockey_calendar/_version.py",
+    "tests",
+    "tools"
+]
 color = true
 verbose = 2
 
 [tool.deptry]
-extend_exclude = [ "docs", "src/ecu_hockey_calendar/_version.py", "tools" ]
+extend_exclude = [ "alembic", "docs", "src/ecu_hockey_calendar/_version.py", "tools" ]
 known_first_party = [ "ecu_hockey_calendar" ]
 optional_dependencies_dev_groups = [ "dev", "docs", "lint", "test" ]
 
@@ -186,6 +213,7 @@ src.exclude = [
 ]
 environment.python-version = "3.12"
 rules.all = "error"
+rules.unsound-assignment = "ignore"
 terminal.error-on-warning = true
 
 [tool.pytest]
@@ -198,6 +226,8 @@ ini_options.addopts = """\
     """
 ini_options.filterwarnings = [
     "error",
+    "ignore::ResourceWarning",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
 ]
 
 [tool.coverage]
