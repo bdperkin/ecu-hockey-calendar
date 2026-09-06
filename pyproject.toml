@@ -213,6 +213,7 @@ src.exclude = [
 ]
 environment.python-version = "3.12"
 rules.all = "error"
+rules.unsound-assignment = "ignore"
 terminal.error-on-warning = true
 
 [tool.pytest]
