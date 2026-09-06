@@ -119,7 +119,7 @@ ______________________________________________________________________
 
 #### 2.2.2. Phase 2.2: Primary & League Web Crawlers
 
-- [ ] **[#3](https://github.com/bdperkin/ecu-hockey-calendar/issues/3) - feat(ingestion): build resilient crawler for primary ECU Hockey schedule site**
+- [x] **[#3](https://github.com/bdperkin/ecu-hockey-calendar/issues/3) - feat(ingestion): build resilient crawler for primary ECU Hockey schedule site**
   - **Summary:** Build asynchronous crawler for `https://www.ecuhockey.com/schedule/upcoming`.
   - **Description:** Implement `httpx` + `BeautifulSoup4` parser with retry and backoff logic. Extract dates, times, home/away status, opponents, venues, scores, and game status.
 - [ ] **[#4](https://github.com/bdperkin/ecu-hockey-calendar/issues/4) - feat(ingestion): implement ACC Hockey league schedule page parser**

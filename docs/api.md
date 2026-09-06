@@ -41,3 +41,35 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 6. HTTP Ingestion Client
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.client
+   :members:
+   :show-inheritance:
+```
+
+## 7. Ingestion Normalizer
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.normalizer
+   :members:
+   :show-inheritance:
+```
+
+## 8. HTML Schedule Parser
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.html_parser
+   :members:
+   :show-inheritance:
+```
+
+## 9. Primary Schedule Crawler
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.ecuhockey_crawler
+   :members:
+   :show-inheritance:
+```
