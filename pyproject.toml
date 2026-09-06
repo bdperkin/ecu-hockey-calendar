@@ -221,12 +221,14 @@ html.directory = "htmlcov"
 xml.output = "coverage.xml"
 
 [tool.semantic_release]
-version_toml = [ "pyproject.toml:project.version" ]
+tag_format = "v{version}"
+major_on_zero = false
+allow_zero_version = true
 build_command = "uv build"
 branches.main.match = "(main|master)"
 branches.main.prerelease = false
+changelog.default_templates.changelog_file = "CHANGELOG.md"
 branch = "main"
-changelog_file = "CHANGELOG.md"
 
 [tool.yamlfix]
 line_length = 88
