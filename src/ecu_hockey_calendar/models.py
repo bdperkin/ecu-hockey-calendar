@@ -6,7 +6,7 @@ and complete season schedules with support for validation and serialization.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
@@ -64,7 +64,13 @@ class Team:
         Returns:
             A dictionary containing all team attributes.
         """
-        return asdict(self)
+        return {
+            "name": self.name,
+            "city": self.city,
+            "state": self.state,
+            "division": self.division,
+            "conference": self.conference,
+        }
 
 
 @dataclass(frozen=True, slots=True)
