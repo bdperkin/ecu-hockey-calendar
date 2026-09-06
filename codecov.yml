@@ -26,3 +26,6 @@ comment:
   layout: reach,diff,flags,files,footer
   behavior: default
   require_changes: false
+test_analytics:
+  enabled: true
+  flake_detection: true
