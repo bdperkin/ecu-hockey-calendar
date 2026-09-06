@@ -131,6 +131,8 @@ lint.per-file-ignores."tests/**" = [
     "PLR2004",
     "PT012",
     "S101",
+    "S105",
+    "S106",
     "SLF001",
     "TC",
     "TRY",
