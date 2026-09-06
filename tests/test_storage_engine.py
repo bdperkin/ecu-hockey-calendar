@@ -229,10 +229,15 @@ def test_sync_session_context_manager_variants() -> None:
         assert len(res) == 1
 
     # Exception rollback
-    with pytest.raises(RuntimeError), get_sync_session(engine) as session:
-        session.add(TeamModel(name="Team B", city="B", state="NC"))
-        raise RuntimeError("Simulated failure")
+    failed_sync = False
+    try:
+        with get_sync_session(engine) as session:
+            session.add(TeamModel(name="Team B", city="B", state="NC"))
+            raise RuntimeError("Simulated failure")
+    except RuntimeError:
+        failed_sync = True
 
+    assert failed_sync
     with get_sync_session(engine) as session:
         names = [t.name for t in session.scalars(select(TeamModel)).all()]
         assert "Team B" not in names
@@ -260,11 +265,15 @@ def test_async_session_context_manager_variants() -> None:
             assert len(result.all()) == 1
 
         # Exception rollback
-        with pytest.raises(RuntimeError):
+        failed_async = False
+        try:
             async with get_async_session(engine) as session:
                 session.add(TeamModel(name="Async Team B", city="B", state="NC"))
                 raise RuntimeError("Async simulated failure")
+        except RuntimeError:
+            failed_async = True
 
+        assert failed_async
         async with get_async_session(engine) as session:
             result = await session.scalars(select(TeamModel))
             names = [t.name for t in result.all()]
