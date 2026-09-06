@@ -35,6 +35,34 @@ _TEAM_NAME_MAP: dict[str, str] = {
     "wake forest": "Wake Forest University",
     "high point": "High Point University",
     "duke": "Duke University",
+    "elon": "Elon University",
+    "elon university": "Elon University",
+    "charlotte": "UNC Charlotte",
+    "unc charlotte": "UNC Charlotte",
+    "georgetown": "Georgetown University",
+    "georgetown university": "Georgetown University",
+    "st joseph's": "Saint Joseph's University",
+    "st. joseph's": "Saint Joseph's University",
+    "saint joseph's": "Saint Joseph's University",
+    "saint joseph's university": "Saint Joseph's University",
+    "james madison": "James Madison University",
+    "james madison university": "James Madison University",
+    "james madison m2": "James Madison University (M2)",
+    "jmu": "James Madison University",
+    "ga tech": "Georgia Tech",
+    "georgia tech": "Georgia Tech",
+    "clemson": "Clemson University",
+    "clemson university": "Clemson University",
+    "saint thomas": "St. Thomas University",
+    "st thomas": "St. Thomas University",
+    "st. thomas": "St. Thomas University",
+    "st. thomas university": "St. Thomas University",
+    "richmond": "University of Richmond",
+    "university of richmond": "University of Richmond",
+    "rowan": "Rowan University",
+    "rowan university": "Rowan University",
+    "virginia": "University of Virginia",
+    "uva": "University of Virginia",
 }
 
 
@@ -82,15 +110,22 @@ def _parse_time_parts(time_str: str | None) -> tuple[int, int]:
     """Parse time string into hour and minute components.
 
     Args:
-        time_str: Raw time string (e.g., "7:00 PM", "19:30", "7:00pm").
+        time_str: Raw time string (e.g., "7:00 PM", "19:30", "8:45 PM EST").
 
     Returns:
         Tuple of (hour, minute) in 24-hour format. Defaults to (19, 0) if unparsable.
     """
-    if not time_str or time_str.strip().upper() in {"TBD", "TBA", ""}:
+    if not time_str or time_str.strip().upper() in {"TBD", "TBA", "", "-"}:
         return 19, 0
 
     cleaned = time_str.strip()
+    cleaned = re.sub(
+        r"\b(EST|EDT|ET|CST|CDT|CT|MST|MDT|MT|PST|PDT|PT|UTC)\b",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    ).strip()
+
     match_12h = re.match(r"^(\d{1,2}):(\d{2})\s*([AP]M)$", cleaned, re.IGNORECASE)
     if match_12h:
         return _convert_12h_time(
@@ -119,11 +154,67 @@ def _parse_textual_date(cleaned: str) -> tuple[int, int, int] | None:
     return None
 
 
-def _parse_date_components(date_str: str) -> tuple[int, int, int]:
+COLLEGIATE_SEASON_START_MONTH = 8
+
+
+def _resolve_season_year(
+    month: int,
+    season: str | None,
+    default_year: int | None,
+) -> int:
+    """Determine calendar year based on month and collegiate hockey season."""
+    if season and "-" in season:
+        parts = season.split("-")
+        start_yr = int(parts[0].strip())
+        end_yr = int(parts[1].strip())
+        return start_yr if month >= COLLEGIATE_SEASON_START_MONTH else end_yr
+
+    if default_year is not None:
+        return default_year
+
+    return datetime.now(UTC).year
+
+
+def _parse_short_date(
+    cleaned: str,
+    season: str | None = None,
+    default_year: int | None = None,
+) -> tuple[int, int, int] | None:
+    """Parse short date strings like 'Sat Oct  4' or 'Jan 23'."""
+    match = re.match(
+        r"^(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*\.?\s+)?([A-Za-z]{3,9})\s+(\d{1,2})$",
+        cleaned,
+        re.IGNORECASE,
+    )
+    if not match:
+        return None
+
+    month_name, day_str = match.group(1), match.group(2)
+    day = int(day_str)
+    for fmt in ("%B", "%b"):
+        try:
+            month = datetime.strptime(month_name, fmt).replace(tzinfo=UTC).month
+        except ValueError:
+            continue
+        else:
+            year = _resolve_season_year(month, season, default_year)
+            return year, month, day
+
+    return None
+
+
+def _parse_date_components(
+    date_str: str,
+    *,
+    season: str | None = None,
+    default_year: int | None = None,
+) -> tuple[int, int, int]:
     """Extract year, month, and day integers from various date formats.
 
     Args:
         date_str: Raw date string.
+        season: Optional collegiate hockey season string (e.g. '2025-2026').
+        default_year: Optional fallback year when year is missing.
 
     Returns:
         Tuple of (year, month, day).
@@ -132,6 +223,12 @@ def _parse_date_components(date_str: str) -> tuple[int, int, int]:
         ValueError: If date cannot be parsed.
     """
     cleaned = date_str.strip()
+    cleaned = re.sub(
+        r"^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*\.?\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    ).strip()
 
     # ISO format YYYY-MM-DD
     match_iso = re.match(r"^(\d{4})-(\d{1,2})-(\d{1,2})", cleaned)
@@ -147,6 +244,14 @@ def _parse_date_components(date_str: str) -> tuple[int, int, int]:
     if text_parsed:
         return text_parsed
 
+    short_parsed = _parse_short_date(
+        cleaned,
+        season=season,
+        default_year=default_year,
+    )
+    if short_parsed:
+        return short_parsed
+
     msg = f"Unrecognized date format: {date_str!r}"
     raise ValueError(msg)
 
@@ -155,18 +260,27 @@ def parse_game_datetime(
     date_str: str,
     time_str: str | None = None,
     tz_name: str = DEFAULT_TIMEZONE,
+    *,
+    season: str | None = None,
+    default_year: int | None = None,
 ) -> datetime:
     """Parse date and optional time strings into a timezone-aware UTC datetime.
 
     Args:
-        date_str: Date string in ISO, US, or textual month format.
-        time_str: Optional time string (e.g., "7:00 PM", "19:00", "TBD").
+        date_str: Date string in ISO, US, textual, or short month-day format.
+        time_str: Optional time string (e.g., "7:00 PM", "19:00", "8:45 PM EST").
         tz_name: Timezone of the source venue/schedule (default: America/New_York).
+        season: Optional collegiate hockey season (e.g. '2025-2026').
+        default_year: Optional fallback year if omitted from date string.
 
     Returns:
         Timezone-aware datetime in UTC.
     """
-    year, month, day = _parse_date_components(date_str)
+    year, month, day = _parse_date_components(
+        date_str,
+        season=season,
+        default_year=default_year,
+    )
     hour, minute = _parse_time_parts(time_str)
     tz = ZoneInfo(tz_name)
     local_dt = datetime(year, month, day, hour, minute, tzinfo=tz)
