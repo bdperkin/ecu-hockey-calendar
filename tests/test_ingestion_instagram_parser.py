@@ -73,9 +73,12 @@ from ecu_hockey_calendar.storage.models import GameModel, GameStatus, TeamModel
 def test_constants_and_enums() -> None:
     """Verify default module constants and enum definitions."""
     assert DEFAULT_INSTAGRAM_USERNAME == "ecuicehockey"
-    assert "instagram.com" in DEFAULT_INSTAGRAM_URL
-    assert "graph.instagram.com" in DEFAULT_GRAPH_API_URL
-    assert "api/v1/users/web_profile_info" in DEFAULT_WEB_PROFILE_URL
+    assert DEFAULT_INSTAGRAM_URL == "https://www.instagram.com/ecuicehockey/"
+    assert DEFAULT_GRAPH_API_URL == "https://graph.instagram.com/v19.0/me/media"
+    assert (
+        DEFAULT_WEB_PROFILE_URL
+        == "https://www.instagram.com/api/v1/users/web_profile_info/?username=ecuicehockey"
+    )
     assert IG_APP_ID == "936619743392459"
     assert MONTH_MAP["oct"] == 10
     assert MONTH_MAP["february"] == 2
