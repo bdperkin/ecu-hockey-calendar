@@ -100,6 +100,7 @@ jobs:
         run: uv sync --all-extras --dev
       - name: Run pytest with 100% coverage requirement
         run: uv run pytest --cov=ecu_hockey_calendar --cov-report=xml --cov-fail-under=100
+          --junitxml=junit.xml -o junit_family=legacy
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
@@ -108,6 +109,15 @@ jobs:
           fail_ci_if_error: false
           flags: unittests
           name: codecov-ecu-hockey-calendar
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./junit.xml
+          fail_ci_if_error: false
+          flags: unittests
+          name: test-results-ecu-hockey-calendar
   docs:
     name: Documentation Build
     runs-on: ubuntu-latest
