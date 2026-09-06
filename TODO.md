@@ -134,7 +134,7 @@ ______________________________________________________________________
 - [x] **[#6](https://github.com/bdperkin/ecu-hockey-calendar/issues/6) - feat(ingestion): create resilient Instagram feed parser for game announcements**
   - **Summary:** Extract schedule announcements and time changes from `https://www.instagram.com/ecuicehockey/`.
   - **Description:** Integrate Instagram Graph API / resilient feed parser with exponential backoff and rate-limit mitigation.
-- [ ] **[#7](https://github.com/bdperkin/ecu-hockey-calendar/issues/7) - feat(ingestion): automated opponent schedule reverse lookup and cross-check**
+- [x] **[#7](https://github.com/bdperkin/ecu-hockey-calendar/issues/7) - feat(ingestion): automated opponent schedule reverse lookup and cross-check**
   - **Summary:** Automatically query and cross-verify preliminary game data against opponent schedule sources.
   - **Description:** Maintain opponent directory (UNC, NC State, Virginia Tech, Wake Forest, etc.) and cross-check dates, venues, and times.
 
