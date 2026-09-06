@@ -5,39 +5,126 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: 'chore(deps): update pre-commit hooks'
   autoupdate_schedule: weekly
-  skip: [ty, deptry, vulture, pylint, xenon, markdown-toc-creator]
+  skip:
+    - ty
+    - deptry
+    - vulture
+    - pylint
+    - xenon
+    - markdown-toc-creator
+    - uv-lock
+    - uv-export
+    - uv-sync
+    - uv-audit
+    - semgrep-ci
+    - pyroma
 repos:
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+      - id: identity
+  - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.6.1
+    hooks:
+      - id: check-pre-commit-ci-config
+  - repo: https://github.com/pre-commit/sync-pre-commit-deps
+    rev: v0.0.5
+    hooks:
+      - id: sync-pre-commit-deps
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.12.10
+    hooks:
+      - id: uv-lock
+      - id: uv-export
+      - id: uv-sync
+      - id: uv-audit
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-toml
       - id: check-added-large-files
-      - id: check-merge-conflict
+      - id: check-ast
+      - id: check-builtin-literals
       - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-illegal-windows-names
+      - id: check-json
+      - id: check-shebang-scripts-are-executable
+      - id: pretty-format-json
+        args: [--autofix, --indent=2, --no-sort-keys]
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-vcs-permalinks
+      - id: check-yaml
+      - id: debug-statements
+      - id: destroyed-symlinks
+      - id: detect-aws-credentials
+        args: [--allow-missing-credentials]
       - id: detect-private-key
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.9
+      - id: end-of-file-fixer
+      - id: file-contents-sorter
+        files: ^\.codespell-ignore$
+        args: [--unique]
+      - id: fix-byte-order-marker
+      - id: forbid-submodules
+      - id: mixed-line-ending
+      - id: name-tests-test
+        args: [--pytest-test-first]
+      - id: no-commit-to-branch
+        args: [--branch, main]
+      - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
     hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+      - id: python-check-blanket-noqa
+      - id: python-check-blanket-type-ignore
+      - id: python-check-mock-methods
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: python-use-type-annotations
+      - id: rst-backticks
+        always_run: true
+      - id: rst-directive-colons
+        always_run: true
+      - id: rst-inline-touching-normal
+        always_run: true
+      - id: text-unicode-replacement-char
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 3.11.1
     hooks:
-      - id: codespell
-        additional_dependencies: [tomli]
+      - id: editorconfig-checker
+  - repo: https://github.com/jsh9/format-json
+    rev: 0.1.2
+    hooks:
+      - id: format-json
+        args: [--autofix, --no-sort-keys]
+  - repo: https://github.com/lyz-code/yamlfix
+    rev: 1.19.1
+    hooks:
+      - id: yamlfix
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        args: [-c, .yamllint.yaml]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.9.0
+    rev: v2.29.3
     hooks:
       - id: pyproject-fmt
-  - repo: https://github.com/econchick/interrogate
-    rev: 1.7.0
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.25
     hooks:
-      - id: interrogate
-        args: [--quiet]
+      - id: validate-pyproject
+  - repo: https://github.com/regebro/pyroma
+    rev: '4.2'
+    hooks:
+      - id: pyroma
+  - repo: https://github.com/jsh9/markdown-heading-numbering
+    rev: 0.1.1
+    hooks:
+      - id: markdown-heading-numbering
+        exclude: ^CHANGELOG\.md$
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
     hooks:
@@ -49,24 +136,69 @@ repos:
     hooks:
       - id: pymarkdown
         args: [-c, .pymarkdown.json, scan]
-        exclude: docs/_build
-  - repo: https://github.com/lyz-code/yamlfix
-    rev: 1.9.0
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
     hooks:
-      - id: yamlfix
-        additional_dependencies: [maison<2.0.0]
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+  - repo: https://github.com/semgrep/pre-commit
+    rev: v1.176.1
+    hooks:
+      - id: semgrep-ci
+  - repo: https://github.com/hakancelikdev/unimport
+    rev: 1.4.0
+    hooks:
+      - id: unimport
+        args: [--remove]
+  - repo: https://github.com/MarcoGorelli/absolufy-imports
+    rev: v0.3.1
+    hooks:
+      - id: absolufy-imports
+  - repo: https://github.com/bwhmather/ssort
+    rev: 0.17.0
+    hooks:
+      - id: ssort
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v4.0.0
+    hooks:
+      - id: add-trailing-comma
+  - repo: https://github.com/jsh9/blank-line-after-blocks
+    rev: 0.1.4
+    hooks:
+      - id: blank-line-after-blocks
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.6
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+  - repo: https://github.com/econchick/interrogate
+    rev: 1.7.0
+    hooks:
+      - id: interrogate
+        args: [--quiet]
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
+        additional_dependencies: [tomli]
+        args: [--ignore-words, .codespell-ignore]
+  - repo: https://github.com/PrincetonUniversity/blocklint
+    rev: v0.3.0
+    hooks:
+      - id: blocklint
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
   - repo: local
     hooks:
-      - id: ty
-        name: ty type checker
-        entry: ty check
+      - id: markdown-toc-creator
+        name: markdown-toc-creator
+        entry: uv run python tools/update_toc.py
         language: system
-        types: [python]
-        pass_filenames: false
-      - id: deptry
-        name: deptry dependency checker
-        entry: uv run deptry .
-        language: system
+        types: [markdown]
         pass_filenames: false
       - id: vulture
         name: vulture dead code checker
@@ -86,9 +218,14 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
-      - id: markdown-toc-creator
-        name: markdown-toc-creator
-        entry: uv run python tools/update_toc.py
+      - id: deptry
+        name: deptry dependency checker
+        entry: uv run deptry .
         language: system
-        types: [markdown]
+        pass_filenames: false
+      - id: ty
+        name: ty type checker
+        entry: ty check
+        language: system
+        types: [python]
         pass_filenames: false

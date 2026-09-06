@@ -140,7 +140,7 @@ class ECUHockeyCalendar:
                     f"DESCRIPTION:{description}",
                     "STATUS:CONFIRMED",
                     "END:VEVENT",
-                ]
+                ],
             )
 
         lines.append("END:VCALENDAR")
@@ -193,7 +193,7 @@ class ECUHockeyCalendar:
                     "venue": game.venue,
                     "is_home": "Yes" if game.is_home_game(self.team.name) else "No",
                     "result": game.result.value,
-                }
+                },
             )
 
         return output.getvalue()

@@ -2,7 +2,7 @@
 
 This guide illustrates how to use `ecu-hockey-calendar` to manage fixtures and export calendars.
 
-## Basic Usage
+## 1. Basic Usage
 
 ```python
 from datetime import datetime, UTC

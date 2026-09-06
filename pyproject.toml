@@ -6,8 +6,9 @@ requires = [ "hatch-vcs", "hatchling" ]
 name = "ecu-hockey-calendar"
 description = "East Carolina University - Men's Ice Hockey Team - Calendar"
 readme = "README.md"
+keywords = [ "calendar", "ecu", "hockey", "icalendar", "ics" ]
 license = "MIT"
-authors = [ { name = "Brandon Perkins" } ]
+authors = [ { name = "Brandon Perkins", email = "bdperkin@gmail.com" } ]
 requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -22,8 +23,9 @@ classifiers = [
     "Typing :: Typed",
 ]
 dynamic = [ "version" ]
-dependencies = [  ]
+dependencies = []
 optional-dependencies.dev = [
+    "click>=8.3.3",
     "codespell>=2.4.0",
     "coverage[toml]>=7.6.0",
     "deptry>=0.23.0",
@@ -140,19 +142,51 @@ design.max-args = 8
 design.max-attributes = 12
 
 [tool.codespell]
+ignore-words = ".codespell-ignore"
 ignore-words-list = "hist"
 skip = "*.git,*.lock,*.pyc,*.png,*.ico,.venv,build,dist,htmlcov,site,_version.py,*docs/_build*"
 quiet-level = 3
+
+[tool.interrogate]
+fail-under = 100
+ignore-init-method = false
+ignore-init-module = false
+ignore-magic = false
+ignore-semiprivate = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-module = false
+ignore-nested-functions = false
+ignore-nested-classes = false
+ignore-setters = false
+exclude = [ ".venv", "build", "dist", "docs", "setup.py", "src/ecu_hockey_calendar/_version.py", "tests", "tools" ]
+color = true
+verbose = 2
 
 [tool.deptry]
 extend_exclude = [ "docs", "src/ecu_hockey_calendar/_version.py", "tools" ]
 known_first_party = [ "ecu_hockey_calendar" ]
 optional_dependencies_dev_groups = [ "dev", "docs", "lint", "test" ]
 
+[tool.vulture]
+paths = [ "src", "tests" ]
+exclude = [ "src/ecu_hockey_calendar/_version.py" ]
+min_confidence = 80
+sort_by_size = true
+
 [tool.pyproject-fmt]
 indent = 4
 keep_full_version = true
 max_supported_python = "3.14"
+
+[tool.ty]
+src.include = [ "src", "tests", "tools" ]
+src.exclude = [
+    "src/ecu_hockey_calendar/_version.py",
+]
+environment.python-version = "3.12"
+rules.all = "error"
+terminal.error-on-warning = true
 
 [tool.pytest]
 ini_options.minversion = "8.0"
@@ -185,37 +219,6 @@ report.skip_covered = false
 report.show_missing = true
 html.directory = "htmlcov"
 xml.output = "coverage.xml"
-
-[tool.interrogate]
-fail-under = 100
-ignore-init-method = false
-ignore-init-module = false
-ignore-magic = false
-ignore-semiprivate = false
-ignore-private = false
-ignore-property-decorators = false
-ignore-module = false
-ignore-nested-functions = false
-ignore-nested-classes = false
-ignore-setters = false
-exclude = [ ".venv", "build", "dist", "docs", "setup.py", "src/ecu_hockey_calendar/_version.py", "tests", "tools" ]
-color = true
-verbose = 2
-
-[tool.vulture]
-paths = [ "src", "tests" ]
-exclude = [ "src/ecu_hockey_calendar/_version.py" ]
-min_confidence = 80
-sort_by_size = true
-
-[tool.ty]
-src.include = [ "src", "tests", "tools" ]
-src.exclude = [
-    "src/ecu_hockey_calendar/_version.py",
-]
-environment.python-version = "3.12"
-rules.all = "error"
-terminal.error-on-warning = true
 
 [tool.semantic_release]
 version_toml = [ "pyproject.toml:project.version" ]

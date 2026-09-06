@@ -1,11 +1,11 @@
 # Installation
 
-## Requirements
+## 1. Requirements
 
 - Python >= 3.12
 - `uv` (recommended) or standard `pip`
 
-## Installing with `uv`
+## 2. Installing with `uv`
 
 You can add `ecu-hockey-calendar` directly to your project using `uv`:
 
@@ -13,7 +13,7 @@ You can add `ecu-hockey-calendar` directly to your project using `uv`:
 uv add ecu-hockey-calendar
 ```
 
-## Installing with `pip`
+## 3. Installing with `pip`
 
 Install from PyPI using pip:
 
@@ -21,7 +21,7 @@ Install from PyPI using pip:
 pip install ecu-hockey-calendar
 ```
 
-## Development Installation
+## 4. Development Installation
 
 To install for local development, clone the repository and run:
 

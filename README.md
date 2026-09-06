@@ -6,14 +6,14 @@ ______________________________________________________________________
 
 **Table of Contents**
 
-- [Table of Contents](#table-of-contents)
-- [Features](#features)
-- [Installation](#installation)
-- [Quickstart](#quickstart)
-- [Development and Contributing](#development-and-contributing)
-  - [Quick Setup](#quick-setup)
-- [Security](#security)
-- [License](#license)
+- [1. Table of Contents](#1-table-of-contents)
+- [2. Features](#2-features)
+- [3. Installation](#3-installation)
+- [4. Quickstart](#4-quickstart)
+- [5. Development and Contributing](#5-development-and-contributing)
+  - [5.1. Quick Setup](#51-quick-setup)
+- [6. Security](#6-security)
+- [7. License](#7-license)
 
 ______________________________________________________________________
 
@@ -34,7 +34,7 @@ A modern, robust Python package for managing collegiate ice hockey schedules, tr
 
 <!-- toc -->
 
-## Table of Contents
+## 1. Table of Contents
 
 - [Features](#features)
 - [Installation](#installation)
@@ -45,7 +45,7 @@ A modern, robust Python package for managing collegiate ice hockey schedules, tr
 
 <!-- tocstop -->
 
-## Features
+## 2. Features
 
 - **Standardized Domain Models**: Fully typed and validated `Team`, `Game`, `GameResult`, and `Schedule` models.
 - **RFC 5545 iCalendar Export**: Generates `.ics` calendar files seamlessly importable into Apple Calendar, Google Calendar, and Microsoft Outlook.
@@ -53,7 +53,7 @@ A modern, robust Python package for managing collegiate ice hockey schedules, tr
 - **Modern Python Architecture**: Managed natively with `uv`, dynamic VCS versioning, strict `ty` static typing, and comprehensive `ruff` linting.
 - **Strict Quality**: 100% line and branch test coverage enforced at all times.
 
-## Installation
+## 3. Installation
 
 Install using `uv`:
 
@@ -67,7 +67,7 @@ Or install with standard `pip`:
 pip install ecu-hockey-calendar
 ```
 
-## Quickstart
+## 4. Quickstart
 
 ```python
 from datetime import UTC, datetime
@@ -103,11 +103,11 @@ json_data = calendar.export_json()
 csv_data = calendar.export_csv()
 ```
 
-## Development and Contributing
+## 5. Development and Contributing
 
 Contributions are welcome! Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).
 
-### Quick Setup
+### 5.1. Quick Setup
 
 ```bash
 # Clone the repository
@@ -121,10 +121,10 @@ make setup
 make check
 ```
 
-## Security
+## 6. Security
 
 Please report vulnerabilities confidentially through GitHub Private Vulnerability Reporting or refer to our [Security Policy](SECURITY.md).
 
-## License
+## 7. License
 
 This project is licensed under the terms of the [MIT License](LICENSE).

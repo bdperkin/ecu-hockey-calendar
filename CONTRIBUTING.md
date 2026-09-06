@@ -6,10 +6,10 @@ ______________________________________________________________________
 
 **Table of Contents**
 
-- [Branching and Pull Request Workflow](#branching-and-pull-request-workflow)
-- [Environment Setup with `uv`](#environment-setup-with-uv)
-- [Development and Make Targets](#development-and-make-targets)
-- [Quality Standards](#quality-standards)
+- [1. Branching and Pull Request Workflow](#1-branching-and-pull-request-workflow)
+- [2. Environment Setup with `uv`](#2-environment-setup-with-uv)
+- [3. Development and Make Targets](#3-development-and-make-targets)
+- [4. Quality Standards](#4-quality-standards)
 
 ______________________________________________________________________
 
@@ -18,7 +18,7 @@ ______________________________________________________________________
 Thank you for your interest in contributing to `ecu-hockey-calendar`!
 We welcome contributions from the community. To ensure high code quality, security, and maintainability, please adhere to the guidelines below.
 
-## Branching and Pull Request Workflow
+## 1. Branching and Pull Request Workflow
 
 1. **Branches and PRs**:
 
@@ -49,7 +49,7 @@ We welcome contributions from the community. To ensure high code quality, securi
      - `ci:` Continuous integration changes.
      - Append `!` (e.g., `feat!:`) for breaking changes (triggers a MAJOR release).
 
-## Environment Setup with `uv`
+## 2. Environment Setup with `uv`
 
 This project natively uses [`uv`](https://docs.astral.sh/uv/) for Python version and package management:
 
@@ -72,7 +72,7 @@ This project natively uses [`uv`](https://docs.astral.sh/uv/) for Python version
    uv run pre-commit install
    ```
 
-## Development and Make Targets
+## 3. Development and Make Targets
 
 We provide a `Makefile` to streamline local developer tasks:
 
@@ -89,7 +89,7 @@ We provide a `Makefile` to streamline local developer tasks:
 - `make check`: Run format verification, linting, typechecking, and test suite.
 - `make clean`: Clean build artifacts, caches, and test logs.
 
-## Quality Standards
+## 4. Quality Standards
 
 - **100% Test Coverage**: Every line and branch must be covered by tests. PRs with coverage under 100% will fail CI.
 - **Strict Typing**: Code must pass `ty check` with zero warnings or errors.

@@ -17,14 +17,14 @@ contributing
 changelog
 ```
 
-## Features
+## 1. Features
 
 - **Standardized Data Models**: Strict typing for teams, games, results, and season schedules.
 - **RFC 5545 iCalendar Export**: Generate calendar files directly importable into Google Calendar, Apple Calendar, and Microsoft Outlook.
 - **Interoperability**: Export to CSV, JSON, and dictionary representations.
 - **Strict Quality**: 100% test coverage, strict type annotations checked by `ty`, and formatting via `ruff`.
 
-## Indices and tables
+## 2. Indices and tables
 
 - {ref}`genindex`
 - {ref}`modindex`

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Development script to update Table of Contents across markdown files.
 
 This script invokes markdown-toc-creator on project documentation and root

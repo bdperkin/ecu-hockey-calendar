@@ -2,7 +2,7 @@
 
 Complete API documentation for `ecu-hockey-calendar`.
 
-## Calendar Service
+## 1. Calendar Service
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.calendar
@@ -10,7 +10,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## Data Models
+## 2. Data Models
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.models

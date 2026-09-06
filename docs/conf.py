@@ -16,6 +16,7 @@ try:
     release = version("ecu-hockey-calendar")
 except PackageNotFoundError:
     release = "0.1.0.dev0"
+
 version = ".".join(release.split(".")[:2])
 
 extensions = [

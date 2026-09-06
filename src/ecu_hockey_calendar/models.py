@@ -51,9 +51,11 @@ class Team:
         if not self.name.strip():
             msg = "Team name cannot be empty."
             raise ValueError(msg)
+
         if not self.city.strip():
             msg = "Team city cannot be empty."
             raise ValueError(msg)
+
         if not self.state.strip():
             msg = "Team state cannot be empty."
             raise ValueError(msg)
@@ -106,9 +108,11 @@ class Game:
         if not self.game_id.strip():
             msg = "Game ID cannot be empty."
             raise ValueError(msg)
+
         if not self.venue.strip():
             msg = "Venue cannot be empty."
             raise ValueError(msg)
+
         if self.home_team == self.away_team:
             msg = "Home and away teams cannot be identical."
             raise ValueError(msg)
@@ -138,8 +142,10 @@ class Game:
         """
         if self.is_home_game(team_name):
             return self.away_team
+
         if self.away_team.name.casefold() == team_name.casefold():
             return self.home_team
+
         msg = f"Team '{team_name}' is not participating in this game."
         raise ValueError(msg)
 
@@ -195,6 +201,7 @@ class Schedule:
         if any(existing.game_id == game.game_id for existing in self.games):
             msg = f"Game with ID '{game.game_id}' already exists in schedule."
             raise ValueError(msg)
+
         self.games.append(game)
         self.games.sort(key=lambda g: g.start_time)
 

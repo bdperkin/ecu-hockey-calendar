@@ -6,16 +6,16 @@ ______________________________________________________________________
 
 **Table of Contents**
 
-- [Supported Versions](#supported-versions)
-- [Reporting a Vulnerability](#reporting-a-vulnerability)
-- [Security Practices](#security-practices)
-- [Response Timelines](#response-timelines)
+- [1. Supported Versions](#1-supported-versions)
+- [2. Reporting a Vulnerability](#2-reporting-a-vulnerability)
+- [3. Security Practices](#3-security-practices)
+- [4. Response Timelines](#4-response-timelines)
 
 ______________________________________________________________________
 
 <!--TOC-->
 
-## Supported Versions
+## 1. Supported Versions
 
 We actively provide security updates and bug fixes for the latest release branch of `ecu-hockey-calendar`:
 
@@ -24,7 +24,7 @@ We actively provide security updates and bug fixes for the latest release branch
 | 0.1.x   | :white_check_mark: |
 | < 0.1.0 | :x:                |
 
-## Reporting a Vulnerability
+## 2. Reporting a Vulnerability
 
 We take the security of `ecu-hockey-calendar` seriously. If you discover a security vulnerability, please do **NOT** open a public GitHub issue.
 
@@ -43,14 +43,14 @@ Instead, please report vulnerabilities privately using one of the following meth
      - Steps to reproduce or proof-of-concept code.
      - Affected versions or components.
 
-## Security Practices
+## 3. Security Practices
 
 - **Automated Dependency Updates**: Dependabot monitors all dependencies and GitHub Actions.
 - **CodeQL Scanning**: Static Application Security Testing (SAST) runs on all pushes and pull requests.
 - **Secret Scanning & Push Protection**: Enabled to block accidental disclosure of API keys and credentials.
 - **Private Vulnerability Reporting**: Enabled for confidential disclosures.
 
-## Response Timelines
+## 4. Response Timelines
 
 - **Initial Response**: Within 48 hours of report submission.
 - **Assessment & Fix**: We strive to triage and remediate critical security issues promptly.

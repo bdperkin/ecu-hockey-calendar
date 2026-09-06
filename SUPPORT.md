@@ -2,7 +2,7 @@
 
 Welcome to the `ecu-hockey-calendar` project support resource.
 
-## How to Get Help
+## 1. How to Get Help
 
 If you have questions, need guidance, or run into issues while using `ecu-hockey-calendar`:
 
@@ -21,6 +21,6 @@ If you have questions, need guidance, or run into issues while using `ecu-hockey
 
    - Please consult [SECURITY.md](SECURITY.md) for confidential vulnerability reporting procedures.
 
-## Contributing Fixes
+## 2. Contributing Fixes
 
 If you know how to resolve an issue or add a feature, we encourage you to read our [CONTRIBUTING.md](CONTRIBUTING.md) guide and submit a Pull Request!

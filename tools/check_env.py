@@ -22,6 +22,7 @@ def check_python_version() -> bool:
     if (major, minor) < (3, 12):
         print("ERROR: Python 3.12 or newer is required.", file=sys.stderr)
         return False
+
     return True
 
 
@@ -38,6 +39,7 @@ def check_command(command: str) -> bool:
     if path:
         print(f"✓ Found '{command}' at {path}")
         return True
+
     print(f"✗ Command '{command}' not found in PATH", file=sys.stderr)
     return False
 
