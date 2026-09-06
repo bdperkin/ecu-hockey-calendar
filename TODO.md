@@ -125,7 +125,7 @@ ______________________________________________________________________
 - [x] **[#4](https://github.com/bdperkin/ecu-hockey-calendar/issues/4) - feat(ingestion): implement ACC Hockey league schedule page parser**
   - **Summary:** Ingest conference games and scores from `https://www.acchockey.com/page/show/9602441-east-carolina`.
   - **Description:** Handle SportEngine markup, normalize opponent names, and capture official conference verification metadata.
-- [ ] **[#5](https://github.com/bdperkin/ecu-hockey-calendar/issues/5) - feat(ingestion): parse ticket sales page for game schedules and promotions**
+- [x] **[#5](https://github.com/bdperkin/ecu-hockey-calendar/issues/5) - feat(ingestion): parse ticket sales page for game schedules and promotions**
   - **Summary:** Scrape ticketing information from `https://www.ecuhockey.com/tickets`.
   - **Description:** Extract home games, promotional theme nights, ticket pricing, and ticketing links to enrich calendar event descriptions.
 

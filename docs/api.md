@@ -89,3 +89,19 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 12. Ticketing & Promotional Theme Parser
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.tickets_parser
+   :members:
+   :show-inheritance:
+```
+
+## 13. Ticketing Crawler
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.tickets_crawler
+   :members:
+   :show-inheritance:
+```
