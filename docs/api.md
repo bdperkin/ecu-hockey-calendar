@@ -73,3 +73,19 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 10. ACCHL Schedule Parser
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.acchockey_parser
+   :members:
+   :show-inheritance:
+```
+
+## 11. ACCHL League Crawler
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.acchockey_crawler
+   :members:
+   :show-inheritance:
+```

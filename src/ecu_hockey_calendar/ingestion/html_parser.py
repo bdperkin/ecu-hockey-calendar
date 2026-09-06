@@ -48,6 +48,8 @@ class ParsedGameRecord:
         away_score: Final away score if completed.
         overtime_note: Suffix such as 'OT' or 'SO' if game went to overtime.
         raw_text: Raw unparsed text line for reference.
+        league_game_id: Official league game identifier (e.g., 'ME-6').
+        metadata: Supplementary verification metadata dictionary.
     """
 
     game_id: str
@@ -60,6 +62,8 @@ class ParsedGameRecord:
     away_score: int | None = None
     overtime_note: str | None = None
     raw_text: str = ""
+    league_game_id: str | None = None
+    metadata: dict[str, object] | None = None
 
     def _determine_loss_result(self) -> GameResult:
         """Helper to distinguish regular loss from overtime/shootout loss."""
