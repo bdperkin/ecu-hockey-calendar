@@ -24,6 +24,7 @@ ______________________________________________________________________
     - [2.5.1. Phase 5.1: Unified Command-Line Interface](#251-phase-51-unified-command-line-interface)
     - [2.5.2. Phase 5.2: Production Deployment Strategy & Hosting Analysis](#252-phase-52-production-deployment-strategy--hosting-analysis)
     - [2.5.3. Phase 5.3: Scheduled Automation & CI Sync Workflows](#253-phase-53-scheduled-automation--ci-sync-workflows)
+    - [2.5.4. Phase 5.4: GitHub Pages Documentation & Static Calendar Deployment](#254-phase-54-github-pages-documentation--static-calendar-deployment)
 
 ______________________________________________________________________
 
@@ -190,3 +191,9 @@ ______________________________________________________________________
 - [ ] **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16) - ci(automation): automated scheduled ingestion and calendar release workflow**
   - **Summary:** GitHub Actions scheduled workflow running periodic syncs and publishing static calendar releases.
   - **Description:** Automate periodic schedule checks, publish calendar artifacts, and trigger webhooks on changes.
+
+#### 2.5.4. Phase 5.4: GitHub Pages Documentation & Static Calendar Deployment
+
+- [ ] **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18) - ci(pages): automated GitHub Pages deployment to \`https://bdperkin.github.io/ecu-hockey-calendar/\`**
+  - **Summary:** Configure automated Sphinx documentation and static calendar asset publishing to GitHub Pages.
+  - **Description:** Implement `.github/workflows/pages.yml` with `actions/upload-pages-artifact` and `actions/deploy-pages`. Build Sphinx documentation with Furo theme and publish static calendar artifacts (`calendar.ics`, `schedule.json`, `schedule.csv`) to `https://bdperkin.github.io/ecu-hockey-calendar/`.
