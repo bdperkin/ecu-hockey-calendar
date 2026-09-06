@@ -22,6 +22,7 @@ version = ".".join(release.split(".")[:2])
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
+    "sphinx.ext.githubpages",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
@@ -61,6 +62,7 @@ myst_heading_anchors = 3
 # HTML output settings
 html_theme = "furo"
 html_title = f"{project} v{release}"
+html_baseurl = "https://bdperkin.github.io/ecu-hockey-calendar/"
 html_static_path = []
 
 intersphinx_mapping = {

@@ -26,6 +26,7 @@ ______________________________________________________________________
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type Checked with ty](https://img.shields.io/badge/type_checker-ty-blueviolet)](https://github.com/astral-sh/ty)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Pages](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/pages.yml/badge.svg)](https://bdperkin.github.io/ecu-hockey-calendar/)
 [![Documentation](https://img.shields.io/badge/docs-Sphinx-blue)](https://bdperkin.github.io/ecu-hockey-calendar/)
 
 East Carolina University - Men's Ice Hockey Team - Calendar.

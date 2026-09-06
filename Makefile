@@ -101,7 +101,7 @@ check: lint typecheck test docs ## Run full validation suite (lint, typecheck, t
 
 .PHONY: clean
 clean: ## Remove temporary build files, cache, and test artifacts
-	rm -rf .venv build dist htmlcov .coverage .coverage.* coverage.xml docs/_build
+	rm -rf .venv build dist htmlcov .coverage .coverage.* coverage.xml junit.xml docs/_build
 	rm -rf .pytest_cache .ruff_cache .ty src/ecu_hockey_calendar/_version.py
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.py[cod]" -delete
