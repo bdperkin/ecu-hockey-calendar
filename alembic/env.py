@@ -11,7 +11,7 @@ from sqlalchemy import engine_from_config, pool
 
 from ecu_hockey_calendar.storage.base import Base
 from ecu_hockey_calendar.storage.engine import get_sync_database_url
-from ecu_hockey_calendar.storage.models import (  # noqa: F401
+from ecu_hockey_calendar.storage.models import (
     DataSourceModel,
     GameModel,
     RawSnapshotModel,
@@ -28,6 +28,28 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
+
+# Ensure all models are loaded for metadata registration
+_ = (
+    DataSourceModel,
+    GameModel,
+    RawSnapshotModel,
+    SyncAuditModel,
+    TeamModel,
+)
+
+__all__ = [
+    "DataSourceModel",
+    "GameModel",
+    "RawSnapshotModel",
+    "SyncAuditModel",
+    "TeamModel",
+    "do_run_migrations",
+    "get_url",
+    "run_migrations_offline",
+    "run_migrations_online",
+    "target_metadata",
+]
 
 
 def get_url() -> str:
