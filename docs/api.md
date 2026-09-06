@@ -17,3 +17,27 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 3. Storage & Relational Persistence Models
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.storage.models
+   :members:
+   :show-inheritance:
+```
+
+## 4. Storage Engine & Session Management
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.storage.engine
+   :members:
+   :show-inheritance:
+```
+
+## 5. Database Schema Migrations
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.storage.migrations
+   :members:
+   :show-inheritance:
+```
