@@ -1,0 +1,94 @@
+---
+ci:
+  autofix_commit_msg: 'style: auto-fixes from pre-commit.ci'
+  autofix_prs: true
+  autoupdate_branch: main
+  autoupdate_commit_msg: 'chore(deps): update pre-commit hooks'
+  autoupdate_schedule: weekly
+  skip: [ty, deptry, vulture, pylint, xenon, markdown-toc-creator]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: detect-private-key
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        additional_dependencies: [tomli]
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: v2.9.0
+    hooks:
+      - id: pyproject-fmt
+  - repo: https://github.com/econchick/interrogate
+    rev: 1.7.0
+    hooks:
+      - id: interrogate
+        args: [--quiet]
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        additional_dependencies: [mdformat-gfm]
+        args: [--number]
+  - repo: https://github.com/jackdewinter/pymarkdown
+    rev: v0.9.39
+    hooks:
+      - id: pymarkdown
+        args: [-c, .pymarkdown.json, scan]
+        exclude: docs/_build
+  - repo: https://github.com/lyz-code/yamlfix
+    rev: 1.9.0
+    hooks:
+      - id: yamlfix
+        additional_dependencies: [maison<2.0.0]
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty type checker
+        entry: ty check
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: deptry
+        name: deptry dependency checker
+        entry: uv run deptry .
+        language: system
+        pass_filenames: false
+      - id: vulture
+        name: vulture dead code checker
+        entry: uv run vulture src tests
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: pylint
+        name: pylint linter
+        entry: uv run pylint src tests
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: xenon
+        name: xenon code complexity
+        entry: uv run xenon --max-absolute A --max-modules A --max-average A src
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: markdown-toc-creator
+        name: markdown-toc-creator
+        entry: uv run python tools/update_toc.py
+        language: system
+        types: [markdown]
+        pass_filenames: false

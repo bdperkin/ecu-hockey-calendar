@@ -1,0 +1,130 @@
+---
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  lint:
+    name: Lint & Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Run Ruff checks
+        run: uv run ruff check src tests tools
+      - name: Run Ruff format check
+        run: uv run ruff format --check src tests tools
+      - name: Run Pylint
+        run: uv run pylint src tests
+      - name: Run Codespell
+        run: uv run codespell
+      - name: Run Interrogate docstring check
+        run: uv run interrogate
+      - name: Run Deptry dependency checker
+        run: uv run deptry .
+      - name: Run Vulture dead code check
+        run: uv run vulture src tests
+      - name: Check code complexity (Radon & Xenon)
+        run: |
+          uv run radon cc src
+          uv run xenon --max-absolute A --max-modules A --max-average A src
+      - name: Check markdown formatting and linting
+        run: |
+          uv run mdformat --check README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
+          uv run pymarkdown -c .pymarkdown.json scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
+      - name: Check YAML formatting
+        run: uv run yamlfix --check codecov.yml .pre-commit-config.yaml .github/dependabot.yml
+          .github/workflows/*.yml
+  typecheck:
+    name: Static Type Checking
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Install ty
+        run: |
+          curl -LsSf https://astral.sh/ty/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Run ty type checking
+        run: ty check
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.13', '3.14']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Run pytest with 100% coverage requirement
+        run: uv run pytest --cov=ecu_hockey_calendar --cov-report=xml --cov-fail-under=100
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          flags: unittests
+          name: codecov-ecu-hockey-calendar
+  docs:
+    name: Documentation Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Build Sphinx Documentation (-W warnings as errors)
+        run: uv run sphinx-build -W -b html docs docs/_build/html
