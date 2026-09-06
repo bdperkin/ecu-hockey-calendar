@@ -121,3 +121,19 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 16. Opponent Schedule Feed & Verification Parser
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.opponent_parser
+   :members:
+   :show-inheritance:
+```
+
+## 17. Opponent Schedule Crawler & Reverse Verification
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.opponent_crawler
+   :members:
+   :show-inheritance:
+```
