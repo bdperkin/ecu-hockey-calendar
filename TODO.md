@@ -194,6 +194,6 @@ ______________________________________________________________________
 
 #### 2.5.4. Phase 5.4: GitHub Pages Documentation & Static Calendar Deployment
 
-- [ ] **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18) - ci(pages): automated GitHub Pages deployment to \`https://bdperkin.github.io/ecu-hockey-calendar/\`**
+- [x] **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18) - ci(pages): automated GitHub Pages deployment to \`https://bdperkin.github.io/ecu-hockey-calendar/\`**
   - **Summary:** Configure automated Sphinx documentation and static calendar asset publishing to GitHub Pages.
   - **Description:** Implement `.github/workflows/pages.yml` with `actions/upload-pages-artifact` and `actions/deploy-pages`. Build Sphinx documentation with Furo theme and publish static calendar artifacts (`calendar.ics`, `schedule.json`, `schedule.csv`) to `https://bdperkin.github.io/ecu-hockey-calendar/`.
