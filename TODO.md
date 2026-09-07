@@ -142,7 +142,7 @@ ______________________________________________________________________
 
 #### 2.3.1. Phase 3.1: Reconciliation & Conflict Resolution
 
-- [ ] **[#8](https://github.com/bdperkin/ecu-hockey-calendar/issues/8) - feat(reconciliation): implement fuzzy-matching and multi-source conflict resolution engine**
+- [x] **[#8](https://github.com/bdperkin/ecu-hockey-calendar/issues/8) - feat(reconciliation): implement fuzzy-matching and multi-source conflict resolution engine**
   - **Summary:** Cross-reference data across disparate sources using deterministic and fuzzy scoring.
   - **Description:** Enforce configurable precedence hierarchy (Primary SOT + League > Ticketing/Social > Opponent). Detect discrepancies and flag high-confidence conflicts for review.
 

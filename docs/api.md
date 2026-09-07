@@ -137,3 +137,35 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 18. Reconciliation Models & Priority Configuration
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.reconciliation.models
+   :members:
+   :show-inheritance:
+```
+
+## 19. Opponent & Venue Fuzzy Matching Engine
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.reconciliation.fuzzy_matcher
+   :members:
+   :show-inheritance:
+```
+
+## 20. Timezone & Schedule Date Aligner
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.reconciliation.date_aligner
+   :members:
+   :show-inheritance:
+```
+
+## 21. Multi-Source Reconciliation & Conflict Engine
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.reconciliation.engine
+   :members:
+   :show-inheritance:
+```
