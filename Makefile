@@ -64,7 +64,7 @@ lint-complexity: ## Check code complexity with radon and xenon
 .PHONY: lint-md
 lint-md: ## Lint markdown files
 	$(UV) run mdformat --check --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
-	$(UV) run pymarkdown -c .pymarkdown.json scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
+	$(UV) run pymarkdown scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
 
 .PHONY: lint-yaml
 lint-yaml: ## Check yaml format

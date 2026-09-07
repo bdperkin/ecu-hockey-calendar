@@ -49,10 +49,7 @@ repos:
       - id: check-docstring-first
       - id: check-executables-have-shebangs
       - id: check-illegal-windows-names
-      - id: check-json
       - id: check-shebang-scripts-are-executable
-      - id: pretty-format-json
-        args: [--autofix, --indent=2, --no-sort-keys]
       - id: check-merge-conflict
       - id: check-toml
       - id: check-vcs-permalinks
@@ -94,11 +91,6 @@ repos:
     rev: 3.11.1
     hooks:
       - id: editorconfig-checker
-  - repo: https://github.com/jsh9/format-json
-    rev: 0.1.2
-    hooks:
-      - id: format-json
-        args: [--autofix, --no-sort-keys]
   - repo: https://github.com/lyz-code/yamlfix
     rev: 1.19.1
     hooks:
@@ -135,7 +127,7 @@ repos:
     rev: v0.9.39
     hooks:
       - id: pymarkdown
-        args: [-c, .pymarkdown.json, scan]
+        args: [scan]
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
