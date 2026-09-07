@@ -2,9 +2,11 @@
 
 import pytest
 
+import ecu_hockey_calendar.reconciliation.fuzzy_matcher as fm
 from ecu_hockey_calendar.reconciliation.fuzzy_matcher import (
     DEFAULT_OPPONENT_MATCH_THRESHOLD,
     DEFAULT_VENUE_MATCH_THRESHOLD,
+    GENERIC_COLLEGE_TERMS,
     _evaluate_stripped_match,
     _score_exact_canonical,
     _score_sequence_ratio,
@@ -172,3 +174,11 @@ def test_compute_venue_similarity_substring_non_alias() -> None:
     """Verify venue substring match when not defined in VENUE_ALIASES."""
     sim = compute_venue_similarity("Apex Ice Center East", "Apex Ice Center")
     assert sim == 1.0
+
+
+def test_generic_college_terms_and_exports() -> None:
+    """Verify generic collegiate terms tuple and public export inclusion."""
+    assert "GENERIC_COLLEGE_TERMS" in fm.__all__
+    assert isinstance(GENERIC_COLLEGE_TERMS, tuple)
+    assert "ice hockey club" in GENERIC_COLLEGE_TERMS
+    assert "university" in GENERIC_COLLEGE_TERMS
