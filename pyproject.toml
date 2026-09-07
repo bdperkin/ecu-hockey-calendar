@@ -259,10 +259,17 @@ tag_format = "v{version}"
 major_on_zero = false
 allow_zero_version = true
 build_command = "uv build"
+no_git_verify = true
+commit_author.default = "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+commit_author.env = "GIT_COMMIT_AUTHOR"
 branches.main.match = "(main|master)"
 branches.main.prerelease = false
 changelog.default_templates.changelog_file = "CHANGELOG.md"
-branch = "main"
+changelog.default_templates.mask_initial_release = true
+changelog.default_templates.output_format = "md"
+changelog.exclude_commit_patterns = []
+changelog.insertion_flag = "<!-- version list -->"
+changelog.mode = "update"
 
 [tool.yamlfix]
 line_length = 88
@@ -282,4 +289,5 @@ exclude = "\\.git|\\.tox|\\.pytest_cache|\\.venv|node_modules"
 
 [tool.pymarkdown]
 plugins.md013.enabled = false
+plugins.md024.siblings_only = true
 plugins.md036.enabled = false
