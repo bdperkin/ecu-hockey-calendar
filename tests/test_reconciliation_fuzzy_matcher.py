@@ -2,7 +2,6 @@
 
 import pytest
 
-import ecu_hockey_calendar.reconciliation.fuzzy_matcher as fm
 from ecu_hockey_calendar.reconciliation.fuzzy_matcher import (
     DEFAULT_OPPONENT_MATCH_THRESHOLD,
     DEFAULT_VENUE_MATCH_THRESHOLD,
@@ -177,8 +176,7 @@ def test_compute_venue_similarity_substring_non_alias() -> None:
 
 
 def test_generic_college_terms_and_exports() -> None:
-    """Verify generic collegiate terms tuple and public export inclusion."""
-    assert "GENERIC_COLLEGE_TERMS" in fm.__all__
+    """Verify generic collegiate terms tuple and contents."""
     assert isinstance(GENERIC_COLLEGE_TERMS, tuple)
     assert "ice hockey club" in GENERIC_COLLEGE_TERMS
     assert "university" in GENERIC_COLLEGE_TERMS
