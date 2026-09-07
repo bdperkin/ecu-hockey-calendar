@@ -40,7 +40,7 @@ repos:
       - id: uv-sync
       - id: uv-audit
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -113,11 +113,11 @@ repos:
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.25
+    rev: '0.26'
     hooks:
       - id: validate-pyproject
   - repo: https://github.com/regebro/pyroma
-    rev: '4.2'
+    rev: '5.1b1'
     hooks:
       - id: pyroma
   - repo: https://github.com/jsh9/markdown-heading-numbering
