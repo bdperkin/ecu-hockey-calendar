@@ -48,7 +48,7 @@ jobs:
       - name: Check markdown formatting and linting
         run: |
           uv run mdformat --check --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
-          uv run pymarkdown -c .pymarkdown.json scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
+          uv run pymarkdown scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
       - name: Check YAML formatting
         run: uv run yamlfix --check codecov.yml .pre-commit-config.yaml .github/dependabot.yml
           .github/workflows/*.yml

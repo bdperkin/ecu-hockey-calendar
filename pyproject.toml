@@ -279,3 +279,7 @@ add_horizontal_rules = true
 horizontal_rule_style = "mdformat"
 skip_first_n_lines = 1
 exclude = "\\.git|\\.tox|\\.pytest_cache|\\.venv|node_modules"
+
+[tool.pymarkdown]
+plugins.md013.enabled = false
+plugins.md036.enabled = false
