@@ -145,6 +145,12 @@ ______________________________________________________________________
 - [x] **[#8](https://github.com/bdperkin/ecu-hockey-calendar/issues/8) - feat(reconciliation): implement fuzzy-matching and multi-source conflict resolution engine**
   - **Summary:** Cross-reference data across disparate sources using deterministic and fuzzy scoring.
   - **Description:** Enforce configurable precedence hierarchy (Primary SOT + League > Ticketing/Social > Opponent). Detect discrepancies and flag high-confidence conflicts for review.
+- [x] **[#39](https://github.com/bdperkin/ecu-hockey-calendar/issues/39) - fix(security): resolve CodeQL alert 12 for unused global variable in fuzzy_matcher**
+  - **Summary:** Export `GENERIC_COLLEGE_TERMS` in `fuzzy_matcher.py` `__all__`.
+  - **Description:** Resolve CodeQL `py/unused-global-variable` alert and verify tuple contents with unit tests.
+- [x] **[#41](https://github.com/bdperkin/ecu-hockey-calendar/issues/41) - fix(security): resolve CodeQL alert 13 for import and import-from in test_reconciliation_fuzzy_matcher**
+  - **Summary:** Remove redundant module alias import in reconciliation test suite.
+  - **Description:** Resolve CodeQL `py/import-and-import-from` alert while preserving test coverage.
 
 #### 2.3.2. Phase 3.2: Change State Detection & Audit History
 
