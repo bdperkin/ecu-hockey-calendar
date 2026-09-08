@@ -8,6 +8,39 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.8.3 (2026-09-08)
+
+### Bug Fixes
+
+- **ci**: Configure Python Semantic Release changelog automation (#45)
+  ([#54](https://github.com/bdperkin/ecu-hockey-calendar/pull/54),
+  [`14f47c8`](https://github.com/bdperkin/ecu-hockey-calendar/commit/14f47c844e4a324ba1b5dbf3673098ba918793c5))
+
+### Chores
+
+- **deps**: Update pre-commit-hooks to v6.0.0 and validate-pyproject to 0.26
+  ([#53](https://github.com/bdperkin/ecu-hockey-calendar/pull/53),
+  [`6484f6b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/6484f6bc983e7018d602be634e55887cd30cf123))
+
+- **roadmap**: Remove ecu_hockey_scraper_prompt.md and audit TODO.md (#47)
+  ([#49](https://github.com/bdperkin/ecu-hockey-calendar/pull/49),
+  [`fa6f121`](https://github.com/bdperkin/ecu-hockey-calendar/commit/fa6f1215ce0976e102d8fe90eaf41aa49cdd3204))
+
+- **tooling**: Migrate PyMarkdown configuration from .pymarkdown.json into pyproject.toml (#44)
+  ([#52](https://github.com/bdperkin/ecu-hockey-calendar/pull/52),
+  [`86aee53`](https://github.com/bdperkin/ecu-hockey-calendar/commit/86aee53b0220b721a6274a9f8f490efc02e92c94))
+
+### Documentation
+
+- **roadmap**: Mark issue #47 complete in TODO.md
+  ([#50](https://github.com/bdperkin/ecu-hockey-calendar/pull/50),
+  [`39d13c8`](https://github.com/bdperkin/ecu-hockey-calendar/commit/39d13c8459d9d30e3b49346b74f7f8dc8727225a))
+
+- **roadmap**: Track CodeQL alert resolutions #39 and #41 in TODO.md
+  ([#43](https://github.com/bdperkin/ecu-hockey-calendar/pull/43),
+  [`0f5a0e2`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0f5a0e2e9b749d72eb3d9f43d8b2ef1ec31bf5e3))
+
+
 ## v0.8.2 (2026-09-07)
 
 ### Bug Fixes
