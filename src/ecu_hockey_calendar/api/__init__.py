@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 from ecu_hockey_calendar.api.app import create_app
+from ecu_hockey_calendar.api.schedule_service import (
+    ScheduleDataService,
+    filter_games,
+    resolve_game_season,
+)
 from ecu_hockey_calendar.api.server import run_server
 from ecu_hockey_calendar.api.service import (
     DEFAULT_ALARM_MINUTES,
@@ -33,11 +38,14 @@ __all__ = [
     "KNOWN_VENUES",
     "CalendarFeedConfig",
     "CalendarFeedService",
+    "ScheduleDataService",
     "VenueDetails",
     "create_app",
     "escape_text",
+    "filter_games",
     "fold_line",
     "generate_game_uid",
+    "resolve_game_season",
     "resolve_venue_details",
     "run_server",
 ]
