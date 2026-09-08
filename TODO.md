@@ -184,7 +184,7 @@ ______________________________________________________________________
 
 #### 2.3.4. Phase 3.4: Webhook Notification Dispatcher
 
-- [ ] **[#15](https://github.com/bdperkin/ecu-hockey-calendar/issues/15) - feat(notifications): multi-platform webhook alerting for schedule updates and conflicts**
+- [x] **[#15](https://github.com/bdperkin/ecu-hockey-calendar/issues/15) - feat(notifications): multi-platform webhook alerting for schedule updates and conflicts** (Merged in [PR #60](https://github.com/bdperkin/ecu-hockey-calendar/pull/60))
   - **Summary:** Broadcast rich notifications to Discord, Slack, and Telegram channels.
   - **Description:** Dispatch formatted embeds for schedule additions, game updates, cancellations, and active conflict alerts.
 
