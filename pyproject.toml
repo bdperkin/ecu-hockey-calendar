@@ -27,8 +27,10 @@ dependencies = [
     "aiosqlite>=0.20.0",
     "alembic>=1.13.0",
     "beautifulsoup4>=4.12.0",
+    "fastapi>=0.141.1",
     "httpx>=0.27.0",
     "sqlalchemy>=2.0.0",
+    "uvicorn>=0.52.4",
 ]
 optional-dependencies.dev = [
     "click>=8.3.3",
@@ -232,6 +234,9 @@ ini_options.filterwarnings = [
     "error",
     "ignore::ResourceWarning",
     "ignore::pytest.PytestUnraisableExceptionWarning",
+    "ignore::starlette.exceptions.StarletteDeprecationWarning",
+    "ignore::DeprecationWarning:anyio.*",
+    "ignore::DeprecationWarning:starlette.*",
 ]
 
 [tool.coverage]
