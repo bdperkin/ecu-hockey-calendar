@@ -133,7 +133,7 @@ def test_health_probe_with_database(tmp_path: Path) -> None:
     assert data["components"]["scrapers"]["sources"][0]["last_scraped_at"] is not None
 
 
-def test_health_probe_database_failure() -> None:
+def test_health_probe_database_failure(caplog: pytest.LogCaptureFixture) -> None:
     """Test GET /health reports 503 when DB probe raises exception."""
     app = create_app()
     mock_engine = MagicMock()
@@ -146,14 +146,18 @@ def test_health_probe_database_failure() -> None:
     assert response.status_code == 503
     data = response.json()
     assert data["status"] == "unhealthy"
-    assert data["components"]["database"]["status"] == "unhealthy"
-    assert "Database unreachable" in data["components"]["database"]["error"]
+    db_comp = data["components"]["database"]
+    assert db_comp["status"] == "unhealthy"
+    assert db_comp["error"] == "Database connectivity probe failed"
+    assert "Database connectivity probe failed: Database unreachable" in caplog.text
 
     head_resp = client.head("/health")
     assert head_resp.status_code == 503
 
 
-def test_health_probe_scraper_override_and_error() -> None:
+def test_health_probe_scraper_override_and_error(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     """Test scraper health override and database query failure fallback."""
     app = create_app()
     app.state.scraper_health_override = {
@@ -190,7 +194,9 @@ def test_health_probe_scraper_override_and_error() -> None:
     ):
         result = _probe_scrapers(dummy_request)
         assert result["status"] == "degraded"
-        assert "Scraper DB lookup failed" in result["error"]
+        assert result["error"] == "Data source probe failed"
+        expected_log = "Scraper health check probe failed: Scraper DB lookup failed"
+        assert expected_log in caplog.text
 
 
 def test_calculate_uptime_none() -> None:
