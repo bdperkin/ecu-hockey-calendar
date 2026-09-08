@@ -262,6 +262,21 @@ build_command = "uv build"
 no_git_verify = true
 commit_author.default = "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 commit_author.env = "GIT_COMMIT_AUTHOR"
+commit_parser_options.allowed_tags = [
+    "build",
+    "chore",
+    "ci",
+    "docs",
+    "feat",
+    "fix",
+    "milestone",
+    "perf",
+    "refactor",
+    "style",
+    "test",
+]
+commit_parser_options.minor_tags = [ "milestone" ]
+commit_parser_options.patch_tags = [ "feat", "fix", "perf" ]
 branches.main.match = "(main|master)"
 branches.main.prerelease = false
 changelog.default_templates.changelog_file = "CHANGELOG.md"

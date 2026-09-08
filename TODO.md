@@ -157,12 +157,12 @@ ______________________________________________________________________
 - [x] **[#44](https://github.com/bdperkin/ecu-hockey-calendar/issues/44) - chore(tooling): migrate PyMarkdown configuration from .pymarkdown.json into pyproject.toml** (Merged in [PR #52](https://github.com/bdperkin/ecu-hockey-calendar/pull/52))
   - **Summary:** Consolidate markdown linter configuration into native `pyproject.toml`.
   - **Description:** Add `[tool.pymarkdown]` section to `pyproject.toml`, remove `.pymarkdown.json`, and update pre-commit / CI invocations.
-- [x] **[#45](https://github.com/bdperkin/ecu-hockey-calendar/issues/45) - fix(ci): investigate and resolve why CHANGELOG.md is not updated by Python Semantic Release**
-  - **Summary:** Configure PSR changelog update insertion markers and CI release permissions.
-  - **Description:** Add `<!-- version list -->` insertion flag to `CHANGELOG.md`, backfill historical release entries, and verify branch write permissions in `.github/workflows/release.yml`.
-- [ ] **[#48](https://github.com/bdperkin/ecu-hockey-calendar/issues/48) - fix(release): diagnose and align release versioning with project milestones (currently at v0.8.2 instead of v0.2.0)**
-  - **Summary:** Reconcile release automation with roadmap milestones.
-  - **Description:** Align PSR commit parser options (patch tags for features during 0.x), configure release triggers, and remediate inflated historical tags/releases (`v0.3.0` through `v0.8.2`).
+- [x] **[#45](https://github.com/bdperkin/ecu-hockey-calendar/issues/45) - fix(ci): investigate and resolve why CHANGELOG.md is not updated by Python Semantic Release** (Merged in [PR #54](https://github.com/bdperkin/ecu-hockey-calendar/pull/54), pre-commit hook fixed in [PR #56](https://github.com/bdperkin/ecu-hockey-calendar/pull/56))
+  - **Summary:** Configure PSR changelog update insertion markers, repository secrets, and CI release permissions.
+  - **Description:** Add `<!-- version list -->` insertion flag to `CHANGELOG.md`, backfill historical release entries, configure `RELEASE_TOKEN` secret for branch protection bypass, and exclude `CHANGELOG.md` from markdown pre-commit hooks.
+- [x] **[#48](https://github.com/bdperkin/ecu-hockey-calendar/issues/48) - fix(release): diagnose and align release versioning with project milestones (currently at v0.8.2 instead of v0.2.0)**
+  - **Summary:** Reconcile release automation with roadmap milestones and remediate release history.
+  - **Description:** Configure PSR commit parser options (`minor_tags = ["milestone"]`, `patch_tags = ["feat", "fix", "perf"]`) for 0.x milestone progression, allow `milestone` type in `conventional-pre-commit`, add `workflow_dispatch` trigger, reset inflated git tags and GitHub releases to canonical `v0.2.0` at Milestone 2 completion, and align `CHANGELOG.md`.
 
 #### 2.3.2. Phase 3.2: Reconciliation & Conflict Resolution Engine
 
