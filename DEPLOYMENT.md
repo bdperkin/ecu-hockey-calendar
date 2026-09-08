@@ -30,6 +30,8 @@ ______________________________________________________________________
   - [6.3. Local Container Deployment with Docker Compose](#63-local-container-deployment-with-docker-compose)
   - [6.4. Running Database Migrations in Container](#64-running-database-migrations-in-container)
   - [6.5. Automated GitHub Actions Container Pipeline](#65-automated-github-actions-container-pipeline)
+  - [6.6. Continuous Deployment with GitHub Actions (`deploy.yml`)](#66-continuous-deployment-with-github-actions--deployyml)
+  - [6.7. Turnkey Infrastructure via Render Blueprint (`render.yaml`)](#67-turnkey-infrastructure-via-render-blueprint--renderyaml)
 - [7. Platform-Specific Deployment Walkthroughs](#7-platform-specific-deployment-walkthroughs)
   - [7.1. Walkthrough A: Deploying to Render](#71-walkthrough-a-deploying-to-render)
   - [7.2. Walkthrough B: Deploying to Railway](#72-walkthrough-b-deploying-to-railway)
@@ -37,6 +39,11 @@ ______________________________________________________________________
 - [8. Operational Runbook & Health Monitoring](#8-operational-runbook--health-monitoring)
   - [8.1. Liveness & Health Probes](#81-liveness--health-probes)
   - [8.2. Operational Commands Quick Reference](#82-operational-commands-quick-reference)
+  - [8.3. Runbook: Investigating & Mitigating Deployment Failures](#83-runbook-investigating--mitigating-deployment-failures)
+    - [8.3.1. Step 1: Inspect GitHub Actions Summary & Job Logs](#831-step-1-inspect-github-actions-summary--job-logs)
+    - [8.3.2. Step 2: Check Cloud Provider Container & Runtime Logs](#832-step-2-check-cloud-provider-container--runtime-logs)
+    - [8.3.3. Step 3: Troubleshoot Database Migration Failures](#833-step-3-troubleshoot-database-migration-failures)
+    - [8.3.4. Step 4: Emergency Rollback Procedure](#834-step-4-emergency-rollback-procedure)
 
 ______________________________________________________________________
 
@@ -376,6 +383,47 @@ Container builds and publications are automated through `.github/workflows/docke
 - **Pull Request Validation**: Validates Docker build integrity on pull requests without pushing to the registry.
 - **Supply-Chain Security**: Generates SLSA build provenance attestations and Software Bill of Materials (SBOM).
 
+### 6.6. Continuous Deployment with GitHub Actions (`deploy.yml`)
+
+The repository includes an automated Continuous Deployment (CD) workflow ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) that orchestrates zero-downtime deployment of published container images to production cloud infrastructure:
+
+- **Automated Triggers**:
+  - Automatically triggers upon successful completion of the `Docker` build-and-publish workflow (`workflow_run`) on branch `main`, deploying the `edge` container tag.
+  - Automatically triggers on new GitHub Releases (`release: [published]`), deploying semantic version tags (`vX.Y.Z`).
+  - Supports manual triggering (`workflow_dispatch`) with environment selection (`production` or `staging`) and custom image tag parameters.
+- **Supported Deployment Mechanisms**:
+  - **Render Deploy Hooks**: Calls a unique webhook URL (`DEPLOY_HOOK_URL`) via HTTP POST to trigger zero-downtime rolling updates.
+  - **Render REST API**: Dispatches deployment via `RENDER_API_KEY` and `RENDER_SERVICE_ID` with explicit image URL referencing `ghcr.io/bdperkin/ecu-hockey-calendar:<tag>`.
+  - **Fly.io Deploy**: Uses `FLY_API_TOKEN` to execute `flyctl deploy --image ...`.
+- **Automated Database Migrations**:
+  - Database schema migrations (`alembic upgrade head`) are executed prior to serving traffic, either via Render / Fly.io release commands or automatically during container startup via `AUTO_MIGRATE=true` (or `ecu-hockey serve --migrate`).
+  - If schema migrations fail, container startup aborts immediately with a non-zero exit code. This prevents container port binding and ensures the load balancer retains existing traffic on the prior healthy version.
+- **Automated Post-Deployment Health Verification**:
+  - Actively polls the public `/health` endpoint (`${PRODUCTION_URL}/health`) up to 30 times (10-second intervals) until the service reports `"status": "healthy"`.
+  - Fails the workflow and emits diagnostic error messages if the service does not become healthy within the timeout window.
+- **GitHub Environments & Secrets Setup**:
+  1. In the repository settings, navigate to **Settings** > **Environments** and create an environment named `production`.
+  2. Add the following secrets / variables:
+     - `DEPLOY_HOOK_URL`: (Required for hook deployment) Webhook deploy URL generated in your hosting dashboard.
+     - `PRODUCTION_URL`: (Required for health probe) Public HTTPS URL of the service (e.g., `https://calendar.ecuhockey.com` or `https://ecu-hockey.onrender.com`).
+     - `RENDER_API_KEY`: (Optional) API key for programmatic Render REST API deployments.
+     - `RENDER_SERVICE_ID`: (Optional) Target Render service identifier (`srv-xxxxxx`).
+     - `FLY_API_TOKEN`: (Optional) Authentication token for Fly.io deployments.
+
+### 6.7. Turnkey Infrastructure via Render Blueprint (`render.yaml`)
+
+A complete Infrastructure-as-Code specification is provided in [`render.yaml`](render.yaml) defining:
+
+- **`ecu-hockey-api` Web Service**: Containerized FastAPI service with auto-scaling, SSL termination, health checking (`/health`), and automated pre-deploy migrations (`alembic upgrade head`).
+- **`ecu-hockey-worker` Cron Job**: Containerized background runner executing `ecu-hockey sync --notify` every 6 hours (`0 */6 * * *`).
+- **`ecu-hockey-db` Database**: Managed PostgreSQL cluster with automated backups and internal network connectivity.
+
+To deploy via Blueprint:
+
+1. Navigate to [dashboard.render.com/blueprints](https://dashboard.render.com/blueprints).
+2. Click **New Blueprint Instance** and connect `bdperkin/ecu-hockey-calendar`.
+3. Render automatically discovers `render.yaml`, provisions the database, wires internal environment variables, and launches both services.
+
 ______________________________________________________________________
 
 ## 7. Platform-Specific Deployment Walkthroughs
@@ -526,3 +574,64 @@ Expected Response:
 | **Export Master ICS Schedule**      | `ecu-hockey export schedule.ics`                                                             |
 | **Apply Database Migrations**       | `uv run alembic upgrade head`                                                                |
 | **Rollback Previous Migration**     | `uv run alembic downgrade -1`                                                                |
+
+### 8.3. Runbook: Investigating & Mitigating Deployment Failures
+
+When a continuous deployment run fails in GitHub Actions or the hosting dashboard:
+
+#### 8.3.1. Step 1: Inspect GitHub Actions Summary & Job Logs
+
+Open the failed **Deploy to Hosting Platform** run under the GitHub repository **Actions** tab:
+
+1. Review the **Continuous Deployment Summary** table to identify the target environment, trigger event, image tag, and failure phase.
+2. If the failure occurred during the **Trigger hosting deployment** step, check the HTTP status code returned by the hosting deploy hook or API. Common causes include rotated deploy hook URLs or expired API tokens.
+3. If the failure occurred during the **Verify post-deployment service health** step, review the polling output to see the HTTP response status code and JSON error payload.
+
+#### 8.3.2. Step 2: Check Cloud Provider Container & Runtime Logs
+
+Inspect the live runtime logs from the cloud platform dashboard:
+
+- **Render**: Navigate to **Web Service** > **Logs**. Look for Python traceback errors, database connection timeouts, or port binding failures.
+- **Railway**: Navigate to **Deployments** > Select active deployment > **View Logs**.
+- **Fly.io**: Run `fly logs -a ecu-hockey-calendar` via terminal.
+
+#### 8.3.3. Step 3: Troubleshoot Database Migration Failures
+
+If the deployment failed during `alembic upgrade head` (either in pre-deploy or container startup):
+
+1. Check the database connectivity string (`DATABASE_URL`). Ensure credentials and network host resolution are valid.
+
+2. Verify the current schema revision in the database:
+
+   ```bash
+   alembic current
+   ```
+
+3. Check for migration locks or conflicts:
+
+   ```bash
+   alembic check
+   ```
+
+4. If a faulty migration was applied, downgrade to the previous revision:
+
+   ```bash
+   alembic downgrade -1
+   ```
+
+#### 8.3.4. Step 4: Emergency Rollback Procedure
+
+If a deployed release introduces critical runtime defects:
+
+1. **PaaS Rollback**: In Render or Railway, open the **Deployments** tab, locate the last known healthy deployment, and click **Rollback to this deploy**. This immediately reverts traffic to the previous container image without rebuilding.
+
+2. **GitHub Actions Rollback**: Manually trigger the **Deploy** workflow (`.github/workflows/deploy.yml`) via `workflow_dispatch`:
+
+   - Select `environment`: `production`
+   - Set `image_tag` to the previous stable release tag (e.g., `v0.4.0`) or git commit SHA.
+
+3. **Verify Restored Health**: Confirm the health probe responds with HTTP 200:
+
+   ```bash
+   curl -f https://your-calendar-domain.com/health | jq .
+   ```

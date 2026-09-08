@@ -42,6 +42,7 @@ COPY --from=builder --chown=appuser:appgroup /app /app
 # Ensure virtual environment binaries are on PATH
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
+    AUTO_MIGRATE=true \
     DATABASE_URL="sqlite:////data/ecu_hockey.db"
 
 # Create persistent storage volume directory

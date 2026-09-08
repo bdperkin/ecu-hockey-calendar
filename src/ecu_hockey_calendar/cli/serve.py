@@ -13,6 +13,7 @@ from rich.text import Text
 
 from ecu_hockey_calendar.api.server import run_server
 from ecu_hockey_calendar.cli.console import get_console, print_banner
+from ecu_hockey_calendar.storage.migrations import run_migrations_upgrade
 
 
 @click.command("serve")
@@ -43,11 +44,19 @@ from ecu_hockey_calendar.cli.console import get_console, print_banner
     default=None,
     help="Database connection URL override (defaults to local SQLite or DATABASE_URL).",
 )
+@click.option(
+    "--migrate/--no-migrate",
+    default=False,
+    envvar="AUTO_MIGRATE",
+    show_default=True,
+    help="Run database schema migrations to head before starting the server.",
+)
 def serve_command(
     host: str,
     port: int,
     reload: bool,
     db_url: str | None,
+    migrate: bool,
 ) -> None:
     """Launch the FastAPI web server locally with Uvicorn."""
     console = get_console()
@@ -55,6 +64,19 @@ def serve_command(
 
     if db_url:
         os.environ["DATABASE_URL"] = db_url
+
+    if migrate:
+        console.print(
+            "[dim]Applying database schema migrations (alembic upgrade head)...[/dim]",
+        )
+        try:
+            run_migrations_upgrade(database_url=db_url)
+            console.print(
+                "[bold green]✓ Schema migrations applied successfully.[/bold green]",
+            )
+        except Exception as exc:
+            console.print(f"[bold red]✗ Database migration failed:[/bold red] {exc}")
+            raise click.ClickException(str(exc)) from exc
 
     base_url = f"http://{host}:{port}"
     banner_text = Text()
