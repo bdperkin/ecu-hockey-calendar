@@ -22,6 +22,8 @@ class GameResult(StrEnum):
     TIE = "T"
     OVERTIME_LOSS = "OTL"
     SCHEDULED = "SCHEDULED"
+    CANCELLED = "CANCELLED"
+    POSTPONED = "POSTPONED"
 
 
 @dataclass(frozen=True, slots=True)
