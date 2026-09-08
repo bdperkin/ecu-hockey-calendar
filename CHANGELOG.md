@@ -8,6 +8,15 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.8.4 (2026-09-08)
+
+### Bug Fixes
+
+- **types**: Resolve ty 0.0.79 redundant condition diagnostics in acchockey_parser
+  ([#55](https://github.com/bdperkin/ecu-hockey-calendar/pull/55),
+  [`107ce03`](https://github.com/bdperkin/ecu-hockey-calendar/commit/107ce033fca762528ba3693a15ba024ea57b62ae))
+
+
 ## v0.8.3 (2026-09-08)
 
 ### Bug Fixes
