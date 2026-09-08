@@ -8,6 +8,29 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.2.4 (2026-09-08)
+
+### Documentation
+
+- Update README.md and Sphinx documentation to reflect current project capabilities (closes #46)
+  ([#65](https://github.com/bdperkin/ecu-hockey-calendar/pull/65),
+  [`7d1480f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7d1480fd5f063984babff62b9cdb0bff2cbe145c))
+
+- **roadmap**: Mark issue #15 complete in TODO.md
+  ([#61](https://github.com/bdperkin/ecu-hockey-calendar/pull/61),
+  [`0c32e6d`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0c32e6db0e9dc57a5010d9dfe57c338dfc1898ae))
+
+- **roadmap**: Track documentation alignment issues #62 and #63 in TODO.md
+  ([#64](https://github.com/bdperkin/ecu-hockey-calendar/pull/64),
+  [`387094b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/387094b6843fc71888ac97c601047fd651f45037))
+
+### Features
+
+- **api**: RFC 5545 iCalendar (.ics) subscription endpoint and webcal support (closes #10)
+  ([#66](https://github.com/bdperkin/ecu-hockey-calendar/pull/66),
+  [`aeca113`](https://github.com/bdperkin/ecu-hockey-calendar/commit/aeca1130a254fd6c9503fdae05318bfc0817f0a9))
+
+
 ## v0.2.3 (2026-09-08)
 
 ### Documentation
