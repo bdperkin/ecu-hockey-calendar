@@ -1,9 +1,20 @@
 ---
 name: Release
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      force_level:
+        description: Release bump level (minor for milestones, patch for bugfixes, major for
+          1.0.0, or auto)
+        required: true
+        default: minor
+        type: choice
+        options: [minor, patch, major, auto]
+      prerelease:
+        description: Release as prerelease
+        required: false
+        default: false
+        type: boolean
 jobs:
   release:
     name: Semantic Release & Changelog
@@ -34,5 +45,17 @@ jobs:
         run: |-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          uv run semantic-release version
+          ARGS=""
+          if [ "${{ inputs.force_level }}" = "minor" ]; then
+            ARGS="--minor"
+          elif [ "${{ inputs.force_level }}" = "patch" ]; then
+            ARGS="--patch"
+          elif [ "${{ inputs.force_level }}" = "major" ]; then
+            ARGS="--major"
+          fi
+          if [ "${{ inputs.prerelease }}" = "true" ]; then
+            ARGS="$ARGS --prerelease"
+          fi
+          # shellcheck disable=SC2086
+          uv run semantic-release version $ARGS
           uv run semantic-release publish
