@@ -21,10 +21,11 @@ ______________________________________________________________________
     - [4.6.3. Health Probes & Administration](#463-health-probes--administration)
   - [4.7. Command-Line Interface (`ecu-hockey`)](#47-command-line-interface--ecu-hockey)
 - [5. Database Schema Migrations](#5-database-schema-migrations)
-- [6. Development and Contributing](#6-development-and-contributing)
-  - [6.1. Quick Setup](#61-quick-setup)
-- [7. Security](#7-security)
-- [8. License](#8-license)
+- [6. Production Deployment & Containerization](#6-production-deployment--containerization)
+- [7. Development and Contributing](#7-development-and-contributing)
+  - [7.1. Quick Setup](#71-quick-setup)
+- [8. Security](#8-security)
+- [9. License](#9-license)
 
 ______________________________________________________________________
 
@@ -114,6 +115,7 @@ flowchart TD
 ## 2. Features
 
 - **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for running sync workflows, inspecting health/telemetry tables, reviewing discrepancies, exporting multi-format schedules, and hosting Uvicorn servers.
+- **Production Containerization & Deployment**: Multi-stage `Dockerfile`, `docker-compose.yml` service orchestration (API, scheduled scraper worker, PostgreSQL), and comprehensive hosting analysis in [`DEPLOYMENT.md`](DEPLOYMENT.md).
 - **Multi-Source Ingestion**: Robust web crawlers for primary schedule documents, ACCHL conference portals, ticketing tiers, social media announcements, and opponent feeds.
 - **Resilient HTTP Client**: Connection pooling, exponential backoff, retry handling for transient errors (429/5xx), and SHA-256 payload caching.
 - **Intelligent Reconciliation**: Transitive clustering, fuzzy opponent/venue matching with mascot stripping, and configurable source precedence hierarchies (Tier 1 SOT/League > Tier 2 Tickets/Social > Tier 3 Opponents).
@@ -400,11 +402,28 @@ uv run alembic downgrade -1
 uv run alembic history
 ```
 
-## 6. Development and Contributing
+## 6. Production Deployment & Containerization
+
+The repository includes a production-ready, multi-stage `Dockerfile` and `docker-compose.yml` for unified local or production orchestration:
+
+```bash
+# Initialize environment configuration
+cp .env.example .env
+
+# Build and launch API, scraper worker, and PostgreSQL
+docker compose up -d --build
+
+# Check health probe
+curl -s http://localhost:8000/health | jq .
+```
+
+For an in-depth architectural comparison of background worker and API hosting providers (Render, Railway, Fly.io, AWS Lambda), persistent storage strategies, SSL/TLS termination requirements, and Instagram anti-bot scraping mitigations, see [`DEPLOYMENT.md`](DEPLOYMENT.md).
+
+## 7. Development and Contributing
 
 Contributions are welcome! Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).
 
-### 6.1. Quick Setup
+### 7.1. Quick Setup
 
 ```bash
 # Clone the repository
@@ -418,10 +437,10 @@ make setup
 make check
 ```
 
-## 7. Security
+## 8. Security
 
 Please report vulnerabilities confidentially through GitHub Private Vulnerability Reporting or refer to our [Security Policy](SECURITY.md).
 
-## 8. License
+## 9. License
 
 This project is licensed under the terms of the [MIT License](LICENSE).

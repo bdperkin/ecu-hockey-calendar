@@ -28,7 +28,7 @@ format: ## Auto-format code, markdown, toml, and yaml
 	$(UV) run ruff format src tests tools
 	$(UV) run ruff check --fix src tests tools
 	$(UV) run pyproject-fmt pyproject.toml || true
-	$(UV) run mdformat --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md || true
+	$(UV) run mdformat --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md DEPLOYMENT.md docs/*.md || true
 	$(UV) run yamlfix codecov.yml .pre-commit-config.yaml .github/dependabot.yml .github/workflows/*.yml
 	$(UV) run python tools/update_toc.py || true
 

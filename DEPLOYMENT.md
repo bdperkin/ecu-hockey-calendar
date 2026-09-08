@@ -1,0 +1,491 @@
+# Production Deployment Guide & Architectural Hosting Analysis
+
+<!--TOC-->
+
+______________________________________________________________________
+
+**Table of Contents**
+
+- [1. System Architecture & Production Topologies](#1-system-architecture--production-topologies)
+- [2. Background Worker Hosting Options Evaluation](#2-background-worker-hosting-options-evaluation)
+  - [2.1. Hosting Options Comparison Matrix](#21-hosting-options-comparison-matrix)
+  - [2.2. Architectural Details by Provider](#22-architectural-details-by-provider)
+    - [2.2.1. Railway Cron & Background Services](#221-railway-cron--background-services)
+    - [2.2.2. Render Background Workers & Cron Jobs](#222-render-background-workers--cron-jobs)
+    - [2.2.3. Fly.io Machines with Scheduled Triggers](#223-flyio-machines-with-scheduled-triggers)
+    - [2.2.4. AWS Lambda + EventBridge + ECR](#224-aws-lambda--eventbridge--ecr)
+- [3. API Hosting Options & SSL/TLS Requirements](#3-api-hosting-options--ssltls-requirements)
+  - [3.1. Provider Evaluation for Calendar API](#31-provider-evaluation-for-calendar-api)
+  - [3.2. Mandatory SSL/TLS & HTTPS Termination Requirements](#32-mandatory-ssltls--https-termination-requirements)
+- [4. Instagram Anti-Bot & Rate Limiting Mitigation Strategy](#4-instagram-anti-bot--rate-limiting-mitigation-strategy)
+  - [4.1. Threat & Limitation Overview](#41-threat--limitation-overview)
+  - [4.2. Mitigation Architecture](#42-mitigation-architecture)
+  - [4.3. Tactical Implementation Steps](#43-tactical-implementation-steps)
+- [5. Database Persistence Strategy: SQLite vs. Managed PostgreSQL](#5-database-persistence-strategy-sqlite-vs-managed-postgresql)
+  - [5.1. Tradeoff Comparison](#51-tradeoff-comparison)
+  - [5.2. Architecture Recommendation](#52-architecture-recommendation)
+- [6. Containerization Guide](#6-containerization-guide)
+  - [6.1. Multi-Stage Dockerfile Architecture](#61-multi-stage-dockerfile-architecture)
+  - [6.2. Local Container Deployment with Docker Compose](#62-local-container-deployment-with-docker-compose)
+  - [6.3. Running Database Migrations in Container](#63-running-database-migrations-in-container)
+- [7. Platform-Specific Deployment Walkthroughs](#7-platform-specific-deployment-walkthroughs)
+  - [7.1. Walkthrough A: Deploying to Render](#71-walkthrough-a-deploying-to-render)
+  - [7.2. Walkthrough B: Deploying to Railway](#72-walkthrough-b-deploying-to-railway)
+  - [7.3. Walkthrough C: Deploying to Fly.io with Persistent SQLite](#73-walkthrough-c-deploying-to-flyio-with-persistent-sqlite)
+- [8. Operational Runbook & Health Monitoring](#8-operational-runbook--health-monitoring)
+  - [8.1. Liveness & Health Probes](#81-liveness--health-probes)
+  - [8.2. Operational Commands Quick Reference](#82-operational-commands-quick-reference)
+
+______________________________________________________________________
+
+<!--TOC-->
+
+This document provides a comprehensive architectural evaluation, operational deployment guide, and hosting analysis for running the **ECU Men's Ice Hockey Calendar** services in production environments. It addresses background worker scheduling, calendar REST API hosting, database persistence strategies, anti-bot scraping mitigations (specifically for Instagram), and container orchestration.
+
+<!-- toc -->
+
+<!-- tocstop -->
+
+______________________________________________________________________
+
+## 1. System Architecture & Production Topologies
+
+The system comprises two core operational workloads:
+
+1. **Calendar & Data API Service**: A lightweight, async [FastAPI](https://fastapi.tiangolo.com/) service serving RFC 5545 iCalendar feeds (`/calendar.ics`), Webcal subscriptions, public JSON/CSV data feeds, and health diagnostics endpoints.
+2. **Scraper & Reconciliation Worker**: A periodic synchronization pipeline that crawls upstream web sources (`ecuhockey.com`, `acchockey.com`, ticketing sites, social media, and opponent schedules), reconciles discrepancies, detects schedule changes, persists updates, and dispatches webhook notifications.
+
+```mermaid
+flowchart TD
+    subgraph INGRESS["External Traffic & Subscriptions"]
+        FANS["Fans & Students (Mobile / Web)"]
+        CAL["Calendar Clients (Apple, Google, Outlook)"]
+        APPS["Downstream Apps & Media (JSON / CSV / RSS)"]
+    end
+
+    subgraph HOSTING["Production Hosting Environment"]
+        LB["TLS / HTTPS Termination Load Balancer"]
+
+        subgraph API_CLUSTER["API Service Tier"]
+            API1["FastAPI Instance (ecu-hockey serve)"]
+        end
+
+        subgraph WORKER_TIER["Background Worker Tier"]
+            CRON["Scheduled Ingestion Worker (ecu-hockey sync)"]
+        end
+
+        subgraph DATA_TIER["Data Persistence Tier"]
+            DB[("Managed PostgreSQL or Persistent SQLite Volume")]
+        end
+    end
+
+    subgraph SOURCES["Upstream Ingestion Sources"]
+        SOT["ECU Primary Site (ecuhockey.com)"]
+        CONF["ACCHL League Site (acchockey.com)"]
+        TIX["Etix Ticketing Portal"]
+        SOC["Instagram & Opponent Calendars"]
+    end
+
+    subgraph NOTIFY["Webhook Alerts"]
+        DISC["Discord Channel"]
+        SLACK["Slack Workspace"]
+        TG["Telegram Group"]
+    end
+
+    FANS --> LB
+    CAL --> LB
+    APPS --> LB
+    LB --> API1
+
+    CRON -->|Scrapes| SOT
+    CRON -->|Scrapes| CONF
+    CRON -->|Scrapes| TIX
+    CRON -->|Scrapes| SOC
+
+    CRON -->|Persists & Reconciles| DB
+    API1 -->|Reads Schedule| DB
+
+    CRON -->|Dispatches Alerts| DISC
+    CRON -->|Dispatches Alerts| SLACK
+    CRON -->|Dispatches Alerts| TG
+```
+
+______________________________________________________________________
+
+## 2. Background Worker Hosting Options Evaluation
+
+The scraper pipeline runs periodically (e.g., every 6–12 hours, or hourly during active season weekends). The following table compares the leading hosting architectures for running this background synchronization process.
+
+### 2.1. Hosting Options Comparison Matrix
+
+| Platform                     | Worker Model                                 | Free / Low-Cost Tier                                | Cold Start Delay                   | Persistent Storage                      | Scheduled Cron Reliability           | Operational Complexity           | Recommendation                   |
+| :--------------------------- | :------------------------------------------- | :-------------------------------------------------- | :--------------------------------- | :-------------------------------------- | :----------------------------------- | :------------------------------- | :------------------------------- |
+| **Railway**                  | Scheduled Service / Cron Job                 | ~$5/mo credit; usage-based ($0.000234/GB-hr)        | Instant (Container start ~3s)      | Persistent Volumes (1GB included)       | Built-in native cron schedule syntax | Low                              | **Top Recommendation**           |
+| **Render**                   | Background Worker / Cron Job                 | ~$7/mo for Background Worker; Cron at $1/mo + usage | Fast (~5s)                         | Render Disks ($0.25/GB/mo)              | Native Cron Job dashboard            | Low                              | **Highly Recommended**           |
+| **Fly.io**                   | Ephemeral Micro-VM / Machine Cron            | Free allowance (3 shared-cpu VMs); ~$3–5/mo         | Sub-second Micro-VM launch         | NVMe Volumes ($0.15/GB/mo)              | Machine cron schedule or standby     | Medium                           | **Strong Contender**             |
+| **AWS Lambda + EventBridge** | Serverless Function triggered by EventBridge | 1M free requests/mo; $0.20 per 1M afterwards        | 2–8s (Python container cold start) | Ephemeral `/tmp` only (requires S3/RDS) | AWS EventBridge 99.99% SLA           | High (IAM, VPC, ECR, CloudWatch) | Best for Enterprise / AWS stacks |
+
+### 2.2. Architectural Details by Provider
+
+#### 2.2.1. Railway Cron & Background Services
+
+- **Architecture**: A containerized job deployed from Dockerfile that triggers on a predefined cron expression (e.g., `0 */6 * * *`) or runs as a daemon sleeping between runs.
+- **Pros**:
+  - Native integration with Railway managed PostgreSQL.
+  - Zero charge when cron service is idle (in cron mode).
+  - Straightforward secrets management and GitHub webhook continuous deployment.
+- **Cons**: Requires billing payment method on file to access usage tier beyond basic free trial.
+
+#### 2.2.2. Render Background Workers & Cron Jobs
+
+- **Architecture**: Render provides dedicated Cron Jobs that spin up container instances according to standard cron syntax, execute `ecu-hockey sync --notify`, and exit upon completion.
+- **Pros**:
+  - Clear separation of web traffic and scheduled background execution.
+  - Automatic email notifications on job exit failure.
+  - Seamless zero-downtime database connection to Render PostgreSQL.
+- **Cons**: Paid plan required for persistent disks if SQLite is chosen instead of managed Postgres.
+
+#### 2.2.3. Fly.io Machines with Scheduled Triggers
+
+- **Architecture**: Standalone Firecracker micro-VMs that start on a schedule or sleep when idle.
+- **Pros**:
+  - Global Anycast network; can locate workers near scraping target endpoints.
+  - Generous free resource allocations.
+  - Direct volume attachment support for SQLite persistence.
+- **Cons**: Managing machine restart states and custom cron logic requires CLI familiarity (`flyctl`).
+
+#### 2.2.4. AWS Lambda + EventBridge + ECR
+
+- **Architecture**: Docker container packaged to Amazon ECR, invoked by an EventBridge Rule schedule.
+- **Pros**:
+  - Virtually free for low-frequency scheduled invocations.
+  - Highly resilient cloud infrastructure.
+- **Cons**:
+  - 15-minute execution limit per invocation.
+  - Complex network setup required to communicate with private RDS instances (NAT Gateway costs ~$32/mo).
+  - Ephemeral disk only, requiring external database or S3 synchronization.
+
+______________________________________________________________________
+
+## 3. API Hosting Options & SSL/TLS Requirements
+
+### 3.1. Provider Evaluation for Calendar API
+
+| Hosting Platform   | Deployment Model     | Free Tier Available?             | Custom Domain & Auto-SSL            | Inactivity Sleep / Cold Starts              | Suitability               |
+| :----------------- | :------------------- | :------------------------------- | :---------------------------------- | :------------------------------------------ | :------------------------ |
+| **Render**         | Docker / Web Service | Yes (Free tier sleeps after 15m) | Yes (Managed Let's Encrypt)         | ~50s spin-up on free tier; 0s on $7 Starter | Excellent ($7/mo Starter) |
+| **Railway**        | Docker Web Service   | Usage credit                     | Yes (Managed Cloudflare / SSL)      | None (always-on)                            | Excellent                 |
+| **Fly.io**         | Anycast Micro-VM     | Yes (Within allowance)           | Yes (Automatic Let's Encrypt certs) | Optional auto-stop/start                    | Excellent                 |
+| **PythonAnywhere** | WSGI Web App         | Yes (Restricted whitelist)       | Paid tier only for custom domains   | No container support; WSGI focused          | Not Recommended           |
+
+> [!WARNING]
+> **Why PythonAnywhere is Not Recommended**:
+>
+> 1. PythonAnywhere is built on WSGI servers and requires cumbersome ASGI bridges for modern FastAPI applications.
+> 2. The free tier strictly enforces an outbound proxy whitelist, blocking scrapers from accessing `ecuhockey.com`, `acchockey.com`, and external ticketing domains.
+> 3. Custom Dockerfiles and multi-container orchestration are unsupported.
+
+### 3.2. Mandatory SSL/TLS & HTTPS Termination Requirements
+
+Calendar clients impose strict cryptographic and protocol requirements on iCalendar feed URLs:
+
+1. **Strict TLS Protocol Enforcement**:
+   - **Google Calendar**, **Apple Calendar (iOS / macOS)**, and **Microsoft Outlook 365** mandate valid, trusted SSL/TLS certificates signed by recognized public Certificate Authorities (CAs). Self-signed certificates will fail silently or be permanently rejected during calendar subscription.
+2. **Webcal Scheme Compatibility**:
+   - The `webcal://` scheme is an unregistered pseudo-protocol that calendar clients handle by replacing `webcal://` with `https://`. Production hosting must terminate HTTPS and redirect HTTP traffic to HTTPS automatically.
+3. **CORS and Content Headers**:
+   - Calendar subscription endpoints must serve:
+     - `Content-Type: text/calendar; charset=utf-8`
+     - `Content-Disposition: inline; filename="calendar.ics"`
+     - `Cache-Control: public, max-age=3600` (or appropriate refresh cadence)
+
+Both **Render**, **Railway**, and **Fly.io** provide automated TLS termination and certificate renewal via Let's Encrypt with zero manual configuration.
+
+______________________________________________________________________
+
+## 4. Instagram Anti-Bot & Rate Limiting Mitigation Strategy
+
+The Instagram crawler inspects official social media announcements for fixture changes and graphic updates. Meta/Instagram deploys aggressive bot detection mechanisms including IP blocking, device fingerprinting, and login wall challenges.
+
+### 4.1. Threat & Limitation Overview
+
+- **IP-Based Throttling**: Requests from standard datacenter cloud IP ranges (AWS, DigitalOcean, Hetzner) are often blocked or served HTTP 429 / HTTP 302 login redirects.
+- **Session Expiration**: Ephemeral session cookies expire quickly, requiring automated refresh mechanisms.
+- **Account Ban Risk**: Automated scrapers logging in with credentials risk account checkpoint flags.
+
+### 4.2. Mitigation Architecture
+
+```mermaid
+flowchart TD
+    SYNC["Ingestion Pipeline"] --> DECIDE{"Source Check"}
+
+    DECIDE -->|Tier 1: SOT & League| DIRECT["Direct Async HTTP Crawl"]
+    DECIDE -->|Tier 2: Instagram| MITIGATE["Mitigation Gateway"]
+
+    subgraph MITIGATION_CONTROLS["Instagram Scraping Mitigations"]
+        PROXY["Rotating Proxy Gateway (Residential / Mobile IP)"]
+        CACHE["SHA-256 ETag & Payload Hash Cache"]
+        BACKOFF["Exponential Backoff & Random Jitter (15–45s)"]
+        FALLBACK["Graceful Non-Blocking Fallback"]
+    end
+
+    MITIGATE --> PROXY
+    MITIGATE --> CACHE
+    MITIGATE --> BACKOFF
+
+    PROXY --> IG["Instagram Public Profile"]
+    CACHE -->|Hit / Unchanged| SKIP["Skip Parse Cycle"]
+    IG -->|Challenge / 429| FALLBACK
+    FALLBACK -->|Log Warning| CONTINUE["Continue Sync without IG Data"]
+```
+
+### 4.3. Tactical Implementation Steps
+
+1. **Rotating Proxy Gateways**:
+
+   - Route Instagram requests through a proxy gateway supporting IP rotation across residential or mobile pools (e.g., Bright Data, ScraperAPI, Oxylabs) by configuring `PROXY_URL` or `HTTP_PROXY`:
+
+     ```bash
+     export PROXY_URL="http://<username>:<password>@residential.proxyprovider.com:8080"
+     ```
+
+2. **Conservative Scraping Frequency**:
+
+   - Scrape Instagram at a low frequency (maximum once every 6 to 12 hours). Schedule checks should be cached using SHA-256 hashes so duplicate requests are bypassed.
+
+3. **Graceful Pipeline Isolation (Non-Fatal Degradation)**:
+
+   - In accordance with the system's reconciliation precedence hierarchy:
+     $$\\text{Tier 1 (Official Site & League)} > \\text{Tier 2 (Instagram & Tickets)} > \\text{Tier 3 (Opponents)}$$
+   - If the Instagram scraper encounters an HTTP 429, CAPTCHA, or connection failure, the error is logged as a warning and the synchronization pipeline proceeds without interruption using the authoritative Tier 1 sources.
+
+4. **Header and User-Agent Randomization**:
+
+   - Rotate realistic desktop and mobile User-Agent strings and include standard `Accept-Language`, `Sec-Fetch-Dest`, and `Sec-Fetch-Mode` headers (already implemented in `ResilientHttpClient`).
+
+______________________________________________________________________
+
+## 5. Database Persistence Strategy: SQLite vs. Managed PostgreSQL
+
+The system uses SQLAlchemy 2.0 ORM with schema migrations managed by Alembic. The database engine transparently supports both SQLite and PostgreSQL.
+
+### 5.1. Tradeoff Comparison
+
+| Factor                 | SQLite on Persistent Volume                            | Managed PostgreSQL (Render / Railway / Supabase)                    |
+| :--------------------- | :----------------------------------------------------- | :------------------------------------------------------------------ |
+| **Architecture**       | Single-file database on local block storage            | Networked relational database server                                |
+| **Write Concurrency**  | Single-writer locking; database locks during ingestion | Multi-version concurrency control (MVCC); concurrent reads & writes |
+| **Horizontal Scaling** | Single instance only (cannot share disk across nodes)  | Multiple API and worker instances can connect concurrently          |
+| **Backups**            | Volume snapshots; manual file copies                   | Automated point-in-time recovery (PITR) & daily snapshots           |
+| **Operational Cost**   | Included in volume cost (~$0.15–$0.25/GB/mo)           | Free tier available; ~$5–$15/mo for production tier                 |
+| **Connection Pooling** | Native file access (zero network overhead)             | SQLAlchemy connection pooling (`QueuePool`, 5–20 connections)       |
+
+### 5.2. Architecture Recommendation
+
+- **Single-Node Deployment (Low Cost / Hobby)**:
+  - Use **SQLite on a Persistent Volume** attached to your container at `/data/ecu_hockey.db`. Set `DATABASE_URL=sqlite:////data/ecu_hockey.db`.
+  - Simple, zero external infrastructure, practically zero monthly cost.
+- **Production Multi-Container Deployment (Recommended)**:
+  - Use **Managed PostgreSQL**. Set `DATABASE_URL=postgresql://<username>:<password>@<host>:5432/ecu_hockey`.
+  - Allows running multiple FastAPI web instances behind a load balancer while a background worker service performs schedule ingestion concurrently without database locks.
+
+______________________________________________________________________
+
+## 6. Containerization Guide
+
+The repository includes a production-ready, multi-stage [`Dockerfile`](Dockerfile) and orchestration configuration in [`docker-compose.yml`](docker-compose.yml).
+
+### 6.1. Multi-Stage Dockerfile Architecture
+
+The build process uses two stages:
+
+1. **`builder` stage**: Uses `ghcr.io/astral-sh/uv` to synchronize dependencies from `uv.lock` in bytecode-compiled format without installing developer dependencies.
+2. **`runtime` stage**: A minimal `python:3.12-slim` image containing only production dependencies, an unprivileged `appuser` (UID 10001), healthcheck utilities, and the project entrypoints.
+
+### 6.2. Local Container Deployment with Docker Compose
+
+To spin up the complete production environment locally (FastAPI service + PostgreSQL + Scraper Worker):
+
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Build and launch containers in detached mode
+docker compose up -d --build
+
+# Verify container health status
+docker compose ps
+
+# View service logs
+docker compose logs -f api
+docker compose logs -f worker
+
+# Test local API health endpoint
+curl -s http://localhost:8000/health | jq .
+
+# Test calendar feed download
+curl -s http://localhost:8000/calendar.ics -o schedule.ics
+```
+
+### 6.3. Running Database Migrations in Container
+
+Alembic migrations run automatically on container startup or manually on demand:
+
+```bash
+# Apply pending schema migrations inside the running API container
+docker compose exec api alembic upgrade head
+
+# Check current revision
+docker compose exec api alembic current
+```
+
+______________________________________________________________________
+
+## 7. Platform-Specific Deployment Walkthroughs
+
+### 7.1. Walkthrough A: Deploying to Render
+
+Render offers an intuitive platform with native Docker support and managed PostgreSQL.
+
+```mermaid
+sequenceDiagram
+    participant GH as GitHub Repository
+    participant R_PG as Render PostgreSQL
+    participant R_WEB as Render Web Service (FastAPI)
+    participant R_CRON as Render Cron Worker
+
+    GH->>R_WEB: Continuous Deployment on main merge
+    GH->>R_CRON: Syncs Docker Image
+    R_WEB->>R_PG: Run migrations (alembic upgrade head)
+    R_WEB->>R_WEB: Starts Uvicorn (ecu-hockey serve)
+    R_CRON->>R_PG: Runs periodic sync (ecu-hockey sync --notify)
+    R_CRON->>R_PG: Persists updated fixtures & change logs
+```
+
+1. **Create PostgreSQL Database**:
+   - Go to [dashboard.render.com](https://dashboard.render.com) > **New +** > **PostgreSQL**.
+   - Name: `ecu-hockey-db`, Database: `ecu_hockey`, Plan: **Free** or **Starter**.
+   - Copy the **Internal Database URL**.
+2. **Deploy API Web Service**:
+   - Click **New +** > **Web Service** > Connect your repository.
+   - Environment: **Docker**.
+   - Docker Command: `alembic upgrade head && ecu-hockey serve --host 0.0.0.0 --port 8000`.
+   - Add Environment Variables:
+     - `DATABASE_URL`: Paste the Internal Database URL from step 1.
+     - `ADMIN_API_TOKEN`: Generate a strong random token.
+     - `DISCORD_WEBHOOK_URL`: (Optional) Your Discord channel webhook.
+3. **Deploy Periodic Scraper Worker**:
+   - Click **New +** > **Cron Job** > Connect your repository.
+   - Environment: **Docker**.
+   - Schedule: `0 */6 * * *` (runs every 6 hours).
+   - Command: `ecu-hockey sync --notify`.
+   - Add Environment Variables (`DATABASE_URL`, webhook URLs).
+
+### 7.2. Walkthrough B: Deploying to Railway
+
+Railway provides instant Docker container deployments with pay-as-you-go pricing.
+
+1. **Initialize Project**:
+   - Open [railway.app](https://railway.app) > **New Project** > **Provision PostgreSQL**.
+2. **Deploy Service from GitHub**:
+   - Click **+ New** > **GitHub Repo** > Select `bdperkin/ecu-hockey-calendar`.
+   - In **Settings** > **Build**, select **Dockerfile**.
+   - Set **Start Command**: `alembic upgrade head && ecu-hockey serve --host 0.0.0.0 --port $PORT`.
+3. **Connect Variables**:
+   - In **Variables**, click **Add Reference** and select `DATABASE_URL` from the PostgreSQL service.
+   - Add `ADMIN_API_TOKEN` and webhook URLs.
+4. **Attach Custom Domain**:
+   - Go to **Networking** > **Custom Domain** > follow DNS CNAME instructions for automatic SSL.
+
+### 7.3. Walkthrough C: Deploying to Fly.io with Persistent SQLite
+
+For maximum simplicity with minimal cost:
+
+1. **Install Fly CLI and Authenticate**:
+
+   ```bash
+   curl -L https://fly.io/install.sh | sh
+   fly auth login
+   ```
+
+2. **Launch Application Configuration**:
+
+   ```bash
+   fly launch --no-deploy
+   ```
+
+3. **Create Persistent Storage Volume**:
+
+   ```bash
+   fly volumes create calendar_data --size 1 --region iad
+   ```
+
+4. **Configure `fly.toml` Mounts**:
+
+   ```toml
+   [mounts]
+     source = "calendar_data"
+     destination = "/data"
+
+   [env]
+     DATABASE_URL = "sqlite:////data/ecu_hockey.db"
+     PORT = "8000"
+
+   [[services]]
+     internal_port = 8000
+     protocol = "tcp"
+     [services.concurrency]
+       hard_limit = 50
+       soft_limit = 35
+     [[services.ports]]
+       handlers = ["http"]
+       port = 80
+       force_https = true
+     [[services.ports]]
+       handlers = ["tls", "http"]
+       port = 443
+   ```
+
+5. **Deploy**:
+
+   ```bash
+   fly deploy
+   ```
+
+______________________________________________________________________
+
+## 8. Operational Runbook & Health Monitoring
+
+### 8.1. Liveness & Health Probes
+
+The API exposes a standardized `/health` endpoint for load balancers and container orchestrators:
+
+```bash
+curl -f https://your-calendar-domain.com/health | jq .
+```
+
+Expected Response:
+
+```json
+{
+  "status": "healthy",
+  "database": "connected",
+  "scrapers": [
+    {"source_code": "ecuhockey", "name": "ECU Hockey Official Schedule", "status": "active"},
+    {"source_code": "acchockey", "name": "ACCHL League Schedule", "status": "active"}
+  ],
+  "timestamp": "2026-09-08T21:00:00Z"
+}
+```
+
+### 8.2. Operational Commands Quick Reference
+
+| Operational Task                    | Command                                                                                      |
+| :---------------------------------- | :------------------------------------------------------------------------------------------- |
+| **Run On-Demand Synchronization**   | `ecu-hockey sync --notify`                                                                   |
+| **Inspect System & Sync Telemetry** | `ecu-hockey status`                                                                          |
+| **List Unresolved Data Conflicts**  | `ecu-hockey conflicts --review-only`                                                         |
+| **Trigger Remote Sync via API**     | `curl -X POST https://api.domain.com/api/v1/sync/trigger -H "Authorization: Bearer <TOKEN>"` |
+| **Export Master ICS Schedule**      | `ecu-hockey export schedule.ics`                                                             |
+| **Apply Database Migrations**       | `uv run alembic upgrade head`                                                                |
+| **Rollback Previous Migration**     | `uv run alembic downgrade -1`                                                                |

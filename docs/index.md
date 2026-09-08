@@ -18,6 +18,7 @@ storage
 reconciliation
 notifications
 api_service
+deployment
 api
 contributing
 changelog

@@ -1,0 +1,83 @@
+---
+services:
+  # Calendar and Schedule REST API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ecu-hockey-calendar:latest
+    container_name: ecu_hockey_api
+    restart: unless-stopped
+    ports: ['${PORT:-8000}:8000']
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://ecu_hockey_user:ecu_hockey_password@db:5432/ecu_hockey}
+      - ADMIN_API_TOKEN=${ADMIN_API_TOKEN:-secret-admin-token-12345}
+      - HOST=0.0.0.0
+      - PORT=8000
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+    volumes: [calendar_data:/data]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [calendar_net]
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:8000/health]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Scraper & Schedule Synchronization Background Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ecu-hockey-calendar:latest
+    container_name: ecu_hockey_worker
+    restart: unless-stopped
+    command: [sh, -c, while true; do ecu-hockey sync --notify; sleep 21600; done]
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://ecu_hockey_user:ecu_hockey_password@db:5432/ecu_hockey}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - PROXY_URL=${PROXY_URL:-}
+    volumes: [calendar_data:/data]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - calendar_net
+
+  # PostgreSQL Relational Database
+  db:
+    image: postgres:16-alpine
+    container_name: ecu_hockey_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ecu_hockey_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecu_hockey_password}
+      POSTGRES_DB: ${POSTGRES_DB:-ecu_hockey}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    networks: [calendar_net]
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-ecu_hockey_user} -d ${POSTGRES_DB:-ecu_hockey}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  postgres_data:
+    name: ecu_hockey_postgres_data
+  calendar_data:
+    name: ecu_hockey_calendar_data
+networks:
+  calendar_net:
+    name: ecu_hockey_network
+    driver: bridge
