@@ -66,6 +66,7 @@ def test_migrations_upgrade_and_downgrade_with_connection() -> None:
             "data_sources",
             "raw_snapshots",
             "sync_audits",
+            "game_changes",
             "alembic_version",
         }
         assert expected_tables.issubset(tables)
@@ -88,6 +89,7 @@ def test_migrations_upgrade_and_downgrade_with_connection() -> None:
         assert "teams" not in tables_after
         assert "games" not in tables_after
         assert "data_sources" not in tables_after
+        assert "game_changes" not in tables_after
 
     engine.dispose()
 

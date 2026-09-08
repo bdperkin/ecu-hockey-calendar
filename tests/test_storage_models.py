@@ -13,6 +13,8 @@ from ecu_hockey_calendar.storage import (
     DataSourceModel,
     DataSourceORM,
     DataSourceType,
+    GameChangeModel,
+    GameChangeORM,
     GameModel,
     GameORM,
     GameStatus,
@@ -44,6 +46,7 @@ def test_model_aliases() -> None:
     assert DataSourceORM is DataSourceModel
     assert RawSnapshotORM is RawSnapshotModel
     assert SyncAuditORM is SyncAuditModel
+    assert GameChangeORM is GameChangeModel
 
 
 def test_enum_values() -> None:
@@ -326,6 +329,65 @@ def test_team_cascade_delete_games(
         assert (
             session.scalar(
                 select(GameModel).where(GameModel.game_id == "G-CASCADE-TEST"),
+            )
+            is None
+        )
+
+
+def test_game_change_model_lifecycle(sync_memory_engine) -> None:
+    """Verify GameChangeModel creation, serialization, relationship, and cascade."""
+    with get_sync_session(sync_memory_engine) as session:
+        audit = SyncAuditModel(
+            sync_cycle_id="cycle-123",
+            status=SyncStatus.SUCCESS.value,
+        )
+        session.add(audit)
+        session.flush()
+
+        change = GameChangeModel(
+            sync_cycle_id="cycle-123",
+            sync_audit_id=audit.id,
+            canonical_game_id="game-20261010-unc-home",
+            change_type="UPDATED",
+            summary="Start time moved from 7:00 PM to 8:30 PM",
+            field_diffs=[
+                {
+                    "field_name": "start_time",
+                    "old_value": "2026-10-10T19:00:00+00:00",
+                    "new_value": "2026-10-10T20:30:00+00:00",
+                    "human_description": "Start time moved from 7:00 PM to 8:30 PM",
+                },
+            ],
+            snapshot_before={"canonical_game_id": "game-20261010-unc-home"},
+            snapshot_after={"canonical_game_id": "game-20261010-unc-home"},
+        )
+        session.add(change)
+        session.flush()
+
+        assert change.id is not None
+        assert change.sync_audit is audit
+        assert audit.game_changes == [change]
+        assert change.recorded_at is not None
+
+        d = change.to_dict()
+        assert d["id"] == change.id
+        assert d["sync_cycle_id"] == "cycle-123"
+        assert d["sync_audit_id"] == audit.id
+        assert d["canonical_game_id"] == "game-20261010-unc-home"
+        assert d["change_type"] == "UPDATED"
+        assert d["summary"] == "Start time moved from 7:00 PM to 8:30 PM"
+        assert len(d["field_diffs"]) == 1
+        assert d["snapshot_before"] == {"canonical_game_id": "game-20261010-unc-home"}
+        assert d["snapshot_after"] == {"canonical_game_id": "game-20261010-unc-home"}
+        assert d["recorded_at"] is not None
+
+        # Deleting audit should cascade delete game_changes
+        session.delete(audit)
+        session.flush()
+
+        assert (
+            session.scalar(
+                select(GameChangeModel).where(GameChangeModel.id == change.id),
             )
             is None
         )

@@ -510,6 +510,11 @@ class SyncAuditModel(Base):
         "DataSourceModel",
         back_populates="sync_audits",
     )
+    game_changes: Mapped[list[GameChangeModel]] = relationship(
+        "GameChangeModel",
+        back_populates="sync_audit",
+        cascade="all, delete-orphan",
+    )
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize sync audit model to dictionary.
@@ -536,17 +541,92 @@ class SyncAuditModel(Base):
         }
 
 
+class GameChangeModel(Base):
+    """Relational model for atomic schedule state transitions and field diffs."""
+
+    __tablename__ = "game_changes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    sync_cycle_id: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+        index=True,
+    )
+    sync_audit_id: Mapped[int | None] = mapped_column(
+        ForeignKey("sync_audits.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    canonical_game_id: Mapped[str] = mapped_column(
+        String(128),
+        nullable=False,
+        index=True,
+    )
+    change_type: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        index=True,
+    )
+    summary: Mapped[str] = mapped_column(String(512), nullable=False)
+    field_diffs: Mapped[list[dict[str, Any]] | None] = mapped_column(
+        JSON,
+        nullable=True,
+    )
+    snapshot_before: Mapped[dict[str, Any] | None] = mapped_column(
+        JSON,
+        nullable=True,
+    )
+    snapshot_after: Mapped[dict[str, Any] | None] = mapped_column(
+        JSON,
+        nullable=True,
+    )
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+    )
+
+    sync_audit: Mapped[SyncAuditModel | None] = relationship(
+        "SyncAuditModel",
+        back_populates="game_changes",
+    )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize game change model to dictionary representation.
+
+        Returns:
+            Dictionary representation of the game change entity.
+        """
+        return {
+            "id": self.id,
+            "sync_cycle_id": self.sync_cycle_id,
+            "sync_audit_id": self.sync_audit_id,
+            "canonical_game_id": self.canonical_game_id,
+            "change_type": self.change_type,
+            "summary": self.summary,
+            "field_diffs": self.field_diffs,
+            "snapshot_before": self.snapshot_before,
+            "snapshot_after": self.snapshot_after,
+            "recorded_at": (self.recorded_at.isoformat() if self.recorded_at else None),
+        }
+
+
 # Model aliases for convenience
 TeamORM = TeamModel
 GameORM = GameModel
 DataSourceORM = DataSourceModel
 RawSnapshotORM = RawSnapshotModel
 SyncAuditORM = SyncAuditModel
+GameChangeORM = GameChangeModel
 
 __all__ = [
     "DataSourceModel",
     "DataSourceORM",
     "DataSourceType",
+    "GameChangeModel",
+    "GameChangeORM",
     "GameModel",
     "GameORM",
     "GameStatus",

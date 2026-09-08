@@ -442,6 +442,49 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
             away_score=self.away_score,
         )
 
+    @classmethod
+    def from_game_model(
+        cls,
+        model: GameModel,
+        *,
+        contributing_sources: list[str] | None = None,
+    ) -> ReconciledGame:
+        """Construct a ReconciledGame instance from a database GameModel entity.
+
+        Args:
+            model: SQLAlchemy GameModel entity.
+            contributing_sources: Optional list of contributing source codes.
+
+        Returns:
+            ReconciledGame instance representing the stored game state.
+        """
+        is_home, opponent = _extract_team_home_and_opponent(
+            model.home_team.name,
+            model.away_team.name,
+        )
+        st = _parse_game_status(model.status)
+        outcome = _parse_game_result(model.result)
+
+        return cls(
+            canonical_game_id=model.game_id,
+            opponent_name=opponent,
+            start_time=model.start_time,
+            venue=model.venue,
+            is_home=is_home,
+            is_time_tbd=False,
+            end_time=model.end_time,
+            status=st,
+            result=outcome,
+            home_score=model.home_score,
+            away_score=model.away_score,
+            contributing_sources=contributing_sources or ["database"],
+            field_provenance={},
+            status_reconciliation=ReconciliationStatus.AUTO_RESOLVED,
+            conflicts=[],
+            requires_admin_review=False,
+            confidence_score=1.0,
+        )
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize reconciled game to dictionary representation."""
         return {
@@ -494,13 +537,184 @@ class ReconciliationCycleResult:
         }
 
 
+class GameStateTransition(StrEnum):
+    """Atomic state transition classification for a schedule game entity."""
+
+    CREATED = "CREATED"
+    UPDATED = "UPDATED"
+    DELETED = "DELETED"
+    CONFLICT_DETECTED = "CONFLICT_DETECTED"
+    UNCHANGED = "UNCHANGED"
+
+
+@dataclass(frozen=True)
+class FieldDiff:
+    """Detailed field-level discrepancy between historical and current game states."""
+
+    field_name: str
+    old_value: Any
+    new_value: Any
+    human_description: str
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize field diff to dictionary representation.
+
+        Returns:
+            Dictionary representation of the field diff.
+        """
+        return {
+            "field_name": self.field_name,
+            "old_value": self.old_value,
+            "new_value": self.new_value,
+            "human_description": self.human_description,
+        }
+
+
+@dataclass
+class GameChangeRecord:
+    """Atomic change recorded for a single game during reconciliation."""
+
+    canonical_game_id: str
+    state_transition: GameStateTransition
+    field_diffs: list[FieldDiff] = dataclass_field(default_factory=list)
+    previous_snapshot: dict[str, Any] | None = None
+    current_snapshot: dict[str, Any] | None = None
+    detected_conflicts: list[DetectedConflict] = dataclass_field(default_factory=list)
+    human_summary: str = ""
+    recorded_at: datetime = dataclass_field(default_factory=lambda: datetime.now(UTC))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize game change record to dictionary representation.
+
+        Returns:
+            Dictionary representation of the game change record.
+        """
+        return {
+            "canonical_game_id": self.canonical_game_id,
+            "state_transition": self.state_transition.value,
+            "field_diffs": [d.to_dict() for d in self.field_diffs],
+            "previous_snapshot": self.previous_snapshot,
+            "current_snapshot": self.current_snapshot,
+            "detected_conflicts": [c.to_dict() for c in self.detected_conflicts],
+            "human_summary": self.human_summary,
+            "recorded_at": self.recorded_at.isoformat(),
+        }
+
+
+@dataclass
+class ChangeDetectionCycleResult:
+    """Summary of changes detected across an entire synchronization cycle."""
+
+    cycle_id: str
+    changes: list[GameChangeRecord] = dataclass_field(default_factory=list)
+    started_at: datetime = dataclass_field(default_factory=lambda: datetime.now(UTC))
+    completed_at: datetime = dataclass_field(default_factory=lambda: datetime.now(UTC))
+
+    @property
+    def created_games(self) -> list[GameChangeRecord]:
+        """Return subset of game change records that were created.
+
+        Returns:
+            List of created game change records.
+        """
+        return [
+            c for c in self.changes if c.state_transition == GameStateTransition.CREATED
+        ]
+
+    @property
+    def updated_games(self) -> list[GameChangeRecord]:
+        """Return subset of game change records that were updated.
+
+        Returns:
+            List of updated game change records.
+        """
+        return [
+            c for c in self.changes if c.state_transition == GameStateTransition.UPDATED
+        ]
+
+    @property
+    def deleted_games(self) -> list[GameChangeRecord]:
+        """Return subset of game change records that were deleted.
+
+        Returns:
+            List of deleted game change records.
+        """
+        return [
+            c for c in self.changes if c.state_transition == GameStateTransition.DELETED
+        ]
+
+    @property
+    def conflict_games(self) -> list[GameChangeRecord]:
+        """Return subset of game change records with detected conflicts.
+
+        Returns:
+            List of conflict game change records.
+        """
+        return [
+            c
+            for c in self.changes
+            if c.state_transition == GameStateTransition.CONFLICT_DETECTED
+        ]
+
+    @property
+    def unchanged_games(self) -> list[GameChangeRecord]:
+        """Return subset of game change records that were unchanged.
+
+        Returns:
+            List of unchanged game change records.
+        """
+        return [
+            c
+            for c in self.changes
+            if c.state_transition == GameStateTransition.UNCHANGED
+        ]
+
+    @property
+    def total_changes(self) -> int:
+        """Return total count of non-trivial schedule changes.
+
+        Returns:
+            Count of changes excluding unchanged transitions.
+        """
+        return len(
+            [
+                c
+                for c in self.changes
+                if c.state_transition != GameStateTransition.UNCHANGED
+            ],
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize change detection cycle result to dictionary representation.
+
+        Returns:
+            Dictionary representation of the change cycle result.
+        """
+        return {
+            "cycle_id": self.cycle_id,
+            "total_changes": self.total_changes,
+            "total_created": len(self.created_games),
+            "total_updated": len(self.updated_games),
+            "total_deleted": len(self.deleted_games),
+            "total_conflicts": len(self.conflict_games),
+            "total_unchanged": len(self.unchanged_games),
+            "changes": [c.to_dict() for c in self.changes],
+            "started_at": self.started_at.isoformat(),
+            "completed_at": self.completed_at.isoformat(),
+        }
+
+
 __all__ = [
     "DEFAULT_SOURCE_TIERS",
     "DEFAULT_SOURCE_TIE_BREAKERS",
+    "ChangeDetectionCycleResult",
     "ConflictField",
     "ConflictSeverity",
     "DetectedConflict",
     "DiscrepancyRecord",
+    "FieldDiff",
+    "GameChangeRecord",
+    "GameStateTransition",
     "ReconciledGame",
     "ReconciliationCycleResult",
     "ReconciliationStatus",

@@ -13,6 +13,7 @@ from ecu_hockey_calendar.storage.base import Base
 from ecu_hockey_calendar.storage.engine import get_sync_database_url
 from ecu_hockey_calendar.storage.models import (
     DataSourceModel,
+    GameChangeModel,
     GameModel,
     RawSnapshotModel,
     SyncAuditModel,
@@ -32,6 +33,7 @@ target_metadata = Base.metadata
 # Ensure all models are loaded for metadata registration
 _ = (
     DataSourceModel,
+    GameChangeModel,
     GameModel,
     RawSnapshotModel,
     SyncAuditModel,
@@ -40,6 +42,7 @@ _ = (
 
 __all__ = [
     "DataSourceModel",
+    "GameChangeModel",
     "GameModel",
     "RawSnapshotModel",
     "SyncAuditModel",
