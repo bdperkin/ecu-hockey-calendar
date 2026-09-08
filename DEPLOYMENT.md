@@ -625,7 +625,7 @@ If a deployed release introduces critical runtime defects:
 
 1. **PaaS Rollback**: In Render or Railway, open the **Deployments** tab, locate the last known healthy deployment, and click **Rollback to this deploy**. This immediately reverts traffic to the previous container image without rebuilding.
 
-2. **GitHub Actions Rollback**: Manually trigger the **Deploy** workflow (`.github/workflows/deploy.yml`) via `workflow_dispatch`:
+2. **GitHub Actions Rollback**: Manually trigger the **Deployment** workflow (`.github/workflows/deploy.yml`) via `workflow_dispatch`:
 
    - Select `environment`: `production`
    - Set `image_tag` to the previous stable release tag (e.g., `v0.4.0`) or git commit SHA.
