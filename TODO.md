@@ -30,6 +30,10 @@ ______________________________________________________________________
     - [2.5.3. Phase 5.3: Scheduled Automation & CI Sync Workflows](#253-phase-53-scheduled-automation--ci-sync-workflows)
     - [2.5.4. Phase 5.4: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#254-phase-54-github-pages-documentation--static-calendar-deployment-complete)
     - [2.5.5. Phase 5.5: Documentation Alignment](#255-phase-55-documentation-alignment)
+  - [2.6. Milestone 6: v0.6.0 - Fan Engagement, Syndication & Export Formats](#26-milestone-6-v060---fan-engagement-syndication--export-formats)
+    - [2.6.1. Phase 6.1: Responsive HTML Interface & Embeds](#261-phase-61-responsive-html-interface--embeds)
+    - [2.6.2. Phase 6.2: RSS / Atom Syndication Feeds](#262-phase-62-rss--atom-syndication-feeds)
+    - [2.6.3. Phase 6.3: Printable Schedule Grid PDF Generation](#263-phase-63-printable-schedule-grid-pdf-generation)
 - [3. CodeQL Security & Quality Audit Trail](#3-codeql-security--quality-audit-trail)
 - [4. Implementation Sequencing & Dependency Graph](#4-implementation-sequencing--dependency-graph)
   - [4.1. Sequencing Rationale](#41-sequencing-rationale)
@@ -258,6 +262,26 @@ ______________________________________________________________________
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect end-to-end capabilities, CLI, and production deployment.
   - **Description:** Document `ecu-hockey` CLI subcommands, production deployment guides, static GitHub Pages calendar feeds, and automated CI workflows.
 
+### 2.6. Milestone 6: v0.6.0 - Fan Engagement, Syndication & Export Formats
+
+#### 2.6.1. Phase 6.1: Responsive HTML Interface & Embeds
+
+- [ ] **[#77](https://github.com/bdperkin/ecu-hockey-calendar/issues/77) - feat(web): responsive HTML schedule view and embeddable iframe widget**
+  - **Summary:** Mobile-first HTML schedule view and lightweight embeddable iframe route powered by Jinja2 templates.
+  - **Description:** Provide `/schedule` web interface with ECU branding, fixture cards, and ticket links, plus `/schedule/embed` stripped-down widget and iframe snippet for external community sites.
+
+#### 2.6.2. Phase 6.2: RSS / Atom Syndication Feeds
+
+- [ ] **[#78](https://github.com/bdperkin/ecu-hockey-calendar/issues/78) - feat(syndication): RSS and Atom XML schedule syndication feeds for media and automation**
+  - **Summary:** Dynamic RSS 2.0 and Atom 1.0 XML feeds powered by `feedgen` for media outlets and automation workflows.
+  - **Description:** Provide `/feed.rss` and `/feed.atom` feeds exposing fixture announcements, time changes, and final scores for integration with Zapier, Make.com, and Discord bots.
+
+#### 2.6.3. Phase 6.3: Printable Schedule Grid PDF Generation
+
+- [ ] **[#79](https://github.com/bdperkin/ecu-hockey-calendar/issues/79) - feat(export): printable schedule grid PDF generation for parents and coaches**
+  - **Summary:** High-fidelity printable PDF schedule export using WeasyPrint for family refrigerators and bench clipboards.
+  - **Description:** Provide `/api/schedule.pdf` and CLI `ecu-hockey export -f pdf` rendering a high-contrast, print-optimized calendar grid on standard US Letter layout.
+
 ______________________________________________________________________
 
 ## 3. CodeQL Security & Quality Audit Trail
@@ -315,6 +339,12 @@ flowchart TD
         T63["#63: README & Sphinx Docs Update (v0.5.0)"]
     end
 
+    subgraph M6["Stage 5: Milestone 6 (Fan Engagement & Formats)"]
+        T77["#77: Responsive HTML View & Embeds"]
+        T78["#78: RSS / Atom Syndication Feeds"]
+        T79["#79: Printable Schedule PDF Export"]
+    end
+
     T47 --> T44
     T44 --> T45
     T45 --> T48
@@ -330,6 +360,9 @@ flowchart TD
     T13 --> T14
     T14 --> T16
     T16 --> T63
+    T63 --> T77
+    T77 --> T78
+    T78 --> T79
 ```
 
 ### 4.1. Sequencing Rationale
@@ -352,3 +385,7 @@ flowchart TD
    - Issue **[#14](https://github.com/bdperkin/ecu-hockey-calendar/issues/14)** analyzes hosting architectures in `DEPLOYMENT.md`.
    - Issue **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16)** automates scheduled ingestion runs in GitHub Actions, publishing static calendar feeds to GitHub Pages (leveraging the pipeline from Issue **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18)**).
    - Issue **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63)** finalizes project documentation, user guides, and Sphinx docs for the CLI and production deployment workflows.
+5. **Milestone 6 (Fan Engagement, Syndication & Export Formats)**:
+   - Issue **[#77](https://github.com/bdperkin/ecu-hockey-calendar/issues/77)** implements the highest-priority direct fan engagement channel: a responsive Jinja2-rendered HTML schedule view (`/schedule`) and stripped-down iframe embed widget (`/schedule/embed`) with zero margin clipping for local blogs and community centers.
+   - Issue **[#78](https://github.com/bdperkin/ecu-hockey-calendar/issues/78)** adds RSS 2.0 and Atom XML syndication feeds using `feedgen` for media outlets, bloggers, and automated Zapier/Make.com workflows.
+   - Issue **[#79](https://github.com/bdperkin/ecu-hockey-calendar/issues/79)** provides printable PDF schedule grid generation via WeasyPrint for coaches, players, and parents needing hard copies for clipboards and refrigerators.
