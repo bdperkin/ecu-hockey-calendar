@@ -160,7 +160,7 @@ ______________________________________________________________________
 - [x] **[#45](https://github.com/bdperkin/ecu-hockey-calendar/issues/45) - fix(ci): investigate and resolve why CHANGELOG.md is not updated by Python Semantic Release** (Merged in [PR #54](https://github.com/bdperkin/ecu-hockey-calendar/pull/54), pre-commit hook fixed in [PR #56](https://github.com/bdperkin/ecu-hockey-calendar/pull/56))
   - **Summary:** Configure PSR changelog update insertion markers, repository secrets, and CI release permissions.
   - **Description:** Add `<!-- version list -->` insertion flag to `CHANGELOG.md`, backfill historical release entries, configure `RELEASE_TOKEN` secret for branch protection bypass, and exclude `CHANGELOG.md` from markdown pre-commit hooks.
-- [x] **[#48](https://github.com/bdperkin/ecu-hockey-calendar/issues/48) - fix(release): diagnose and align release versioning with project milestones (currently at v0.8.2 instead of v0.2.0)**
+- [x] **[#48](https://github.com/bdperkin/ecu-hockey-calendar/issues/48) - fix(release): diagnose and align release versioning with project milestones (currently at v0.8.2 instead of v0.2.0)** (Merged in [PR #57](https://github.com/bdperkin/ecu-hockey-calendar/pull/57))
   - **Summary:** Reconcile release automation with roadmap milestones and remediate release history.
   - **Description:** Configure PSR commit parser options (`minor_tags = ["milestone"]`, `patch_tags = ["feat", "fix", "perf"]`) for 0.x milestone progression, allow `milestone` type in `conventional-pre-commit`, add `workflow_dispatch` trigger, reset inflated git tags and GitHub releases to canonical `v0.2.0` at Milestone 2 completion, and align `CHANGELOG.md`.
 
@@ -178,7 +178,7 @@ ______________________________________________________________________
 
 #### 2.3.3. Phase 3.3: Change State Detection & Audit History
 
-- [ ] **[#9](https://github.com/bdperkin/ecu-hockey-calendar/issues/9) - feat(reconciliation): change detection and sync state tracking engine**
+- [x] **[#9](https://github.com/bdperkin/ecu-hockey-calendar/issues/9) - feat(reconciliation): change detection and sync state tracking engine** (Merged in [PR #58](https://github.com/bdperkin/ecu-hockey-calendar/pull/58))
   - **Summary:** Track atomic game state transitions (`CREATED`, `UPDATED`, `DELETED`, `CONFLICT_DETECTED`).
   - **Description:** Generate field-level diffs, store historical snapshots, and log sync cycle audits.
 
@@ -265,14 +265,14 @@ To optimize delivery velocity and maintain continuous quality, issues are sequen
 
 ```mermaid
 flowchart TD
-    subgraph HYGIENE["Stage 1: Tooling & Release Hygiene (Active)"]
+    subgraph HYGIENE["Stage 1: Tooling & Release Hygiene (Complete)"]
         T47["#47: Remove Prompt & Audit TODO.md"]
         T44["#44: Migrate PyMarkdown to pyproject.toml"]
         T45["#45: Fix Semantic Release CHANGELOG.md"]
         T48["#48: Align Release Versioning with Milestones"]
     end
 
-    subgraph M3["Stage 2: Milestone 3 Completion"]
+    subgraph M3["Stage 2: Milestone 3 Completion (Active)"]
         T9["#9: Change Detection & State Tracking"]
         T15["#15: Webhook Notification Dispatcher"]
         T46["#46: README & Sphinx Docs Update"]
