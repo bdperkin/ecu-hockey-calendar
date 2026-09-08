@@ -8,6 +8,15 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.2.2 (2026-09-08)
+
+### Features
+
+- **reconciliation**: Change detection and sync state tracking engine
+  ([#9](https://github.com/bdperkin/ecu-hockey-calendar/pull/9),
+  [`2665436`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2665436d9fbcc8766d3af609b8fd6ee7e7c9af83))
+
+
 ## v0.2.1 (2026-09-08)
 
 ### Bug Fixes
