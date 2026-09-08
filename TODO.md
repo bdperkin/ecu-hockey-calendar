@@ -230,7 +230,7 @@ ______________________________________________________________________
 
 #### 2.5.1. Phase 5.1: Unified Command-Line Interface
 
-- [ ] **[#13](https://github.com/bdperkin/ecu-hockey-calendar/issues/13) - feat(cli): command-line interface for schedule sync, inspection, and export**
+- [x] **[#13](https://github.com/bdperkin/ecu-hockey-calendar/issues/13) - feat(cli): command-line interface for schedule sync, inspection, and export**
   - **Summary:** Rich CLI interface (`ecu-hockey`) with subcommands: `sync`, `status`, `export`, `conflicts`, and `serve`.
   - **Description:** Provide interactive terminal output using `rich` for formatting, status tables, and diagnostics.
 
