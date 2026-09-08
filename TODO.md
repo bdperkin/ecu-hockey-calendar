@@ -240,7 +240,7 @@ ______________________________________________________________________
 
 #### 2.5.2. Phase 5.2: Production Deployment Strategy & Hosting Analysis
 
-- [ ] **[#14](https://github.com/bdperkin/ecu-hockey-calendar/issues/14) - docs(deployment): architectural hosting analysis and production deployment guide**
+- [x] **[#14](https://github.com/bdperkin/ecu-hockey-calendar/issues/14) - docs(deployment): architectural hosting analysis and production deployment guide**
   - **Summary:** Author `DEPLOYMENT.md` evaluating hosting providers, architecture, and operational practices.
   - **Description:** Compare Render, Railway, Fly.io, and AWS Lambda + EventBridge. Address Instagram rate limits, proxy rotation, persistent database volumes, SSL certificates, and container configuration.
 

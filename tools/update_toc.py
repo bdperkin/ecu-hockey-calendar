@@ -24,6 +24,7 @@ def main() -> int:
         root / "CONTRIBUTING.md",
         root / "SECURITY.md",
         root / "TODO.md",
+        root / "DEPLOYMENT.md",
     ]
 
     cmd = [
