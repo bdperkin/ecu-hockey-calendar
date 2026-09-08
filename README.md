@@ -404,13 +404,26 @@ uv run alembic history
 
 ## 6. Production Deployment & Containerization
 
-The repository includes a production-ready, multi-stage `Dockerfile` and `docker-compose.yml` for unified local or production orchestration:
+Pre-built multi-architecture (`linux/amd64`, `linux/arm64`) container images are automatically published to the GitHub Container Registry on releases and merges to `main`:
+
+```bash
+# Pull the latest published image
+docker pull ghcr.io/bdperkin/ecu-hockey-calendar:latest
+
+# Run the standalone calendar service
+docker run -d --name ecu-hockey -p 8000:8000 ghcr.io/bdperkin/ecu-hockey-calendar:latest
+```
+
+The repository also includes a production-ready, multi-stage `Dockerfile` and `docker-compose.yml` for unified local or production orchestration:
 
 ```bash
 # Initialize environment configuration
 cp .env.example .env
 
-# Build and launch API, scraper worker, and PostgreSQL
+# Launch API, scraper worker, and PostgreSQL using published image
+docker compose up -d
+
+# Or build locally from source
 docker compose up -d --build
 
 # Check health probe

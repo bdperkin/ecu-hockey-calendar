@@ -22,15 +22,30 @@ The production environment separates concerns into two distinct roles:
 
 ## 2. Containerized Deployment
 
+Pre-built multi-architecture container images (`linux/amd64`, `linux/arm64`) are automatically published to the GitHub Container Registry (`ghcr.io/bdperkin/ecu-hockey-calendar`) on tagged releases and pushes to `main`.
+
+### 2.1. Pulling and Running from GHCR
+
+```bash
+# Pull published container image
+docker pull ghcr.io/bdperkin/ecu-hockey-calendar:latest
+
+# Launch container with local port binding
+docker run -d --name ecu-hockey -p 8000:8000 ghcr.io/bdperkin/ecu-hockey-calendar:latest
+```
+
 A production-ready multi-stage `Dockerfile` and `docker-compose.yml` orchestration configuration are included in the repository root.
 
-### 2.1. Quick Container Launch
+### 2.2. Quick Container Launch with Docker Compose
 
 ```bash
 # Initialize environment configuration
 cp .env.example .env
 
-# Start API service, PostgreSQL, and Background Worker
+# Start API service, PostgreSQL, and Background Worker using published image
+docker compose up -d
+
+# Or force local container build
 docker compose up -d --build
 
 # Check container status
@@ -40,7 +55,7 @@ docker compose ps
 curl -s http://localhost:8000/health | jq .
 ```
 
-### 2.2. Database Schema Migrations
+### 2.3. Database Schema Migrations
 
 Database schema migrations are managed via Alembic:
 
