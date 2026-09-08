@@ -209,3 +209,43 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 27. FastAPI Application Factory
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.app
+   :members:
+   :show-inheritance:
+```
+
+## 28. Administrative Authentication & Security
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.auth
+   :members:
+   :show-inheritance:
+```
+
+## 29. Public Schedule Data Service
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.schedule_service
+   :members:
+   :show-inheritance:
+```
+
+## 30. Calendar Feed & iCalendar Service
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.service
+   :members:
+   :show-inheritance:
+```
+
+## 31. Server Execution Utility
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.server
+   :members:
+   :show-inheritance:
+```

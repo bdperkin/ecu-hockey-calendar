@@ -15,6 +15,10 @@ ______________________________________________________________________
   - [4.3. Reconciling Feeds & Resolving Conflicts](#43-reconciling-feeds--resolving-conflicts)
   - [4.4. Relational Persistence & Migrations](#44-relational-persistence--migrations)
   - [4.5. Detecting Schedule Changes & Alerting](#45-detecting-schedule-changes--alerting)
+  - [4.6. Calendar Feeds & REST API Service](#46-calendar-feeds--rest-api-service)
+    - [4.6.1. Calendar Subscription (Apple, Google, Outlook)](#461-calendar-subscription-apple-google-outlook)
+    - [4.6.2. Querying Public Schedule Feeds](#462-querying-public-schedule-feeds)
+    - [4.6.3. Health Probes & Administration](#463-health-probes--administration)
 - [5. Database Schema Migrations](#5-database-schema-migrations)
 - [6. Development and Contributing](#6-development-and-contributing)
   - [6.1. Quick Setup](#61-quick-setup)
@@ -76,18 +80,25 @@ flowchart TD
         D4["Game Change Audit Diffs"]
     end
 
-    subgraph OUT["Calendar & Alert Dispatch"]
-        A1["RFC 5545 iCalendar (.ics)"]
-        A2["Public JSON & CSV Feeds"]
-        A3["Discord Webhook Embeds"]
-        A4["Slack Block Kit Alerts"]
-        A5["Telegram HTML Messages"]
+    subgraph API["FastAPI Calendar & Data Service"]
+        P1["RFC 5545 iCalendar & webcal (/calendar.ics)"]
+        P2["Master Schedule Feeds (/api/schedule.json & .csv)"]
+        P3["OpenAPI Docs (/docs & /redoc)"]
+        P4["Health & Telemetry (/health & /api/v1/sync/status)"]
+        P5["Admin Sync & Conflicts (/api/v1/conflicts)"]
+    end
+
+    subgraph OUT["Alert Dispatch"]
+        A1["Discord Webhook Embeds"]
+        A2["Slack Block Kit Alerts"]
+        A3["Telegram HTML Messages"]
     end
 
     SOT --> WORKER
     WORKER --> REC
     REC --> DB
     REC --> OUT
+    DB --> API
 ```
 
 ## 2. Features
@@ -99,7 +110,10 @@ flowchart TD
 - **Relational Persistence**: SQLAlchemy 2.0 ORM models for SQLite and PostgreSQL with schema migrations managed by Alembic.
 - **Change Detection & Audit Trail**: Real-time diffing of game schedule modifications, cancellations, and conflict flags with full sync cycle telemetry.
 - **Multi-Channel Webhook Notifications**: Rich formatted alert dispatches to Discord, Slack, and Telegram.
-- **RFC 5545 iCalendar & Data Exports**: Export standard `.ics` calendar files, CSV spreadsheets, and structured JSON feeds.
+- **RFC 5545 iCalendar & webcal Feeds**: Live calendar subscription feeds (`/calendar.ics`, `webcal://`) with deterministic UIDs, Eastern Time `VTIMEZONE`, and configurable reminder alarms.
+- **Public Master Schedule Feeds**: Machine-readable JSON (`/api/schedule.json`) and downloadable CSV (`/api/schedule.csv`) feeds with query parameter filtering.
+- **Operational Health & Conflict Administration**: Liveness and database connectivity probes (`/health`), sync cycle telemetry (`/api/v1/sync/status`), on-demand sync triggering (`POST /api/v1/sync/trigger`), and token-authenticated cross-source discrepancy review (`/api/v1/conflicts`).
+- **Interactive Documentation**: Auto-generated interactive Swagger UI (`/docs`), ReDoc (`/redoc`), and OpenAPI 3.1 JSON specifications.
 - **Strict Quality Standards**: 100% test coverage, strict `ty` static typing, and formatting via `ruff`.
 
 ## 3. Installation
@@ -279,6 +293,56 @@ for game in changes.created:
         ],
         timestamp=datetime.now(UTC),
     )
+```
+
+### 4.6. Calendar Feeds & REST API Service
+
+Launch the ASGI server locally to provide live calendar subscriptions and schedule feeds:
+
+```bash
+# Start API service with hot reloading
+uv run uvicorn ecu_hockey_calendar.api.app:create_app --factory --host 127.0.0.1 --port 8000 --reload
+```
+
+#### 4.6.1. Calendar Subscription (Apple, Google, Outlook)
+
+Subscribe to real-time fixture updates using the standard `webcal://` scheme or direct download:
+
+```bash
+# Download RFC 5545 .ics file
+curl -s http://localhost:8000/calendar.ics -o ecu_schedule.ics
+
+# Apple Calendar / macOS instant subscription
+open "webcal://localhost:8000/calendar.ics"
+```
+
+For **Google Calendar** and **Outlook**, add by URL: `https://your-domain.com/calendar.ics`.
+
+#### 4.6.2. Querying Public Schedule Feeds
+
+Retrieve structured JSON or CSV data feeds with filtering:
+
+```bash
+# Query JSON schedule with home match filter
+curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
+
+# Download CSV spreadsheet of scheduled matches
+curl -s "http://localhost:8000/api/schedule.csv?status=SCHEDULED" -o schedule.csv
+```
+
+#### 4.6.3. Health Probes & Administration
+
+```bash
+# Probe system health and database connectivity
+curl -s http://localhost:8000/health | jq .
+
+# Trigger on-demand sync cycle (requires administrative token)
+curl -X POST "http://localhost:8000/api/v1/sync/trigger" \
+  -H "Authorization: Bearer secret-admin-token-12345"
+
+# Inspect cross-source schedule discrepancies
+curl -s "http://localhost:8000/api/v1/conflicts" \
+  -H "Authorization: Bearer secret-admin-token-12345" | jq .
 ```
 
 ## 5. Database Schema Migrations
