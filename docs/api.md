@@ -169,3 +169,43 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 22. Reconciliation Change Detector
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.reconciliation.change_detector
+   :members:
+   :show-inheritance:
+```
+
+## 23. Storage Change Audit Service
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.storage.service
+   :members:
+   :show-inheritance:
+```
+
+## 24. Notification Models & Configuration
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.notifications.models
+   :members:
+   :show-inheritance:
+```
+
+## 25. Webhook Embed & Message Formatters
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.notifications.formatters
+   :members:
+   :show-inheritance:
+```
+
+## 26. Multi-Platform Webhook Dispatcher
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.notifications.dispatcher
+   :members:
+   :show-inheritance:
+```
