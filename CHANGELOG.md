@@ -40,7 +40,6 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
   ([#43](https://github.com/bdperkin/ecu-hockey-calendar/pull/43),
   [`0f5a0e2`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0f5a0e2e9b749d72eb3d9f43d8b2ef1ec31bf5e3))
 
-
 ## v0.8.2 (2026-09-07)
 
 ### Bug Fixes

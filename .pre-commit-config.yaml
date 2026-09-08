@@ -123,6 +123,7 @@ repos:
       - id: mdformat
         additional_dependencies: [mdformat-gfm]
         args: [--number]
+        exclude: ^CHANGELOG\.md$
   - repo: https://github.com/jackdewinter/pymarkdown
     rev: v0.9.39
     hooks:
