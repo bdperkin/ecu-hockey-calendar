@@ -22,11 +22,13 @@ ______________________________________________________________________
   - [2.4. Milestone 4: v0.4.0 - Calendar & Data API Service](#24-milestone-4-v040---calendar--data-api-service)
     - [2.4.1. Phase 4.1: Public Calendar & Data Feeds](#241-phase-41-public-calendar--data-feeds)
     - [2.4.2. Phase 4.2: Diagnostics & Administration Endpoints](#242-phase-42-diagnostics--administration-endpoints)
+    - [2.4.3. Phase 4.3: Documentation Alignment](#243-phase-43-documentation-alignment)
   - [2.5. Milestone 5: v0.5.0 - CLI, Automation & Production Deployment](#25-milestone-5-v050---cli-automation--production-deployment)
     - [2.5.1. Phase 5.1: Unified Command-Line Interface](#251-phase-51-unified-command-line-interface)
     - [2.5.2. Phase 5.2: Production Deployment Strategy & Hosting Analysis](#252-phase-52-production-deployment-strategy--hosting-analysis)
     - [2.5.3. Phase 5.3: Scheduled Automation & CI Sync Workflows](#253-phase-53-scheduled-automation--ci-sync-workflows)
     - [2.5.4. Phase 5.4: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#254-phase-54-github-pages-documentation--static-calendar-deployment-complete)
+    - [2.5.5. Phase 5.5: Documentation Alignment](#255-phase-55-documentation-alignment)
 - [3. CodeQL Security & Quality Audit Trail](#3-codeql-security--quality-audit-trail)
 - [4. Implementation Sequencing & Dependency Graph](#4-implementation-sequencing--dependency-graph)
   - [4.1. Sequencing Rationale](#41-sequencing-rationale)
@@ -211,6 +213,12 @@ ______________________________________________________________________
   - **Summary:** Provide operational endpoints for system health, sync telemetry, and conflict review.
   - **Description:** Implement `/health`, `/api/v1/sync/status`, and `/api/v1/conflicts` with authentication for administrative actions.
 
+#### 2.4.3. Phase 4.3: Documentation Alignment
+
+- [ ] **[#62](https://github.com/bdperkin/ecu-hockey-calendar/issues/62) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
+  - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect public API endpoints and calendar feeds.
+  - **Description:** Document `/calendar.ics`, `/api/schedule.json`, `/api/schedule.csv`, OpenAPI `/docs`, and administration diagnostics endpoints.
+
 ### 2.5. Milestone 5: v0.5.0 - CLI, Automation & Production Deployment
 
 #### 2.5.1. Phase 5.1: Unified Command-Line Interface
@@ -236,6 +244,12 @@ ______________________________________________________________________
 - [x] **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18) - ci(pages): automated GitHub Pages deployment to `https://bdperkin.github.io/ecu-hockey-calendar/`** (Merged in [PR #19](https://github.com/bdperkin/ecu-hockey-calendar/pull/19), [PR #22](https://github.com/bdperkin/ecu-hockey-calendar/pull/22), [PR #23](https://github.com/bdperkin/ecu-hockey-calendar/pull/23))
   - **Summary:** Configure automated Sphinx documentation and static calendar asset publishing to GitHub Pages.
   - **Description:** Implement `.github/workflows/pages.yml` with `actions/upload-pages-artifact` and `actions/deploy-pages`. Build Sphinx documentation with Furo theme and publish static calendar artifacts (`calendar.ics`, `schedule.json`, `schedule.csv`) to `https://bdperkin.github.io/ecu-hockey-calendar/`.
+
+#### 2.5.5. Phase 5.5: Documentation Alignment
+
+- [ ] **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
+  - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect end-to-end capabilities, CLI, and production deployment.
+  - **Description:** Document `ecu-hockey` CLI subcommands, production deployment guides, static GitHub Pages calendar feeds, and automated CI workflows.
 
 ______________________________________________________________________
 
@@ -282,12 +296,14 @@ flowchart TD
         T10["#10: RFC 5545 iCalendar (.ics) Feed"]
         T11["#11: Public JSON & CSV Feeds"]
         T12["#12: Health & Diagnostics Endpoints"]
+        T62["#62: README & Sphinx Docs Update (v0.4.0)"]
     end
 
     subgraph M5["Stage 4: Milestone 5 (CLI, Deployment & Automation)"]
         T13["#13: Unified CLI (ecu-hockey)"]
         T14["#14: DEPLOYMENT.md Hosting Analysis"]
         T16["#16: Scheduled Ingestion CI Workflow"]
+        T63["#63: README & Sphinx Docs Update (v0.5.0)"]
     end
 
     T47 --> T44
@@ -299,9 +315,11 @@ flowchart TD
     T46 --> T10
     T10 --> T11
     T11 --> T12
-    T12 --> T13
+    T12 --> T62
+    T62 --> T13
     T13 --> T14
     T14 --> T16
+    T16 --> T63
 ```
 
 ### 4.1. Sequencing Rationale
@@ -317,7 +335,9 @@ flowchart TD
 3. **Milestone 4 (API Feeds)**:
    - Issues **[#10](https://github.com/bdperkin/ecu-hockey-calendar/issues/10)** and **[#11](https://github.com/bdperkin/ecu-hockey-calendar/issues/11)** expose the reconciled database records as standard RFC 5545 iCalendar (`.ics`), JSON, and CSV feeds via FastAPI.
    - Issue **[#12](https://github.com/bdperkin/ecu-hockey-calendar/issues/12)** adds diagnostics and conflict management endpoints.
+   - Issue **[#62](https://github.com/bdperkin/ecu-hockey-calendar/issues/62)** updates documentation and Sphinx guides for calendar feeds and API operational endpoints.
 4. **Milestone 5 (CLI, Deployment & Automation)**:
    - Issue **[#13](https://github.com/bdperkin/ecu-hockey-calendar/issues/13)** unifies crawlers, reconciliation, database operations, and API serving into an interactive CLI.
    - Issue **[#14](https://github.com/bdperkin/ecu-hockey-calendar/issues/14)** analyzes hosting architectures in `DEPLOYMENT.md`.
    - Issue **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16)** automates scheduled ingestion runs in GitHub Actions, publishing static calendar feeds to GitHub Pages (leveraging the pipeline from Issue **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18)**).
+   - Issue **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63)** finalizes project documentation, user guides, and Sphinx docs for the CLI and production deployment workflows.
