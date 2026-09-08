@@ -209,7 +209,7 @@ ______________________________________________________________________
 
 #### 2.4.2. Phase 4.2: Diagnostics & Administration Endpoints
 
-- [ ] **[#12](https://github.com/bdperkin/ecu-hockey-calendar/issues/12) - feat(api): health check, sync diagnostics, and conflict review endpoints**
+- [x] **[#12](https://github.com/bdperkin/ecu-hockey-calendar/issues/12) - feat(api): health check, sync diagnostics, and conflict review endpoints**
   - **Summary:** Provide operational endpoints for system health, sync telemetry, and conflict review.
   - **Description:** Implement `/health`, `/api/v1/sync/status`, and `/api/v1/conflicts` with authentication for administrative actions.
 

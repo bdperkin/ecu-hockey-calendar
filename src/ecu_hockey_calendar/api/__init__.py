@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from ecu_hockey_calendar.api.app import create_app
+from ecu_hockey_calendar.api.auth import resolve_admin_token, verify_admin_token
 from ecu_hockey_calendar.api.schedule_service import (
     ScheduleDataService,
     filter_games,
@@ -45,7 +46,9 @@ __all__ = [
     "filter_games",
     "fold_line",
     "generate_game_uid",
+    "resolve_admin_token",
     "resolve_game_season",
     "resolve_venue_details",
     "run_server",
+    "verify_admin_token",
 ]
