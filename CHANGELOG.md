@@ -8,6 +8,15 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.2.5 (2026-09-08)
+
+### Features
+
+- **api**: Public JSON and CSV master schedule data feeds (closes #11)
+  ([#67](https://github.com/bdperkin/ecu-hockey-calendar/pull/67),
+  [`9736b10`](https://github.com/bdperkin/ecu-hockey-calendar/commit/9736b1086e4cfdc4efaa8662849b20d5d72f38fd))
+
+
 ## v0.2.4 (2026-09-08)
 
 ### Documentation
