@@ -31,7 +31,8 @@ ______________________________________________________________________
     - [2.5.4. Phase 5.4: Automated Production Deployment to Hosting Service](#254-phase-54-automated-production-deployment-to-hosting-service)
     - [2.5.5. Phase 5.5: Scheduled Automation & CI Sync Workflows](#255-phase-55-scheduled-automation--ci-sync-workflows)
     - [2.5.6. Phase 5.6: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#256-phase-56-github-pages-documentation--static-calendar-deployment-complete)
-    - [2.5.7. Phase 5.7: Documentation Alignment](#257-phase-57-documentation-alignment)
+    - [2.5.7. Phase 5.7: Repository Badges & Status Indicators](#257-phase-57-repository-badges--status-indicators)
+    - [2.5.8. Phase 5.8: Documentation Alignment](#258-phase-58-documentation-alignment)
   - [2.6. Milestone 6: v0.6.0 - Fan Engagement, Syndication & Export Formats](#26-milestone-6-v060---fan-engagement-syndication--export-formats)
     - [2.6.1. Phase 6.1: Responsive HTML Interface & Embeds](#261-phase-61-responsive-html-interface--embeds)
     - [2.6.2. Phase 6.2: RSS / Atom Syndication Feeds](#262-phase-62-rss--atom-syndication-feeds)
@@ -270,7 +271,13 @@ ______________________________________________________________________
   - **Summary:** Configure automated Sphinx documentation and static calendar asset publishing to GitHub Pages.
   - **Description:** Implement `.github/workflows/pages.yml` with `actions/upload-pages-artifact` and `actions/deploy-pages`. Build Sphinx documentation with Furo theme and publish static calendar artifacts (`calendar.ics`, `schedule.json`, `schedule.csv`) to `https://bdperkin.github.io/ecu-hockey-calendar/`.
 
-#### 2.5.7. Phase 5.7: Documentation Alignment
+#### 2.5.7. Phase 5.7: Repository Badges & Status Indicators
+
+- [ ] **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86) - docs(readme): audit project and implement missing status, quality, and technology badges**
+  - **Summary:** Audit project workflows, security, and dependencies, and add missing badges to `README.md`.
+  - **Description:** Identify and incorporate status badges for GitHub Pages documentation, CodeQL security scanning, pre-commit.ci, dependency review, semantic release, FastAPI, SQLAlchemy, and license/security policies into logically organized badge sections.
+
+#### 2.5.8. Phase 5.8: Documentation Alignment
 
 - [ ] **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect end-to-end capabilities, CLI, and production deployment.
@@ -352,6 +359,7 @@ flowchart TD
         T82["#82: Container Publication to GHCR"]
         T84["#84: Production Deployment via GH Actions"]
         T16["#16: Scheduled Ingestion CI Workflow"]
+        T86["#86: README Badges Audit & Addition"]
         T63["#63: README & Sphinx Docs Update (v0.5.0)"]
     end
 
@@ -377,7 +385,8 @@ flowchart TD
     T14 --> T82
     T82 --> T84
     T84 --> T16
-    T16 --> T63
+    T16 --> T86
+    T86 --> T63
     T63 --> T77
     T77 --> T78
     T78 --> T79
@@ -404,6 +413,7 @@ flowchart TD
    - Issue **[#82](https://github.com/bdperkin/ecu-hockey-calendar/issues/82)** establishes automated multi-architecture Docker container building and publication to `ghcr.io` via GitHub Actions.
    - Issue **[#84](https://github.com/bdperkin/ecu-hockey-calendar/issues/84)** implements automated continuous deployment of published containers to a cloud hosting platform with database migration execution and health check verification.
    - Issue **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16)** automates scheduled ingestion runs in GitHub Actions, publishing static calendar feeds to GitHub Pages (leveraging the pipeline from Issue **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18)**).
+   - Issue **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86)** audits repository workflows, security configurations, and technology stack, implementing all missing status, quality, and registry badges in `README.md`.
    - Issue **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63)** finalizes project documentation, user guides, and Sphinx docs for the CLI and production deployment workflows.
 5. **Milestone 6 (Fan Engagement, Syndication & Export Formats)**:
    - Issue **[#77](https://github.com/bdperkin/ecu-hockey-calendar/issues/77)** implements the highest-priority direct fan engagement channel: a responsive Jinja2-rendered HTML schedule view (`/schedule`) and stripped-down iframe embed widget (`/schedule/embed`) with zero margin clipping for local blogs and community centers.
