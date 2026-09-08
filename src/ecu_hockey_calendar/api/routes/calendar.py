@@ -3,82 +3,23 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, Query, Request, Response, status
 from fastapi.responses import RedirectResponse
-from sqlalchemy import select
 
+from ecu_hockey_calendar.api.routes.common import (
+    check_conditional_headers,
+    get_active_games,
+)
 from ecu_hockey_calendar.api.service import (
     DEFAULT_ALARM_MINUTES,
     DEFAULT_CACHE_MAX_AGE,
     DEFAULT_STALE_WHILE_REVALIDATE,
     CalendarFeedService,
 )
-from ecu_hockey_calendar.storage.engine import get_sync_session
-from ecu_hockey_calendar.storage.models import GameModel
-
-if TYPE_CHECKING:
-    from ecu_hockey_calendar.models import Game
 
 router = APIRouter(tags=["Calendar"])
-
-
-def _extract_games_from_database(
-    request: Request,
-    season: str | None = None,
-) -> list[Game]:
-    """Retrieve games from database storage or return empty list.
-
-    Args:
-        request: Incoming FastAPI HTTP request.
-        season: Optional season filter string.
-
-    Returns:
-        List of domain Game entities.
-    """
-    engine = getattr(request.app.state, "db_engine", None)
-    if engine is None:
-        return []
-
-    with get_sync_session(engine) as session:
-        stmt = select(GameModel)
-        if season:
-            stmt = stmt.where(GameModel.season == season)
-
-        orm_games = session.scalars(stmt).all()
-        return [g.to_domain() for g in orm_games]
-
-
-def _get_active_games(
-    request: Request,
-    season: str | None = None,
-) -> list[Game]:
-    """Resolve games from database or fall back to application state defaults.
-
-    Args:
-        request: Incoming FastAPI request.
-        season: Optional season filter.
-
-    Returns:
-        List of domain Game objects.
-    """
-    # 1. Check if mock/static games were explicitly set on app state (useful for tests)
-    override_games = getattr(request.app.state, "games_override", None)
-    if override_games is not None:
-        return list(override_games)
-
-    # 2. Query database
-    db_games = _extract_games_from_database(request, season)
-    if db_games:
-        return db_games
-
-    # 3. Fall back to default calendar schedule if present
-    default_cal = getattr(request.app.state, "default_calendar", None)
-    if default_cal is not None:
-        return list(default_cal.schedule.games)
-
-    return []
 
 
 def _build_webcal_url(request: Request) -> str:
@@ -92,56 +33,6 @@ def _build_webcal_url(request: Request) -> str:
     """
     raw_url = str(request.url)
     return re.sub(r"^https?://", "webcal://", raw_url)
-
-
-def _is_etag_fresh(client_etag: str | None, current_etag: str) -> bool:
-    """Check whether client ETag matches current ETag (strong or weak)."""
-    if not client_etag:
-        return False
-
-    clean = client_etag.strip()
-    return clean in (current_etag, f"W/{current_etag}")
-
-
-def _is_modified_since_fresh(
-    header_val: str | None,
-    last_modified_str: str,
-    feed_service: CalendarFeedService,
-) -> bool:
-    """Check whether If-Modified-Since date indicates cached feed is fresh."""
-    if not header_val:
-        return False
-
-    client_dt = feed_service.parse_http_date(header_val)
-    current_dt = feed_service.parse_http_date(last_modified_str)
-    return bool(client_dt and current_dt and client_dt >= current_dt)
-
-
-def _check_conditional_headers(
-    request: Request,
-    etag: str,
-    last_modified_str: str,
-    feed_service: CalendarFeedService,
-) -> bool:
-    """Check If-None-Match and If-Modified-Since conditional request headers.
-
-    Args:
-        request: Incoming request.
-        etag: Current calculated ETag.
-        last_modified_str: Current Last-Modified HTTP date string.
-        feed_service: CalendarFeedService instance.
-
-    Returns:
-        True if client cache is still fresh (304 Not Modified), False otherwise.
-    """
-    if _is_etag_fresh(request.headers.get("if-none-match"), etag):
-        return True
-
-    return _is_modified_since_fresh(
-        request.headers.get("if-modified-since"),
-        last_modified_str,
-        feed_service,
-    )
 
 
 @router.get(
@@ -211,7 +102,7 @@ def get_calendar_feed(
             status_code=status.HTTP_307_TEMPORARY_REDIRECT,
         )
 
-    games = _get_active_games(request, season)
+    games = get_active_games(request, season)
     feed_service: CalendarFeedService = getattr(
         request.app.state,
         "calendar_service",
@@ -244,7 +135,7 @@ def get_calendar_feed(
     }
 
     # Evaluate conditional request
-    if _check_conditional_headers(request, etag, last_mod_str, feed_service):
+    if check_conditional_headers(request, etag, last_mod_str):
         return Response(
             status_code=status.HTTP_304_NOT_MODIFIED,
             headers=headers,

@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, Any
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from ecu_hockey_calendar.api.routes import calendar_router
+from ecu_hockey_calendar.api.routes import calendar_router, schedule_router
+from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
 from ecu_hockey_calendar.api.service import CalendarFeedService
 from ecu_hockey_calendar.calendar import ECUHockeyCalendar
 from ecu_hockey_calendar.storage.engine import create_sync_engine
@@ -82,6 +83,7 @@ def create_app(
 
     # Initialize application state dependencies
     app.state.calendar_service = CalendarFeedService()
+    app.state.schedule_service = ScheduleDataService()
     app.state.default_calendar = ECUHockeyCalendar()
 
     if database_url is not None:
@@ -91,6 +93,7 @@ def create_app(
 
     # Include routes
     app.include_router(calendar_router)
+    app.include_router(schedule_router)
 
     @app.get(
         "/",
@@ -105,6 +108,8 @@ def create_app(
             "status": "online",
             "endpoints": {
                 "calendar_ics": "/calendar.ics",
+                "schedule_json": "/api/schedule.json",
+                "schedule_csv": "/api/schedule.csv",
                 "docs": "/docs",
                 "redoc": "/redoc",
                 "openapi": "/openapi.json",
