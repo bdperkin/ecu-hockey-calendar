@@ -8,6 +8,15 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.2.6 (2026-09-08)
+
+### Features
+
+- **api**: Health check, sync diagnostics, and conflict review endpoints (closes #12)
+  ([#68](https://github.com/bdperkin/ecu-hockey-calendar/pull/68),
+  [`5cfc7f0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/5cfc7f082bd957d03d306c55f5830930c3d9827c))
+
+
 ## v0.2.5 (2026-09-08)
 
 ### Features
