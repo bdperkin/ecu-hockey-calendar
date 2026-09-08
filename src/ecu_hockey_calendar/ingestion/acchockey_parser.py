@@ -207,7 +207,7 @@ def _build_game_metadata(
 
 def _extract_row_cells(row: Tag) -> list[Tag]:
     """Extract td elements from row."""
-    return [c for c in row.find_all("td") if isinstance(c, Tag)]
+    return list(row.find_all("td"))
 
 
 def _extract_tag_classes(tag: Tag) -> list[str]:
@@ -394,7 +394,7 @@ def _find_header_links(header_div: Tag) -> list[Tag]:
     if not links:
         links = header_div.find_all("a")
 
-    return [tag for tag in links if isinstance(tag, Tag)]
+    return list(links)
 
 
 def _collect_unique_names(links: list[Tag]) -> list[str]:
