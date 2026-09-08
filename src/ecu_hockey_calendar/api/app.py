@@ -3,13 +3,20 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from typing import TYPE_CHECKING, Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from ecu_hockey_calendar.api.routes import calendar_router, schedule_router
+from ecu_hockey_calendar.api.routes import (
+    calendar_router,
+    conflicts_router,
+    health_router,
+    schedule_router,
+    sync_router,
+)
 from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
 from ecu_hockey_calendar.api.service import CalendarFeedService
 from ecu_hockey_calendar.calendar import ECUHockeyCalendar
@@ -37,6 +44,7 @@ def _resolve_package_version() -> str:
 def create_app(
     database_url: str | None = None,
     *,
+    admin_token: str | None = None,
     title: str = DEFAULT_API_TITLE,
     description: str = DEFAULT_API_DESCRIPTION,
     enable_cors: bool = True,
@@ -45,6 +53,7 @@ def create_app(
 
     Args:
         database_url: Optional database connection URL for persistence storage.
+        admin_token: Optional administrative authentication Bearer token.
         title: API documentation title.
         description: API documentation description.
         enable_cors: Whether to mount CORSMiddleware for cross-origin access.
@@ -82,6 +91,8 @@ def create_app(
         )
 
     # Initialize application state dependencies
+    app.state.start_time = datetime.now(UTC)
+    app.state.admin_token = admin_token
     app.state.calendar_service = CalendarFeedService()
     app.state.schedule_service = ScheduleDataService()
     app.state.default_calendar = ECUHockeyCalendar()
@@ -91,9 +102,12 @@ def create_app(
     else:
         app.state.db_engine = None
 
-    # Include routes
+    # Include routers
+    app.include_router(health_router)
     app.include_router(calendar_router)
     app.include_router(schedule_router)
+    app.include_router(sync_router)
+    app.include_router(conflicts_router)
 
     @app.get(
         "/",
@@ -108,11 +122,14 @@ def create_app(
             "status": "online",
             "endpoints": {
                 "calendar_ics": "/calendar.ics",
-                "schedule_json": "/api/schedule.json",
-                "schedule_csv": "/api/schedule.csv",
+                "conflicts": "/api/v1/conflicts",
                 "docs": "/docs",
-                "redoc": "/redoc",
+                "health": "/health",
                 "openapi": "/openapi.json",
+                "redoc": "/redoc",
+                "schedule_csv": "/api/schedule.csv",
+                "schedule_json": "/api/schedule.json",
+                "sync_status": "/api/v1/sync/status",
             },
         }
 
