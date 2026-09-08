@@ -27,13 +27,14 @@ dependencies = [
     "aiosqlite>=0.20.0",
     "alembic>=1.13.0",
     "beautifulsoup4>=4.12.0",
+    "click>=8.1.0",
     "fastapi>=0.141.1",
     "httpx>=0.27.0",
+    "rich>=13.0.0",
     "sqlalchemy>=2.0.0",
     "uvicorn>=0.52.4",
 ]
 optional-dependencies.dev = [
-    "click>=8.3.3",
     "codespell>=2.4.0",
     "coverage[toml]>=7.6.0",
     "deptry>=0.23.0",
@@ -83,6 +84,7 @@ urls.Documentation = "https://github.com/bdperkin/ecu-hockey-calendar#readme"
 urls.Homepage = "https://github.com/bdperkin/ecu-hockey-calendar"
 urls.Issues = "https://github.com/bdperkin/ecu-hockey-calendar/issues"
 urls.Repository = "https://github.com/bdperkin/ecu-hockey-calendar"
+scripts.ecu-hockey = "ecu_hockey_calendar.cli:main"
 
 [dependency-groups]
 dev = [
@@ -125,6 +127,10 @@ lint.per-file-ignores."docs/conf.py" = [
 lint.per-file-ignores."src/ecu_hockey_calendar/calendar.py" = [
     "A005",
 ]
+lint.per-file-ignores."src/ecu_hockey_calendar/cli/**" = [
+    "FBT001",
+    "FBT002",
+]
 lint.per-file-ignores."tests/**" = [
     "ANN",
     "ARG",
@@ -133,6 +139,7 @@ lint.per-file-ignores."tests/**" = [
     "PLR2004",
     "PT012",
     "S101",
+    "S104",
     "S105",
     "S106",
     "SLF001",

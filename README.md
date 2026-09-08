@@ -19,6 +19,7 @@ ______________________________________________________________________
     - [4.6.1. Calendar Subscription (Apple, Google, Outlook)](#461-calendar-subscription-apple-google-outlook)
     - [4.6.2. Querying Public Schedule Feeds](#462-querying-public-schedule-feeds)
     - [4.6.3. Health Probes & Administration](#463-health-probes--administration)
+  - [4.7. Command-Line Interface (`ecu-hockey`)](#47-command-line-interface--ecu-hockey)
 - [5. Database Schema Migrations](#5-database-schema-migrations)
 - [6. Development and Contributing](#6-development-and-contributing)
   - [6.1. Quick Setup](#61-quick-setup)
@@ -88,6 +89,14 @@ flowchart TD
         P5["Admin Sync & Conflicts (/api/v1/conflicts)"]
     end
 
+    subgraph CLI["Command-Line Interface (ecu-hockey)"]
+        C1["sync (Ingestion & Reconciliation)"]
+        C2["status (Health & Telemetry Tables)"]
+        C3["export (ICS, JSON, CSV)"]
+        C4["conflicts (Cross-Source Review)"]
+        C5["serve (Uvicorn Web Server)"]
+    end
+
     subgraph OUT["Alert Dispatch"]
         A1["Discord Webhook Embeds"]
         A2["Slack Block Kit Alerts"]
@@ -99,10 +108,12 @@ flowchart TD
     REC --> DB
     REC --> OUT
     DB --> API
+    DB --> CLI
 ```
 
 ## 2. Features
 
+- **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for running sync workflows, inspecting health/telemetry tables, reviewing discrepancies, exporting multi-format schedules, and hosting Uvicorn servers.
 - **Multi-Source Ingestion**: Robust web crawlers for primary schedule documents, ACCHL conference portals, ticketing tiers, social media announcements, and opponent feeds.
 - **Resilient HTTP Client**: Connection pooling, exponential backoff, retry handling for transient errors (429/5xx), and SHA-256 payload caching.
 - **Intelligent Reconciliation**: Transitive clustering, fuzzy opponent/venue matching with mascot stripping, and configurable source precedence hierarchies (Tier 1 SOT/League > Tier 2 Tickets/Social > Tier 3 Opponents).
@@ -343,6 +354,35 @@ curl -X POST "http://localhost:8000/api/v1/sync/trigger" \
 # Inspect cross-source schedule discrepancies
 curl -s "http://localhost:8000/api/v1/conflicts" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
+```
+
+### 4.7. Command-Line Interface (`ecu-hockey`)
+
+`ecu-hockey-calendar` includes a unified terminal-first CLI powered by Click and Rich:
+
+```bash
+# Display general help and registered subcommands
+ecu-hockey --help
+
+# Synchronize schedule from all active scrapers with database updates
+ecu-hockey sync
+
+# Preview synchronization changes in dry-run mode
+ecu-hockey sync --season 2026-2027 --dry-run
+
+# Display operational health, database connectivity, and team record overview
+ecu-hockey status
+
+# Export schedule to RFC 5545 iCalendar (.ics), JSON, or CSV
+ecu-hockey export schedule.ics
+ecu-hockey export --home-only -f csv home_games.csv
+ecu-hockey export -f json | jq '.[0]'
+
+# Inspect active cross-source discrepancies and conflicting fixtures
+ecu-hockey conflicts --review-only
+
+# Launch local Uvicorn ASGI server hosting the calendar feeds
+ecu-hockey serve --port 8000
 ```
 
 ## 5. Database Schema Migrations

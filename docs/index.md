@@ -12,6 +12,7 @@ tracking team matches, and exporting calendar fixtures to standard iCalendar
 
 installation
 quickstart
+cli
 ingestion
 storage
 reconciliation
@@ -24,6 +25,7 @@ changelog
 
 ## 1. Features
 
+- **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for syncing, health inspections, conflict diagnosis, schedule exporting, and API server hosting.
 - **Multi-Source Web Crawlers**: Automated ingestion from official team sites (`ecuhockey.com`), ACCHL league portals (`acchockey.com`), ticketing platforms, Instagram feeds, and opponent calendars.
 - **Relational Persistence & Migrations**: SQLAlchemy 2.0 ORM models for SQLite and PostgreSQL with automated Alembic schema migrations.
 - **Schedule Reconciliation Engine**: Multi-tier source precedence, opponent and venue fuzzy matching, and timezone-aware date alignment.
