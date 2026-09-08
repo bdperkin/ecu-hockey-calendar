@@ -6,7 +6,7 @@ services:
   - type: web
     name: ecu-hockey-api
     runtime: docker
-    plan: starter
+    plan: 0.5c-512mb
     region: oregon
     dockerfilePath: ./Dockerfile
     preDeployCommand: alembic upgrade head
@@ -35,7 +35,7 @@ services:
   - type: cron
     name: ecu-hockey-worker
     runtime: docker
-    plan: starter
+    plan: 0.5c-512mb
     region: oregon
     schedule: 0 */6 * * *
     dockerfilePath: ./Dockerfile
@@ -60,7 +60,7 @@ services:
         sync: false
 databases:
   - name: ecu-hockey-db
-    plan: starter
+    plan: 0.1c-256mb
     region: oregon
     databaseName: ecu_hockey
     user: ecu_hockey_user
