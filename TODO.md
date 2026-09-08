@@ -23,6 +23,7 @@ ______________________________________________________________________
     - [2.4.1. Phase 4.1: Public Calendar & Data Feeds](#241-phase-41-public-calendar--data-feeds)
     - [2.4.2. Phase 4.2: Diagnostics & Administration Endpoints](#242-phase-42-diagnostics--administration-endpoints)
     - [2.4.3. Phase 4.3: Documentation Alignment](#243-phase-43-documentation-alignment)
+    - [2.4.4. Phase 4.4: Release Alignment & Milestone Reconciliation](#244-phase-44-release-alignment--milestone-reconciliation)
   - [2.5. Milestone 5: v0.5.0 - CLI, Automation & Production Deployment](#25-milestone-5-v050---cli-automation--production-deployment)
     - [2.5.1. Phase 5.1: Unified Command-Line Interface](#251-phase-51-unified-command-line-interface)
     - [2.5.2. Phase 5.2: Production Deployment Strategy & Hosting Analysis](#252-phase-52-production-deployment-strategy--hosting-analysis)
@@ -219,6 +220,12 @@ ______________________________________________________________________
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect public API endpoints and calendar feeds.
   - **Description:** Document `/calendar.ics`, `/api/schedule.json`, `/api/schedule.csv`, OpenAPI `/docs`, and administration diagnostics endpoints.
 
+#### 2.4.4. Phase 4.4: Release Alignment & Milestone Reconciliation
+
+- [ ] **[#73](https://github.com/bdperkin/ecu-hockey-calendar/issues/73) - fix(release): diagnose and align release versioning with project milestones (currently at v0.2.7 instead of v0.4.0)**
+  - **Summary:** Reconcile repository releases and git tags with completed milestones (v0.2.0, v0.3.0, v0.4.0) and fix PSR minor bumping.
+  - **Description:** Resolve discrepancy between PSR parser rules, conventional-commit types, and workflow triggers to ensure Milestone 4 is released as `v0.4.0` and pre-1.0 milestone versioning is preserved.
+
 ### 2.5. Milestone 5: v0.5.0 - CLI, Automation & Production Deployment
 
 #### 2.5.1. Phase 5.1: Unified Command-Line Interface
@@ -293,11 +300,12 @@ flowchart TD
         T46["#46: README & Sphinx Docs Update"]
     end
 
-    subgraph M4["Stage 3: Milestone 4 (API Service - Complete)"]
+    subgraph M4["Stage 3: Milestone 4 (API Service)"]
         T10["#10: RFC 5545 iCalendar (.ics) Feed"]
         T11["#11: Public JSON & CSV Feeds"]
         T12["#12: Health & Diagnostics Endpoints"]
         T62["#62: README & Sphinx Docs Update (v0.4.0)"]
+        T73["#73: Release Version Alignment (v0.4.0)"]
     end
 
     subgraph M5["Stage 4: Milestone 5 (CLI, Deployment & Automation)"]
@@ -317,7 +325,8 @@ flowchart TD
     T10 --> T11
     T11 --> T12
     T12 --> T62
-    T62 --> T13
+    T62 --> T73
+    T73 --> T13
     T13 --> T14
     T14 --> T16
     T16 --> T63
@@ -337,6 +346,7 @@ flowchart TD
    - Issues **[#10](https://github.com/bdperkin/ecu-hockey-calendar/issues/10)** and **[#11](https://github.com/bdperkin/ecu-hockey-calendar/issues/11)** expose the reconciled database records as standard RFC 5545 iCalendar (`.ics`), JSON, and CSV feeds via FastAPI.
    - Issue **[#12](https://github.com/bdperkin/ecu-hockey-calendar/issues/12)** adds diagnostics and conflict management endpoints.
    - Issue **[#62](https://github.com/bdperkin/ecu-hockey-calendar/issues/62)** updates documentation and Sphinx guides for calendar feeds and API operational endpoints.
+   - Issue **[#73](https://github.com/bdperkin/ecu-hockey-calendar/issues/73)** diagnoses version divergence, aligns git tags and GitHub Releases with completed Milestones 2, 3, and 4 (`v0.4.0`), and resolves release automation configuration before beginning Milestone 5.
 4. **Milestone 5 (CLI, Deployment & Automation)**:
    - Issue **[#13](https://github.com/bdperkin/ecu-hockey-calendar/issues/13)** unifies crawlers, reconciliation, database operations, and API serving into an interactive CLI.
    - Issue **[#14](https://github.com/bdperkin/ecu-hockey-calendar/issues/14)** analyzes hosting architectures in `DEPLOYMENT.md`.
