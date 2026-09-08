@@ -74,3 +74,7 @@ autodoc_default_options = {
     "undoc-members": False,
     "show-inheritance": True,
 }
+
+suppress_warnings = [
+    "sphinx_autodoc_typehints.guarded_import",
+]

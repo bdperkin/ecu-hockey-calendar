@@ -187,3 +187,76 @@ for game in changes.created:
         timestamp=datetime.now(UTC),
     )
 ```
+
+## 6. Serving Calendar Feeds & Data via FastAPI
+
+Run the local FastAPI server to expose live calendar subscriptions and public data feeds:
+
+### 6.1. Starting the API Server
+
+Launch the ASGI server using `uvicorn`:
+
+```bash
+uv run uvicorn ecu_hockey_calendar.api.app:create_app --factory --host 127.0.0.1 --port 8000 --reload
+```
+
+Or run programmatically within a script:
+
+```python
+from ecu_hockey_calendar.api import run_server
+
+run_server(host="127.0.0.1", port=8000)
+```
+
+### 6.2. Subscribing to Calendar Feeds
+
+Subscribe to the RFC 5545 `.ics` feed directly in your favorite calendar application:
+
+```bash
+# Direct HTTP download
+curl -s http://127.0.0.1:8000/calendar.ics -o ecu_hockey_schedule.ics
+
+# Inspect subscription and caching headers
+curl -I http://127.0.0.1:8000/calendar.ics
+
+# macOS/iOS one-click subscription URL
+open "webcal://127.0.0.1:8000/calendar.ics"
+```
+
+### 6.3. Querying Master Schedule Data Feeds
+
+Query normalized JSON or downloadable CSV feeds with filters for season, opponent, or home games:
+
+```bash
+# Fetch filtered JSON schedule
+curl -s "http://127.0.0.1:8000/api/schedule.json?home_only=true&season=2026-2027" | jq .
+
+# Fetch schedule formatted as CSV
+curl -s "http://127.0.0.1:8000/api/schedule.csv?status=SCHEDULED"
+```
+
+### 6.4. Health Probes & Operational Telemetry
+
+Monitor application health and inspect data synchronization metrics:
+
+```bash
+# Check service health and database connectivity
+curl -s http://127.0.0.1:8000/health | jq .
+
+# Inspect sync telemetry and individual scraper status
+curl -s http://127.0.0.1:8000/api/v1/sync/status | jq .
+```
+
+### 6.5. Administrative Actions & Conflict Inspection
+
+Authorized operators can trigger on-demand sync cycles and review cross-source discrepancies:
+
+```bash
+# Trigger immediate synchronization cycle
+curl -X POST "http://127.0.0.1:8000/api/v1/sync/trigger" \
+  -H "Authorization: Bearer secret-admin-token-12345"
+
+# Review flagged schedule conflicts
+curl -s "http://127.0.0.1:8000/api/v1/conflicts?severity=high" \
+  -H "Authorization: Bearer secret-admin-token-12345" | jq .
+```

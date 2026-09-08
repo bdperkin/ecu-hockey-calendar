@@ -215,7 +215,7 @@ ______________________________________________________________________
 
 #### 2.4.3. Phase 4.3: Documentation Alignment
 
-- [ ] **[#62](https://github.com/bdperkin/ecu-hockey-calendar/issues/62) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
+- [x] **[#62](https://github.com/bdperkin/ecu-hockey-calendar/issues/62) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect public API endpoints and calendar feeds.
   - **Description:** Document `/calendar.ics`, `/api/schedule.json`, `/api/schedule.csv`, OpenAPI `/docs`, and administration diagnostics endpoints.
 
@@ -293,7 +293,7 @@ flowchart TD
         T46["#46: README & Sphinx Docs Update"]
     end
 
-    subgraph M4["Stage 3: Milestone 4 (API Service)"]
+    subgraph M4["Stage 3: Milestone 4 (API Service - Complete)"]
         T10["#10: RFC 5545 iCalendar (.ics) Feed"]
         T11["#11: Public JSON & CSV Feeds"]
         T12["#12: Health & Diagnostics Endpoints"]

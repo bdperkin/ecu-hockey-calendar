@@ -16,6 +16,7 @@ ingestion
 storage
 reconciliation
 notifications
+api_service
 api
 contributing
 changelog
@@ -28,7 +29,8 @@ changelog
 - **Schedule Reconciliation Engine**: Multi-tier source precedence, opponent and venue fuzzy matching, and timezone-aware date alignment.
 - **Change Detection & Audit Trail**: Real-time diffing of game schedule changes, cancellations, and conflict flags with full cycle telemetry.
 - **Multi-Platform Webhook Alerts**: Rich formatted alerts dispatched to Discord, Slack, and Telegram channels.
-- **RFC 5545 iCalendar Export**: Generate calendar feeds (`.ics`) directly importable into Google Calendar, Apple Calendar, and Microsoft Outlook.
+- **FastAPI Calendar & Data Service**: Live RFC 5545 iCalendar (`/calendar.ics`) and webcal subscription feeds, public JSON and CSV master schedule feeds, and interactive OpenAPI documentation.
+- **Diagnostics & Conflict Administration**: Service health checks, synchronization telemetry, on-demand sync triggering, and administrative conflict review.
 - **Interoperability**: Export schedules to CSV, JSON, and dictionary representations.
 - **Strict Quality**: 100% line and branch test coverage, strict type annotations checked by `ty`, and formatting via `ruff`.
 
