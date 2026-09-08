@@ -8,6 +8,15 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.8.5 (2026-09-08)
+
+### Bug Fixes
+
+- **ci**: Exclude CHANGELOG.md from pymarkdown pre-commit hook
+  ([#56](https://github.com/bdperkin/ecu-hockey-calendar/pull/56),
+  [`7227ad0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7227ad0158f8cfbc434c2c388ee21c99db820372))
+
+
 ## v0.8.4 (2026-09-08)
 
 ### Bug Fixes
