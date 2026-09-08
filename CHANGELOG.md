@@ -8,6 +8,21 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.2.3 (2026-09-08)
+
+### Documentation
+
+- **roadmap**: Mark issues #48 and #9 complete in TODO.md
+  ([#59](https://github.com/bdperkin/ecu-hockey-calendar/pull/59),
+  [`1a193e5`](https://github.com/bdperkin/ecu-hockey-calendar/commit/1a193e5ad3c0cc6a69e850c84ffff7cd58964e2e))
+
+### Features
+
+- **notifications**: Multi-platform webhook alerting for schedule updates and conflicts (#15)
+  ([#60](https://github.com/bdperkin/ecu-hockey-calendar/pull/60),
+  [`5bc7c39`](https://github.com/bdperkin/ecu-hockey-calendar/commit/5bc7c39beab73874f8fcb3214f368fd347992113))
+
+
 ## v0.2.2 (2026-09-08)
 
 ### Features
