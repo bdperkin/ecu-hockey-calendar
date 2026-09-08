@@ -8,6 +8,66 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.2.1 (2026-09-08)
+
+### Bug Fixes
+
+- **ci**: Configure Python Semantic Release changelog automation (#45)
+  ([#54](https://github.com/bdperkin/ecu-hockey-calendar/pull/54),
+  [`14f47c8`](https://github.com/bdperkin/ecu-hockey-calendar/commit/14f47c844e4a324ba1b5dbf3673098ba918793c5))
+
+- **ci**: Exclude CHANGELOG.md from pymarkdown pre-commit hook
+  ([#56](https://github.com/bdperkin/ecu-hockey-calendar/pull/56),
+  [`7227ad0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7227ad0158f8cfbc434c2c388ee21c99db820372))
+
+- **release**: Align release versioning with project milestones and configure 0.x commit parser
+  (#48) ([#57](https://github.com/bdperkin/ecu-hockey-calendar/pull/57),
+  [`d5ff5ea`](https://github.com/bdperkin/ecu-hockey-calendar/commit/d5ff5eaf9ddecd9e98003aca9a32fec80d4d643f))
+
+- **security**: Resolve CodeQL alert 12 for unused global variable in fuzzy_matcher (#39)
+  ([#40](https://github.com/bdperkin/ecu-hockey-calendar/pull/40),
+  [`4e96abd`](https://github.com/bdperkin/ecu-hockey-calendar/commit/4e96abd7d5417e07ef7d7e6d81dbc68842c111b0))
+
+- **security**: Resolve CodeQL alert 13 for import and import-from in
+  test_reconciliation_fuzzy_matcher (#41)
+  ([#42](https://github.com/bdperkin/ecu-hockey-calendar/pull/42),
+  [`58a3d3a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/58a3d3abd1db16f90a036a51888e34de9c8aa1b8))
+
+- **types**: Resolve ty 0.0.79 redundant condition diagnostics in acchockey_parser
+  ([#55](https://github.com/bdperkin/ecu-hockey-calendar/pull/55),
+  [`107ce03`](https://github.com/bdperkin/ecu-hockey-calendar/commit/107ce033fca762528ba3693a15ba024ea57b62ae))
+
+### Chores
+
+- **deps**: Update pre-commit-hooks to v6.0.0 and validate-pyproject to 0.26
+  ([#53](https://github.com/bdperkin/ecu-hockey-calendar/pull/53),
+  [`6484f6b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/6484f6bc983e7018d602be634e55887cd30cf123))
+
+- **roadmap**: Remove ecu_hockey_scraper_prompt.md and audit TODO.md (#47)
+  ([#49](https://github.com/bdperkin/ecu-hockey-calendar/pull/49),
+  [`fa6f121`](https://github.com/bdperkin/ecu-hockey-calendar/commit/fa6f1215ce0976e102d8fe90eaf41aa49cdd3204))
+
+- **tooling**: Migrate PyMarkdown configuration from .pymarkdown.json into pyproject.toml (#44)
+  ([#52](https://github.com/bdperkin/ecu-hockey-calendar/pull/52),
+  [`86aee53`](https://github.com/bdperkin/ecu-hockey-calendar/commit/86aee53b0220b721a6274a9f8f490efc02e92c94))
+
+### Documentation
+
+- **roadmap**: Mark issue #47 complete in TODO.md
+  ([#50](https://github.com/bdperkin/ecu-hockey-calendar/pull/50),
+  [`39d13c8`](https://github.com/bdperkin/ecu-hockey-calendar/commit/39d13c8459d9d30e3b49346b74f7f8dc8727225a))
+
+- **roadmap**: Track CodeQL alert resolutions #39 and #41 in TODO.md
+  ([#43](https://github.com/bdperkin/ecu-hockey-calendar/pull/43),
+  [`0f5a0e2`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0f5a0e2e9b749d72eb3d9f43d8b2ef1ec31bf5e3))
+
+### Features
+
+- **reconciliation**: Implement fuzzy-matching and multi-source conflict resolution engine (#8)
+  ([#38](https://github.com/bdperkin/ecu-hockey-calendar/pull/38),
+  [`7185a3a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7185a3aed6a704ad74e4deb725032df884d96f17))
+
+
 ## v0.2.0 (2026-09-06)
 
 ### Features
