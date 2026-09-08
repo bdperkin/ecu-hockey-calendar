@@ -449,7 +449,7 @@ sequenceDiagram
 
 1. **Create PostgreSQL Database**:
    - Go to [dashboard.render.com](https://dashboard.render.com) > **New +** > **PostgreSQL**.
-   - Name: `ecu-hockey-db`, Database: `ecu_hockey`, Plan: **Free** or **Starter**.
+   - Name: `ecu-hockey-db`, Database: `ecu_hockey`, Plan: **Free** or **Basic (0.1c-256mb)**.
    - Copy the **Internal Database URL**.
 2. **Deploy API Web Service**:
    - Click **New +** > **Web Service** > Connect your repository.
