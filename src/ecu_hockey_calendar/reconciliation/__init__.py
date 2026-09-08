@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from ecu_hockey_calendar.reconciliation.change_detector import (
+    CANONICAL_CHANGE_CYCLE_PREFIX,
+    ChangeDetector,
+)
 from ecu_hockey_calendar.reconciliation.date_aligner import (
     DEFAULT_EXACT_TOLERANCE_MINUTES,
     DEFAULT_NEAR_TOLERANCE_MINUTES,
@@ -33,10 +37,14 @@ from ecu_hockey_calendar.reconciliation.fuzzy_matcher import (
 from ecu_hockey_calendar.reconciliation.models import (
     DEFAULT_SOURCE_TIE_BREAKERS,
     DEFAULT_SOURCE_TIERS,
+    ChangeDetectionCycleResult,
     ConflictField,
     ConflictSeverity,
     DetectedConflict,
     DiscrepancyRecord,
+    FieldDiff,
+    GameChangeRecord,
+    GameStateTransition,
     ReconciledGame,
     ReconciliationCycleResult,
     ReconciliationStatus,
@@ -46,6 +54,7 @@ from ecu_hockey_calendar.reconciliation.models import (
 )
 
 __all__ = [
+    "CANONICAL_CHANGE_CYCLE_PREFIX",
     "CANONICAL_ECU_NAME",
     "CANONICAL_SEASON",
     "DEFAULT_EXACT_TOLERANCE_MINUTES",
@@ -56,11 +65,16 @@ __all__ = [
     "GENERIC_COLLEGE_TERMS",
     "KNOWN_MASCOTS",
     "VENUE_ALIASES",
+    "ChangeDetectionCycleResult",
+    "ChangeDetector",
     "ConflictField",
     "ConflictSeverity",
     "DateTimeAlignmentResult",
     "DetectedConflict",
     "DiscrepancyRecord",
+    "FieldDiff",
+    "GameChangeRecord",
+    "GameStateTransition",
     "ReconciledGame",
     "ReconciliationCycleResult",
     "ReconciliationEngine",

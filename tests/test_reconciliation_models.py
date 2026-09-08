@@ -5,10 +5,14 @@ from unittest.mock import MagicMock
 
 from ecu_hockey_calendar.models import Game, GameResult, Team
 from ecu_hockey_calendar.reconciliation.models import (
+    ChangeDetectionCycleResult,
     ConflictField,
     ConflictSeverity,
     DetectedConflict,
     DiscrepancyRecord,
+    FieldDiff,
+    GameChangeRecord,
+    GameStateTransition,
     ReconciledGame,
     ReconciliationCycleResult,
     ReconciliationStatus,
@@ -338,3 +342,117 @@ def test_reconciled_game_and_cycle_result() -> None:
     assert cyd["total_source_records"] == 2
     assert len(cyd["reconciled_games"]) == 1
     assert cyd["total_conflicts_detected"] == 1
+
+
+def test_reconciled_game_from_game_model() -> None:
+    """Verify ReconciledGame construction from database GameModel."""
+    home_team = MagicMock()
+    home_team.name = "East Carolina University"
+    away_team = MagicMock()
+    away_team.name = "UNC Tar Heels"
+
+    st = datetime(2026, 11, 10, 19, 0, tzinfo=UTC)
+    et = datetime(2026, 11, 10, 21, 30, tzinfo=UTC)
+
+    model = MagicMock()
+    model.game_id = "game-20261110-unc-home"
+    model.home_team = home_team
+    model.away_team = away_team
+    model.start_time = st
+    model.end_time = et
+    model.venue = "Polar Ice House"
+    model.status = "FINAL"
+    model.result = "W"
+    model.home_score = 5
+    model.away_score = 3
+
+    reconciled = ReconciledGame.from_game_model(model)
+    assert reconciled.canonical_game_id == "game-20261110-unc-home"
+    assert reconciled.opponent_name == "UNC Tar Heels"
+    assert reconciled.is_home is True
+    assert reconciled.status == GameStatus.FINAL
+    assert reconciled.result == GameResult.WIN
+    assert reconciled.home_score == 5
+    assert reconciled.away_score == 3
+    assert reconciled.contributing_sources == ["database"]
+    assert reconciled.confidence_score == 1.0
+
+
+def test_change_detection_models() -> None:
+    """Verify FieldDiff, GameChangeRecord, and ChangeDetectionCycleResult."""
+    # GameStateTransition enum
+    assert GameStateTransition.CREATED == "CREATED"
+    assert GameStateTransition.UPDATED == "UPDATED"
+    assert GameStateTransition.DELETED == "DELETED"
+    assert GameStateTransition.CONFLICT_DETECTED == "CONFLICT_DETECTED"
+    assert GameStateTransition.UNCHANGED == "UNCHANGED"
+
+    # FieldDiff
+    fd = FieldDiff(
+        field_name="venue",
+        old_value="TBD",
+        new_value="The Ice House",
+        human_description="Venue changed from 'TBD' to 'The Ice House'",
+    )
+    fdd = fd.to_dict()
+    assert fdd["field_name"] == "venue"
+    assert fdd["old_value"] == "TBD"
+    assert fdd["new_value"] == "The Ice House"
+    assert fdd["human_description"] == "Venue changed from 'TBD' to 'The Ice House'"
+
+    # GameChangeRecord
+    rec = GameChangeRecord(
+        canonical_game_id="game-001",
+        state_transition=GameStateTransition.UPDATED,
+        field_diffs=[fd],
+        previous_snapshot={"venue": "TBD"},
+        current_snapshot={"venue": "The Ice House"},
+        human_summary=fd.human_description,
+    )
+    recd = rec.to_dict()
+    assert recd["canonical_game_id"] == "game-001"
+    assert recd["state_transition"] == "UPDATED"
+    assert len(recd["field_diffs"]) == 1
+    assert recd["previous_snapshot"] == {"venue": "TBD"}
+    assert recd["current_snapshot"] == {"venue": "The Ice House"}
+    assert recd["human_summary"] == fd.human_description
+    assert recd["recorded_at"] is not None
+
+    rec_created = GameChangeRecord(
+        canonical_game_id="game-002",
+        state_transition=GameStateTransition.CREATED,
+    )
+    rec_deleted = GameChangeRecord(
+        canonical_game_id="game-003",
+        state_transition=GameStateTransition.DELETED,
+    )
+    rec_conflict = GameChangeRecord(
+        canonical_game_id="game-004",
+        state_transition=GameStateTransition.CONFLICT_DETECTED,
+    )
+    rec_unchanged = GameChangeRecord(
+        canonical_game_id="game-005",
+        state_transition=GameStateTransition.UNCHANGED,
+    )
+
+    cycle_res = ChangeDetectionCycleResult(
+        cycle_id="cycle-test-1",
+        changes=[rec, rec_created, rec_deleted, rec_conflict, rec_unchanged],
+    )
+
+    assert cycle_res.created_games == [rec_created]
+    assert cycle_res.updated_games == [rec]
+    assert cycle_res.deleted_games == [rec_deleted]
+    assert cycle_res.conflict_games == [rec_conflict]
+    assert cycle_res.unchanged_games == [rec_unchanged]
+    assert cycle_res.total_changes == 4
+
+    cyd = cycle_res.to_dict()
+    assert cyd["cycle_id"] == "cycle-test-1"
+    assert cyd["total_changes"] == 4
+    assert cyd["total_created"] == 1
+    assert cyd["total_updated"] == 1
+    assert cyd["total_deleted"] == 1
+    assert cyd["total_conflicts"] == 1
+    assert cyd["total_unchanged"] == 1
+    assert len(cyd["changes"]) == 5
