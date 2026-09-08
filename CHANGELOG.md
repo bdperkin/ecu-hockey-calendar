@@ -8,16 +8,7 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
-## v0.2.7 (2026-09-08)
-
-### Bug Fixes
-
-- **security**: Resolve CodeQL alert 14 for stack trace exposure in health route (closes #69)
-  ([#70](https://github.com/bdperkin/ecu-hockey-calendar/pull/70),
-  [`6de0ee0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/6de0ee01c1da86657b47230fa8220fcaab10001e))
-
-
-## v0.2.6 (2026-09-08)
+## v0.4.0 (2026-09-08)
 
 ### Features
 
@@ -25,46 +16,32 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
   ([#68](https://github.com/bdperkin/ecu-hockey-calendar/pull/68),
   [`5cfc7f0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/5cfc7f082bd957d03d306c55f5830930c3d9827c))
 
-
-## v0.2.5 (2026-09-08)
-
-### Features
-
 - **api**: Public JSON and CSV master schedule data feeds (closes #11)
   ([#67](https://github.com/bdperkin/ecu-hockey-calendar/pull/67),
   [`9736b10`](https://github.com/bdperkin/ecu-hockey-calendar/commit/9736b1086e4cfdc4efaa8662849b20d5d72f38fd))
-
-
-## v0.2.4 (2026-09-08)
-
-### Documentation
-
-- Update README.md and Sphinx documentation to reflect current project capabilities (closes #46)
-  ([#65](https://github.com/bdperkin/ecu-hockey-calendar/pull/65),
-  [`7d1480f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7d1480fd5f063984babff62b9cdb0bff2cbe145c))
-
-- **roadmap**: Mark issue #15 complete in TODO.md
-  ([#61](https://github.com/bdperkin/ecu-hockey-calendar/pull/61),
-  [`0c32e6d`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0c32e6db0e9dc57a5010d9dfe57c338dfc1898ae))
-
-- **roadmap**: Track documentation alignment issues #62 and #63 in TODO.md
-  ([#64](https://github.com/bdperkin/ecu-hockey-calendar/pull/64),
-  [`387094b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/387094b6843fc71888ac97c601047fd651f45037))
-
-### Features
 
 - **api**: RFC 5545 iCalendar (.ics) subscription endpoint and webcal support (closes #10)
   ([#66](https://github.com/bdperkin/ecu-hockey-calendar/pull/66),
   [`aeca113`](https://github.com/bdperkin/ecu-hockey-calendar/commit/aeca1130a254fd6c9503fdae05318bfc0817f0a9))
 
+### Bug Fixes
 
-## v0.2.3 (2026-09-08)
+- **security**: Resolve CodeQL alert 14 for stack trace exposure in health route (closes #69)
+  ([#70](https://github.com/bdperkin/ecu-hockey-calendar/pull/70),
+  [`6de0ee0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/6de0ee01c1da86657b47230fa8220fcaab10001e))
 
 ### Documentation
 
-- **roadmap**: Mark issues #48 and #9 complete in TODO.md
-  ([#59](https://github.com/bdperkin/ecu-hockey-calendar/pull/59),
-  [`1a193e5`](https://github.com/bdperkin/ecu-hockey-calendar/commit/1a193e5ad3c0cc6a69e850c84ffff7cd58964e2e))
+- Update README.md and Sphinx documentation to reflect current project capabilities (closes #62)
+  ([#72](https://github.com/bdperkin/ecu-hockey-calendar/pull/72),
+  [`a89ae9f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/a89ae9fda7d8b1273a4c9eae08609b63091f61d4))
+
+- **roadmap**: Update CodeQL audit trail reference for alert 14 with PR #70
+  ([#71](https://github.com/bdperkin/ecu-hockey-calendar/pull/71),
+  [`3dcca07`](https://github.com/bdperkin/ecu-hockey-calendar/commit/3dcca07604fdf37b4200424564c45b85a3cff977))
+
+
+## v0.3.0 (2026-09-08)
 
 ### Features
 
@@ -72,17 +49,13 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
   ([#60](https://github.com/bdperkin/ecu-hockey-calendar/pull/60),
   [`5bc7c39`](https://github.com/bdperkin/ecu-hockey-calendar/commit/5bc7c39beab73874f8fcb3214f368fd347992113))
 
-
-## v0.2.2 (2026-09-08)
-
-### Features
-
 - **reconciliation**: Change detection and sync state tracking engine
   ([#9](https://github.com/bdperkin/ecu-hockey-calendar/pull/9),
   [`2665436`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2665436d9fbcc8766d3af609b8fd6ee7e7c9af83))
 
-
-## v0.2.1 (2026-09-08)
+- **reconciliation**: Implement fuzzy-matching and multi-source conflict resolution engine (#8)
+  ([#38](https://github.com/bdperkin/ecu-hockey-calendar/pull/38),
+  [`7185a3a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7185a3aed6a704ad74e4deb725032df884d96f17))
 
 ### Bug Fixes
 
@@ -127,6 +100,22 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 ### Documentation
 
+- Update README.md and Sphinx documentation to reflect current project capabilities (closes #46)
+  ([#65](https://github.com/bdperkin/ecu-hockey-calendar/pull/65),
+  [`7d1480f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7d1480fd5f063984babff62b9cdb0bff2cbe145c))
+
+- **roadmap**: Mark issue #15 complete in TODO.md
+  ([#61](https://github.com/bdperkin/ecu-hockey-calendar/pull/61),
+  [`0c32e6d`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0c32e6db0e9dc57a5010d9dfe57c338dfc1898ae))
+
+- **roadmap**: Track documentation alignment issues #62 and #63 in TODO.md
+  ([#64](https://github.com/bdperkin/ecu-hockey-calendar/pull/64),
+  [`387094b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/387094b6843fc71888ac97c601047fd651f45037))
+
+- **roadmap**: Mark issues #48 and #9 complete in TODO.md
+  ([#59](https://github.com/bdperkin/ecu-hockey-calendar/pull/59),
+  [`1a193e5`](https://github.com/bdperkin/ecu-hockey-calendar/commit/1a193e5ad3c0cc6a69e850c84ffff7cd58964e2e))
+
 - **roadmap**: Mark issue #47 complete in TODO.md
   ([#50](https://github.com/bdperkin/ecu-hockey-calendar/pull/50),
   [`39d13c8`](https://github.com/bdperkin/ecu-hockey-calendar/commit/39d13c8459d9d30e3b49346b74f7f8dc8727225a))
@@ -134,12 +123,6 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 - **roadmap**: Track CodeQL alert resolutions #39 and #41 in TODO.md
   ([#43](https://github.com/bdperkin/ecu-hockey-calendar/pull/43),
   [`0f5a0e2`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0f5a0e2e9b749d72eb3d9f43d8b2ef1ec31bf5e3))
-
-### Features
-
-- **reconciliation**: Implement fuzzy-matching and multi-source conflict resolution engine (#8)
-  ([#38](https://github.com/bdperkin/ecu-hockey-calendar/pull/38),
-  [`7185a3a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7185a3aed6a704ad74e4deb725032df884d96f17))
 
 
 ## v0.2.0 (2026-09-06)

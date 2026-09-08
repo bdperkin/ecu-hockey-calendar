@@ -280,8 +280,8 @@ commit_parser_options.allowed_tags = [
     "style",
     "test",
 ]
-commit_parser_options.minor_tags = [ "milestone" ]
-commit_parser_options.patch_tags = [ "feat", "fix", "perf" ]
+commit_parser_options.minor_tags = [ "feat", "milestone" ]
+commit_parser_options.patch_tags = [ "fix", "perf" ]
 branches.main.match = "(main|master)"
 branches.main.prerelease = false
 changelog.default_templates.changelog_file = "CHANGELOG.md"
