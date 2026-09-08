@@ -8,82 +8,7 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
-## v0.8.5 (2026-09-08)
-
-### Bug Fixes
-
-- **ci**: Exclude CHANGELOG.md from pymarkdown pre-commit hook
-  ([#56](https://github.com/bdperkin/ecu-hockey-calendar/pull/56),
-  [`7227ad0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7227ad0158f8cfbc434c2c388ee21c99db820372))
-
-
-## v0.8.4 (2026-09-08)
-
-### Bug Fixes
-
-- **types**: Resolve ty 0.0.79 redundant condition diagnostics in acchockey_parser
-  ([#55](https://github.com/bdperkin/ecu-hockey-calendar/pull/55),
-  [`107ce03`](https://github.com/bdperkin/ecu-hockey-calendar/commit/107ce033fca762528ba3693a15ba024ea57b62ae))
-
-
-## v0.8.3 (2026-09-08)
-
-### Bug Fixes
-
-- **ci**: Configure Python Semantic Release changelog automation (#45)
-  ([#54](https://github.com/bdperkin/ecu-hockey-calendar/pull/54),
-  [`14f47c8`](https://github.com/bdperkin/ecu-hockey-calendar/commit/14f47c844e4a324ba1b5dbf3673098ba918793c5))
-
-### Chores
-
-- **deps**: Update pre-commit-hooks to v6.0.0 and validate-pyproject to 0.26
-  ([#53](https://github.com/bdperkin/ecu-hockey-calendar/pull/53),
-  [`6484f6b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/6484f6bc983e7018d602be634e55887cd30cf123))
-
-- **roadmap**: Remove ecu_hockey_scraper_prompt.md and audit TODO.md (#47)
-  ([#49](https://github.com/bdperkin/ecu-hockey-calendar/pull/49),
-  [`fa6f121`](https://github.com/bdperkin/ecu-hockey-calendar/commit/fa6f1215ce0976e102d8fe90eaf41aa49cdd3204))
-
-- **tooling**: Migrate PyMarkdown configuration from .pymarkdown.json into pyproject.toml (#44)
-  ([#52](https://github.com/bdperkin/ecu-hockey-calendar/pull/52),
-  [`86aee53`](https://github.com/bdperkin/ecu-hockey-calendar/commit/86aee53b0220b721a6274a9f8f490efc02e92c94))
-
-### Documentation
-
-- **roadmap**: Mark issue #47 complete in TODO.md
-  ([#50](https://github.com/bdperkin/ecu-hockey-calendar/pull/50),
-  [`39d13c8`](https://github.com/bdperkin/ecu-hockey-calendar/commit/39d13c8459d9d30e3b49346b74f7f8dc8727225a))
-
-- **roadmap**: Track CodeQL alert resolutions #39 and #41 in TODO.md
-  ([#43](https://github.com/bdperkin/ecu-hockey-calendar/pull/43),
-  [`0f5a0e2`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0f5a0e2e9b749d72eb3d9f43d8b2ef1ec31bf5e3))
-
-## v0.8.2 (2026-09-07)
-
-### Bug Fixes
-
-- **security**: Resolve CodeQL alert 13 for import and import-from in
-  test_reconciliation_fuzzy_matcher (#41)
-  ([#42](https://github.com/bdperkin/ecu-hockey-calendar/pull/42),
-  [`58a3d3a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/58a3d3abd1db16f90a036a51888e34de9c8aa1b8))
-
-## v0.8.1 (2026-09-07)
-
-### Bug Fixes
-
-- **security**: Resolve CodeQL alert 12 for unused global variable in fuzzy_matcher (#39)
-  ([#40](https://github.com/bdperkin/ecu-hockey-calendar/pull/40),
-  [`4e96abd`](https://github.com/bdperkin/ecu-hockey-calendar/commit/4e96abd7d5417e07ef7d7e6d81dbc68842c111b0))
-
-## v0.8.0 (2026-09-07)
-
-### Features
-
-- **reconciliation**: Implement fuzzy-matching and multi-source conflict resolution engine (#8)
-  ([#38](https://github.com/bdperkin/ecu-hockey-calendar/pull/38),
-  [`7185a3a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7185a3aed6a704ad74e4deb725032df884d96f17))
-
-## v0.7.0 (2026-09-06)
+## v0.2.0 (2026-09-06)
 
 ### Features
 
@@ -91,15 +16,25 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
   ([#37](https://github.com/bdperkin/ecu-hockey-calendar/pull/37),
   [`a4c885c`](https://github.com/bdperkin/ecu-hockey-calendar/commit/a4c885cc6eabd4077c05b5383582e4612f4ad7ef))
 
-## v0.6.0 (2026-09-06)
-
-### Features
-
 - **ingestion**: Create resilient Instagram feed parser for game announcements (#6)
   ([#36](https://github.com/bdperkin/ecu-hockey-calendar/pull/36),
   [`5c48232`](https://github.com/bdperkin/ecu-hockey-calendar/commit/5c4823209a35b0b6283aa6208291f03e2f1bfa1e))
 
-## v0.5.1 (2026-09-06)
+- **ingestion**: Parse ticket sales page for game schedules and promotions
+  ([#34](https://github.com/bdperkin/ecu-hockey-calendar/pull/34),
+  [`a278df0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/a278df04cc22396b65744da5a2e82995aef043ec))
+
+- **ingestion**: Implement ACC Hockey league schedule page parser (#4)
+  ([#33](https://github.com/bdperkin/ecu-hockey-calendar/pull/33),
+  [`146a83f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/146a83f7321b042bbbd8a83f7ba42f6b76039a4e))
+
+- **ingestion**: Build resilient crawler for primary ECU Hockey schedule site (#3)
+  ([#32](https://github.com/bdperkin/ecu-hockey-calendar/pull/32),
+  [`2cb464c`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2cb464cc01b2c5ca1a7c25a20e58c22d6d8bb27b))
+
+- **storage**: Implement SQLAlchemy models and Alembic migration pipeline (#2)
+  ([#24](https://github.com/bdperkin/ecu-hockey-calendar/pull/24),
+  [`32047ba`](https://github.com/bdperkin/ecu-hockey-calendar/commit/32047baf847ea1aa9021cc752fda737ed8df1c25))
 
 ### Bug Fixes
 
@@ -107,67 +42,19 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
   ([#35](https://github.com/bdperkin/ecu-hockey-calendar/pull/35),
   [`131079b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/131079b65bbb38610ae6ab0a0578c8f0256d4bc8))
 
-## v0.5.0 (2026-09-06)
-
-### Chores
-
-- **deps**: Bump actions/checkout from 4 to 7
-  ([#31](https://github.com/bdperkin/ecu-hockey-calendar/pull/31),
-  [`169c744`](https://github.com/bdperkin/ecu-hockey-calendar/commit/169c7445bc0c579d5ec3a660e1008ef2b64872a4))
-
-- **deps**: Bump actions/dependency-review-action from 4 to 5
-  ([#28](https://github.com/bdperkin/ecu-hockey-calendar/pull/28),
-  [`f7b47a3`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f7b47a3e467ee89a70471a9e22539ff468412069))
-
-- **deps**: Bump actions/setup-python from 5 to 7
-  ([#30](https://github.com/bdperkin/ecu-hockey-calendar/pull/30),
-  [`6b19d3a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/6b19d3ab02f7d8e80ccbd6c239e3a7c49a96a002))
-
-- **deps**: Bump codecov/codecov-action from 5 to 7
-  ([#29](https://github.com/bdperkin/ecu-hockey-calendar/pull/29),
-  [`65cff03`](https://github.com/bdperkin/ecu-hockey-calendar/commit/65cff03eb17aae2ccf229dd3ce0a74ec44d2457d))
-
-- **deps**: Bump github/codeql-action from 3 to 4
-  ([#27](https://github.com/bdperkin/ecu-hockey-calendar/pull/27),
-  [`3bc6a04`](https://github.com/bdperkin/ecu-hockey-calendar/commit/3bc6a046d136821844c8e553d90da9e899e2f84b))
-
-### Features
-
-- **ingestion**: Parse ticket sales page for game schedules and promotions
-  ([#34](https://github.com/bdperkin/ecu-hockey-calendar/pull/34),
-  [`a278df0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/a278df04cc22396b65744da5a2e82995aef043ec))
-
-## v0.4.0 (2026-09-06)
-
-### Features
-
-- **ingestion**: Implement ACC Hockey league schedule page parser (#4)
-  ([#33](https://github.com/bdperkin/ecu-hockey-calendar/pull/33),
-  [`146a83f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/146a83f7321b042bbbd8a83f7ba42f6b76039a4e))
-
-## v0.3.0 (2026-09-06)
-
-### Features
-
-- **ingestion**: Build resilient crawler for primary ECU Hockey schedule site (#3)
-  ([#32](https://github.com/bdperkin/ecu-hockey-calendar/pull/32),
-  [`2cb464c`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2cb464cc01b2c5ca1a7c25a20e58c22d6d8bb27b))
-
-## v0.2.1 (2026-09-06)
-
-### Bug Fixes
-
 - **security**: Resolve CodeQL security and quality code scanning alerts (#25)
   ([#26](https://github.com/bdperkin/ecu-hockey-calendar/pull/26),
   [`3e2ab86`](https://github.com/bdperkin/ecu-hockey-calendar/commit/3e2ab86edae6cab7caf6bd16fa3447e8107f9b51))
 
-## v0.2.0 (2026-09-06)
+### Chores
 
-### Features
+- **deps**: Bump actions and codecov actions
+  ([#27](https://github.com/bdperkin/ecu-hockey-calendar/pull/27),
+  [#28](https://github.com/bdperkin/ecu-hockey-calendar/pull/28),
+  [#29](https://github.com/bdperkin/ecu-hockey-calendar/pull/29),
+  [#30](https://github.com/bdperkin/ecu-hockey-calendar/pull/30),
+  [#31](https://github.com/bdperkin/ecu-hockey-calendar/pull/31))
 
-- **storage**: Implement SQLAlchemy models and Alembic migration pipeline (#2)
-  ([#24](https://github.com/bdperkin/ecu-hockey-calendar/pull/24),
-  [`32047ba`](https://github.com/bdperkin/ecu-hockey-calendar/commit/32047baf847ea1aa9021cc752fda737ed8df1c25))
 
 ## v0.1.2 (2026-09-06)
 

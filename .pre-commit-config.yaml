@@ -187,6 +187,19 @@ repos:
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
+        args:
+          - feat
+          - fix
+          - docs
+          - style
+          - refactor
+          - perf
+          - test
+          - build
+          - ci
+          - chore
+          - revert
+          - milestone
   - repo: local
     hooks:
       - id: markdown-toc-creator
