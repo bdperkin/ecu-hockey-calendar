@@ -8,6 +8,15 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.2.7 (2026-09-08)
+
+### Bug Fixes
+
+- **security**: Resolve CodeQL alert 14 for stack trace exposure in health route (closes #69)
+  ([#70](https://github.com/bdperkin/ecu-hockey-calendar/pull/70),
+  [`6de0ee0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/6de0ee01c1da86657b47230fa8220fcaab10001e))
+
+
 ## v0.2.6 (2026-09-08)
 
 ### Features
