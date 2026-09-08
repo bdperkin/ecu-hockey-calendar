@@ -27,9 +27,10 @@ ______________________________________________________________________
   - [2.5. Milestone 5: v0.5.0 - CLI, Automation & Production Deployment](#25-milestone-5-v050---cli-automation--production-deployment)
     - [2.5.1. Phase 5.1: Unified Command-Line Interface](#251-phase-51-unified-command-line-interface)
     - [2.5.2. Phase 5.2: Production Deployment Strategy & Hosting Analysis](#252-phase-52-production-deployment-strategy--hosting-analysis)
-    - [2.5.3. Phase 5.3: Scheduled Automation & CI Sync Workflows](#253-phase-53-scheduled-automation--ci-sync-workflows)
-    - [2.5.4. Phase 5.4: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#254-phase-54-github-pages-documentation--static-calendar-deployment-complete)
-    - [2.5.5. Phase 5.5: Documentation Alignment](#255-phase-55-documentation-alignment)
+    - [2.5.3. Phase 5.3: Automated Container Build & Registry Publication to ghcr.io](#253-phase-53-automated-container-build--registry-publication-to-ghcrio)
+    - [2.5.4. Phase 5.4: Scheduled Automation & CI Sync Workflows](#254-phase-54-scheduled-automation--ci-sync-workflows)
+    - [2.5.5. Phase 5.5: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#255-phase-55-github-pages-documentation--static-calendar-deployment-complete)
+    - [2.5.6. Phase 5.6: Documentation Alignment](#256-phase-56-documentation-alignment)
   - [2.6. Milestone 6: v0.6.0 - Fan Engagement, Syndication & Export Formats](#26-milestone-6-v060---fan-engagement-syndication--export-formats)
     - [2.6.1. Phase 6.1: Responsive HTML Interface & Embeds](#261-phase-61-responsive-html-interface--embeds)
     - [2.6.2. Phase 6.2: RSS / Atom Syndication Feeds](#262-phase-62-rss--atom-syndication-feeds)
@@ -244,23 +245,29 @@ ______________________________________________________________________
   - **Summary:** Author `DEPLOYMENT.md` evaluating hosting providers, architecture, and operational practices.
   - **Description:** Compare Render, Railway, Fly.io, and AWS Lambda + EventBridge. Address Instagram rate limits, proxy rotation, persistent database volumes, SSL certificates, and container configuration.
 
-#### 2.5.3. Phase 5.3: Scheduled Automation & CI Sync Workflows
+#### 2.5.3. Phase 5.3: Automated Container Build & Registry Publication to ghcr.io
+
+- [ ] **[#82](https://github.com/bdperkin/ecu-hockey-calendar/issues/82) - ci(docker): automated publication of production container images to ghcr.io via GitHub Actions**
+  - **Summary:** GitHub Actions CI/CD workflow to build multi-arch container images and publish them to GitHub Container Registry (`ghcr.io`).
+  - **Description:** Build `linux/amd64` and `linux/arm64` images using `docker/build-push-action`, authenticate via `GITHUB_TOKEN`, extract semantic tags with `docker/metadata-action`, validate builds on pull requests without pushing, and publish on tagged releases.
+
+#### 2.5.4. Phase 5.4: Scheduled Automation & CI Sync Workflows
 
 - [ ] **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16) - ci(automation): automated scheduled ingestion and calendar release workflow**
   - **Summary:** GitHub Actions scheduled workflow running periodic syncs and publishing static calendar releases.
   - **Description:** Automate periodic schedule checks, publish calendar artifacts, and trigger webhooks on changes.
 
-#### 2.5.4. Phase 5.4: GitHub Pages Documentation & Static Calendar Deployment (Complete)
+#### 2.5.5. Phase 5.5: GitHub Pages Documentation & Static Calendar Deployment (Complete)
 
 - [x] **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18) - ci(pages): automated GitHub Pages deployment to `https://bdperkin.github.io/ecu-hockey-calendar/`** (Merged in [PR #19](https://github.com/bdperkin/ecu-hockey-calendar/pull/19), [PR #22](https://github.com/bdperkin/ecu-hockey-calendar/pull/22), [PR #23](https://github.com/bdperkin/ecu-hockey-calendar/pull/23))
   - **Summary:** Configure automated Sphinx documentation and static calendar asset publishing to GitHub Pages.
   - **Description:** Implement `.github/workflows/pages.yml` with `actions/upload-pages-artifact` and `actions/deploy-pages`. Build Sphinx documentation with Furo theme and publish static calendar artifacts (`calendar.ics`, `schedule.json`, `schedule.csv`) to `https://bdperkin.github.io/ecu-hockey-calendar/`.
 
-#### 2.5.5. Phase 5.5: Documentation Alignment
+#### 2.5.6. Phase 5.6: Documentation Alignment
 
 - [ ] **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect end-to-end capabilities, CLI, and production deployment.
-  - **Description:** Document `ecu-hockey` CLI subcommands, production deployment guides, static GitHub Pages calendar feeds, and automated CI workflows.
+  - **Description:** Document `ecu-hockey` CLI subcommands, production deployment guides, static GitHub Pages calendar feeds, container publication, and automated CI workflows.
 
 ### 2.6. Milestone 6: v0.6.0 - Fan Engagement, Syndication & Export Formats
 
@@ -335,6 +342,7 @@ flowchart TD
     subgraph M5["Stage 4: Milestone 5 (CLI, Deployment & Automation)"]
         T13["#13: Unified CLI (ecu-hockey)"]
         T14["#14: DEPLOYMENT.md Hosting Analysis"]
+        T82["#82: Container Publication to GHCR"]
         T16["#16: Scheduled Ingestion CI Workflow"]
         T63["#63: README & Sphinx Docs Update (v0.5.0)"]
     end
@@ -358,7 +366,8 @@ flowchart TD
     T62 --> T73
     T73 --> T13
     T13 --> T14
-    T14 --> T16
+    T14 --> T82
+    T82 --> T16
     T16 --> T63
     T63 --> T77
     T77 --> T78
@@ -382,7 +391,8 @@ flowchart TD
    - Issue **[#73](https://github.com/bdperkin/ecu-hockey-calendar/issues/73)** diagnoses version divergence, aligns git tags and GitHub Releases with completed Milestones 2, 3, and 4 (`v0.4.0`), and resolves release automation configuration before beginning Milestone 5.
 4. **Milestone 5 (CLI, Deployment & Automation)**:
    - Issue **[#13](https://github.com/bdperkin/ecu-hockey-calendar/issues/13)** unifies crawlers, reconciliation, database operations, and API serving into an interactive CLI.
-   - Issue **[#14](https://github.com/bdperkin/ecu-hockey-calendar/issues/14)** analyzes hosting architectures in `DEPLOYMENT.md`.
+   - Issue **[#14](https://github.com/bdperkin/ecu-hockey-calendar/issues/14)** analyzes hosting architectures in `DEPLOYMENT.md` and establishes multi-stage container configurations.
+   - Issue **[#82](https://github.com/bdperkin/ecu-hockey-calendar/issues/82)** establishes automated multi-architecture Docker container building and publication to `ghcr.io` via GitHub Actions.
    - Issue **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16)** automates scheduled ingestion runs in GitHub Actions, publishing static calendar feeds to GitHub Pages (leveraging the pipeline from Issue **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18)**).
    - Issue **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63)** finalizes project documentation, user guides, and Sphinx docs for the CLI and production deployment workflows.
 5. **Milestone 6 (Fan Engagement, Syndication & Export Formats)**:
