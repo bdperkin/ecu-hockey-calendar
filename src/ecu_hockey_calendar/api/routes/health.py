@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -13,6 +14,8 @@ from ecu_hockey_calendar.storage.models import DataSourceModel
 
 if TYPE_CHECKING:
     from sqlalchemy import Engine
+
+logger = logging.getLogger(__name__)
 
 health_router = APIRouter(tags=["Health"])
 
@@ -68,10 +71,11 @@ def _probe_database(engine: Engine | None) -> dict[str, Any]:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
     except Exception as exc:  # noqa: BLE001 # pylint: disable=broad-exception-caught
+        logger.warning("Database connectivity probe failed: %s", exc)
         return {
             "status": "unhealthy",
             "connected": False,
-            "error": str(exc),
+            "error": "Database connectivity probe failed",
         }
 
     return {
@@ -125,10 +129,11 @@ def _probe_scrapers(request: Request) -> dict[str, Any]:
     try:
         return {"status": "operational", "sources": _fetch_active_sources(engine)}
     except Exception as exc:  # noqa: BLE001 # pylint: disable=broad-exception-caught
+        logger.warning("Scraper health check probe failed: %s", exc)
         return {
             "status": "degraded",
             "sources": DEFAULT_SCRAPERS,
-            "error": str(exc),
+            "error": "Data source probe failed",
         }
 
 
