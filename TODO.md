@@ -255,7 +255,7 @@ ______________________________________________________________________
 
 #### 2.5.4. Phase 5.4: Automated Production Deployment to Hosting Service
 
-- [ ] **[#84](https://github.com/bdperkin/ecu-hockey-calendar/issues/84) - ci(deploy): automated production deployment to hosting service via GitHub Actions using container images**
+- [x] **[#84](https://github.com/bdperkin/ecu-hockey-calendar/issues/84) - ci(deploy): automated production deployment to hosting service via GitHub Actions using container images**
   - **Summary:** Continuous deployment GitHub Actions workflow to deploy container images to a hosting provider.
   - **Description:** Implement `.github/workflows/deploy.yml` triggered on container publication or manual dispatch, execute database schema migrations (`alembic upgrade head`), and verify post-deployment `/health` probe.
 

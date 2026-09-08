@@ -751,6 +751,73 @@ class TestServeCommand:
             assert result.exit_code == 0
             mock_run.assert_called_once_with(host="127.0.0.1", port=8000, reload=False)
 
+    def test_serve_command_with_migrate_success(self, runner: CliRunner) -> None:
+        """Verify serve command with --migrate executes run_migrations_upgrade."""
+        with (
+            patch("ecu_hockey_calendar.cli.serve.run_server") as mock_run,
+            patch(
+                "ecu_hockey_calendar.cli.serve.run_migrations_upgrade",
+            ) as mock_migrate,
+            patch.dict(os.environ, {}, clear=True),
+        ):
+            result = runner.invoke(
+                serve_command,
+                ["--migrate", "--db-url", "sqlite:///test.db"],
+            )
+            assert result.exit_code == 0
+            mock_migrate.assert_called_once_with(database_url="sqlite:///test.db")
+            mock_run.assert_called_once_with(host="127.0.0.1", port=8000, reload=False)
+            assert "Applying database schema migrations" in result.output
+            assert "Schema migrations applied successfully." in result.output
+
+    def test_serve_command_with_migrate_failure(self, runner: CliRunner) -> None:
+        """Verify serve aborts and does not start server when migration fails."""
+        with (
+            patch("ecu_hockey_calendar.cli.serve.run_server") as mock_run,
+            patch(
+                "ecu_hockey_calendar.cli.serve.run_migrations_upgrade",
+                side_effect=RuntimeError("Alembic migration failed to connect"),
+            ) as mock_migrate,
+            patch.dict(os.environ, {}, clear=True),
+        ):
+            result = runner.invoke(serve_command, ["--migrate"])
+            assert result.exit_code != 0
+            mock_migrate.assert_called_once_with(database_url=None)
+            mock_run.assert_not_called()
+            assert "Alembic migration failed to connect" in result.output
+
+    def test_serve_command_auto_migrate_envvar(self, runner: CliRunner) -> None:
+        """Verify AUTO_MIGRATE=true environment variable triggers migrations."""
+        with (
+            patch("ecu_hockey_calendar.cli.serve.run_server") as mock_run,
+            patch(
+                "ecu_hockey_calendar.cli.serve.run_migrations_upgrade",
+            ) as mock_migrate,
+            patch.dict(os.environ, {"AUTO_MIGRATE": "true"}, clear=True),
+        ):
+            result = runner.invoke(serve_command, [])
+            assert result.exit_code == 0
+            mock_migrate.assert_called_once_with(database_url=None)
+            mock_run.assert_called_once()
+            assert "Schema migrations applied successfully." in result.output
+
+    def test_serve_command_auto_migrate_disabled_envvar(
+        self,
+        runner: CliRunner,
+    ) -> None:
+        """Verify AUTO_MIGRATE=false environment variable skips migrations."""
+        with (
+            patch("ecu_hockey_calendar.cli.serve.run_server") as mock_run,
+            patch(
+                "ecu_hockey_calendar.cli.serve.run_migrations_upgrade",
+            ) as mock_migrate,
+            patch.dict(os.environ, {"AUTO_MIGRATE": "false"}, clear=True),
+        ):
+            result = runner.invoke(serve_command, [])
+            assert result.exit_code == 0
+            mock_migrate.assert_not_called()
+            mock_run.assert_called_once()
+
 
 class TestSyncCommand:
     """Tests for 'ecu-hockey sync' command."""

@@ -1,0 +1,207 @@
+---
+name: Deploy
+on:
+  workflow_run:
+    workflows: [Docker]
+    types: [completed]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target deployment environment
+        required: true
+        default: production
+        type: choice
+        options: [production, staging]
+      image_tag:
+        description: Container image tag to deploy (e.g. latest, edge, v0.5.0)
+        required: false
+        default: latest
+        type: string
+concurrency:
+  group: deploy-${{ github.event.inputs.environment || 'production' }}
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  deploy:
+    name: Deploy to Hosting Platform
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'release' ||
+      (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        (github.event.workflow_run.head_branch == 'main' ||
+          startsWith(github.event.workflow_run.head_branch, 'v')))
+    environment:
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: ${{ steps.check-health.outputs.health_url || secrets.PRODUCTION_URL || vars.PRODUCTION_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Resolve deployment parameters
+        id: params
+        run: |
+          ENV_NAME="${{ github.event.inputs.environment || 'production' }}"
+          IMAGE_TAG="${{ github.event.inputs.image_tag || 'latest' }}"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            if [ "${{ github.event.workflow_run.head_branch }}" = "main" ]; then
+              IMAGE_TAG="edge"
+            else
+              IMAGE_TAG="${{ github.event.workflow_run.head_branch }}"
+            fi
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            IMAGE_TAG="${{ github.event.release.tag_name || 'latest' }}"
+          fi
+          echo "env_name=$ENV_NAME" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+          echo "Deployment target environment: $ENV_NAME"
+          echo "Deployment target container image tag: $IMAGE_TAG"
+      - name: Trigger hosting deployment
+        id: deploy
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          IMAGE_TAG: ${{ steps.params.outputs.image_tag }}
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          DEPLOYED="false"
+          MECHANISM="None"
+          if [ -n "$DEPLOY_HOOK_URL" ]; then
+            echo "Triggering cloud deployment via Deploy Hook URL..."
+            RESPONSE=$(curl -fsSL -X POST -w "\nHTTP_CODE:%{http_code}" "$DEPLOY_HOOK_URL" 2>&1)
+            HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
+            echo "Deploy hook response HTTP code: $HTTP_CODE"
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+              echo "Deploy hook triggered successfully."
+              DEPLOYED="true"
+              MECHANISM="Deploy Hook Webhook"
+            else
+              echo "::error::Deploy hook trigger failed with HTTP $HTTP_CODE: $RESPONSE"
+              exit 1
+            fi
+          elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
+            echo "Triggering cloud deployment via Render REST API..."
+            RESPONSE=$(curl -fsSL -X POST \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d "{\"imageUrl\": \"ghcr.io/${{ github.repository }}:$IMAGE_TAG\"}" \
+              -w "\nHTTP_CODE:%{http_code}" \
+              "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" 2>&1)
+            HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
+            echo "Render API response HTTP code: $HTTP_CODE"
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+              echo "Render API deployment initiated successfully."
+              DEPLOYED="true"
+              MECHANISM="Render REST API"
+            else
+              echo "::error::Render API deploy failed with HTTP $HTTP_CODE: $RESPONSE"
+              exit 1
+            fi
+          elif [ -n "$FLY_API_TOKEN" ]; then
+            echo "Triggering cloud deployment via Fly.io..."
+            if command -v flyctl >/dev/null 2>&1; then
+              flyctl deploy --image "ghcr.io/${{ github.repository }}:$IMAGE_TAG"
+              DEPLOYED="true"
+              MECHANISM="Fly.io CLI"
+            else
+              echo "::warning::flyctl binary not found; skipping flyctl CLI execution."
+            fi
+          else
+            if [ "$IS_DISPATCH" = "true" ]; then
+              echo "::error::No deployment credentials found! Please configure DEPLOY_HOOK_URL or RENDER_API_KEY in repository/environment secrets."
+              exit 1
+            else
+              echo "::warning::No deployment credentials configured (DEPLOY_HOOK_URL, RENDER_API_KEY, or FLY_API_TOKEN). Skipping cloud deployment."
+              MECHANISM="Skipped (Credentials Unset)"
+            fi
+          fi
+          echo "deployed=$DEPLOYED" >> "$GITHUB_OUTPUT"
+          echo "mechanism=$MECHANISM" >> "$GITHUB_OUTPUT"
+      - name: Verify post-deployment service health
+        id: check-health
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL || vars.PRODUCTION_URL }}
+          DEPLOYED: ${{ steps.deploy.outputs.deployed }}
+        run: |
+          if [ "$DEPLOYED" != "true" ]; then
+            echo "Deployment was skipped or unconfigured; skipping health verification."
+            echo "health_status=SKIPPED" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$PRODUCTION_URL" ]; then
+            echo "::notice::PRODUCTION_URL secret/variable is not set. Skipping post-deployment health check probe."
+            echo "health_status=SKIPPED_NO_URL" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          HEALTH_URL="${PRODUCTION_URL%/}/health"
+          echo "health_url=$HEALTH_URL" >> "$GITHUB_OUTPUT"
+          echo "Initiating health probe polling against $HEALTH_URL..."
+          MAX_RETRIES=30
+          RETRY_DELAY=10
+          HEALTHY="false"
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Health probe attempt $i of $MAX_RETRIES (delay ${RETRY_DELAY}s)..."
+            HTTP_STATUS=$(curl -s -o /tmp/health_response.json -w "%{http_code}" -m 10 "$HEALTH_URL" || true)
+            if [ "$HTTP_STATUS" = "200" ]; then
+              STATUS=$(jq -r '.status // empty' /tmp/health_response.json 2>/dev/null || true)
+              if [ "$STATUS" = "healthy" ]; then
+                echo "Service is healthy! Response payload:"
+                cat /tmp/health_response.json
+                echo ""
+                HEALTHY="true"
+                break
+              else
+                echo "HTTP 200 received but service status reported: '$STATUS'"
+              fi
+            else
+              echo "HTTP status $HTTP_STATUS received from $HEALTH_URL"
+            fi
+            sleep $RETRY_DELAY
+          done
+          if [ "$HEALTHY" != "true" ]; then
+            echo "::error::Health check probe failed: Service at $HEALTH_URL did not become healthy within $((MAX_RETRIES * RETRY_DELAY)) seconds."
+            if [ -f /tmp/health_response.json ]; then
+              echo "Last received response body:"
+              cat /tmp/health_response.json
+              echo ""
+            fi
+            echo "health_status=FAILED" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "health_status=HEALTHY" >> "$GITHUB_OUTPUT"
+      - name: Generate deployment job summary
+        if: always()
+        env:
+          ENV_NAME: ${{ steps.params.outputs.env_name }}
+          IMAGE_TAG: ${{ steps.params.outputs.image_tag }}
+          MECHANISM: ${{ steps.deploy.outputs.mechanism }}
+          HEALTH_STATUS: ${{ steps.check-health.outputs.health_status }}
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL || vars.PRODUCTION_URL }}
+        run: |-
+          {
+            echo "## 🚀 Continuous Deployment Summary"
+            echo ""
+            echo "| Parameter | Value |"
+            echo "| :--- | :--- |"
+            echo "| **Target Environment** | \`${ENV_NAME}\` |"
+            echo "| **Trigger Event** | \`${{ github.event_name }}\` |"
+            echo "| **Container Image** | \`ghcr.io/${{ github.repository }}:${IMAGE_TAG}\` |"
+            echo "| **Commit Ref** | \`${{ github.sha }}\` |"
+            echo "| **Deployment Mechanism** | ${MECHANISM} |"
+            echo "| **Health Status** | \`${HEALTH_STATUS}\` |"
+            if [ -n "$PRODUCTION_URL" ]; then
+              echo "| **Production Service** | [${PRODUCTION_URL}](${PRODUCTION_URL}) |"
+              echo ""
+              echo "### 🌐 Live Service Endpoints"
+              echo "- [iCalendar (.ics) Feed](${PRODUCTION_URL%/}/calendar.ics)"
+              echo "- [Master Schedule JSON](${PRODUCTION_URL%/}/api/schedule.json)"
+              echo "- [Master Schedule CSV](${PRODUCTION_URL%/}/api/schedule.csv)"
+              echo "- [Interactive OpenAPI Docs](${PRODUCTION_URL%/}/docs)"
+              echo "- [Health Diagnostics](${PRODUCTION_URL%/}/health)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

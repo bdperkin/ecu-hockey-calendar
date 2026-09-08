@@ -64,6 +64,24 @@ Database schema migrations are managed via Alembic:
 docker compose exec api alembic upgrade head
 ```
 
+### 2.4. Continuous Deployment via GitHub Actions
+
+The repository includes an automated Continuous Deployment workflow (`.github/workflows/deploy.yml`):
+
+- **Automatic Trigger**: Executes upon successful completion of the `Docker` build workflow on `main` (deploying `edge`), or on release publication (`vX.Y.Z`).
+- **Manual Trigger**: Supports `workflow_dispatch` with environment selection (`production` or `staging`) and custom image tags.
+- **Pre-Deploy Migrations**: Runs schema migrations (`alembic upgrade head`) before serving traffic to prevent incompatible states.
+- **Automated Health Verification**: Polls `/health` for up to 5 minutes to ensure service stability before completing the deployment.
+
+To configure CD:
+
+1. In GitHub Repository **Settings** > **Environments**, create the `production` environment.
+2. Add secrets `DEPLOY_HOOK_URL` (Render deploy hook) and `PRODUCTION_URL` (public HTTPS URL).
+
+### 2.5. Turnkey Render Blueprint
+
+Deploy the entire production stack (FastAPI service, PostgreSQL database, and 6-hour cron worker) with a single click using [`render.yaml`](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/render.yaml) in the Render dashboard.
+
 ## 3. Hosting Platform Recommendations
 
 - **Recommended PaaS Stack**: **Railway** or **Render** with managed PostgreSQL and scheduled background worker jobs.
@@ -75,3 +93,11 @@ docker compose exec api alembic upgrade head
 - **SSL/TLS Termination**: Calendar clients strictly mandate trusted CA-signed TLS certificates. Use managed certificates (Let's Encrypt / Cloudflare) provided automatically by Render, Railway, or Fly.io.
 - **Instagram Anti-Bot Mitigation**: Rotate residential proxies via `PROXY_URL`, implement exponential backoff, and rely on non-blocking fallback so scraper hiccups never impede primary fixture updates.
 - **Database Persistence**: Prefer managed PostgreSQL for multi-replica concurrency and automated point-in-time recovery.
+
+## 5. Operational Runbook & Emergency Rollback
+
+If a deployment fails or causes degradation:
+
+1. **Review CI Summary**: Check GitHub Actions step summary for deployment and health check status.
+2. **Inspect Logs**: Check hosting provider logs (Render / Railway / Fly.io) for Python traceback or migration errors.
+3. **Rollback**: In the hosting dashboard, click **Rollback to this deploy** on the last healthy version, or dispatch `.github/workflows/deploy.yml` with the previous image tag.
