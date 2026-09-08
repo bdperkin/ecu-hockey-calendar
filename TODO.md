@@ -249,7 +249,7 @@ ______________________________________________________________________
 
 #### 2.5.3. Phase 5.3: Automated Container Build & Registry Publication to ghcr.io
 
-- [ ] **[#82](https://github.com/bdperkin/ecu-hockey-calendar/issues/82) - ci(docker): automated publication of production container images to ghcr.io via GitHub Actions**
+- [x] **[#82](https://github.com/bdperkin/ecu-hockey-calendar/issues/82) - ci(docker): automated publication of production container images to ghcr.io via GitHub Actions**
   - **Summary:** GitHub Actions CI/CD workflow to build multi-arch container images and publish them to GitHub Container Registry (`ghcr.io`).
   - **Description:** Build `linux/amd64` and `linux/arm64` images using `docker/build-push-action`, authenticate via `GITHUB_TOKEN`, extract semantic tags with `docker/metadata-action`, validate builds on pull requests without pushing, and publish on tagged releases.
 

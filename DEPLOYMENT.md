@@ -26,8 +26,10 @@ ______________________________________________________________________
   - [5.2. Architecture Recommendation](#52-architecture-recommendation)
 - [6. Containerization Guide](#6-containerization-guide)
   - [6.1. Multi-Stage Dockerfile Architecture](#61-multi-stage-dockerfile-architecture)
-  - [6.2. Local Container Deployment with Docker Compose](#62-local-container-deployment-with-docker-compose)
-  - [6.3. Running Database Migrations in Container](#63-running-database-migrations-in-container)
+  - [6.2. Published Container Images (ghcr.io)](#62-published-container-images-ghcrio)
+  - [6.3. Local Container Deployment with Docker Compose](#63-local-container-deployment-with-docker-compose)
+  - [6.4. Running Database Migrations in Container](#64-running-database-migrations-in-container)
+  - [6.5. Automated GitHub Actions Container Pipeline](#65-automated-github-actions-container-pipeline)
 - [7. Platform-Specific Deployment Walkthroughs](#7-platform-specific-deployment-walkthroughs)
   - [7.1. Walkthrough A: Deploying to Render](#71-walkthrough-a-deploying-to-render)
   - [7.2. Walkthrough B: Deploying to Railway](#72-walkthrough-b-deploying-to-railway)
@@ -293,7 +295,7 @@ ______________________________________________________________________
 
 ## 6. Containerization Guide
 
-The repository includes a production-ready, multi-stage [`Dockerfile`](Dockerfile) and orchestration configuration in [`docker-compose.yml`](docker-compose.yml).
+The repository includes a production-ready, multi-stage [`Dockerfile`](Dockerfile), orchestration configuration in [`docker-compose.yml`](docker-compose.yml), and an automated CI/CD publication pipeline via GitHub Actions to GitHub Container Registry ([`ghcr.io/bdperkin/ecu-hockey-calendar`](https://github.com/bdperkin/ecu-hockey-calendar/pkgs/container/ecu-hockey-calendar)).
 
 ### 6.1. Multi-Stage Dockerfile Architecture
 
@@ -302,7 +304,29 @@ The build process uses two stages:
 1. **`builder` stage**: Uses `ghcr.io/astral-sh/uv` to synchronize dependencies from `uv.lock` in bytecode-compiled format without installing developer dependencies.
 2. **`runtime` stage**: A minimal `python:3.12-slim` image containing only production dependencies, an unprivileged `appuser` (UID 10001), healthcheck utilities, and the project entrypoints.
 
-### 6.2. Local Container Deployment with Docker Compose
+### 6.2. Published Container Images (ghcr.io)
+
+Pre-built multi-architecture images (`linux/amd64`, `linux/arm64`) are automatically compiled and published to GitHub Container Registry upon each semantic release and merge to `main`.
+
+To pull and run the latest image directly without building from source:
+
+```bash
+# Pull the latest container image
+docker pull ghcr.io/bdperkin/ecu-hockey-calendar:latest
+
+# Run standalone container with SQLite storage volume
+docker run -d \
+  --name ecu-hockey-calendar \
+  -p 8000:8000 \
+  -v calendar_data:/data \
+  -e DATABASE_URL=sqlite:////data/ecu_hockey.db \
+  ghcr.io/bdperkin/ecu-hockey-calendar:latest
+
+# Verify service health
+curl -s http://localhost:8000/health | jq .
+```
+
+### 6.3. Local Container Deployment with Docker Compose
 
 To spin up the complete production environment locally (FastAPI service + PostgreSQL + Scraper Worker):
 
@@ -310,7 +334,10 @@ To spin up the complete production environment locally (FastAPI service + Postgr
 # Copy environment template
 cp .env.example .env
 
-# Build and launch containers in detached mode
+# Launch containers in detached mode using published GHCR image
+docker compose up -d
+
+# Or build locally from source in detached mode
 docker compose up -d --build
 
 # Verify container health status
@@ -327,7 +354,7 @@ curl -s http://localhost:8000/health | jq .
 curl -s http://localhost:8000/calendar.ics -o schedule.ics
 ```
 
-### 6.3. Running Database Migrations in Container
+### 6.4. Running Database Migrations in Container
 
 Alembic migrations run automatically on container startup or manually on demand:
 
@@ -338,6 +365,16 @@ docker compose exec api alembic upgrade head
 # Check current revision
 docker compose exec api alembic current
 ```
+
+### 6.5. Automated GitHub Actions Container Pipeline
+
+Container builds and publications are automated through `.github/workflows/docker.yml`:
+
+- **Multi-Architecture Support**: Compiles native binaries for `linux/amd64` (Intel/AMD) and `linux/arm64` (Apple Silicon, AWS Graviton) using QEMU and Docker Buildx.
+- **Build Caching**: Leverages GitHub Actions cache backend (`type=gha`) for ultra-fast incremental layer compilation.
+- **Release Tagging**: Automatically tags images with semantic versioning tags (`vX.Y.Z`, `vX.Y`, `latest`) on tagged releases, and `edge` on commits to `main`.
+- **Pull Request Validation**: Validates Docker build integrity on pull requests without pushing to the registry.
+- **Supply-Chain Security**: Generates SLSA build provenance attestations and Software Bill of Materials (SBOM).
 
 ______________________________________________________________________
 

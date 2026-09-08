@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ecu-hockey-calendar:latest
+    image: ${DOCKER_IMAGE:-ghcr.io/bdperkin/ecu-hockey-calendar:latest}
     container_name: ecu_hockey_api
     restart: unless-stopped
     ports: ['${PORT:-8000}:8000']
@@ -36,7 +36,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ecu-hockey-calendar:latest
+    image: ${DOCKER_IMAGE:-ghcr.io/bdperkin/ecu-hockey-calendar:latest}
     container_name: ecu_hockey_worker
     restart: unless-stopped
     command: [sh, -c, while true; do ecu-hockey sync --notify; sleep 21600; done]
