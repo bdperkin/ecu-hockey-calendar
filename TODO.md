@@ -13,7 +13,7 @@ ______________________________________________________________________
     - [2.2.1. Phase 2.1: Relational Persistence & Schema Migrations](#221-phase-21-relational-persistence--schema-migrations)
     - [2.2.2. Phase 2.2: Primary & League Web Crawlers](#222-phase-22-primary--league-web-crawlers)
     - [2.2.3. Phase 2.3: Social & Opponent Reverse Crawlers](#223-phase-23-social--opponent-reverse-crawlers)
-  - [2.3. Milestone 3: v0.3.0 - Schedule Reconciliation, Change Detection & Alerts (In Progress)](#23-milestone-3-v030---schedule-reconciliation-change-detection--alerts-in-progress)
+  - [2.3. Milestone 3: v0.3.0 - Schedule Reconciliation, Change Detection & Alerts (Complete)](#23-milestone-3-v030---schedule-reconciliation-change-detection--alerts-complete)
     - [2.3.1. Phase 3.1: Tooling & Release Infrastructure Hygiene](#231-phase-31-tooling--release-infrastructure-hygiene)
     - [2.3.2. Phase 3.2: Reconciliation & Conflict Resolution Engine](#232-phase-32-reconciliation--conflict-resolution-engine)
     - [2.3.3. Phase 3.3: Change State Detection & Audit History](#233-phase-33-change-state-detection--audit-history)
@@ -149,7 +149,7 @@ ______________________________________________________________________
   - **Summary:** Automatically query and cross-verify preliminary game data against opponent schedule sources.
   - **Description:** Maintain opponent directory (UNC, NC State, Virginia Tech, Wake Forest, etc.) and cross-check dates, venues, and times.
 
-### 2.3. Milestone 3: v0.3.0 - Schedule Reconciliation, Change Detection & Alerts (In Progress)
+### 2.3. Milestone 3: v0.3.0 - Schedule Reconciliation, Change Detection & Alerts (Complete)
 
 #### 2.3.1. Phase 3.1: Tooling & Release Infrastructure Hygiene
 
@@ -163,12 +163,12 @@ ______________________________________________________________________
   - **Summary:** Configure PSR changelog update insertion markers, repository secrets, and CI release permissions.
   - **Description:** Add `<!-- version list -->` insertion flag to `CHANGELOG.md`, backfill historical release entries, configure `RELEASE_TOKEN` secret for branch protection bypass, and exclude `CHANGELOG.md` from markdown pre-commit hooks.
 - [x] **[#48](https://github.com/bdperkin/ecu-hockey-calendar/issues/48) - fix(release): diagnose and align release versioning with project milestones (currently at v0.8.2 instead of v0.2.0)** (Merged in [PR #57](https://github.com/bdperkin/ecu-hockey-calendar/pull/57))
-  - **Summary:** Reconcile release automation with roadmap milestones and remediate release history.
-  - **Description:** Configure PSR commit parser options (`minor_tags = ["milestone"]`, `patch_tags = ["feat", "fix", "perf"]`) for 0.x milestone progression, allow `milestone` type in `conventional-pre-commit`, add `workflow_dispatch` trigger, reset inflated git tags and GitHub releases to canonical `v0.2.0` at Milestone 2 completion, and align `CHANGELOG.md`.
+  - **Summary:** Align project version tags and package metadata with planned milestones.
+  - **Description:** Adjust tag namespace and reset release version progression so that Milestone 3 releases as `v0.3.0`.
 
 #### 2.3.2. Phase 3.2: Reconciliation & Conflict Resolution Engine
 
-- [x] **[#8](https://github.com/bdperkin/ecu-hockey-calendar/issues/8) - feat(reconciliation): implement fuzzy-matching and multi-source conflict resolution engine** (Merged in [PR #38](https://github.com/bdperkin/ecu-hockey-calendar/pull/38))
+- [x] **[#8](https://github.com/bdperkin/ecu-hockey-calendar/issues/8) - feat(reconciliation): multi-source schedule cross-referencing and conflict resolution engine** (Merged in [PR #38](https://github.com/bdperkin/ecu-hockey-calendar/pull/38), fixed in [PR #40](https://github.com/bdperkin/ecu-hockey-calendar/pull/40) & [PR #42](https://github.com/bdperkin/ecu-hockey-calendar/pull/42))
   - **Summary:** Cross-reference data across disparate sources using deterministic and fuzzy scoring.
   - **Description:** Enforce configurable precedence hierarchy (Primary SOT + League > Ticketing/Social > Opponent). Detect discrepancies and flag high-confidence conflicts for review.
 - [x] **[#39](https://github.com/bdperkin/ecu-hockey-calendar/issues/39) - fix(security): resolve CodeQL alert 12 for unused global variable in fuzzy_matcher** (Merged in [PR #40](https://github.com/bdperkin/ecu-hockey-calendar/pull/40))
@@ -192,9 +192,9 @@ ______________________________________________________________________
 
 #### 2.3.5. Phase 3.5: Documentation Alignment
 
-- [ ] **[#46](https://github.com/bdperkin/ecu-hockey-calendar/issues/46) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
+- [x] **[#46](https://github.com/bdperkin/ecu-hockey-calendar/issues/46) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect current project capabilities.
-  - **Description:** Document multi-source crawler architecture, SQLAlchemy persistence layer, reconciliation engine, and usage examples.
+  - **Description:** Document multi-source crawler architecture, SQLAlchemy persistence layer, reconciliation engine, change detection, and webhook notifications with usage examples.
 
 ### 2.4. Milestone 4: v0.4.0 - Calendar & Data API Service
 
@@ -286,7 +286,7 @@ flowchart TD
         T48["#48: Align Release Versioning with Milestones"]
     end
 
-    subgraph M3["Stage 2: Milestone 3 Completion (Active)"]
+    subgraph M3["Stage 2: Milestone 3 Completion (Complete)"]
         T9["#9: Change Detection & State Tracking"]
         T15["#15: Webhook Notification Dispatcher"]
         T46["#46: README & Sphinx Docs Update"]

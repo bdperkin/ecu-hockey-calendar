@@ -12,6 +12,10 @@ tracking team matches, and exporting calendar fixtures to standard iCalendar
 
 installation
 quickstart
+ingestion
+storage
+reconciliation
+notifications
 api
 contributing
 changelog
@@ -19,10 +23,14 @@ changelog
 
 ## 1. Features
 
-- **Standardized Data Models**: Strict typing for teams, games, results, and season schedules.
-- **RFC 5545 iCalendar Export**: Generate calendar files directly importable into Google Calendar, Apple Calendar, and Microsoft Outlook.
-- **Interoperability**: Export to CSV, JSON, and dictionary representations.
-- **Strict Quality**: 100% test coverage, strict type annotations checked by `ty`, and formatting via `ruff`.
+- **Multi-Source Web Crawlers**: Automated ingestion from official team sites (`ecuhockey.com`), ACCHL league portals (`acchockey.com`), ticketing platforms, Instagram feeds, and opponent calendars.
+- **Relational Persistence & Migrations**: SQLAlchemy 2.0 ORM models for SQLite and PostgreSQL with automated Alembic schema migrations.
+- **Schedule Reconciliation Engine**: Multi-tier source precedence, opponent and venue fuzzy matching, and timezone-aware date alignment.
+- **Change Detection & Audit Trail**: Real-time diffing of game schedule changes, cancellations, and conflict flags with full cycle telemetry.
+- **Multi-Platform Webhook Alerts**: Rich formatted alerts dispatched to Discord, Slack, and Telegram channels.
+- **RFC 5545 iCalendar Export**: Generate calendar feeds (`.ics`) directly importable into Google Calendar, Apple Calendar, and Microsoft Outlook.
+- **Interoperability**: Export schedules to CSV, JSON, and dictionary representations.
+- **Strict Quality**: 100% line and branch test coverage, strict type annotations checked by `ty`, and formatting via `ruff`.
 
 ## 2. Indices and tables
 
