@@ -31,12 +31,22 @@ ______________________________________________________________________
     - [2.5.4. Phase 5.4: Automated Production Deployment to Hosting Service](#254-phase-54-automated-production-deployment-to-hosting-service)
     - [2.5.5. Phase 5.5: Scheduled Automation & CI Sync Workflows](#255-phase-55-scheduled-automation--ci-sync-workflows)
     - [2.5.6. Phase 5.6: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#256-phase-56-github-pages-documentation--static-calendar-deployment-complete)
-    - [2.5.7. Phase 5.7: Repository Badges & Status Indicators](#257-phase-57-repository-badges--status-indicators)
-    - [2.5.8. Phase 5.8: Documentation Alignment](#258-phase-58-documentation-alignment)
-  - [2.6. Milestone 6: v0.6.0 - Fan Engagement, Syndication & Export Formats](#26-milestone-6-v060---fan-engagement-syndication--export-formats)
+    - [2.5.7. Phase 5.7: Build Version Provenance & Deployed Version Reporting](#257-phase-57-build-version-provenance--deployed-version-reporting)
+    - [2.5.8. Phase 5.8: Production Service Documentation & End-User Onboarding](#258-phase-58-production-service-documentation--end-user-onboarding)
+    - [2.5.9. Phase 5.9: Administrative Endpoint Behavior Audit](#259-phase-59-administrative-endpoint-behavior-audit)
+    - [2.5.10. Phase 5.10: Repository Badges & Status Indicators](#2510-phase-510-repository-badges--status-indicators)
+    - [2.5.11. Phase 5.11: Documentation Alignment](#2511-phase-511-documentation-alignment)
+  - [2.6. Milestone 6: v0.6.0 - Public Web Interface & Fan Engagement](#26-milestone-6-v060---public-web-interface--fan-engagement)
     - [2.6.1. Phase 6.1: Responsive HTML Interface & Embeds](#261-phase-61-responsive-html-interface--embeds)
-    - [2.6.2. Phase 6.2: RSS / Atom Syndication Feeds](#262-phase-62-rss--atom-syndication-feeds)
-    - [2.6.3. Phase 6.3: Printable Schedule Grid PDF Generation](#263-phase-63-printable-schedule-grid-pdf-generation)
+    - [2.6.2. Phase 6.2: Dual-Format Content Negotiation Foundation](#262-phase-62-dual-format-content-negotiation-foundation)
+    - [2.6.3. Phase 6.3: Negotiated Error Responses](#263-phase-63-negotiated-error-responses)
+    - [2.6.4. Phase 6.4: Printable Schedule Grid PDF Generation](#264-phase-64-printable-schedule-grid-pdf-generation)
+  - [2.7. Milestone 7: v0.7.0 - Human-Readable Operations & Diagnostics](#27-milestone-7-v070---human-readable-operations--diagnostics)
+    - [2.7.1. Phase 7.1: Operational Telemetry Dashboards](#271-phase-71-operational-telemetry-dashboards)
+    - [2.7.2. Phase 7.2: Administrative Conflict Triage Interface](#272-phase-72-administrative-conflict-triage-interface)
+  - [2.8. Milestone 8: v0.8.0 - Syndication & Integrations](#28-milestone-8-v080---syndication--integrations)
+    - [2.8.1. Phase 8.1: RSS / Atom Syndication Feeds](#281-phase-81-rss--atom-syndication-feeds)
+    - [2.8.2. Phase 8.2: Comprehensive Documentation Audit & Reconciliation](#282-phase-82-comprehensive-documentation-audit--reconciliation)
 - [3. CodeQL Security & Quality Audit Trail](#3-codeql-security--quality-audit-trail)
 - [4. Implementation Sequencing & Dependency Graph](#4-implementation-sequencing--dependency-graph)
   - [4.1. Sequencing Rationale](#41-sequencing-rationale)
@@ -271,19 +281,41 @@ ______________________________________________________________________
   - **Summary:** Configure automated Sphinx documentation and static calendar asset publishing to GitHub Pages.
   - **Description:** Implement `.github/workflows/pages.yml` with `actions/upload-pages-artifact` and `actions/deploy-pages`. Build Sphinx documentation with Furo theme and publish static calendar artifacts (`calendar.ics`, `schedule.json`, `schedule.csv`) to `https://bdperkin.github.io/ecu-hockey-calendar/`.
 
-#### 2.5.7. Phase 5.7: Repository Badges & Status Indicators
+#### 2.5.7. Phase 5.7: Build Version Provenance & Deployed Version Reporting
+
+- [ ] **[#94](https://github.com/bdperkin/ecu-hockey-calendar/issues/94) - fix(packaging): resolve fallback version 0.1.0.dev0 reported by containerized API and deployments**
+  - **Summary:** Propagate the real `hatch-vcs` version into container builds so deployed services stop reporting the `0.1.0.dev0` fallback.
+  - **Description:** Stamp builds via `SETUPTOOLS_SCM_PRETEND_VERSION_FOR_ECU_HOCKEY_CALENDAR` using a `Dockerfile` build argument supplied by `.github/workflows/docker.yml`, keeping `.git` excluded from the build context. Consolidate the divergent hardcoded fallbacks in `src/ecu_hockey_calendar/__init__.py`, `src/ecu_hockey_calendar/api/app.py`, and `docs/conf.py` into a single shared resolver with an unmistakable non-release sentinel, and add regression and deployment smoke coverage asserting `/` and `/openapi.json` report the true release version.
+
+#### 2.5.8. Phase 5.8: Production Service Documentation & End-User Onboarding
+
+- [ ] **[#95](https://github.com/bdperkin/ecu-hockey-calendar/issues/95) - docs(deployment): document live production deployment at ecu-hockey-api.onrender.com with full endpoint reference**
+  - **Summary:** Document the live production service at `https://ecu-hockey-api.onrender.com/` across `README.md`, `DEPLOYMENT.md`, and `docs/deployment.md`.
+  - **Description:** Add a concise deployment summary and subscription URL to `README.md`, and a comprehensive reference to `DEPLOYMENT.md` and `docs/deployment.md` covering every endpoint (`/`, `/health`, `/calendar.ics`, `/api/schedule.json`, `/api/schedule.csv`, `/api/v1/sync/status`, `/api/v1/sync/trigger`, `/api/v1/conflicts`, `/docs`, `/redoc`, `/openapi.json`) with methods, content types, authentication, and query parameters. Document the deployed Render topology (web service, six-hourly cron worker, managed PostgreSQL), correct the stale `ecu-hockey.onrender.com` placeholder, and surface the public base URL in `docs/api_service.md`, `docs/quickstart.md`, and `docs/index.md`.
+- [ ] **[#96](https://github.com/bdperkin/ecu-hockey-calendar/issues/96) - docs(calendar): add end-user ECU Hockey Calendar Sync Guide for Google, Apple, and Outlook subscriptions**
+  - **Summary:** Publish a non-technical, step-by-step guide for subscribing to the live schedule feed in Google Calendar, Apple Calendar, and Outlook.
+  - **Description:** Add `docs/calendar_sync.md` to the Sphinx toctree with numbered per-client instructions for the production HTTPS feed (`https://ecu-hockey-api.onrender.com/calendar.ics`) and the macOS/iOS instant subscription URL (`webcal://ecu-hockey-api.onrender.com/calendar.ics`), a one-click `?webcal=true` subscribe link, optional `season`, `include_past`, and `alarm_minutes` filters, and a troubleshooting FAQ covering refresh cadence and cold-start latency. Document the equivalent local development flow, add a concise subscribe section to `README.md`, and replace the `your-domain.com` placeholders in `docs/api_service.md` with cross-links to the guide.
+
+#### 2.5.9. Phase 5.9: Administrative Endpoint Behavior Audit
+
+- [ ] **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102) - investigate(api): determine intended behavior of POST /api/v1/sync/trigger and whether it warrants dual-format responses**
+
+  - **Summary:** Investigate why `POST /api/v1/sync/trigger` reports success while performing no synchronization, and recommend the correct behavior before considering an HTML interface.
+  - **Description:** `trigger_sync_cycle` dispatches through an optional `app.state.sync_trigger_handler` hook that `create_app` never assigns, so production requests return `202 Accepted` with a success message and an unused `sync_cycle_id` while no crawl runs. Determine whether this is intentional, weigh real trigger mechanisms against the split web/cron service topology and scraper rate limits, decide the honest response semantics when no mechanism is wired, and only then evaluate dual-format output versus a dashboard "Sync now" control. Raise follow-up implementation issues for the conclusions.
+
+#### 2.5.10. Phase 5.10: Repository Badges & Status Indicators
 
 - [ ] **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86) - docs(readme): audit project and implement missing status, quality, and technology badges**
   - **Summary:** Audit project workflows, security, and dependencies, and add missing badges to `README.md`.
   - **Description:** Identify and incorporate status badges for GitHub Pages documentation, CodeQL security scanning, pre-commit.ci, dependency review, semantic release, FastAPI, SQLAlchemy, and license/security policies into logically organized badge sections.
 
-#### 2.5.8. Phase 5.8: Documentation Alignment
+#### 2.5.11. Phase 5.11: Documentation Alignment
 
 - [ ] **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect end-to-end capabilities, CLI, and production deployment.
   - **Description:** Document `ecu-hockey` CLI subcommands, production deployment guides, static GitHub Pages calendar feeds, container publication, and automated CI workflows.
 
-### 2.6. Milestone 6: v0.6.0 - Fan Engagement, Syndication & Export Formats
+### 2.6. Milestone 6: v0.6.0 - Public Web Interface & Fan Engagement
 
 #### 2.6.1. Phase 6.1: Responsive HTML Interface & Embeds
 
@@ -291,17 +323,60 @@ ______________________________________________________________________
   - **Summary:** Mobile-first HTML schedule view and lightweight embeddable iframe route powered by Jinja2 templates.
   - **Description:** Provide `/schedule` web interface with ECU branding, fixture cards, and ticket links, plus `/schedule/embed` stripped-down widget and iframe snippet for external community sites.
 
-#### 2.6.2. Phase 6.2: RSS / Atom Syndication Feeds
+#### 2.6.2. Phase 6.2: Dual-Format Content Negotiation Foundation
+
+- [ ] **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97) - feat(api): content-negotiated HTML and JSON responses for service status endpoint (/)**
+
+  - **Summary:** Serve both `application/json` and `text/html; charset=utf-8` from `GET /`, and establish the shared content negotiation and Jinja2 templating foundation.
+  - **Description:** Add the `jinja2` runtime dependency, a packaged `src/ecu_hockey_calendar/api/templates/` directory, a `negotiation.py` helper implementing `Accept` q-value ranking with a `?format=` override and `Vary: Accept`, and an ECU-branded responsive `base.html` layout with a shared "View as JSON" control and pretty-printed payload panel. Render the service status page with the `endpoints` map as a clickable link list. `Accept: */*` and header-less clients continue to receive unchanged JSON.
+
+#### 2.6.3. Phase 6.3: Negotiated Error Responses
+
+- [ ] **[#101](https://github.com/bdperkin/ecu-hockey-calendar/issues/101) - feat(api): content-negotiated HTML and JSON error responses for 401, 404, 422, and 500**
+
+  - **Summary:** Extend content negotiation to error responses so browsers receive styled error pages while API clients keep byte-for-byte identical JSON error bodies.
+  - **Description:** Register negotiated handlers for `StarletteHTTPException`, `RequestValidationError`, and unhandled `Exception`, rendering a `templates/error.html` page with plain-language explanations, authentication guidance for `401`, navigation links for `404`, and a readable field/problem/value table for `422` validation errors. Preserve all status codes, the `WWW-Authenticate: Bearer` header, `304` conditional responses, and `HEAD` handling, and keep the `500` handler free of stack-trace exposure so CodeQL Alert #14 does not regress.
+
+#### 2.6.4. Phase 6.4: Printable Schedule Grid PDF Generation
+
+- [ ] **[#79](https://github.com/bdperkin/ecu-hockey-calendar/issues/79) - feat(export): printable schedule grid PDF generation for parents and coaches**
+  - **Summary:** High-fidelity printable PDF schedule export using WeasyPrint for family refrigerators and bench clipboards.
+  - **Description:** Provide `/api/schedule.pdf` and CLI `ecu-hockey export -f pdf` rendering a high-contrast, print-optimized calendar grid on standard US Letter layout.
+
+### 2.7. Milestone 7: v0.7.0 - Human-Readable Operations & Diagnostics
+
+#### 2.7.1. Phase 7.1: Operational Telemetry Dashboards
+
+- [ ] **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98) - feat(api): content-negotiated HTML and JSON responses for health probe endpoint (/health)**
+
+  - **Summary:** Serve a human-readable health dashboard to browsers while monitoring systems keep parsing the unchanged JSON payload.
+  - **Description:** Render component cards for database and scraper subsystems, a source table with relative `last_scraped_at` ages, and formatted uptime, with accessible status labels alongside color coding. Preserve HTTP status semantics and the `HEAD /health` handler, and harden the `.github/workflows/deploy.yml` probe with an explicit `Accept: application/json` header so the `jq -r '.status'` deployment gate cannot regress.
+
+- [ ] **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99) - feat(api): content-negotiated HTML and JSON responses for sync status endpoint (/api/v1/sync/status)**
+
+  - **Summary:** Serve a synchronization telemetry dashboard to browsers while automation keeps receiving the unchanged JSON payload.
+  - **Description:** Render a `current_status` badge, stat tiles for games created, updated, and deleted plus a conflicts tile linking through to the conflict triage view, human-readable and relative timestamps, formatted cycle duration, and a scraper source table. Surface `error_message` in a dedicated error panel, provide a friendly empty state when no sync has run, and note the six-hourly worker cadence.
+
+#### 2.7.2. Phase 7.2: Administrative Conflict Triage Interface
+
+- [ ] **[#100](https://github.com/bdperkin/ecu-hockey-calendar/issues/100) - feat(api): content-negotiated HTML and JSON responses for conflicts endpoint (/api/v1/conflicts)**
+
+  - **Summary:** Serve an administrative conflict triage table to authenticated browsers while API clients keep receiving the unchanged JSON payload.
+  - **Description:** Render side-by-side cross-source value comparisons with labeled severity badges, a working filter form bound to the existing `severity`, `game_id`, `field`, and `requires_review` parameters, and pagination driven by `limit` and `offset`. Return a styled HTML `401` page to unauthenticated browsers while preserving the existing JSON error body and authorization enforcement unchanged.
+
+### 2.8. Milestone 8: v0.8.0 - Syndication & Integrations
+
+#### 2.8.1. Phase 8.1: RSS / Atom Syndication Feeds
 
 - [ ] **[#78](https://github.com/bdperkin/ecu-hockey-calendar/issues/78) - feat(syndication): RSS and Atom XML schedule syndication feeds for media and automation**
   - **Summary:** Dynamic RSS 2.0 and Atom 1.0 XML feeds powered by `feedgen` for media outlets and automation workflows.
   - **Description:** Provide `/feed.rss` and `/feed.atom` feeds exposing fixture announcements, time changes, and final scores for integration with Zapier, Make.com, and Discord bots.
 
-#### 2.6.3. Phase 6.3: Printable Schedule Grid PDF Generation
+#### 2.8.2. Phase 8.2: Comprehensive Documentation Audit & Reconciliation
 
-- [ ] **[#79](https://github.com/bdperkin/ecu-hockey-calendar/issues/79) - feat(export): printable schedule grid PDF generation for parents and coaches**
-  - **Summary:** High-fidelity printable PDF schedule export using WeasyPrint for family refrigerators and bench clipboards.
-  - **Description:** Provide `/api/schedule.pdf` and CLI `ecu-hockey export -f pdf` rendering a high-contrast, print-optimized calendar grid on standard US Letter layout.
+- [ ] **[#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103) - docs: comprehensive internal and external documentation audit and reconciliation**
+  - **Summary:** Final verification pass proving every internal and external documentation surface matches the shipped system once all preceding roadmap issues are complete.
+  - **Description:** Audit `README.md`, `DEPLOYMENT.md`, the full Sphinx site, `CONTRIBUTING.md`, `SUPPORT.md`, and repository metadata against the running service, verifying that every documented endpoint, CLI subcommand, flag, query parameter, code example, and URL is accurate. Reconcile the content negotiation and `?format=` behavior that Issues #97 through #102 introduce without carrying documentation requirements of their own, close the missing documentation alignment phases for Milestones 6, 7, and 8, cover surfaces no issue owns (`docs/api.md`, `docs/cli.md`, `docs/index.md`, repository topics), and confirm docstring coverage, `TODO.md` cross-references, and the CodeQL audit trail remain current. Publish a written audit report and split out follow-up issues for anything not fixed inline.
 
 ______________________________________________________________________
 
@@ -353,20 +428,36 @@ flowchart TD
         T73["#73: Release Version Alignment (v0.4.0)"]
     end
 
-    subgraph M5["Stage 4: Milestone 5 (CLI, Deployment & Automation)"]
+    subgraph M5["Stage 4: Milestone 5 (Automation, Correctness & Documentation)"]
         T13["#13: Unified CLI (ecu-hockey)"]
         T14["#14: DEPLOYMENT.md Hosting Analysis"]
         T82["#82: Container Publication to GHCR"]
         T84["#84: Production Deployment via GH Actions"]
         T16["#16: Scheduled Ingestion CI Workflow"]
+        T94["#94: Fix Deployed Version Provenance"]
+        T95["#95: Document Live Production Deployment"]
+        T96["#96: End-User Calendar Sync Guide"]
+        T102["#102: Investigate Sync Trigger Endpoint"]
         T86["#86: README Badges Audit & Addition"]
         T63["#63: README & Sphinx Docs Update (v0.5.0)"]
     end
 
-    subgraph M6["Stage 5: Milestone 6 (Fan Engagement & Formats)"]
+    subgraph M6["Stage 5: Milestone 6 (Public Web Interface & Fan Engagement)"]
         T77["#77: Responsive HTML View & Embeds"]
-        T78["#78: RSS / Atom Syndication Feeds"]
+        T97["#97: Dual-Format Root Landing Page"]
+        T101["#101: Dual-Format Error Responses"]
         T79["#79: Printable Schedule PDF Export"]
+    end
+
+    subgraph M7["Stage 6: Milestone 7 (Human-Readable Operations & Diagnostics)"]
+        T98["#98: Dual-Format Health Probe"]
+        T99["#99: Dual-Format Sync Status"]
+        T100["#100: Dual-Format Conflicts View"]
+    end
+
+    subgraph M8["Stage 7: Milestone 8 (Syndication & Integrations)"]
+        T78["#78: RSS / Atom Syndication Feeds"]
+        T103["#103: Full Documentation Audit"]
     end
 
     T47 --> T44
@@ -385,11 +476,23 @@ flowchart TD
     T14 --> T82
     T82 --> T84
     T84 --> T16
-    T16 --> T86
+    T16 --> T94
+    T94 --> T95
+    T95 --> T96
+    T96 --> T102
+    T102 --> T86
     T86 --> T63
     T63 --> T77
-    T77 --> T78
-    T78 --> T79
+    T77 --> T97
+    T97 --> T101
+    T101 --> T79
+    T79 --> T98
+    T98 --> T99
+    T99 --> T100
+    T100 --> T78
+    T78 --> T103
+    T102 -.informs.-> T99
+    T77 -.templates.-> T79
 ```
 
 ### 4.1. Sequencing Rationale
@@ -407,15 +510,26 @@ flowchart TD
    - Issue **[#12](https://github.com/bdperkin/ecu-hockey-calendar/issues/12)** adds diagnostics and conflict management endpoints.
    - Issue **[#62](https://github.com/bdperkin/ecu-hockey-calendar/issues/62)** updates documentation and Sphinx guides for calendar feeds and API operational endpoints.
    - Issue **[#73](https://github.com/bdperkin/ecu-hockey-calendar/issues/73)** diagnoses version divergence, aligns git tags and GitHub Releases with completed Milestones 2, 3, and 4 (`v0.4.0`), and resolves release automation configuration before beginning Milestone 5.
-4. **Milestone 5 (CLI, Deployment & Automation)**:
+4. **Milestone 5 (Automation, Correctness & Documentation)**:
    - Issue **[#13](https://github.com/bdperkin/ecu-hockey-calendar/issues/13)** unifies crawlers, reconciliation, database operations, and API serving into an interactive CLI.
    - Issue **[#14](https://github.com/bdperkin/ecu-hockey-calendar/issues/14)** analyzes hosting architectures in `DEPLOYMENT.md` and establishes multi-stage container configurations.
    - Issue **[#82](https://github.com/bdperkin/ecu-hockey-calendar/issues/82)** establishes automated multi-architecture Docker container building and publication to `ghcr.io` via GitHub Actions.
    - Issue **[#84](https://github.com/bdperkin/ecu-hockey-calendar/issues/84)** implements automated continuous deployment of published containers to a cloud hosting platform with database migration execution and health check verification.
    - Issue **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16)** automates scheduled ingestion runs in GitHub Actions, publishing static calendar feeds to GitHub Pages (leveraging the pipeline from Issue **[#18](https://github.com/bdperkin/ecu-hockey-calendar/issues/18)**).
-   - Issue **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86)** audits repository workflows, security configurations, and technology stack, implementing all missing status, quality, and registry badges in `README.md`.
-   - Issue **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63)** finalizes project documentation, user guides, and Sphinx docs for the CLI and production deployment workflows.
-5. **Milestone 6 (Fan Engagement, Syndication & Export Formats)**:
-   - Issue **[#77](https://github.com/bdperkin/ecu-hockey-calendar/issues/77)** implements the highest-priority direct fan engagement channel: a responsive Jinja2-rendered HTML schedule view (`/schedule`) and stripped-down iframe embed widget (`/schedule/embed`) with zero margin clipping for local blogs and community centers.
-   - Issue **[#78](https://github.com/bdperkin/ecu-hockey-calendar/issues/78)** adds RSS 2.0 and Atom XML syndication feeds using `feedgen` for media outlets, bloggers, and automated Zapier/Make.com workflows.
-   - Issue **[#79](https://github.com/bdperkin/ecu-hockey-calendar/issues/79)** provides printable PDF schedule grid generation via WeasyPrint for coaches, players, and parents needing hard copies for clipboards and refrigerators.
+   - Issue **[#94](https://github.com/bdperkin/ecu-hockey-calendar/issues/94)** is sequenced next because the version string is groundwork: Issues **[#95](https://github.com/bdperkin/ecu-hockey-calendar/issues/95)**, **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)**, and **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98)** all document or render it, and fixing the build fallback first prevents publishing documentation and dashboards that display `0.1.0.dev0`.
+   - Issue **[#95](https://github.com/bdperkin/ecu-hockey-calendar/issues/95)** establishes the canonical production URLs and endpoint reference, correcting the stale hostname placeholder that downstream documentation cites.
+   - Issue **[#96](https://github.com/bdperkin/ecu-hockey-calendar/issues/96)** carries the highest end-user value in the backlog: the production calendar feed is already live and correct, and this converts existing capability into actual fan adoption at no code risk.
+   - Issue **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102)** audits the administrative sync trigger, which currently reports success while performing no synchronization. It runs here so its findings land before Issue **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)** designs a dashboard control around it.
+   - Issue **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86)** adds repository presentation badges once the release version reported by Issue **[#94](https://github.com/bdperkin/ecu-hockey-calendar/issues/94)** is trustworthy.
+   - Issue **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63)** closes the milestone as a verification sweep over everything above, narrowed to the CLI, container, and automation surfaces that Issues **[#95](https://github.com/bdperkin/ecu-hockey-calendar/issues/95)** and **[#96](https://github.com/bdperkin/ecu-hockey-calendar/issues/96)** do not already cover.
+5. **Milestone 6 (Public Web Interface & Fan Engagement)**:
+   - Issue **[#77](https://github.com/bdperkin/ecu-hockey-calendar/issues/77)** owns the templating foundation — the `jinja2` dependency, the packaged `templates/` directory, and the ECU-branded `base.html` layout — and delivers the responsive `/schedule` view and `/schedule/embed` widget on top of it.
+   - Issue **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** adds the `Accept` negotiation helper and converts `/` from a raw JSON payload into the service's front door, reusing the layout from Issue **[#77](https://github.com/bdperkin/ecu-hockey-calendar/issues/77)** rather than duplicating it.
+   - Issue **[#101](https://github.com/bdperkin/ecu-hockey-calendar/issues/101)** closes the browser experience by negotiating error responses, so a `404` or `422` reached from a rendered page no longer drops to a raw JSON blob.
+   - Issue **[#79](https://github.com/bdperkin/ecu-hockey-calendar/issues/79)** renders the printable schedule grid through WeasyPrint, reusing the same template tree with a print stylesheet, which is why it is grouped with the web interface rather than with syndication.
+6. **Milestone 7 (Human-Readable Operations & Diagnostics)**:
+   - Issues **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98)** and **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)** extend the negotiation contract established in Issue **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** to the health probe and synchronization telemetry, making operational state legible to non-technical stakeholders in a browser while remaining byte-for-byte compatible for monitoring automation.
+   - Issue **[#100](https://github.com/bdperkin/ecu-hockey-calendar/issues/100)** completes the series with administrative conflict triage. It is sequenced last and carries the lowest priority because it is token-gated, giving it the narrowest reachable audience of any open issue.
+7. **Milestone 8 (Syndication & Integrations)**:
+   - Issue **[#78](https://github.com/bdperkin/ecu-hockey-calendar/issues/78)** adds RSS 2.0 and Atom syndication for media outlets and automation platforms. It has no dependants and the least evidenced demand, so it is deferred to a forward-looking integrations bucket that can absorb future downstream surfaces.
+   - Issue **[#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103)** closes the roadmap with a full documentation audit. It is sequenced last by necessity: it verifies the documentation against the completed system rather than against intent. It also covers three structural gaps — Issues **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** through **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102)** change public API behavior without carrying documentation requirements, Milestones 6, 7, and 8 have no documentation alignment phase of their own, and several surfaces (`docs/api.md`, `docs/cli.md`, `docs/index.md`, repository topics) are owned by no issue at all.
