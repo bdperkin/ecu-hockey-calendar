@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
@@ -92,13 +93,19 @@ def create_app(
 
     # Initialize application state dependencies
     app.state.start_time = datetime.now(UTC)
-    app.state.admin_token = admin_token
+    resolved_admin_token = (
+        admin_token if admin_token is not None else os.environ.get("ADMIN_API_TOKEN")
+    )
+    app.state.admin_token = resolved_admin_token
     app.state.calendar_service = CalendarFeedService()
     app.state.schedule_service = ScheduleDataService()
     app.state.default_calendar = ECUHockeyCalendar()
 
-    if database_url is not None:
-        app.state.db_engine = create_sync_engine(database_url)
+    resolved_db_url = (
+        database_url if database_url is not None else os.environ.get("DATABASE_URL")
+    )
+    if resolved_db_url:
+        app.state.db_engine = create_sync_engine(resolved_db_url)
     else:
         app.state.db_engine = None
 

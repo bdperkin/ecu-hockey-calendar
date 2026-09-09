@@ -632,3 +632,20 @@ def test_conflict_conversion_edge_cases() -> None:
     assert conf["field"] == "schedule"
     assert conf["severity"] == "medium"
     assert conf["field_diffs"] == []
+
+
+def test_create_app_environment_fallbacks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test create_app falls back to environment variables for db and token."""
+    db_file = tmp_path / "env_app.db"
+    db_url = f"sqlite:///{db_file}"
+
+    monkeypatch.setenv("DATABASE_URL", db_url)
+    monkeypatch.setenv("ADMIN_API_TOKEN", "env-secret-token")
+
+    app = create_app()
+    assert app.state.admin_token == "env-secret-token"
+    assert app.state.db_engine is not None
+    app.state.db_engine.dispose()
