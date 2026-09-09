@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager, contextmanager
 from typing import TYPE_CHECKING, Any
 
 import aiosqlite
+import psycopg
 from sqlalchemy import create_engine as _create_sync_engine
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
@@ -45,6 +46,15 @@ def get_aiosqlite_driver_version() -> str:
     return aiosqlite.__version__
 
 
+def get_psycopg_driver_version() -> str:
+    """Return the installed version of the psycopg driver.
+
+    Returns:
+        String version identifier of psycopg.
+    """
+    return psycopg.__version__
+
+
 def get_sync_database_url(url: str | None = None) -> str:
     """Resolve the synchronous database connection URL.
 
@@ -59,9 +69,13 @@ def get_sync_database_url(url: str | None = None) -> str:
     else:
         raw = os.environ.get("DATABASE_URL", DEFAULT_SYNC_SQLITE_URL)
 
-    # Normalize Heroku/Render legacy postgres:// to postgresql://
+    # Normalize Heroku/Render legacy postgres:// to postgresql+psycopg://
     if raw.startswith("postgres://"):
-        return f"postgresql://{raw.removeprefix('postgres://')}"
+        return f"postgresql+psycopg://{raw.removeprefix('postgres://')}"
+
+    # Normalize bare postgresql:// without driver to postgresql+psycopg://
+    if raw.startswith("postgresql://"):
+        return f"postgresql+psycopg://{raw.removeprefix('postgresql://')}"
 
     # If an async sqlite URL was passed to sync, strip +aiosqlite
     if raw.startswith("sqlite+aiosqlite://"):
@@ -368,6 +382,7 @@ __all__ = [
     "get_async_database_url",
     "get_async_session",
     "get_async_session_factory",
+    "get_psycopg_driver_version",
     "get_sync_database_url",
     "get_sync_session",
     "get_sync_session_factory",
