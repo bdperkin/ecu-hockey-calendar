@@ -26,6 +26,7 @@ from ecu_hockey_calendar.storage import (
     get_async_database_url,
     get_async_session,
     get_async_session_factory,
+    get_psycopg_driver_version,
     get_sync_database_url,
     get_sync_session,
     get_sync_session_factory,
@@ -36,6 +37,13 @@ from ecu_hockey_calendar.storage import (
 def test_get_aiosqlite_driver_version() -> None:
     """Verify driver version query returns a non-empty string."""
     ver = get_aiosqlite_driver_version()
+    assert isinstance(ver, str)
+    assert len(ver) > 0
+
+
+def test_get_psycopg_driver_version() -> None:
+    """Verify psycopg driver version query returns a non-empty string."""
+    ver = get_psycopg_driver_version()
     assert isinstance(ver, str)
     assert len(ver) > 0
 
@@ -53,9 +61,19 @@ def test_get_sync_database_url(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DATABASE_URL", "sqlite:///env.db")
     assert get_sync_database_url() == "sqlite:///env.db"
 
-    # Legacy postgres:// normalization
+    # Legacy postgres:// normalization to postgresql+psycopg://
     monkeypatch.setenv("DATABASE_URL", "postgres://localhost/test_db")
-    assert get_sync_database_url() == "postgresql://localhost/test_db"
+    assert get_sync_database_url() == "postgresql+psycopg://localhost/test_db"
+
+    # Bare postgresql:// normalization to postgresql+psycopg://
+    monkeypatch.setenv("DATABASE_URL", "postgresql://localhost/test_db")
+    assert get_sync_database_url() == "postgresql+psycopg://localhost/test_db"
+
+    # Explicit postgresql+psycopg:// URL preserved
+    assert (
+        get_sync_database_url("postgresql+psycopg://localhost/test_db")
+        == "postgresql+psycopg://localhost/test_db"
+    )
 
     # Async sqlite URL stripped for sync engine
     assert get_sync_database_url("sqlite+aiosqlite:///file.db") == "sqlite:///file.db"
@@ -193,6 +211,7 @@ def test_create_engine_non_sqlite(monkeypatch: pytest.MonkeyPatch) -> None:
     )
     res_sync = create_sync_engine("postgresql://localhost/test_db")
     assert res_sync == "mock_sync"
+    assert sync_calls[0][0] == "postgresql+psycopg://localhost/test_db"
     assert "poolclass" not in sync_calls[0][1]
 
     async_calls = []
