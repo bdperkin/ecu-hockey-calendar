@@ -31,7 +31,7 @@ ______________________________________________________________________
     - [2.5.4. Phase 5.4: Automated Production Deployment to Hosting Service](#254-phase-54-automated-production-deployment-to-hosting-service)
     - [2.5.5. Phase 5.5: Scheduled Automation & CI Sync Workflows (Complete)](#255-phase-55-scheduled-automation--ci-sync-workflows-complete)
     - [2.5.6. Phase 5.6: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#256-phase-56-github-pages-documentation--static-calendar-deployment-complete)
-    - [2.5.7. Phase 5.7: Build Version Provenance & Deployed Version Reporting](#257-phase-57-build-version-provenance--deployed-version-reporting)
+    - [2.5.7. Phase 5.7: Build Version Provenance & Deployed Version Reporting (Complete)](#257-phase-57-build-version-provenance--deployed-version-reporting-complete)
     - [2.5.8. Phase 5.8: Production Service Documentation & End-User Onboarding](#258-phase-58-production-service-documentation--end-user-onboarding)
     - [2.5.9. Phase 5.9: Administrative Endpoint Behavior Audit](#259-phase-59-administrative-endpoint-behavior-audit)
     - [2.5.10. Phase 5.10: Repository Badges & Status Indicators](#2510-phase-510-repository-badges--status-indicators)
@@ -281,9 +281,9 @@ ______________________________________________________________________
   - **Summary:** Configure automated Sphinx documentation and static calendar asset publishing to GitHub Pages.
   - **Description:** Implement `.github/workflows/pages.yml` with `actions/upload-pages-artifact` and `actions/deploy-pages`. Build Sphinx documentation with Furo theme and publish static calendar artifacts (`calendar.ics`, `schedule.json`, `schedule.csv`) to `https://bdperkin.github.io/ecu-hockey-calendar/`.
 
-#### 2.5.7. Phase 5.7: Build Version Provenance & Deployed Version Reporting
+#### 2.5.7. Phase 5.7: Build Version Provenance & Deployed Version Reporting (Complete)
 
-- [ ] **[#94](https://github.com/bdperkin/ecu-hockey-calendar/issues/94) - fix(packaging): resolve fallback version 0.1.0.dev0 reported by containerized API and deployments**
+- [x] **[#94](https://github.com/bdperkin/ecu-hockey-calendar/issues/94) - fix(packaging): resolve fallback version 0.1.0.dev0 reported by containerized API and deployments**
   - **Summary:** Propagate the real `hatch-vcs` version into container builds so deployed services stop reporting the `0.1.0.dev0` fallback.
   - **Description:** Stamp builds via `SETUPTOOLS_SCM_PRETEND_VERSION_FOR_ECU_HOCKEY_CALENDAR` using a `Dockerfile` build argument supplied by `.github/workflows/docker.yml`, keeping `.git` excluded from the build context. Consolidate the divergent hardcoded fallbacks in `src/ecu_hockey_calendar/__init__.py`, `src/ecu_hockey_calendar/api/app.py`, and `docs/conf.py` into a single shared resolver with an unmistakable non-release sentinel, and add regression and deployment smoke coverage asserting `/` and `/openapi.json` report the true release version.
 

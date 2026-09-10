@@ -146,7 +146,7 @@ jobs:
           HEALTHY="false"
           for i in $(seq 1 $MAX_RETRIES); do
             echo "Health probe attempt $i of $MAX_RETRIES (delay ${RETRY_DELAY}s)..."
-            HTTP_STATUS=$(curl -s -o /tmp/health_response.json -w "%{http_code}" -m 10 "$HEALTH_URL" || true)
+            HTTP_STATUS=$(curl -s -H "Accept: application/json" -o /tmp/health_response.json -w "%{http_code}" -m 10 "$HEALTH_URL" || true)
             if [ "$HTTP_STATUS" = "200" ]; then
               STATUS=$(jq -r '.status // empty' /tmp/health_response.json 2>/dev/null || true)
               if [ "$STATUS" = "healthy" ]; then
@@ -174,6 +174,55 @@ jobs:
             exit 1
           fi
           echo "health_status=HEALTHY" >> "$GITHUB_OUTPUT"
+      - name: Verify deployed service version provenance
+        id: verify-version
+        if: steps.deploy.outputs.deployed == 'true' && (secrets.PRODUCTION_URL != '' || vars.PRODUCTION_URL
+          != '')
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL || vars.PRODUCTION_URL }}
+          EXPECTED_TAG: ${{ steps.params.outputs.image_tag }}
+        run: |
+          BASE_URL="${PRODUCTION_URL%/}"
+          echo "Verifying deployed service version provenance at $BASE_URL..."
+          ROOT_RESPONSE=$(curl -fsSL -H "Accept: application/json" -m 10 "$BASE_URL/" 2>&1) || {
+            echo "::error::Failed to fetch root endpoint $BASE_URL/: $ROOT_RESPONSE"
+            exit 1
+          }
+          ROOT_VERSION=$(echo "$ROOT_RESPONSE" | jq -r '.version // empty')
+          OPENAPI_RESPONSE=$(curl -fsSL -H "Accept: application/json" -m 10 "$BASE_URL/openapi.json" 2>&1) || {
+            echo "::error::Failed to fetch OpenAPI spec $BASE_URL/openapi.json: $OPENAPI_RESPONSE"
+            exit 1
+          }
+          OPENAPI_VERSION=$(echo "$OPENAPI_RESPONSE" | jq -r '.info.version // empty')
+          echo "Root endpoint version: '$ROOT_VERSION'"
+          echo "OpenAPI spec version:  '$OPENAPI_VERSION'"
+          if [ -z "$ROOT_VERSION" ]; then
+            echo "::error::Root endpoint returned empty version string."
+            exit 1
+          fi
+          if [ "$ROOT_VERSION" = "0.1.0.dev0" ] || [ "$ROOT_VERSION" = "0.4.0.dev0" ] || [ "$ROOT_VERSION" = "0.0.0+unknown" ]; then
+            echo "::error::Root endpoint reported fallback sentinel version '$ROOT_VERSION'."
+            exit 1
+          fi
+          if [ "$OPENAPI_VERSION" = "0.1.0.dev0" ] || [ "$OPENAPI_VERSION" = "0.4.0.dev0" ] || [ "$OPENAPI_VERSION" = "0.0.0+unknown" ]; then
+            echo "::error::OpenAPI spec reported fallback sentinel version '$OPENAPI_VERSION'."
+            exit 1
+          fi
+          if [ "$ROOT_VERSION" != "$OPENAPI_VERSION" ]; then
+            echo "::error::Version mismatch: Root version ($ROOT_VERSION) does not match OpenAPI version ($OPENAPI_VERSION)"
+            exit 1
+          fi
+          CLEAN_TAG="${EXPECTED_TAG#v}"
+          if [[ "$EXPECTED_TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            if [ "$ROOT_VERSION" != "$CLEAN_TAG" ]; then
+              echo "::error::Deployed version '$ROOT_VERSION' does not match release tag '$CLEAN_TAG'."
+              exit 1
+            fi
+            echo "Deployed version verified: '$ROOT_VERSION' exactly matches release tag '$CLEAN_TAG'."
+          else
+            echo "Deployed version verified: '$ROOT_VERSION' for tag '$EXPECTED_TAG'."
+          fi
+          echo "deployed_version=$ROOT_VERSION" >> "$GITHUB_OUTPUT"
       - name: Generate deployment job summary
         if: always()
         env:
@@ -181,6 +230,7 @@ jobs:
           IMAGE_TAG: ${{ steps.params.outputs.image_tag }}
           MECHANISM: ${{ steps.deploy.outputs.mechanism }}
           HEALTH_STATUS: ${{ steps.check-health.outputs.health_status }}
+          DEPLOYED_VERSION: ${{ steps.verify-version.outputs.deployed_version || 'N/A' }}
           PRODUCTION_URL: ${{ secrets.PRODUCTION_URL || vars.PRODUCTION_URL }}
         run: |-
           {
@@ -193,6 +243,7 @@ jobs:
             echo "| **Container Image** | \`ghcr.io/${{ github.repository }}:${IMAGE_TAG}\` |"
             echo "| **Commit Ref** | \`${{ github.sha }}\` |"
             echo "| **Deployment Mechanism** | ${MECHANISM} |"
+            echo "| **Deployed Version** | \`${DEPLOYED_VERSION}\` |"
             echo "| **Health Status** | \`${HEALTH_STATUS}\` |"
             if [ -n "$PRODUCTION_URL" ]; then
               echo "| **Production Service** | [${PRODUCTION_URL}](${PRODUCTION_URL}) |"

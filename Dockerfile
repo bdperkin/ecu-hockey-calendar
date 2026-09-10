@@ -19,6 +19,11 @@ COPY src ./src
 COPY alembic ./alembic
 COPY alembic.ini README.md ./
 
+# Version stamping argument and environment variable for hatch-vcs / setuptools-scm
+ARG PACKAGE_VERSION
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=${PACKAGE_VERSION} \
+    SETUPTOOLS_SCM_PRETEND_VERSION_FOR_ECU_HOCKEY_CALENDAR=${PACKAGE_VERSION}
+
 # Install project into isolated virtual environment
 RUN uv sync --frozen --no-dev
 
