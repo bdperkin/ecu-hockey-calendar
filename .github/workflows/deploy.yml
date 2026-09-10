@@ -187,43 +187,42 @@ jobs:
           fi
           BASE_URL="${PRODUCTION_URL%/}"
           echo "Verifying deployed service version provenance at $BASE_URL..."
-          ROOT_RESPONSE=$(curl -fsSL -H "Accept: application/json" -m 10 "$BASE_URL/" 2>&1) || {
-            echo "::error::Failed to fetch root endpoint $BASE_URL/: $ROOT_RESPONSE"
-            exit 1
-          }
-          ROOT_VERSION=$(echo "$ROOT_RESPONSE" | jq -r '.version // empty')
-          OPENAPI_RESPONSE=$(curl -fsSL -H "Accept: application/json" -m 10 "$BASE_URL/openapi.json" 2>&1) || {
-            echo "::error::Failed to fetch OpenAPI spec $BASE_URL/openapi.json: $OPENAPI_RESPONSE"
-            exit 1
-          }
-          OPENAPI_VERSION=$(echo "$OPENAPI_RESPONSE" | jq -r '.info.version // empty')
-          echo "Root endpoint version: '$ROOT_VERSION'"
-          echo "OpenAPI spec version:  '$OPENAPI_VERSION'"
-          if [ -z "$ROOT_VERSION" ]; then
-            echo "::error::Root endpoint returned empty version string."
-            exit 1
-          fi
-          if [ "$ROOT_VERSION" = "0.1.0.dev0" ] || [ "$ROOT_VERSION" = "0.4.0.dev0" ] || [ "$ROOT_VERSION" = "0.0.0+unknown" ]; then
-            echo "::error::Root endpoint reported fallback sentinel version '$ROOT_VERSION'."
-            exit 1
-          fi
-          if [ "$OPENAPI_VERSION" = "0.1.0.dev0" ] || [ "$OPENAPI_VERSION" = "0.4.0.dev0" ] || [ "$OPENAPI_VERSION" = "0.0.0+unknown" ]; then
-            echo "::error::OpenAPI spec reported fallback sentinel version '$OPENAPI_VERSION'."
-            exit 1
-          fi
-          if [ "$ROOT_VERSION" != "$OPENAPI_VERSION" ]; then
-            echo "::error::Version mismatch: Root version ($ROOT_VERSION) does not match OpenAPI version ($OPENAPI_VERSION)"
-            exit 1
-          fi
           CLEAN_TAG="${EXPECTED_TAG#v}"
-          if [[ "$EXPECTED_TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-            if [ "$ROOT_VERSION" != "$CLEAN_TAG" ]; then
-              echo "::error::Deployed version '$ROOT_VERSION' does not match release tag '$CLEAN_TAG'."
-              exit 1
+          MAX_RETRIES=30
+          RETRY_DELAY=10
+          VERIFIED="false"
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Version verification attempt $i of $MAX_RETRIES (delay ${RETRY_DELAY}s)..."
+            ROOT_RESPONSE=$(curl -fsSL -H "Accept: application/json" -m 10 "$BASE_URL/" 2>/dev/null || true)
+            OPENAPI_RESPONSE=$(curl -fsSL -H "Accept: application/json" -m 10 "$BASE_URL/openapi.json" 2>/dev/null || true)
+            ROOT_VERSION=$(echo "$ROOT_RESPONSE" | jq -r '.version // empty' 2>/dev/null || true)
+            OPENAPI_VERSION=$(echo "$OPENAPI_RESPONSE" | jq -r '.info.version // empty' 2>/dev/null || true)
+            if [ -n "$ROOT_VERSION" ] && [ -n "$OPENAPI_VERSION" ] && [ "$ROOT_VERSION" = "$OPENAPI_VERSION" ]; then
+              if [ "$ROOT_VERSION" != "0.1.0.dev0" ] && [ "$ROOT_VERSION" != "0.4.0.dev0" ] && [ "$ROOT_VERSION" != "0.0.0+unknown" ]; then
+                if [[ "$EXPECTED_TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+                  if [ "$ROOT_VERSION" = "$CLEAN_TAG" ]; then
+                    echo "Deployed version verified: '$ROOT_VERSION' exactly matches release tag '$CLEAN_TAG'."
+                    VERIFIED="true"
+                    break
+                  else
+                    echo "Service returned version '$ROOT_VERSION', waiting for release tag '$CLEAN_TAG'..."
+                  fi
+                else
+                  echo "Deployed version verified: '$ROOT_VERSION' for tag '$EXPECTED_TAG'."
+                  VERIFIED="true"
+                  break
+                fi
+              else
+                echo "Service returned fallback sentinel version '$ROOT_VERSION', waiting for rolling deployment..."
+              fi
+            else
+              echo "Awaiting consistent version response from root ('$ROOT_VERSION') and OpenAPI ('$OPENAPI_VERSION')..."
             fi
-            echo "Deployed version verified: '$ROOT_VERSION' exactly matches release tag '$CLEAN_TAG'."
-          else
-            echo "Deployed version verified: '$ROOT_VERSION' for tag '$EXPECTED_TAG'."
+            sleep $RETRY_DELAY
+          done
+          if [ "$VERIFIED" != "true" ]; then
+            echo "::error::Failed to verify deployed service version within $((MAX_RETRIES * RETRY_DELAY)) seconds. Last observed: root='$ROOT_VERSION', openapi='$OPENAPI_VERSION'"
+            exit 1
           fi
           echo "deployed_version=$ROOT_VERSION" >> "$GITHUB_OUTPUT"
       - name: Generate deployment job summary
