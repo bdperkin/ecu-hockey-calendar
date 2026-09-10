@@ -25,6 +25,7 @@ def _resolve_vcs_version() -> str | None:
         if vcs_version and vcs_version != FALLBACK_VERSION:
             return str(vcs_version)
     except (ImportError, LookupError, TypeError):
+        # The generated _version module is absent or incomplete in non-VCS builds.
         pass
 
     return None
@@ -41,6 +42,7 @@ def _resolve_metadata_version() -> str | None:
         if pkg_version and pkg_version not in (FALLBACK_VERSION, "0.1.0.dev0"):
             return pkg_version
     except (importlib.metadata.PackageNotFoundError, ValueError):
+        # Package metadata may be unavailable when uninstalled or running standalone.
         pass
 
     return None
