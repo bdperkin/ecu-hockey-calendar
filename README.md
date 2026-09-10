@@ -22,6 +22,9 @@ ______________________________________________________________________
   - [4.7. Command-Line Interface (`ecu-hockey`)](#47-command-line-interface--ecu-hockey)
 - [5. Database Schema Migrations](#5-database-schema-migrations)
 - [6. Production Deployment & Containerization](#6-production-deployment--containerization)
+  - [6.1. Live Production Deployment (`ecu-hockey-api.onrender.com`)](#61-live-production-deployment--ecu-hockey-apionrendercom)
+  - [6.2. Published Container Images (`ghcr.io`)](#62-published-container-images--ghcrio)
+  - [6.3. Local Container Orchestration with Docker Compose](#63-local-container-orchestration-with-docker-compose)
 - [7. Development and Contributing](#7-development-and-contributing)
   - [7.1. Quick Setup](#71-quick-setup)
 - [8. Security](#8-security)
@@ -310,10 +313,10 @@ for game in changes.created:
 
 ### 4.6. Calendar Feeds & REST API Service
 
-Launch the ASGI server locally to provide live calendar subscriptions and schedule feeds:
+A live public production instance is available at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/) (see [§6.1. Live Production Deployment](#61-live-production-deployment-ecu-hockey-apionrendercom)). You can query the live service directly or launch the ASGI server locally for development:
 
 ```bash
-# Start API service with hot reloading
+# Start API service locally with hot reloading
 uv run uvicorn ecu_hockey_calendar.api.app:create_app --factory --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -322,14 +325,17 @@ uv run uvicorn ecu_hockey_calendar.api.app:create_app --factory --host 127.0.0.1
 Subscribe to real-time fixture updates using the standard `webcal://` scheme or direct download:
 
 ```bash
-# Download RFC 5545 .ics file
-curl -s http://localhost:8000/calendar.ics -o ecu_schedule.ics
+# Apple Calendar / macOS one-click live subscription
+open "webcal://ecu-hockey-api.onrender.com/calendar.ics"
 
-# Apple Calendar / macOS instant subscription
+# Download RFC 5545 .ics file from live service
+curl -s https://ecu-hockey-api.onrender.com/calendar.ics -o ecu_schedule.ics
+
+# Or subscribe locally when self-hosting
 open "webcal://localhost:8000/calendar.ics"
 ```
 
-For **Google Calendar** and **Outlook**, add by URL: `https://your-domain.com/calendar.ics`.
+For **Google Calendar** and **Outlook**, add by URL: `https://ecu-hockey-api.onrender.com/calendar.ics` (or `http://localhost:8000/calendar.ics` when self-hosting).
 
 #### 4.6.2. Querying Public Schedule Feeds
 
@@ -404,6 +410,36 @@ uv run alembic history
 
 ## 6. Production Deployment & Containerization
 
+### 6.1. Live Production Deployment (`ecu-hockey-api.onrender.com`)
+
+A public production instance runs continuously on [Render](https://render.com) backed by managed PostgreSQL and an automated 6-hour synchronization worker:
+
+- **Service Base URL**: [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/)
+- **One-Line Calendar Subscription**: [`webcal://ecu-hockey-api.onrender.com/calendar.ics`](webcal://ecu-hockey-api.onrender.com/calendar.ics)
+- **Direct iCalendar Feed**: [`https://ecu-hockey-api.onrender.com/calendar.ics`](https://ecu-hockey-api.onrender.com/calendar.ics)
+- **Interactive Documentation**: [`/docs`](https://ecu-hockey-api.onrender.com/docs) (Swagger UI) & [`/redoc`](https://ecu-hockey-api.onrender.com/redoc) (ReDoc)
+- **Service Health Probe**: [`/health`](https://ecu-hockey-api.onrender.com/health)
+
+| Method        | Endpoint                                                                        | Description                                          | Content-Type       | Access           |
+| :------------ | :------------------------------------------------------------------------------ | :--------------------------------------------------- | :----------------- | :--------------- |
+| `GET`         | [`/`](https://ecu-hockey-api.onrender.com/)                                     | API metadata, version provenance, and routes         | `application/json` | Public           |
+| `GET`, `HEAD` | [`/health`](https://ecu-hockey-api.onrender.com/health)                         | Diagnostics, uptime, and database connectivity probe | `application/json` | Public           |
+| `GET`, `HEAD` | [`/calendar.ics`](https://ecu-hockey-api.onrender.com/calendar.ics)             | RFC 5545 iCalendar feed (`?alarm_minutes=60`)        | `text/calendar`    | Public           |
+| `GET`, `HEAD` | [`/api/schedule.json`](https://ecu-hockey-api.onrender.com/api/schedule.json)   | Master schedule JSON (`?home_only=true`)             | `application/json` | Public           |
+| `GET`, `HEAD` | [`/api/schedule.csv`](https://ecu-hockey-api.onrender.com/api/schedule.csv)     | Master schedule CSV spreadsheet                      | `text/csv`         | Public           |
+| `GET`         | [`/api/v1/sync/status`](https://ecu-hockey-api.onrender.com/api/v1/sync/status) | Sync telemetry & scraper execution history           | `application/json` | Public           |
+| `POST`        | `/api/v1/sync/trigger`                                                          | Trigger on-demand scraper synchronization cycle      | `application/json` | **Bearer Token** |
+| `GET`         | `/api/v1/conflicts`                                                             | Inspect multi-source schedule discrepancies          | `application/json` | **Bearer Token** |
+| `GET`         | [`/docs`](https://ecu-hockey-api.onrender.com/docs)                             | Interactive Swagger UI API explorer                  | `text/html`        | Public           |
+
+> [!NOTE]
+> **Render Free-Tier Cold Starts**:
+> On Render's free tier, the web service spins down after 15 minutes of inactivity. When a new request arrives, container cold start takes approximately 30–50 seconds before subsequent requests respond with sub-second latency. A slow initial request does not indicate an outage.
+
+For full curl examples, administrative route details, and the complete architecture specification, refer to [`DEPLOYMENT.md`](DEPLOYMENT.md#68-live-production-deployment-ecu-hockey-apionrendercom).
+
+### 6.2. Published Container Images (`ghcr.io`)
+
 Pre-built multi-architecture (`linux/amd64`, `linux/arm64`) container images are automatically published to the GitHub Container Registry on releases and merges to `main`:
 
 ```bash
@@ -413,6 +449,8 @@ docker pull ghcr.io/bdperkin/ecu-hockey-calendar:latest
 # Run the standalone calendar service
 docker run -d --name ecu-hockey -p 8000:8000 ghcr.io/bdperkin/ecu-hockey-calendar:latest
 ```
+
+### 6.3. Local Container Orchestration with Docker Compose
 
 The repository also includes a production-ready, multi-stage `Dockerfile` and `docker-compose.yml` for unified local or production orchestration:
 

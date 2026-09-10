@@ -36,7 +36,24 @@ The API service integrates the calendar generation, data normalization, database
 - **Interactive Documentation**: Auto-generated interactive Swagger UI (`/docs`) and ReDoc (`/redoc`) documentation backed by OpenAPI 3.1.
 - **Role-Based Protection**: Protected administrative actions secured via HTTP Bearer token or `X-API-Key` headers.
 
-## 2. Running the API Service
+### 1.2. Public Live Production Service
+
+A public, always-on production instance of the API service is hosted on Render at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/). You can query the live service immediately without installing or running a local server:
+
+```bash
+# Query the live production schedule JSON
+curl -fsSL "https://ecu-hockey-api.onrender.com/api/schedule.json?home_only=true" | jq .
+
+# Subscribe directly to the live iCalendar feed
+open "webcal://ecu-hockey-api.onrender.com/calendar.ics"
+
+# Check production service diagnostics
+curl -fsSL https://ecu-hockey-api.onrender.com/health | jq .
+```
+
+For comprehensive details on production topology, see [Live Production Deployment](deployment.md#6-live-production-deployment).
+
+## 2. Running the API Service Locally
 
 ### 2.1. Local Development via Uvicorn
 

@@ -101,3 +101,59 @@ If a deployment fails or causes degradation:
 1. **Review CI Summary**: Check GitHub Actions step summary for deployment and health check status.
 2. **Inspect Logs**: Check hosting provider logs (Render / Railway / Fly.io) for Python traceback or migration errors.
 3. **Rollback**: In the hosting dashboard, click **Rollback to this deploy** on the last healthy version, or dispatch `.github/workflows/deploy.yml` with the previous image tag.
+
+## 6. Live Production Deployment
+
+The project maintains an active, public production instance hosted on [Render](https://render.com) at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/):
+
+- **Base URL**: [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/)
+- **One-Click Calendar Subscription**: `webcal://ecu-hockey-api.onrender.com/calendar.ics`
+- **Direct iCalendar Feed**: [`https://ecu-hockey-api.onrender.com/calendar.ics`](https://ecu-hockey-api.onrender.com/calendar.ics)
+- **Interactive Documentation**: [`https://ecu-hockey-api.onrender.com/docs`](https://ecu-hockey-api.onrender.com/docs) (Swagger UI) & [`https://ecu-hockey-api.onrender.com/redoc`](https://ecu-hockey-api.onrender.com/redoc) (ReDoc)
+- **Health & Diagnostics**: [`https://ecu-hockey-api.onrender.com/health`](https://ecu-hockey-api.onrender.com/health)
+
+### 6.1. Infrastructure Topology
+
+The production architecture is deployed declaratively using [`render.yaml`](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/render.yaml):
+
+1. **Web Service (`ecu-hockey-api`)**: Containerized FastAPI service running on a `0.5c-512mb` instance in the Oregon region with automated Let's Encrypt SSL/TLS termination, automated pre-deploy migrations (`alembic upgrade head`), and continuous health checking (`/health`).
+2. **Scheduled Cron Worker (`ecu-hockey-worker`)**: Containerized background runner on `0.5c-512mb` executing `ecu-hockey sync --notify` every 6 hours (`0 */6 * * *`) across all active web crawlers, persisting canonical records, and alerting Discord, Slack, and Telegram channels.
+3. **Managed PostgreSQL Database (`ecu-hockey-db`)**: Managed database on `0.1c-256mb` (`ecu_hockey`) with private network connectivity and automated backups.
+
+```{note}
+On Render's free tier, the web service automatically spins down after 15 minutes of inactivity. The initial incoming request triggers a container cold start taking approximately 30 to 50 seconds before subsequent requests respond with sub-second latency.
+```
+
+### 6.2. Endpoint Reference
+
+| Method        | Path                   | Description                                         | Content-Type       | Access           |
+| :------------ | :--------------------- | :-------------------------------------------------- | :----------------- | :--------------- |
+| `GET`         | `/`                    | API status, package version, and endpoint directory | `application/json` | Public           |
+| `GET`, `HEAD` | `/health`              | Service health, uptime, and database diagnostics    | `application/json` | Public           |
+| `GET`, `HEAD` | `/calendar.ics`        | RFC 5545 iCalendar feed (`?alarm_minutes=60`)       | `text/calendar`    | Public           |
+| `GET`, `HEAD` | `/api/schedule.json`   | Master schedule JSON feed (`?home_only=true`)       | `application/json` | Public           |
+| `GET`, `HEAD` | `/api/schedule.csv`    | Downloadable master schedule CSV export             | `text/csv`         | Public           |
+| `GET`         | `/api/v1/sync/status`  | Synchronization history and scraper telemetry       | `application/json` | Public           |
+| `POST`        | `/api/v1/sync/trigger` | Trigger on-demand crawler synchronization cycle     | `application/json` | **Bearer Token** |
+| `GET`         | `/api/v1/conflicts`    | List detected schedule conflicts and discrepancies  | `application/json` | **Bearer Token** |
+| `GET`         | `/docs`                | Interactive Swagger UI API documentation            | `text/html`        | Public           |
+| `GET`         | `/redoc`               | ReDoc API documentation browser                     | `text/html`        | Public           |
+| `GET`         | `/openapi.json`        | Machine-readable OpenAPI 3.1 schema                 | `application/json` | Public           |
+
+### 6.3. Quick Examples
+
+```bash
+# Subscribe to calendar in Apple Calendar / macOS
+open "webcal://ecu-hockey-api.onrender.com/calendar.ics"
+
+# Fetch latest schedule JSON with home game filter
+curl -fsSL "https://ecu-hockey-api.onrender.com/api/schedule.json?home_only=true" | jq .
+
+# Check production service health
+curl -fsSL https://ecu-hockey-api.onrender.com/health | jq .
+
+# Trigger on-demand sync cycle (requires administrative token)
+curl -fsSL -X POST "https://ecu-hockey-api.onrender.com/api/v1/sync/trigger" \
+  -H "Authorization: Bearer $ADMIN_API_TOKEN" \
+  -H "Content-Type: application/json" | jq .
+```
