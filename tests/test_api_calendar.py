@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 from unittest.mock import patch
 
@@ -478,10 +477,13 @@ def test_run_server_invocation() -> None:
 
 
 def test_resolve_package_version_fallback() -> None:
-    """Test package version fallback when PackageNotFoundError is raised."""
-    with patch("ecu_hockey_calendar.api.app.version", side_effect=PackageNotFoundError):
+    """Test package version fallback when get_version returns fallback."""
+    with patch(
+        "ecu_hockey_calendar.api.app.get_version",
+        return_value="0.0.0+unknown",
+    ):
         app = create_app()
-        assert app.version == "0.4.0.dev0"
+        assert app.version == "0.0.0+unknown"
 
 
 def test_app_lifespan_engine_disposal(tmp_path: Path) -> None:

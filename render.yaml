@@ -5,10 +5,11 @@ services:
   # Web Service: FastAPI Calendar & Data API
   - type: web
     name: ecu-hockey-api
-    runtime: docker
+    runtime: image
+    image:
+      url: ghcr.io/bdperkin/ecu-hockey-calendar:edge
     plan: 0.5c-512mb
     region: oregon
-    dockerfilePath: ./Dockerfile
     preDeployCommand: alembic upgrade head
     healthCheckPath: /health
     envVars:
@@ -34,11 +35,12 @@ services:
   # Scheduled Cron Worker: Multi-Source Schedule Synchronization & Change Detection
   - type: cron
     name: ecu-hockey-worker
-    runtime: docker
+    runtime: image
+    image:
+      url: ghcr.io/bdperkin/ecu-hockey-calendar:edge
     plan: 0.5c-512mb
     region: oregon
     schedule: 0 */6 * * *
-    dockerfilePath: ./Dockerfile
     dockerCommand: ecu-hockey sync --notify
     envVars:
       - key: DATABASE_URL

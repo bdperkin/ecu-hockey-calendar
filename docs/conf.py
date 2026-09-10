@@ -3,20 +3,18 @@
 from __future__ import annotations
 
 import sys
-from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
+# Add project source root to Python path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+
+from ecu_hockey_calendar.version import get_version
 
 project = "ecu-hockey-calendar"
 copyright = "2026, Brandon Perkins"
 author = "Brandon Perkins"
 
-try:
-    release = version("ecu-hockey-calendar")
-except PackageNotFoundError:
-    release = "0.1.0.dev0"
-
+release = get_version()
 version = ".".join(release.split(".")[:2])
 
 extensions = [

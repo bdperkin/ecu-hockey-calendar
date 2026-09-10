@@ -94,7 +94,7 @@ dev = [
 
 [tool.hatch]
 version.source = "vcs"
-version.raw-options = { fallback_version = "0.1.0.dev0" }
+version.raw-options = { dist_name = "ecu-hockey-calendar", fallback_version = "0.0.0+unknown" }
 build.hooks.vcs.version-file = "src/ecu_hockey_calendar/_version.py"
 build.targets.wheel.packages = [ "src/ecu_hockey_calendar" ]
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
-from importlib.metadata import PackageNotFoundError, version
 from typing import TYPE_CHECKING, Any
 
 from fastapi import FastAPI
@@ -22,6 +21,7 @@ from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
 from ecu_hockey_calendar.api.service import CalendarFeedService
 from ecu_hockey_calendar.calendar import ECUHockeyCalendar
 from ecu_hockey_calendar.storage.engine import create_sync_engine
+from ecu_hockey_calendar.version import get_version
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -32,14 +32,6 @@ DEFAULT_API_DESCRIPTION = (
     "Men's Ice Hockey. Conforms to RFC 5545 iCalendar specification with "
     "webcal:// support."
 )
-
-
-def _resolve_package_version() -> str:
-    """Resolve installed package version or return development fallback."""
-    try:
-        return version("ecu-hockey-calendar")
-    except PackageNotFoundError:
-        return "0.4.0.dev0"
 
 
 def create_app(
@@ -62,7 +54,7 @@ def create_app(
     Returns:
         Configured FastAPI application instance.
     """
-    pkg_version = _resolve_package_version()
+    pkg_version = get_version()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:

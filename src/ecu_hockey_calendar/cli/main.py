@@ -13,6 +13,7 @@ from ecu_hockey_calendar.cli.notify import notify_command
 from ecu_hockey_calendar.cli.serve import serve_command
 from ecu_hockey_calendar.cli.status import status_command
 from ecu_hockey_calendar.cli.sync import sync_command
+from ecu_hockey_calendar.version import __version__
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -22,7 +23,11 @@ if TYPE_CHECKING:
     name="ecu-hockey",
     help="ECU Men's Ice Hockey calendar synchronization, inspection, and export CLI.",
 )
-@click.version_option(package_name="ecu-hockey-calendar", prog_name="ecu-hockey")
+@click.version_option(
+    version=__version__,
+    package_name="ecu-hockey-calendar",
+    prog_name="ecu-hockey",
+)
 def cli() -> None:
     """ECU Men's Ice Hockey calendar synchronization and export CLI."""
 
