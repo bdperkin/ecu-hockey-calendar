@@ -111,18 +111,22 @@ def _write_export_output(
     games_count: int,
 ) -> None:
     """Write serialized content to file or standard output."""
+    normalized_content = content
+    if not normalized_content.endswith(("\n", "\r\n")):
+        normalized_content += "\n"
+
     if output_path is None:
-        click.echo(content, nl=False)
+        click.echo(normalized_content, nl=False)
         return
 
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(content, encoding="utf-8")
+        output_path.write_text(normalized_content, encoding="utf-8")
     except OSError as exc:
         print_error(f"Failed to write output file {output_path}: {exc}")
         raise click.ClickException(str(exc)) from exc
 
-    byte_size = len(content.encode("utf-8"))
+    byte_size = len(normalized_content.encode("utf-8"))
     panel_msg = (
         f"Format: [bold #fec923]{resolved_format.upper()}[/bold #fec923]\n"
         f"Destination: [bold white]{output_path.resolve()}[/bold white]\n"

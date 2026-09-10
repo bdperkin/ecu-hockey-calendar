@@ -1,0 +1,220 @@
+---
+name: Schedule Sync
+on:
+  schedule:
+    # Run every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: 0 */6 * * *
+  workflow_dispatch:
+    inputs:
+      notify:
+        description: Dispatch multi-channel webhook notifications
+        required: true
+        default: true
+        type: boolean
+      notify_individual:
+        description: Dispatch individual alerts for each changed fixture
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: Dry run execution (crawl & reconcile without persisting)
+        required: false
+        default: false
+        type: boolean
+      source:
+        description: Ingestion data source
+        required: true
+        default: all
+        type: choice
+        options: [all, ecuhockey, acchockey]
+      season:
+        description: Optional season filter (e.g. 2026-2027)
+        required: false
+        default: ''
+        type: string
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: schedule-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    name: Ingest & Release Calendar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Initialize database schema
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || '' }}
+        run: |-
+          if [ -n "$DATABASE_URL" ]; then
+            echo "Using external DATABASE_URL from secrets."
+          else
+            echo "Using local SQLite database."
+            export DATABASE_URL="sqlite:///ecu_hockey.db"
+          fi
+          uv run alembic upgrade head
+      - name: Synchronize schedule fixtures
+        id: sync
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'sqlite:///ecu_hockey.db' }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RAW_NOTIFY: ${{ inputs.notify }}
+          RAW_NOTIFY_INDIVIDUAL: ${{ inputs.notify_individual }}
+          RAW_DRY_RUN: ${{ inputs.dry_run }}
+          INPUT_SOURCE: ${{ inputs.source || 'all' }}
+          INPUT_SEASON: ${{ inputs.season || '' }}
+        run: |-
+          INPUT_NOTIFY="$RAW_NOTIFY"
+          if [ "${{ github.event_name }}" = "schedule" ] || [ -z "$INPUT_NOTIFY" ]; then
+            INPUT_NOTIFY="true"
+          fi
+          INPUT_NOTIFY_INDIVIDUAL="$RAW_NOTIFY_INDIVIDUAL"
+          if [ -z "$INPUT_NOTIFY_INDIVIDUAL" ]; then
+            INPUT_NOTIFY_INDIVIDUAL="false"
+          fi
+          INPUT_DRY_RUN="$RAW_DRY_RUN"
+          if [ -z "$INPUT_DRY_RUN" ]; then
+            INPUT_DRY_RUN="false"
+          fi
+          SYNC_ARGS=("--source" "$INPUT_SOURCE")
+          if [ "$INPUT_NOTIFY" = "true" ]; then
+            SYNC_ARGS+=("--notify")
+          else
+            SYNC_ARGS+=("--no-notify")
+          fi
+          if [ "$INPUT_NOTIFY_INDIVIDUAL" = "true" ]; then
+            SYNC_ARGS+=("--notify-individual")
+          fi
+          if [ "$INPUT_DRY_RUN" = "true" ]; then
+            SYNC_ARGS+=("--dry-run")
+          fi
+          if [ -n "$INPUT_SEASON" ]; then
+            SYNC_ARGS+=("--season" "$INPUT_SEASON")
+          fi
+          echo "Executing schedule synchronization with args: ${SYNC_ARGS[*]}"
+          uv run ecu-hockey sync "${SYNC_ARGS[@]}"
+      - name: Export static calendar feeds
+        id: export
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'sqlite:///ecu_hockey.db' }}
+        run: |-
+          mkdir -p static
+          uv run ecu-hockey export -f ics -o static/calendar.ics
+          uv run ecu-hockey export -f json -o static/schedule.json
+          uv run ecu-hockey export -f csv -o static/schedule.csv
+          ICS_SIZE=$(wc -c < static/calendar.ics)
+          JSON_SIZE=$(wc -c < static/schedule.json)
+          CSV_SIZE=$(wc -c < static/schedule.csv)
+          echo "ics_size=$ICS_SIZE" >> "$GITHUB_OUTPUT"
+          echo "json_size=$JSON_SIZE" >> "$GITHUB_OUTPUT"
+          echo "csv_size=$CSV_SIZE" >> "$GITHUB_OUTPUT"
+      - name: Upload static calendar artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendar-feeds
+          path: static/
+          retention-days: 30
+      - name: Commit updated static calendar assets
+        id: commit-assets
+        run: |-
+          COMMITTED="false"
+          if [ -n "$(git status --porcelain static/)" ]; then
+            echo "Schedule changes detected. Committing updated static calendar assets..."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add static/
+            git commit -m "chore(schedule): automated schedule sync and calendar update"
+            git push
+            COMMITTED="true"
+          else
+            echo "No schedule changes detected in static assets."
+          fi
+          echo "committed=$COMMITTED" >> "$GITHUB_OUTPUT"
+      - name: Publish static assets to latest GitHub release
+        id: release-assets
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |-
+          LATEST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || true)
+          if [ -n "$LATEST_TAG" ]; then
+            echo "Publishing static calendar assets to release $LATEST_TAG..."
+            gh release upload "$LATEST_TAG" static/calendar.ics static/schedule.json static/schedule.csv --clobber || true
+            echo "uploaded=true" >> "$GITHUB_OUTPUT"
+            echo "release_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+          else
+            echo "No releases found; skipping release asset publication."
+            echo "uploaded=false" >> "$GITHUB_OUTPUT"
+            echo "release_tag=" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Dispatch GitHub Pages deployment
+        if: steps.commit-assets.outputs.committed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |-
+          echo "Dispatching GitHub Pages documentation & static calendar deployment..."
+          gh workflow run pages.yml || echo "::warning::Unable to dispatch pages.yml workflow."
+      - name: Dispatch failure alert notification
+        if: failure()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |-
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          uv run ecu-hockey notify \
+            --title "🚨 Scheduled Schedule Sync Failed" \
+            --message "Automated schedule synchronization workflow failed in run #${{ github.run_id }}." \
+            --details "The scheduled synchronization pipeline encountered an unhandled exception or scraping failure." \
+            --severity alert \
+            --url "$RUN_URL" || true
+      - name: Generate schedule sync summary
+        if: always()
+        env:
+          INPUT_SOURCE: ${{ inputs.source || 'all' }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          INPUT_NOTIFY: ${{ inputs.notify || 'true' }}
+          ICS_SIZE: ${{ steps.export.outputs.ics_size || 'N/A' }}
+          JSON_SIZE: ${{ steps.export.outputs.json_size || 'N/A' }}
+          CSV_SIZE: ${{ steps.export.outputs.csv_size || 'N/A' }}
+          COMMITTED: ${{ steps.commit-assets.outputs.committed || 'false' }}
+          RELEASE_TAG: ${{ steps.release-assets.outputs.release_tag || 'None' }}
+        run: |-
+          {
+            echo "## 🏒 Scheduled Ingestion & Calendar Sync Summary"
+            echo ""
+            echo "| Parameter | Value |"
+            echo "| :--- | :--- |"
+            echo "| **Trigger Event** | \`${{ github.event_name }}\` |"
+            echo "| **Ingestion Source** | \`${INPUT_SOURCE}\` |"
+            echo "| **Dry Run Mode** | \`${INPUT_DRY_RUN}\` |"
+            echo "| **Notifications Enabled** | \`${INPUT_NOTIFY}\` |"
+            echo "| **Calendar (.ics) Size** | \`${ICS_SIZE} bytes\` |"
+            echo "| **Schedule (.json) Size** | \`${JSON_SIZE} bytes\` |"
+            echo "| **Schedule (.csv) Size** | \`${CSV_SIZE} bytes\` |"
+            echo "| **Assets Committed to Repo** | \`${COMMITTED}\` |"
+            echo "| **Release Assets Published** | \`${RELEASE_TAG}\` |"
+            echo ""
+            echo "### 🌐 Static Calendar Distribution"
+            echo "- **GitHub Pages**: [\`calendar.ics\`](https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics) | [\`schedule.json\`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.json) | [\`schedule.csv\`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.csv)"
+            echo "- **Repository Artifacts**: Available in run artifacts (\`calendar-feeds\` zip)"
+          } >> "$GITHUB_STEP_SUMMARY"

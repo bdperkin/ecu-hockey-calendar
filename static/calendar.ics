@@ -1,0 +1,1956 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//ECU Men's Ice Hockey//ECU Hockey Calendar Service//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:ECU Men's Ice Hockey Schedule
+X-WR-CALDESC:Official match fixtures and schedule for East Carolina Univers
+ ity Men's Ice Hockey.
+X-WR-TIMEZONE:America/New_York
+REFRESH-INTERVAL;VALUE=DURATION:PT1H
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:game-game-vs-christopher-newport-on-09172021-0f476n5c1yj@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20210918T051500Z
+DTEND:20210918T074500Z
+SUMMARY:ECU Hockey vs Christopher Newport
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Christopher Newport\nOpponent: Christopher
+  Newport\nDesignation: Home\nVenue: Carolina Ice Zone\nStatus: L\nTickets:
+  https://www.ecuhockey.com/tickets\nScore: East Carolina University 3\, Ch
+ ristopher Newport 4
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Christopher Newport starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-william-mary-on-10012021-qde1gui02e@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20211002T051500Z
+DTEND:20211002T074500Z
+SUMMARY:ECU Hockey vs William & Mary
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs William & Mary\nOpponent: William & Mary\n
+ Designation: Home\nVenue: Carolina Ice Zone\nStatus: W\nTickets: https://w
+ ww.ecuhockey.com/tickets\nScore: East Carolina University 12\, William & M
+ ary 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs William & Mary starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-appalachian-state-on-10082021-jswtboim9e@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20211009T051500Z
+DTEND:20211009T074500Z
+SUMMARY:ECU Hockey vs Appalachian State University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Appalachian State University\nOpponent: Ap
+ palachian State University\nDesignation: Home\nVenue: Carolina Ice Zone\nS
+ tatus: W\nTickets: https://www.ecuhockey.com/tickets\nScore: East Carolina
+  University 5\, Appalachian State University 4
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Appalachian State University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-old-dominion-on-10152021-7bliufq6xva@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20211016T051500Z
+DTEND:20211016T074500Z
+SUMMARY:ECU Hockey vs Old Dominion
+LOCATION:Home
+DESCRIPTION:Match: ECU Hockey vs Old Dominion\nOpponent: Old Dominion\nDesi
+ gnation: Home\nVenue: Home\nStatus: W\nTickets: https://www.ecuhockey.com/
+ tickets\nScore: East Carolina University 15\, Old Dominion 1
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Old Dominion starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-high-point-on-10232021-0orqa632rvs@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20211024T000000Z
+DTEND:20211024T023000Z
+SUMMARY:ECU Hockey at High Point University
+LOCATION:Away
+DESCRIPTION:Match: ECU Hockey at High Point University\nOpponent: High Poin
+ t University\nDesignation: Away\nVenue: Away\nStatus: L\nScore: High Point
+  University 3\, East Carolina University 2
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at High Point University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-uncw-on-10292021-vgosdkqjcm7@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20211030T060000Z
+DTEND:20211030T083000Z
+SUMMARY:ECU Hockey at UNC Wilmington
+LOCATION:Away
+DESCRIPTION:Match: ECU Hockey at UNC Wilmington\nOpponent: UNC Wilmington\n
+ Designation: Away\nVenue: Away\nStatus: W\nScore: UNC Wilmington 2\, East 
+ Carolina University 3
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Wilmington starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-citadel-on-11052021-kwqxen97@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20211106T051500Z
+DTEND:20211106T074500Z
+SUMMARY:ECU Hockey vs Citadel
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Citadel\nOpponent: Citadel\nDesignation: H
+ ome\nVenue: Carolina Ice Zone\nStatus: W\nTickets: https://www.ecuhockey.c
+ om/tickets\nScore: East Carolina University 10\, Citadel 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Citadel starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-liberty-university-on-11132021-p340fu6rm9p@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20211114T081500Z
+DTEND:20211114T104500Z
+SUMMARY:ECU Hockey at Liberty University
+LOCATION:Away
+DESCRIPTION:Match: ECU Hockey at Liberty University\nOpponent: Liberty Univ
+ ersity\nDesignation: Away\nVenue: Away\nStatus: L\nScore: Liberty Universi
+ ty 5\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Liberty University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-navy-on-11192021-kwqxhi80@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20211120T081000Z
+DTEND:20211120T104000Z
+SUMMARY:ECU Hockey at Navy
+LOCATION:McMullen Arena
+DESCRIPTION:Match: ECU Hockey at Navy\nOpponent: Navy\nDesignation: Away\nV
+ enue: McMullen Arena\nStatus: L\nScore: Navy 7\, East Carolina University 
+ 2
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Navy starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-stevenson-on-01152022-kyc5l7k6@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220116T071500Z
+DTEND:20220116T094500Z
+SUMMARY:ECU Hockey vs Stevenson
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Stevenson\nOpponent: Stevenson\nDesignatio
+ n: Home\nVenue: Carolina Ice Zone\nStatus: T\nTickets: https://www.ecuhock
+ ey.com/tickets\nScore: East Carolina University 0\, Stevenson 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Stevenson starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-christopher-newport-on-01212022-w5kzukh8rfj@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220122T080000Z
+DTEND:20220122T103000Z
+SUMMARY:ECU Hockey at Christopher Newport
+LOCATION:Hampton Roads Iceplex
+DESCRIPTION:Match: ECU Hockey at Christopher Newport\nOpponent: Christopher
+  Newport\nDesignation: Away\nVenue: Hampton Roads Iceplex\nStatus: T\nScor
+ e: Christopher Newport 0\, East Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Christopher Newport starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-costal-carolina-on-01282022-i0ml4lmq54s@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220129T080000Z
+DTEND:20220129T103000Z
+SUMMARY:ECU Hockey at Costal Carolina
+LOCATION:Wilmington Ice House
+DESCRIPTION:Match: ECU Hockey at Costal Carolina\nOpponent: Costal Carolina
+ \nDesignation: Away\nVenue: Wilmington Ice House\nStatus: W\nScore: Costal
+  Carolina 3\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Costal Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-north-carolina-state-on-02042022-kwqxqrmc@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220205T054500Z
+DTEND:20220205T081500Z
+SUMMARY:ECU Hockey at North Carolina State
+LOCATION:Invisalign Arena\, 1001 Competition Dr\, Morrisville\, NC 27560
+DESCRIPTION:Match: ECU Hockey at North Carolina State\nOpponent: North Caro
+ lina State\nDesignation: Away\nVenue: Wake Competition Center\nStatus: W\n
+ Score: North Carolina State 0\, East Carolina University 8
+STATUS:CONFIRMED
+GEO:35.834400;-78.795600
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at North Carolina State starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charleston-on-02112022-yo37tfhscac@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220212T070000Z
+DTEND:20220212T093000Z
+SUMMARY:ECU Hockey at Charleston
+LOCATION:Carolina Ice Palace
+DESCRIPTION:Match: ECU Hockey at Charleston\nOpponent: Charleston\nDesignat
+ ion: Away\nVenue: Carolina Ice Palace\nStatus: L\nScore: Charleston 6\, Ea
+ st Carolina University 2
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Charleston starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-birmingham-on-02192022-0lirkprp19c@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220220T071500Z
+DTEND:20220220T094500Z
+SUMMARY:ECU Hockey vs West Virginia
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs West Virginia\nOpponent: West Virginia\nDe
+ signation: Home\nVenue: Carolina Ice Zone\nStatus: T\nTickets: https://www
+ .ecuhockey.com/tickets\nScore: East Carolina University 0\, West Virginia 
+ 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs West Virginia starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-west-virginia-on-02252022-kzw9co13@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220226T023000Z
+DTEND:20220226T050000Z
+SUMMARY:ECU Hockey vs West Virginia
+LOCATION:LaHaye Ice Center
+DESCRIPTION:Match: ECU Hockey vs West Virginia\nOpponent: West Virginia\nDe
+ signation: Home\nVenue: LaHaye Ice Center\nStatus: W\nTickets: https://www
+ .ecuhockey.com/tickets\nScore: East Carolina University 7\, West Virginia 
+ 3
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs West Virginia starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-costal-carolina-on-02262022-l05y3otj@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220227T060000Z
+DTEND:20220227T083000Z
+SUMMARY:ECU Hockey vs Costal Carolina
+LOCATION:LaHaye Ice Center
+DESCRIPTION:Match: ECU Hockey vs Costal Carolina\nOpponent: Costal Carolina
+ \nDesignation: Home\nVenue: LaHaye Ice Center\nStatus: L\nTickets: https:/
+ /www.ecuhockey.com/tickets\nScore: East Carolina University 2\, Costal Car
+ olina 3
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Costal Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-st-bonaventure-on-03182022-l0pq9hrp@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220318T211500Z
+DTEND:20220318T234500Z
+SUMMARY:ECU Hockey at St. Bonaventure
+LOCATION:Ice Line - West Chester\, PA
+DESCRIPTION:Match: ECU Hockey at St. Bonaventure\nOpponent: St. Bonaventure
+ \nDesignation: Away\nVenue: Ice Line - West Chester\, PA\nStatus: W\nScore
+ : St. Bonaventure 4\, East Carolina University 9
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at St. Bonaventure starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-farmingdale-state-on-03192022-l0pqa3n9@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220319T200000Z
+DTEND:20220319T223000Z
+SUMMARY:ECU Hockey at Farmingdale State
+LOCATION:Ice Line - West Chester\, PA
+DESCRIPTION:Match: ECU Hockey at Farmingdale State\nOpponent: Farmingdale S
+ tate\nDesignation: Away\nVenue: Ice Line - West Chester\, PA\nStatus: W\nS
+ core: Farmingdale State 2\, East Carolina University 7
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Farmingdale State starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-penn-state-harrisburg-on-03202022-l0pqaybi@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220320T180000Z
+DTEND:20220320T203000Z
+SUMMARY:ECU Hockey vs Penn State Harrisburg
+LOCATION:Ice Line - West Chester\, PA
+DESCRIPTION:Match: ECU Hockey vs Penn State Harrisburg\nOpponent: Penn Stat
+ e Harrisburg\nDesignation: Home\nVenue: Ice Line - West Chester\, PA\nStat
+ us: W\nTickets: https://www.ecuhockey.com/tickets\nScore: East Carolina Un
+ iversity 6\, Penn State Harrisburg 1
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Penn State Harrisburg starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-09162022-l7z5mdw6@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20220917T043100Z
+DTEND:20220917T070100Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:Extreme Ice Center
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: Extreme Ice Center\nStatus: W\nScore: UNC Charlott
+ e 4\, East Carolina University 7
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-uncw-on-10012022-l7z5w2ax@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221002T060000Z
+DTEND:20221002T083000Z
+SUMMARY:ECU Hockey at UNC Wilmington
+LOCATION:Wilmington Ice House
+DESCRIPTION:Match: ECU Hockey at UNC Wilmington\nOpponent: UNC Wilmington\n
+ Designation: Away\nVenue: Wilmington Ice House\nStatus: W\nScore: UNC Wilm
+ ington 2\, East Carolina University 3
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Wilmington starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-north-carolina-on-10072022-l8yhqatx@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221008T061530Z
+DTEND:20221008T084530Z
+SUMMARY:ECU Hockey at North Carolina
+LOCATION:Orange County spirts plex
+DESCRIPTION:Match: ECU Hockey at North Carolina\nOpponent: North Carolina\n
+ Designation: Away\nVenue: Orange County spirts plex\nStatus: W\nScore: Nor
+ th Carolina 0\, East Carolina University 6
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at North Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-uncw-on-10212022-l7z5ynv3@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221022T060000Z
+DTEND:20221022T083000Z
+SUMMARY:ECU Hockey at UNC Wilmington
+LOCATION:Wilmington Ice House
+DESCRIPTION:Match: ECU Hockey at UNC Wilmington\nOpponent: UNC Wilmington\n
+ Designation: Away\nVenue: Wilmington Ice House\nStatus: W\nScore: UNC Wilm
+ ington 2\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Wilmington starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-10222022-l8yi19fn@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221023T011500Z
+DTEND:20221023T034500Z
+SUMMARY:ECU Hockey vs Duke University
+LOCATION:Orange County Sports Plex
+DESCRIPTION:Match: ECU Hockey vs Duke University\nOpponent: Duke University
+ \nDesignation: Home\nVenue: Orange County Sports Plex\nStatus: W\nTickets:
+  https://www.ecuhockey.com/tickets\nScore: East Carolina University 5\, Du
+ ke University 1
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Duke University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-stevenson-on-10282022-l7z5z7wj@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221029T051500Z
+DTEND:20221029T074500Z
+SUMMARY:ECU Hockey vs Stevenson
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Stevenson\nOpponent: Stevenson\nDesignatio
+ n: Home\nVenue: Carolina Ice Zone\nStatus: W\nTickets: https://www.ecuhock
+ ey.com/tickets\nScore: East Carolina University 6\, Stevenson 5
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Stevenson starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-georgetown-university-on-11042022-l8yikvij@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221104T220000Z
+DTEND:20221105T003000Z
+SUMMARY:ECU Hockey at Georgetown University
+LOCATION:The Saint James
+DESCRIPTION:Match: ECU Hockey at Georgetown University\nOpponent: Georgetow
+ n University\nDesignation: Away\nVenue: The Saint James\nStatus: L\nScore:
+  Georgetown University 4\, East Carolina University 2
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Georgetown University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-west-virginia-universtiy-on-11052022-l8ying52@ecuhockey.co
+ m
+DTSTAMP:20260910T205107Z
+DTSTART:20221105T194500Z
+DTEND:20221105T221500Z
+SUMMARY:ECU Hockey at West Virginia Universtiy
+LOCATION:The Saint James
+DESCRIPTION:Match: ECU Hockey at West Virginia Universtiy\nOpponent: West V
+ irginia Universtiy\nDesignation: Away\nVenue: The Saint James\nStatus: L\n
+ Score: West Virginia Universtiy 4\, East Carolina University 3
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at West Virginia Universtiy starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tampa-on-11062022-l8yio5kg@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221106T191500Z
+DTEND:20221106T214500Z
+SUMMARY:ECU Hockey at Denison University
+LOCATION:The Saint James
+DESCRIPTION:Match: ECU Hockey at Denison University\nOpponent: Denison Univ
+ ersity\nDesignation: Away\nVenue: The Saint James\nStatus: W\nScore: Denis
+ on University 3\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Denison University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-high-point-on-11122022-l8yiphst@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221113T071500Z
+DTEND:20221113T094500Z
+SUMMARY:ECU Hockey vs High Point University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs High Point University\nOpponent: High Poin
+ t University\nDesignation: Home\nVenue: Carolina Ice Zone\nStatus: W\nTick
+ ets: https://www.ecuhockey.com/tickets\nScore: East Carolina University 7\
+ , High Point University 4
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs High Point University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-north-carolina-on-11192022-l8yiqcb7@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20221120T031500Z
+DTEND:20221120T054500Z
+SUMMARY:ECU Hockey at North Carolina
+LOCATION:Orange County Sports Plex
+DESCRIPTION:Match: ECU Hockey at North Carolina\nOpponent: North Carolina\n
+ Designation: Away\nVenue: Orange County Sports Plex\nStatus: W\nScore: Nor
+ th Carolina 2\, East Carolina University 6
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at North Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-south-carolina-on-01132023-l8yirf01@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230114T060000Z
+DTEND:20230114T083000Z
+SUMMARY:ECU Hockey at South Carolina
+LOCATION:Irmo Sports Plex
+DESCRIPTION:Match: ECU Hockey at South Carolina\nOpponent: South Carolina\n
+ Designation: Away\nVenue: Irmo Sports Plex\nStatus: W\nScore: South Caroli
+ na 3\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at South Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-elon-on-01212023-l8yisyk0@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230122T073000Z
+DTEND:20230122T100000Z
+SUMMARY:ECU Hockey vs Elon University
+LOCATION:Invisalign Arena\, 1001 Competition Dr\, Morrisville\, NC 27560
+DESCRIPTION:Match: ECU Hockey vs Elon University\nOpponent: Elon University
+ \nDesignation: Home\nVenue: Wake Competition Center - Morrisville\, NC\nSt
+ atus: L\nTickets: https://www.ecuhockey.com/tickets\nScore: East Carolina 
+ University 2\, Elon University 3
+STATUS:CONFIRMED
+GEO:35.834400;-78.795600
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-appalachian-state-on-01272023-l8yj07j7@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230128T071500Z
+DTEND:20230128T094500Z
+SUMMARY:ECU Hockey vs Appalachian State University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Appalachian State University\nOpponent: Ap
+ palachian State University\nDesignation: Home\nVenue: Carolina Ice Zone\nS
+ tatus: W\nTickets: https://www.ecuhockey.com/tickets\nScore: East Carolina
+  University 7\, Appalachian State University 2
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Appalachian State University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-elon-on-02102023-l8yj1jzc@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230211T071500Z
+DTEND:20230211T094500Z
+SUMMARY:ECU Hockey vs Elon University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Elon University\nOpponent: Elon University
+ \nDesignation: Home\nVenue: Carolina Ice Zone\nStatus: L\nTickets: https:/
+ /www.ecuhockey.com/tickets\nScore: East Carolina University 2\, Elon Unive
+ rsity 3
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-02112023-ld28g5fk@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230212T031500Z
+DTEND:20230212T054500Z
+SUMMARY:ECU Hockey at Duke University
+LOCATION:Orange County Sportsplex\, 101 Meadowlands Dr\, Hillsborough\, NC 
+ 27278
+DESCRIPTION:Match: ECU Hockey at Duke University\nOpponent: Duke University
+ \nDesignation: Away\nVenue: Orange County Sportsplex\nStatus: T\nScore: Du
+ ke University 0\, East Carolina University 0
+STATUS:CONFIRMED
+GEO:36.059400;-79.106500
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Duke University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-02172023-lfsot8lm@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230218T040000Z
+DTEND:20230218T063000Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: Carolina Ice Zone\nStatus: W\nScore: UNC Charlotte
+  1\, East Carolina University 2
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-north-carolina-state-on-09082023-lmo2ms07@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230909T041500Z
+DTEND:20230909T064500Z
+SUMMARY:ECU Hockey at North Carolina State
+LOCATION:Invisalign Arena\, 1001 Competition Dr\, Morrisville\, NC 27560
+DESCRIPTION:Match: ECU Hockey at North Carolina State\nOpponent: North Caro
+ lina State\nDesignation: Away\nVenue: Invisalign Arena\nStatus: W\nScore: 
+ North Carolina State 3\, East Carolina University 17
+STATUS:CONFIRMED
+GEO:35.834400;-78.795600
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at North Carolina State starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-appalachian-state-on-09152023-lmo2psfa@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230916T063000Z
+DTEND:20230916T090000Z
+SUMMARY:ECU Hockey at Appalachian State University
+LOCATION:The Factory Ice House\, 1839 S Main St\, Wake Forest\, NC 27587
+DESCRIPTION:Match: ECU Hockey at Appalachian State University\nOpponent: Ap
+ palachian State University\nDesignation: Away\nVenue: Ice House\nStatus: L
+ \nScore: Appalachian State University 6\, East Carolina University 4
+STATUS:CONFIRMED
+GEO:35.955400;-78.532300
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Appalachian State University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-09232023-lmo2u9j9@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20230924T043000Z
+DTEND:20230924T070000Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:Extreme Ice Center
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: Extreme Ice Center\nStatus: W\nScore: UNC Charlott
+ e 2\, East Carolina University 6
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-north-carolina-on-09302023-lmo2vttj@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20231001T021500Z
+DTEND:20231001T044500Z
+SUMMARY:ECU Hockey at North Carolina
+LOCATION:Orange Country Sportsplex
+DESCRIPTION:Match: ECU Hockey at North Carolina\nOpponent: North Carolina\n
+ Designation: Away\nVenue: Orange Country Sportsplex \nStatus: W\nScore: No
+ rth Carolina 1\, East Carolina University 9
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at North Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-high-point-on-10022023-ln9g3d0p@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20231001T190000Z
+DTEND:20231001T213000Z
+SUMMARY:ECU Hockey at High Point University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey at High Point University\nOpponent: High Poin
+ t University\nDesignation: Away\nVenue: Carolina Ice Zone\nStatus: W\nScor
+ e: High Point University 3\, East Carolina University 10
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at High Point University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-costal-carolina-on-10132023-lmo2wowj@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20231014T044500Z
+DTEND:20231014T071500Z
+SUMMARY:ECU Hockey at Coastal Carolina
+LOCATION:Ice Palace
+DESCRIPTION:Match: ECU Hockey at Coastal Carolina\nOpponent: Coastal Caroli
+ na\nDesignation: Away\nVenue: Ice Palace\nStatus: T\nScore: Coastal Caroli
+ na 2\, East Carolina University 2
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Coastal Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-10202023-lmo2y6jm@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20231021T061500Z
+DTEND:20231021T084500Z
+SUMMARY:ECU Hockey at Duke University
+LOCATION:Orange Country Sportsplex
+DESCRIPTION:Match: ECU Hockey at Duke University\nOpponent: Duke University
+ \nDesignation: Away\nVenue: Orange Country Sportsplex \nStatus: L\nScore: 
+ Duke University 7\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Duke University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-ucf-on-10272023-lmo339na@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20231028T050000Z
+DTEND:20231028T073000Z
+SUMMARY:ECU Hockey vs UCF
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs UCF\nOpponent: UCF\nDesignation: Home\nVen
+ ue: Carolina Ice Zone\nStatus: T\nTickets: https://www.ecuhockey.com/ticke
+ ts\nScore: East Carolina University 0\, UCF 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs UCF starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-st-joes-on-11032023-lncalx7o@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20231103T224500Z
+DTEND:20231104T011500Z
+SUMMARY:ECU Hockey at St. Joes
+LOCATION:The St. James (6805 Industrial Rd. Springfield\, VA 22151)
+DESCRIPTION:Match: ECU Hockey at St. Joes\nOpponent: St. Joes\nDesignation:
+  Away\nVenue: The St. James (6805 Industrial Rd. Springfield\, VA 22151)\n
+ Status: W\nScore: St. Joes 3\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at St. Joes starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-11042023-lncamkln@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20231105T083000Z
+DTEND:20231105T110000Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:The St. James (6805 Industrial Rd. Springfield\, VA 22151)
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: The St. James (6805 Industrial Rd. Springfield\, V
+ A 22151)\nStatus: W\nScore: UNC Charlotte 2\, East Carolina University 6
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-11052023-lncanszc@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20231105T171500Z
+DTEND:20231105T194500Z
+SUMMARY:ECU Hockey at Duke University
+LOCATION:The St. James (6805 Industrial Rd. Springfield\, VA 22151)
+DESCRIPTION:Match: ECU Hockey at Duke University\nOpponent: Duke University
+ \nDesignation: Away\nVenue: The St. James (6805 Industrial Rd. Springfield
+ \, VA 22151)\nStatus: L\nScore: Duke University 4\, East Carolina Universi
+ ty 3
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Duke University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-west-virginia-universtiy-on-11102023-lmo354ds@ecuhockey.co
+ m
+DTSTAMP:20260910T205107Z
+DTSTART:20231111T044500Z
+DTEND:20231111T071500Z
+SUMMARY:ECU Hockey at West Virginia Universtiy
+LOCATION:Morgantown Ice Arena
+DESCRIPTION:Match: ECU Hockey at West Virginia Universtiy\nOpponent: West V
+ irginia Universtiy\nDesignation: Away\nVenue: Morgantown Ice Arena\nStatus
+ : W\nScore: West Virginia Universtiy 2\, East Carolina University 9
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at West Virginia Universtiy starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-elon-on-01122024-lrazkz3b@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20240113T081500Z
+DTEND:20240113T104500Z
+SUMMARY:ECU Hockey at Elon University
+LOCATION:Orange County Sportsplex\, 101 Meadowlands Dr\, Hillsborough\, NC 
+ 27278
+DESCRIPTION:Match: ECU Hockey at Elon University\nOpponent: Elon University
+ \nDesignation: Away\nVenue: Orange County Sportsplex\nStatus: L\nScore: El
+ on University 7\, East Carolina University 1
+STATUS:CONFIRMED
+GEO:36.059400;-79.106500
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-stevenson-on-01192024-lrazm0k1@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20240120T040000Z
+DTEND:20240120T063000Z
+SUMMARY:ECU Hockey at Stevenson
+LOCATION:Reisterstown Sportsplex
+DESCRIPTION:Match: ECU Hockey at Stevenson\nOpponent: Stevenson\nDesignatio
+ n: Away\nVenue: Reisterstown Sportsplex\nStatus: T\nScore: Stevenson 0\, E
+ ast Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Stevenson starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-wake-forest-university-on-01262024-lrazpgs0@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20240127T033000Z
+DTEND:20240127T060000Z
+SUMMARY:ECU Hockey at Wake Forest University
+LOCATION:Winston-Salem Fairgrounds Annex
+DESCRIPTION:Match: ECU Hockey at Wake Forest University\nOpponent: Wake For
+ est University\nDesignation: Away\nVenue: Winston-Salem Fairgrounds Annex\
+ nStatus: L\nScore: Wake Forest University 6\, East Carolina University 3
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Wake Forest University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-elon-on-01122024-lrazq9o2@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20240204T071500Z
+DTEND:20240204T094500Z
+SUMMARY:ECU Hockey vs Elon University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Elon University\nOpponent: Elon University
+ \nDesignation: Home\nVenue: Carolina Ice Zone\nStatus: T\nTickets: https:/
+ /www.ecuhockey.com/tickets\nScore: East Carolina University 0\, Elon Unive
+ rsity 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-wake-forest-university-on-02102024-lrazrqyq@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20240211T070000Z
+DTEND:20240211T093000Z
+SUMMARY:ECU Hockey at Wake Forest University
+LOCATION:Winston-Salem Fairgrounds Annex
+DESCRIPTION:Match: ECU Hockey at Wake Forest University\nOpponent: Wake For
+ est University\nDesignation: Away\nVenue: Winston-Salem Fairgrounds Annex\
+ nStatus: W\nScore: Wake Forest University 3\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Wake Forest University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-02152024-lsj9ioo4@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20240216T053000Z
+DTEND:20240216T080000Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:Winston-Salem Fairgrounds Annex
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: Winston-Salem Fairgrounds Annex\nStatus: L\nScore:
+  UNC Charlotte 7\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-uncw-on-09062024-lyiv7z2y@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20240907T060000Z
+DTEND:20240907T083000Z
+SUMMARY:ECU Hockey at UNC Wilmington
+LOCATION:Polar Ice Wilmington
+DESCRIPTION:Match: ECU Hockey at UNC Wilmington\nOpponent: UNC Wilmington\n
+ Designation: Away\nVenue: Polar Ice Wilmington\nStatus: W\nScore: UNC Wilm
+ ington 3\, East Carolina University 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Wilmington starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-wake-forest-university-on-09212024-lyivcqpj@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20240922T020000Z
+DTEND:20240922T043000Z
+SUMMARY:ECU Hockey vs Wake Forest University
+LOCATION:Cleland Ice/In-Line Skating Rink/Park
+DESCRIPTION:Match: ECU Hockey vs Wake Forest University\nOpponent: Wake For
+ est University\nDesignation: Home\nVenue: Cleland Ice/In-Line Skating Rink
+ /Park\nStatus: L\nTickets: https://www.ecuhockey.com/tickets\nScore: East 
+ Carolina University 5\, Wake Forest University 7
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Wake Forest University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-elon-on-10042024-lyivf1e9@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241005T051500Z
+DTEND:20241005T074500Z
+SUMMARY:ECU Hockey vs Elon University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Elon University\nOpponent: Elon University
+ \nDesignation: Home\nVenue: Carolina Ice Zone\nStatus: T\nTickets: https:/
+ /www.ecuhockey.com/tickets\nScore: East Carolina University 0\, Elon Unive
+ rsity 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-high-point-on-10112024-lz8g6wol@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241012T041500Z
+DTEND:20241012T064500Z
+SUMMARY:ECU Hockey at Appalachian State University
+LOCATION:Greensboro Ice House
+DESCRIPTION:Match: ECU Hockey at Appalachian State University\nOpponent: Ap
+ palachian State University\nDesignation: Away\nVenue: Greensboro Ice House
+ \nStatus: W\nScore: Appalachian State University 3\, East Carolina Univers
+ ity 6
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Appalachian State University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-george-washington-university-on-10252024-lyiyje16@ecuhocke
+ y.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241026T063000Z
+DTEND:20241026T090000Z
+SUMMARY:ECU Hockey at George Washington University
+LOCATION:St. James Place
+DESCRIPTION:Match: ECU Hockey at George Washington University\nOpponent: Ge
+ orge Washington University\nDesignation: Away\nVenue: St. James Place\nSta
+ tus: W\nScore: George Washington University 6\, East Carolina University 7
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at George Washington University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-wake-forest-university-on-10262024-lyiylfdj@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241027T033000Z
+DTEND:20241027T060000Z
+SUMMARY:ECU Hockey at Wake Forest University
+LOCATION:Winston-Salem Fairgrounds - The Annex
+DESCRIPTION:Match: ECU Hockey at Wake Forest University\nOpponent: Wake For
+ est University\nDesignation: Away\nVenue: Winston-Salem Fairgrounds - The 
+ Annex\nStatus: W\nScore: Wake Forest University 0\, East Carolina Universi
+ ty 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Wake Forest University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tbd-on-11012024-lyixzd7k@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241101T224500Z
+DTEND:20241102T011500Z
+SUMMARY:ECU Hockey at St. Joesph's
+LOCATION:The St. James - Springfield\, VA
+DESCRIPTION:Match: ECU Hockey at St. Joesph's\nOpponent: St. Joesph's\nDesi
+ gnation: Away\nVenue: The St. James - Springfield\, VA\nStatus: W\nScore: 
+ St. Joesph's 2\, East Carolina University 5
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at St. Joesph's starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tbd-on-11022024-lyiy0ax4@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241102T183000Z
+DTEND:20241102T210000Z
+SUMMARY:ECU Hockey at George Washington University
+LOCATION:The St. James - Springfield\, VA
+DESCRIPTION:Match: ECU Hockey at George Washington University\nOpponent: Ge
+ orge Washington University\nDesignation: Away\nVenue: The St. James - Spri
+ ngfield\, VA\nStatus: W\nScore: George Washington University 6\, East Caro
+ lina University 7
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at George Washington University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tbd-on-11032024-lyiy0vyu@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241103T194500Z
+DTEND:20241103T221500Z
+SUMMARY:ECU Hockey at Denison University
+LOCATION:The St. James - Springfield\, VA
+DESCRIPTION:Match: ECU Hockey at Denison University\nOpponent: Denison Univ
+ ersity\nDesignation: Away\nVenue: The St. James - Springfield\, VA\nStatus
+ : W\nScore: Denison University 4\, East Carolina University 5
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Denison University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-uva-on-11102024-lyiwik7v@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241110T190000Z
+DTEND:20241110T213000Z
+SUMMARY:ECU Hockey at University of Virginia
+LOCATION:Skate Nation Plus
+DESCRIPTION:Match: ECU Hockey at University of Virginia\nOpponent: Universi
+ ty of Virginia\nDesignation: Away\nVenue: Skate Nation Plus\nStatus: L\nSc
+ ore: University of Virginia 6\, East Carolina University 5
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at University of Virginia starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-south-carolina-on-11162024-m3bz3zlc@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241116T060000Z
+DTEND:20241116T083000Z
+SUMMARY:ECU Hockey at South Carolina
+LOCATION:Flight Adventure Park Irmo
+DESCRIPTION:Match: ECU Hockey at South Carolina\nOpponent: South Carolina\n
+ Designation: Away\nVenue: Flight Adventure Park Irmo\nStatus: W\nScore: So
+ uth Carolina 1\, East Carolina University 3
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at South Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-west-chester-university-on-11232024-lyiwuc3k@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20241124T071500Z
+DTEND:20241124T094500Z
+SUMMARY:ECU Hockey vs West Chester University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs West Chester University\nOpponent: West Ch
+ ester University\nDesignation: Home\nVenue: Carolina Ice Zone\nStatus: L\n
+ Tickets: https://www.ecuhockey.com/tickets\nScore: East Carolina Universit
+ y 5\, West Chester University 11
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs West Chester University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-ucf-on-01102025-lyiwxkmn@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250112T210000Z
+DTEND:20250112T233000Z
+SUMMARY:ECU Hockey at UCF
+LOCATION:Orlando Ice Den
+DESCRIPTION:Match: ECU Hockey at UCF\nOpponent: UCF\nDesignation: Away\nVen
+ ue: Orlando Ice Den\nStatus: W\nScore: UCF 4\, East Carolina University 13
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UCF starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-01172025-lyiwzma7@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250118T081500Z
+DTEND:20250118T104500Z
+SUMMARY:ECU Hockey at Duke University
+LOCATION:Orange County Sportsplex\, 101 Meadowlands Dr\, Hillsborough\, NC 
+ 27278
+DESCRIPTION:Match: ECU Hockey at Duke University\nOpponent: Duke University
+ \nDesignation: Away\nVenue: Orange County Sportsplex\nStatus: L\nScore: Du
+ ke University 7\, East Carolina University 2
+STATUS:CONFIRMED
+GEO:36.059400;-79.106500
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Duke University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-01182025-m61u4305@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250119T071555Z
+DTEND:20250119T094555Z
+SUMMARY:ECU Hockey vs Duke University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Duke University\nOpponent: Duke University
+ \nDesignation: Home\nVenue: Carolina Ice Zone\nStatus: W\nTickets: https:/
+ /www.ecuhockey.com/tickets\nScore: East Carolina University 7\, Duke Unive
+ rsity 4
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Duke University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-citadel-on-01262025-lzen0bl8@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250126T203000Z
+DTEND:20250126T230000Z
+SUMMARY:ECU Hockey vs Citadel
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Citadel\nOpponent: Citadel\nDesignation: H
+ ome\nVenue: Carolina Ice Zone\nStatus: W\nTickets: https://www.ecuhockey.c
+ om/tickets\nScore: East Carolina University 6\, Citadel 3
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Citadel starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-02012025-lyix3sgi@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250202T071500Z
+DTEND:20250202T094500Z
+SUMMARY:ECU Hockey vs Duke University
+LOCATION:Carolina Ice Zone
+DESCRIPTION:Match: ECU Hockey vs Duke University\nOpponent: Duke University
+ \nDesignation: Home\nVenue: Carolina Ice Zone\nStatus: T\nTickets: https:/
+ /www.ecuhockey.com/tickets\nScore: East Carolina University 0\, Duke Unive
+ rsity 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Duke University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-high-point-on-02022025-lz8g8e4n@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250202T190000Z
+DTEND:20250202T213000Z
+SUMMARY:ECU Hockey at High Point University
+LOCATION:Greensboro Ice House
+DESCRIPTION:Match: ECU Hockey at High Point University\nOpponent: High Poin
+ t University\nDesignation: Away\nVenue: Greensboro Ice House\nStatus: T\nS
+ core: High Point University 0\, East Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at High Point University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-richmond-university-on-02082025-lyix5zzl@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250209T071000Z
+DTEND:20250209T094000Z
+SUMMARY:ECU Hockey at Richmond University
+LOCATION:Richmond Ice Zone
+DESCRIPTION:Match: ECU Hockey at Richmond University\nOpponent: Richmond Un
+ iversity\nDesignation: Away\nVenue: Richmond Ice Zone\nStatus: W\nScore: R
+ ichmond University 3\, East Carolina University 8
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Richmond University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-alabama-d3-on-09122025-mem3yhoz@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250913T061500Z
+DTEND:20250913T084500Z
+SUMMARY:ECU Hockey at University of Alabama (D2)
+LOCATION:Pelham Civic Complex
+DESCRIPTION:Match: ECU Hockey at University of Alabama (D2)\nOpponent: Univ
+ ersity of Alabama (D2)\nDesignation: Away\nVenue: Pelham Civic Complex\nSt
+ atus: W\nScore: University of Alabama (D2) 3\, East Carolina University 6
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at University of Alabama (D2) starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-alabama-d3-on-09142025-mem3zdgh@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250914T183000Z
+DTEND:20250914T210000Z
+SUMMARY:ECU Hockey at University of Alabama (D2)
+LOCATION:Pelham Civic Complex
+DESCRIPTION:Match: ECU Hockey at University of Alabama (D2)\nOpponent: Univ
+ ersity of Alabama (D2)\nDesignation: Away\nVenue: Pelham Civic Complex\nSt
+ atus: W\nScore: University of Alabama (D2) 2\, East Carolina University 9
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at University of Alabama (D2) starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-uncw-on-09192025-mem48718@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250920T060000Z
+DTEND:20250920T083000Z
+SUMMARY:ECU Hockey at UNC Wilmington
+LOCATION:Wilmington Ice House
+DESCRIPTION:Match: ECU Hockey at UNC Wilmington\nOpponent: UNC Wilmington\n
+ Designation: Away\nVenue: Wilmington Ice House\nStatus: W\nScore: UNC Wilm
+ ington 1\, East Carolina University 7
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Wilmington starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-stevenson-on-09262025-mem4efvl@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250927T023000Z
+DTEND:20250927T050000Z
+SUMMARY:ECU Hockey at Stevenson
+LOCATION:Reisterstown Sportsplex
+DESCRIPTION:Match: ECU Hockey at Stevenson\nOpponent: Stevenson\nDesignatio
+ n: Away\nVenue: Reisterstown Sportsplex\nStatus: L\nScore: Stevenson 7\, E
+ ast Carolina University 5
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Stevenson starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-william-mary-on-09272025-mfq2u6vd@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20250927T223000Z
+DTEND:20250928T010000Z
+SUMMARY:ECU Hockey at William & Mary
+LOCATION:Chilled Ponds Yorktown - 401 Village Ave\, Yorktown\, VA 23693
+DESCRIPTION:Match: ECU Hockey at William & Mary\nOpponent: William & Mary\n
+ Designation: Away\nVenue: Chilled Ponds Yorktown - 401 Village Ave\, Yorkt
+ own\, VA 23693\nStatus: W\nScore: William & Mary 6\, East Carolina Univers
+ ity 7
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at William & Mary starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-wake-forest-university-on-10032025-mem4hx7c@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251004T040000Z
+DTEND:20251004T063000Z
+SUMMARY:ECU Hockey at Wake Forest University
+LOCATION:The Annex at Winston-Salem Fairgrounds
+DESCRIPTION:Match: ECU Hockey at Wake Forest University\nOpponent: Wake For
+ est University\nDesignation: Away\nVenue: The Annex at Winston-Salem Fairg
+ rounds\nStatus: W\nScore: Wake Forest University 3\, East Carolina Univers
+ ity 4
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Wake Forest University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-elon-on-10042025-mem4m9k0@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251005T060000Z
+DTEND:20251005T083000Z
+SUMMARY:ECU Hockey at Elon University
+LOCATION:Orange County Sportsplex\, 101 Meadowlands Dr\, Hillsborough\, NC 
+ 27278
+DESCRIPTION:Match: ECU Hockey at Elon University\nOpponent: Elon University
+ \nDesignation: Away\nVenue: Orange County Sportsplex\nStatus: W\nScore: El
+ on University 3\, East Carolina University 5
+STATUS:CONFIRMED
+GEO:36.059400;-79.106500
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-coastal-carolina-on-10102025-mermfunl@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251011T033000Z
+DTEND:20251011T060000Z
+SUMMARY:ECU Hockey vs Coastal Carolina
+LOCATION:Cleland Ice Area\, Ft. Bragg\, NC
+DESCRIPTION:Match: ECU Hockey vs Coastal Carolina\nOpponent: Coastal Caroli
+ na\nDesignation: Home\nVenue: Cleland Ice Area\, Ft. Bragg\, NC\nStatus: T
+ \nTickets: https://www.ecuhockey.com/tickets\nScore: East Carolina Univers
+ ity 0\, Coastal Carolina 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Coastal Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-10182025-memu79jc@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251019T060000Z
+DTEND:20251019T083000Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:Extreme Ice Center - Charlotte\, NC
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: Extreme Ice Center - Charlotte\, NC\nStatus: L\nSc
+ ore: UNC Charlotte 5\, East Carolina University 2
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-appalachian-state-on-10242025-memu9g3k@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251026T023000Z
+DTEND:20251026T050000Z
+SUMMARY:ECU Hockey vs Appalachian State University
+LOCATION:Cleland Ice Arean - Ft. Bragg
+DESCRIPTION:Match: ECU Hockey vs Appalachian State University\nOpponent: Ap
+ palachian State University\nDesignation: Home\nVenue: Cleland Ice Arean - 
+ Ft. Bragg\nStatus: W\nTickets: https://www.ecuhockey.com/tickets\nScore: E
+ ast Carolina University 6\, Appalachian State University 4
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Appalachian State University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-appalachian-state-on-10252025-memuafxd@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251026T220000Z
+DTEND:20251027T003000Z
+SUMMARY:ECU Hockey at Appalachian State University
+LOCATION:Cleland Ice Area - Ft. Bragg
+DESCRIPTION:Match: ECU Hockey at Appalachian State University\nOpponent: Ap
+ palachian State University\nDesignation: Away\nVenue: Cleland Ice Area - F
+ t. Bragg\nStatus: W\nScore: Appalachian State University 4\, East Carolina
+  University 7
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Appalachian State University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-north-carolina-on-11072025-met31ocx@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251108T071500Z
+DTEND:20251108T094500Z
+SUMMARY:ECU Hockey vs University of North Carolina
+LOCATION:Carolina Ice Zone - Greenville\, NC
+DESCRIPTION:Match: ECU Hockey vs University of North Carolina\nOpponent: Un
+ iversity of North Carolina\nDesignation: Home\nVenue: Carolina Ice Zone - 
+ Greenville\, NC\nStatus: L\nTickets: https://www.ecuhockey.com/tickets\nSc
+ ore: East Carolina University 2\, University of North Carolina 8
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs University of North Carolina starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tbd-on-11142025-memuboc2@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251114T194500Z
+DTEND:20251114T221500Z
+SUMMARY:ECU Hockey at Georgetown University
+LOCATION:ACCHL FALL CLASSIC
+DESCRIPTION:Match: ECU Hockey at Georgetown University\nOpponent: Georgetow
+ n University\nDesignation: Away\nVenue: ACCHL FALL CLASSIC\nStatus: L\nSco
+ re: Georgetown University 5\, East Carolina University 1
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Georgetown University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tbd-on-11152025-memucmlv@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251115T181500Z
+DTEND:20251115T204500Z
+SUMMARY:ECU Hockey at St. Joesph's
+LOCATION:ACCHL FALL CLASSIC
+DESCRIPTION:Match: ECU Hockey at St. Joesph's\nOpponent: St. Joesph's\nDesi
+ gnation: Away\nVenue: ACCHL FALL CLASSIC\nStatus: W\nScore: St. Joesph's 0
+ \, East Carolina University 8
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at St. Joesph's starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tbd-on-11162025-memudccm@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251116T220000Z
+DTEND:20251117T003000Z
+SUMMARY:ECU Hockey at James Madison University
+LOCATION:ACCHL FALL CLASSIC
+DESCRIPTION:Match: ECU Hockey at James Madison University\nOpponent: James 
+ Madison University\nDesignation: Away\nVenue: ACCHL FALL CLASSIC\nStatus: 
+ L\nScore: James Madison University 4\, East Carolina University 3
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at James Madison University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-georgia-tech-on-11202025-memuks0e@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20251121T053000Z
+DTEND:20251121T080000Z
+SUMMARY:ECU Hockey at Georgia Tech
+LOCATION:Truist Field - Charlotte\, NC
+DESCRIPTION:Match: ECU Hockey at Georgia Tech\nOpponent: Georgia Tech\nDesi
+ gnation: Away\nVenue: Truist Field - Charlotte\, NC\nStatus: L\nScore: Geo
+ rgia Tech 3\, East Carolina University 2
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Georgia Tech starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-wake-forest-university-on-01102026-mk3el4qc@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260110T231500Z
+DTEND:20260111T014500Z
+SUMMARY:ECU Hockey at Wake Forest University
+LOCATION:Winston-Salem Fairgrounds Annex
+DESCRIPTION:Match: ECU Hockey at Wake Forest University\nOpponent: Wake For
+ est University\nDesignation: Away\nVenue: Winston-Salem Fairgrounds Annex\
+ nStatus: W\nScore: Wake Forest University 1\, East Carolina University 5
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Wake Forest University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-george-washington-university-on-01172026-mk3enp8g@ecuhocke
+ y.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260118T071500Z
+DTEND:20260118T094500Z
+SUMMARY:ECU Hockey vs George Washington University
+LOCATION:Carolina Ice Zone - Greenville\, NC
+DESCRIPTION:Match: ECU Hockey vs George Washington University\nOpponent: Ge
+ orge Washington University\nDesignation: Home\nVenue: Carolina Ice Zone - 
+ Greenville\, NC\nStatus: W\nTickets: https://www.ecuhockey.com/tickets\nSc
+ ore: East Carolina University 6\, George Washington University 4
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs George Washington University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-01232026-mk3epgxf@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260123T220000Z
+DTEND:20260124T003000Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:Garner Ice House - Garner\, NC
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: Garner Ice House - Garner\, NC\nStatus: L\nScore: 
+ UNC Charlotte 3\, East Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-elon-on-01242026-mk3eqlfs@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260125T071500Z
+DTEND:20260125T094500Z
+SUMMARY:ECU Hockey vs Elon University
+LOCATION:Carolina Ice Zone - Greenville\, NC
+DESCRIPTION:Match: ECU Hockey vs Elon University\nOpponent: Elon University
+ \nDesignation: Home\nVenue: Carolina Ice Zone - Greenville\, NC\nStatus: T
+ \nTickets: https://www.ecuhockey.com/tickets\nScore: East Carolina Univers
+ ity 0\, Elon University 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-elon-on-02062026-mk3es0pl@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260207T081500Z
+DTEND:20260207T104500Z
+SUMMARY:ECU Hockey at Elon University
+LOCATION:Orange County Sportsplex\, 101 Meadowlands Dr\, Hillsborough\, NC 
+ 27278
+DESCRIPTION:Match: ECU Hockey at Elon University\nOpponent: Elon University
+ \nDesignation: Away\nVenue: Orange County Sportsplex - Hillsborough\, NC\n
+ Status: W\nScore: Elon University 2\, East Carolina University 9
+STATUS:CONFIRMED
+GEO:36.059400;-79.106500
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-appalachian-state-on-02102026-mlhd2qyg@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260211T021602Z
+DTEND:20260211T044602Z
+SUMMARY:ECU Hockey at Appalachian State University
+LOCATION:Winston-Salem Fairgrounds Annex
+DESCRIPTION:Match: ECU Hockey at Appalachian State University\nOpponent: Ap
+ palachian State University\nDesignation: Away\nVenue: Winston-Salem Fairgr
+ ounds Annex\nStatus: W\nScore: Appalachian State University 4\, East Carol
+ ina University 6
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Appalachian State University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-alabama-d2-on-09042026-mrxghe3d@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260905T040000Z
+DTEND:20260905T063000Z
+SUMMARY:ECU Hockey at University of Alabama (D2)
+LOCATION:Pelham Civic Complex\, Pelham\, AL\, 35124
+DESCRIPTION:Match: ECU Hockey at University of Alabama (D2)\nOpponent: Univ
+ ersity of Alabama (D2)\nDesignation: Away\nVenue: Pelham Civic Complex\, P
+ elham\, AL\, 35124\nStatus: T\nScore: University of Alabama (D2) 0\, East 
+ Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at University of Alabama (D2) starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-alabama-d2-on-09062026-mrxgj4xd@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260906T210000Z
+DTEND:20260906T233000Z
+SUMMARY:ECU Hockey at University of Alabama (D2)
+LOCATION:Pelham Civic Complex\, Pelham\, AL\, 35124
+DESCRIPTION:Match: ECU Hockey at University of Alabama (D2)\nOpponent: Univ
+ ersity of Alabama (D2)\nDesignation: Away\nVenue: Pelham Civic Complex\, P
+ elham\, AL\, 35124\nStatus: T\nScore: University of Alabama (D2) 0\, East 
+ Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at University of Alabama (D2) starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-07232026-mrxgoqop@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260912T050000Z
+DTEND:20260912T073000Z
+SUMMARY:ECU Hockey vs Elon University
+LOCATION:Carolina Ice Zone\, Greenville\, NC\, 27858
+DESCRIPTION:Match: ECU Hockey vs Elon University\nOpponent: Elon University
+ \nDesignation: Home\nVenue: Carolina Ice Zone\, Greenville\, NC\, 27858\nS
+ tatus: T\nTickets: https://www.ecuhockey.com/tickets\nScore: East Carolina
+  University 0\, Elon University 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Elon University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-09192026-mrxgmz79@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20260920T040000Z
+DTEND:20260920T063000Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:Extreme Ice Center\, Indian Trail\, NC\, 28079
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: Extreme Ice Center\, Indian Trail\, NC\, 28079\nSt
+ atus: T\nScore: UNC Charlotte 0\, East Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-charlotte-on-10092026-msyx0jgc@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20261010T042900Z
+DTEND:20261010T065900Z
+SUMMARY:ECU Hockey at UNC Charlotte
+LOCATION:Extreme Ice Center\, Indian Trail\, NC\, 28079
+DESCRIPTION:Match: ECU Hockey at UNC Charlotte\nOpponent: UNC Charlotte\nDe
+ signation: Away\nVenue: Extreme Ice Center\, Indian Trail\, NC\, 28079\nSt
+ atus: T\nScore: UNC Charlotte 0\, East Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at UNC Charlotte starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-clemson-on-07232026-mrxgwmq7@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20261017T020000Z
+DTEND:20261017T043000Z
+SUMMARY:ECU Hockey at Clemson University
+LOCATION:Pavillion Recreation Complex\, Taylors\, SC\, 29687
+DESCRIPTION:Match: ECU Hockey at Clemson University\nOpponent: Clemson Univ
+ ersity\nDesignation: Away\nVenue: Pavillion Recreation Complex\, Taylors\,
+  SC\, 29687\nStatus: T\nScore: Clemson University 0\, East Carolina Univer
+ sity 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Clemson University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-clemson-on-10182026-mrxgyqol@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20261018T194500Z
+DTEND:20261018T221500Z
+SUMMARY:ECU Hockey at Clemson University
+LOCATION:Pavillion Recreation Complex\, Taylors\, SC\, 29867
+DESCRIPTION:Match: ECU Hockey at Clemson University\nOpponent: Clemson Univ
+ ersity\nDesignation: Away\nVenue: Pavillion Recreation Complex\, Taylors\,
+  SC\, 29867\nStatus: T\nScore: Clemson University 0\, East Carolina Univer
+ sity 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Clemson University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-george-washington-university-on-10232026-mrxh0vrf@ecuhocke
+ y.com
+DTSTAMP:20260910T205107Z
+DTSTART:20261024T050000Z
+DTEND:20261024T073000Z
+SUMMARY:ECU Hockey vs George Washington University
+LOCATION:The St. James\, Springfield\, VA\, 22151
+DESCRIPTION:Match: ECU Hockey vs George Washington University\nOpponent: Ge
+ orge Washington University\nDesignation: Home\nVenue: The St. James\, Spri
+ ngfield\, VA\, 22151\nStatus: T\nTickets: https://www.ecuhockey.com/ticket
+ s\nScore: East Carolina University 0\, George Washington University 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs George Washington University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-christopher-newport-on-10242026-mrxh2ee5@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20261024T214500Z
+DTEND:20261025T001500Z
+SUMMARY:ECU Hockey at Christopher Newport
+LOCATION:Chilled Ponds\, Yorktown\, VA\, 23693
+DESCRIPTION:Match: ECU Hockey at Christopher Newport\nOpponent: Christopher
+  Newport\nDesignation: Away\nVenue: Chilled Ponds\, Yorktown\, VA\, 23693\
+ nStatus: T\nScore: Christopher Newport 0\, East Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at Christopher Newport starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tbd-on-11062026-mry17c87@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20261106T203000Z
+DTEND:20261106T230000Z
+SUMMARY:ECU Hockey at TBD
+LOCATION:The St. James\, Springfield\, VA\, 22151
+DESCRIPTION:Match: ECU Hockey at TBD\nOpponent: TBD\nDesignation: Away\nVen
+ ue: The St. James\, Springfield\, VA\, 22151\nStatus: T\nScore: TBD 0\, Ea
+ st Carolina University 0
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey at TBD starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-tbd-on-11072026-mry18jcr@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20261107T220000Z
+DTEND:20261108T003000Z
+SUMMARY:ECU Hockey vs TBD
+LOCATION:The St. James\, Springfield\, VA\, 22151
+DESCRIPTION:Match: ECU Hockey vs TBD\nOpponent: TBD\nDesignation: Home\nVen
+ ue: The St. James\, Springfield\, VA\, 22151\nStatus: T\nTickets: https://
+ www.ecuhockey.com/tickets\nScore: East Carolina University 0\, TBD 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs TBD starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-high-point-on-11142026-mrxh6oid@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20261115T044500Z
+DTEND:20261115T071500Z
+SUMMARY:ECU Hockey vs High Point University
+LOCATION:Carolina Ice Zone\, Greenville\, NC\, 27858
+DESCRIPTION:Match: ECU Hockey vs High Point University\nOpponent: High Poin
+ t University\nDesignation: Home\nVenue: Carolina Ice Zone\, Greenville\, N
+ C\, 27858\nStatus: T\nTickets: https://www.ecuhockey.com/tickets\nScore: E
+ ast Carolina University 0\, High Point University 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs High Point University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:game-game-vs-duke-on-01082027-mry1cna4@ecuhockey.com
+DTSTAMP:20260910T205107Z
+DTSTART:20270109T024500Z
+DTEND:20270109T051500Z
+SUMMARY:ECU Hockey vs Duke University
+LOCATION:Polar Ice Garner\, Garner\, NC\, 27529
+DESCRIPTION:Match: ECU Hockey vs Duke University\nOpponent: Duke University
+ \nDesignation: Home\nVenue: Polar Ice Garner\, Garner\, NC\, 27529\nStatus
+ : T\nTickets: https://www.ecuhockey.com/tickets\nScore: East Carolina Univ
+ ersity 0\, Duke University 0
+STATUS:CONFIRMED
+URL:https://www.ecuhockey.com/tickets
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:ECU Hockey vs Duke University starts in 2 hours!
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

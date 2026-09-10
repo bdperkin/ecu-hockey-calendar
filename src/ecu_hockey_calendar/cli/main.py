@@ -9,6 +9,7 @@ import click
 
 from ecu_hockey_calendar.cli.conflicts import conflicts_command
 from ecu_hockey_calendar.cli.export import export_command
+from ecu_hockey_calendar.cli.notify import notify_command
 from ecu_hockey_calendar.cli.serve import serve_command
 from ecu_hockey_calendar.cli.status import status_command
 from ecu_hockey_calendar.cli.sync import sync_command
@@ -32,6 +33,7 @@ cli.add_command(status_command, "status")
 cli.add_command(export_command, "export")
 cli.add_command(conflicts_command, "conflicts")
 cli.add_command(serve_command, "serve")
+cli.add_command(notify_command, "notify")
 
 
 def _handle_exit(exc: Exception | SystemExit) -> int:
