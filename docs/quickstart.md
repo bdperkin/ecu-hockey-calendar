@@ -190,9 +190,19 @@ for game in changes.created:
 
 ## 6. Serving Calendar Feeds & Data via FastAPI
 
-Run the local FastAPI server to expose live calendar subscriptions and public data feeds:
+A live production instance is available at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/). You can subscribe to the live calendar or query the public feeds directly without a local installation:
 
-### 6.1. Starting the API Server
+```bash
+# Instant one-click subscription to the live production feed
+open "webcal://ecu-hockey-api.onrender.com/calendar.ics"
+
+# Query the live production schedule JSON feed
+curl -s "https://ecu-hockey-api.onrender.com/api/schedule.json?home_only=true" | jq .
+```
+
+To run your own local FastAPI server for development or self-hosting:
+
+### 6.1. Starting the API Server Locally
 
 Launch the ASGI server using `uvicorn`:
 

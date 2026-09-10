@@ -32,6 +32,13 @@ ______________________________________________________________________
   - [6.5. Automated GitHub Actions Container Pipeline](#65-automated-github-actions-container-pipeline)
   - [6.6. Continuous Deployment with GitHub Actions (`deploy.yml`)](#66-continuous-deployment-with-github-actions--deployyml)
   - [6.7. Turnkey Infrastructure via Render Blueprint (`render.yaml`)](#67-turnkey-infrastructure-via-render-blueprint--renderyaml)
+  - [6.8. Live Production Deployment (`ecu-hockey-api.onrender.com`)](#68-live-production-deployment--ecu-hockey-apionrendercom)
+    - [6.8.1. Deployed Infrastructure Topology](#681-deployed-infrastructure-topology)
+    - [6.8.2. Complete Endpoint Inventory & Reference](#682-complete-endpoint-inventory--reference)
+    - [6.8.3. Executable `curl` Examples](#683-executable-curl-examples)
+      - [6.8.3.1. Public Endpoints](#6831-public-endpoints)
+      - [6.8.3.2. Protected Administrative Endpoints](#6832-protected-administrative-endpoints)
+    - [6.8.4. Calendar Client Subscription Instructions](#684-calendar-client-subscription-instructions)
 - [7. Platform-Specific Deployment Walkthroughs](#7-platform-specific-deployment-walkthroughs)
   - [7.1. Walkthrough A: Deploying to Render](#71-walkthrough-a-deploying-to-render)
   - [7.2. Walkthrough B: Deploying to Railway](#72-walkthrough-b-deploying-to-railway)
@@ -405,7 +412,7 @@ The repository includes an automated Continuous Deployment (CD) workflow ([`.git
   1. In the repository settings, navigate to **Settings** > **Environments** and create an environment named `production`.
   2. Add the following secrets / variables:
      - `DEPLOY_HOOK_URL`: (Required for hook deployment) Webhook deploy URL generated in your hosting dashboard.
-     - `PRODUCTION_URL`: (Required for health probe) Public HTTPS URL of the service (e.g., `https://calendar.ecuhockey.com` or `https://ecu-hockey.onrender.com`).
+     - `PRODUCTION_URL`: (Required for health probe) Public HTTPS URL of the service (e.g., `https://calendar.ecuhockey.com` or `https://ecu-hockey-api.onrender.com`).
      - `RENDER_API_KEY`: (Optional) API key for programmatic Render REST API deployments.
      - `RENDER_SERVICE_ID`: (Optional) Target Render service identifier (`srv-xxxxxx`).
      - `FLY_API_TOKEN`: (Optional) Authentication token for Fly.io deployments.
@@ -423,6 +430,123 @@ To deploy via Blueprint:
 1. Navigate to [dashboard.render.com/blueprints](https://dashboard.render.com/blueprints).
 2. Click **New Blueprint Instance** and connect `bdperkin/ecu-hockey-calendar`.
 3. Render automatically discovers `render.yaml`, provisions the database, wires internal environment variables, and launches both services.
+
+### 6.8. Live Production Deployment (`ecu-hockey-api.onrender.com`)
+
+The project maintains an active, public production instance hosted on [Render](https://render.com) at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/):
+
+- **Live Service Base URL**: [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/)
+- **One-Click Calendar Subscription**: [`webcal://ecu-hockey-api.onrender.com/calendar.ics`](webcal://ecu-hockey-api.onrender.com/calendar.ics)
+- **Direct iCalendar Feed**: [`https://ecu-hockey-api.onrender.com/calendar.ics`](https://ecu-hockey-api.onrender.com/calendar.ics)
+- **Interactive OpenAPI Documentation**: [`https://ecu-hockey-api.onrender.com/docs`](https://ecu-hockey-api.onrender.com/docs)
+- **ReDoc API Reference**: [`https://ecu-hockey-api.onrender.com/redoc`](https://ecu-hockey-api.onrender.com/redoc)
+- **Health & Diagnostics Probe**: [`https://ecu-hockey-api.onrender.com/health`](https://ecu-hockey-api.onrender.com/health)
+
+#### 6.8.1. Deployed Infrastructure Topology
+
+The production architecture is deployed declaratively using [`render.yaml`](render.yaml) across three orchestrated services:
+
+1. **Web Service (`ecu-hockey-api`)**:
+
+   - **Runtime**: Docker multi-arch image (`ghcr.io/bdperkin/ecu-hockey-calendar:edge`).
+   - **Hosting Tier**: Oregon region, `0.5c-512mb`.
+   - **Automated Pre-Deploy Command**: `alembic upgrade head` applies relational migrations before traffic routes.
+   - **Health Checking**: Probed continuously at `/health` with automatic restart on failure.
+   - **Networking**: Automated Let's Encrypt SSL/TLS termination with HTTP/2 and CORS support.
+
+2. **Scheduled Cron Worker (`ecu-hockey-worker`)**:
+
+   - **Runtime**: Docker image (`ghcr.io/bdperkin/ecu-hockey-calendar:edge`).
+   - **Execution Cadence**: Runs `ecu-hockey sync --notify` every 6 hours (`0 */6 * * *`).
+   - **Functionality**: Crawls primary, conference, ticketing, and opponent feeds; executes schedule reconciliation; detects fixture changes; and dispatches webhook alerts to Discord, Slack, and Telegram.
+
+3. **Managed Database (`ecu-hockey-db`)**:
+
+   - **Engine**: PostgreSQL 16 on `0.1c-256mb` (`ecu_hockey`).
+   - **Access**: Secure internal network URL automatically injected into `DATABASE_URL` for both web and cron services.
+
+> [!NOTE]
+> **Render Free-Tier Cold-Start Latency**:
+> On Render's free tier, the web service automatically spins down to zero after 15 minutes of inactivity. When a new incoming request arrives, Render spins up the container, which takes approximately 30 to 50 seconds. Once active, subsequent requests respond with sub-second latency. A delayed initial response is normal cold-start behavior and does not indicate service downtime.
+
+#### 6.8.2. Complete Endpoint Inventory & Reference
+
+All endpoints below are verified against the running production service:
+
+| Method        | Path                   | Description                                              | Content-Type                   | Auth       | Query Parameters                                                     |
+| :------------ | :--------------------- | :------------------------------------------------------- | :----------------------------- | :--------- | :------------------------------------------------------------------- |
+| `GET`         | `/`                    | API service status, name, version, and endpoints map     | `application/json`             | Public     | —                                                                    |
+| `GET`, `HEAD` | `/health`              | Liveness and readiness diagnostics probe                 | `application/json`             | Public     | —                                                                    |
+| `GET`, `HEAD` | `/calendar.ics`        | RFC 5545 iCalendar calendar subscription feed            | `text/calendar; charset=utf-8` | Public     | `season`, `include_past`, `alarm_minutes`, `webcal`                  |
+| `GET`, `HEAD` | `/api/schedule.json`   | Master schedule feed formatted as structured JSON        | `application/json`             | Public     | `season`, `opponent`, `home_only`, `status`                          |
+| `GET`, `HEAD` | `/api/schedule.csv`    | Master schedule export formatted as tabular CSV          | `text/csv; charset=utf-8`      | Public     | `season`, `opponent`, `home_only`, `status`                          |
+| `GET`         | `/api/v1/sync/status`  | Synchronization history, telemetry, and scraper status   | `application/json`             | Public     | —                                                                    |
+| `POST`        | `/api/v1/sync/trigger` | Trigger an on-demand synchronization and ingestion cycle | `application/json`             | **Bearer** | `source`                                                             |
+| `GET`         | `/api/v1/conflicts`    | List schedule discrepancies and cross-source conflicts   | `application/json`             | **Bearer** | `severity`, `game_id`, `field`, `requires_review`, `limit`, `offset` |
+| `GET`         | `/docs`                | Interactive Swagger UI API documentation                 | `text/html`                    | Public     | —                                                                    |
+| `GET`         | `/redoc`               | ReDoc API documentation viewer                           | `text/html`                    | Public     | —                                                                    |
+| `GET`         | `/openapi.json`        | Machine-readable OpenAPI 3.1 schema specification        | `application/json`             | Public     | —                                                                    |
+
+#### 6.8.3. Executable `curl` Examples
+
+##### 6.8.3.1. Public Endpoints
+
+```bash
+# Query root service metadata & version
+curl -fsSL -H "Accept: application/json" https://ecu-hockey-api.onrender.com/ | jq .
+
+# Check health diagnostics & database connectivity
+curl -fsSL https://ecu-hockey-api.onrender.com/health | jq .
+
+# HTTP HEAD probe for lightweight uptime monitors
+curl -I https://ecu-hockey-api.onrender.com/health
+
+# Download RFC 5545 iCalendar feed with 60-minute alarms
+curl -fsSL "https://ecu-hockey-api.onrender.com/calendar.ics?alarm_minutes=60" -o ecu_schedule.ics
+
+# Query master schedule JSON (filter for home games only)
+curl -fsSL "https://ecu-hockey-api.onrender.com/api/schedule.json?home_only=true" | jq .
+
+# Download master schedule CSV for spreadsheets
+curl -fsSL "https://ecu-hockey-api.onrender.com/api/schedule.csv?status=SCHEDULED" -o schedule.csv
+
+# Inspect synchronization telemetry & crawler audit status
+curl -fsSL https://ecu-hockey-api.onrender.com/api/v1/sync/status | jq .
+
+# View OpenAPI 3.1 specification schema
+curl -fsSL https://ecu-hockey-api.onrender.com/openapi.json | jq .info
+```
+
+##### 6.8.3.2. Protected Administrative Endpoints
+
+Administrative endpoints require authentication using the `ADMIN_API_TOKEN` secret passed via `Authorization: Bearer <TOKEN>` or `X-API-Key: <TOKEN>`. Requests without a valid token return `401 Unauthorized`.
+
+```bash
+# Trigger an on-demand synchronization cycle for a specific source
+curl -fsSL -X POST "https://ecu-hockey-api.onrender.com/api/v1/sync/trigger?source=ecuhockey" \
+  -H "Authorization: Bearer $ADMIN_API_TOKEN" \
+  -H "Content-Type: application/json" | jq .
+
+# Inspect active schedule conflicts and discrepancies
+curl -fsSL "https://ecu-hockey-api.onrender.com/api/v1/conflicts?severity=high" \
+  -H "Authorization: Bearer $ADMIN_API_TOKEN" | jq .
+```
+
+#### 6.8.4. Calendar Client Subscription Instructions
+
+Subscribing to the live feed allows external calendar clients to synchronize fixture changes, venue updates, and postponements automatically.
+
+- **Apple Calendar (macOS & iOS)**:
+  - Open terminal or browser: `open "webcal://ecu-hockey-api.onrender.com/calendar.ics"`
+  - Or in Calendar: **File** > **New Calendar Subscription...**, paste `https://ecu-hockey-api.onrender.com/calendar.ics`, and set Auto-refresh to **Every hour** or **Every day**.
+- **Google Calendar**:
+  - Open [Google Calendar](https://calendar.google.com/).
+  - Beside **Other calendars**, click **+** > **From URL**.
+  - Enter `https://ecu-hockey-api.onrender.com/calendar.ics` and click **Add calendar**.
+- **Microsoft Outlook / 365**:
+  - Navigate to [Outlook on the web](https://outlook.office.com/calendar).
+  - Click **Add calendar** > **Subscribe from web**.
+  - Paste `https://ecu-hockey-api.onrender.com/calendar.ics`, specify a name (e.g. `ECU Hockey`), and select **Import**.
 
 ______________________________________________________________________
 
