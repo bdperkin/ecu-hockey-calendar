@@ -40,6 +40,11 @@ venv.bak/
 .env.*
 !.env.example
 
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
 # Unit test / coverage reports
 htmlcov/
 .tox/

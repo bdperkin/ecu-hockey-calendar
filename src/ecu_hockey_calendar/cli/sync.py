@@ -327,6 +327,7 @@ def _execute_sync_pipeline(  # pylint: disable=too-many-locals
     source_filter: str,
     dry_run: bool,
     notify: bool,
+    notify_individual: bool = False,
     season: str | None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous core pipeline orchestrating crawl, reconciliation, and storage."""
@@ -364,7 +365,7 @@ def _execute_sync_pipeline(  # pylint: disable=too-many-locals
     # 4. Webhook notifications
     if notify and not dry_run:
         dispatcher = NotificationDispatcher()
-        dispatcher.dispatch_cycle(change_result)
+        dispatcher.dispatch_cycle(change_result, individual_changes=notify_individual)
 
     return crawl_telemetry, change_result, all_conflicts
 
@@ -393,6 +394,12 @@ def _execute_sync_pipeline(  # pylint: disable=too-many-locals
     help="Dispatch multi-channel webhook notifications for detected schedule changes.",
 )
 @click.option(
+    "--notify-individual",
+    is_flag=True,
+    default=False,
+    help="Dispatch individual alert messages for each detected schedule change.",
+)
+@click.option(
     "--db-url",
     envvar="DATABASE_URL",
     default=None,
@@ -408,6 +415,7 @@ def sync_command(  # pylint: disable=too-many-locals
     source_code: str,
     dry_run: bool,
     notify: bool,
+    notify_individual: bool = False,
     db_url: str | None,
     season: str | None,
 ) -> None:
@@ -439,6 +447,7 @@ def sync_command(  # pylint: disable=too-many-locals
                 source_filter=source_code.lower(),
                 dry_run=dry_run,
                 notify=notify,
+                notify_individual=notify_individual,
                 season=season,
             )
         except Exception as exc:

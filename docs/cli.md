@@ -49,6 +49,7 @@ ecu-hockey sync [OPTIONS]
 | `-s, --source`           | —                    | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`).               |
 | `--dry-run`              | —                    | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.   |
 | `--notify / --no-notify` | —                    | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes. |
+| `--notify-individual`    | —                    | `False`    | Dispatch individual alert messages for each detected schedule change.                    |
 | `--db-url`               | `DATABASE_URL`       | `None`     | Database connection URL override.                                                        |
 | `--season`               | —                    | `None`     | Optional season filter (e.g., `2026-2027`).                                              |
 
@@ -185,4 +186,42 @@ ecu-hockey serve
 
 # Start server bound to all interfaces on port 8080 with reload
 ecu-hockey serve -h 0.0.0.0 -p 8080 --reload
+```
+
+______________________________________________________________________
+
+### 3.6. `ecu-hockey notify`
+
+Dispatches custom notification alerts and automated failure reports across configured webhook channels (Discord, Slack, Telegram).
+
+```bash
+ecu-hockey notify [OPTIONS]
+```
+
+**Options:**
+
+| Option          | Short | Default                   | Description                                                      |
+| :-------------- | :---- | :------------------------ | :--------------------------------------------------------------- |
+| `--message`     | `-m`  | *(Required)*              | Primary notification summary or message body.                    |
+| `--title`       | `-t`  | `ECU Hockey Notification` | Title for the notification embed or message header.              |
+| `--severity`    | `-s`  | `info`                    | Alert severity (`info`, `success`, `warning`, `alert`, `error`). |
+| `--details`     | `-d`  | `None`                    | Extended details, context, or error trace.                       |
+| `--url`         | —     | `None`                    | Associated action, run, or fixture URL.                          |
+| `-c, --channel` | `-c`  | All configured            | Restrict dispatch to specific channel(s).                        |
+
+**Examples:**
+
+```bash
+# Dispatch an informational alert
+ecu-hockey notify -m "Schedule synchronization completed" -t "Sync Notice"
+
+# Dispatch a critical failure alert with run URL
+ecu-hockey notify \
+  -t "🚨 Schedule Sync Failed" \
+  -m "Automated schedule sync workflow failed in run #42." \
+  -s alert \
+  --url "https://github.com/bdperkin/ecu-hockey-calendar/actions/runs/42"
+
+# Dispatch exclusively to Discord
+ecu-hockey notify -m "Discord-only test message" -c discord
 ```

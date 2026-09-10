@@ -29,7 +29,7 @@ ______________________________________________________________________
     - [2.5.2. Phase 5.2: Production Deployment Strategy & Hosting Analysis](#252-phase-52-production-deployment-strategy--hosting-analysis)
     - [2.5.3. Phase 5.3: Automated Container Build & Registry Publication to ghcr.io](#253-phase-53-automated-container-build--registry-publication-to-ghcrio)
     - [2.5.4. Phase 5.4: Automated Production Deployment to Hosting Service](#254-phase-54-automated-production-deployment-to-hosting-service)
-    - [2.5.5. Phase 5.5: Scheduled Automation & CI Sync Workflows](#255-phase-55-scheduled-automation--ci-sync-workflows)
+    - [2.5.5. Phase 5.5: Scheduled Automation & CI Sync Workflows (Complete)](#255-phase-55-scheduled-automation--ci-sync-workflows-complete)
     - [2.5.6. Phase 5.6: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#256-phase-56-github-pages-documentation--static-calendar-deployment-complete)
     - [2.5.7. Phase 5.7: Repository Badges & Status Indicators](#257-phase-57-repository-badges--status-indicators)
     - [2.5.8. Phase 5.8: Documentation Alignment](#258-phase-58-documentation-alignment)
@@ -259,9 +259,9 @@ ______________________________________________________________________
   - **Summary:** Continuous deployment GitHub Actions workflow to deploy container images to a hosting provider.
   - **Description:** Implement `.github/workflows/deploy.yml` triggered on container publication or manual dispatch, execute database schema migrations (`alembic upgrade head`), and verify post-deployment `/health` probe.
 
-#### 2.5.5. Phase 5.5: Scheduled Automation & CI Sync Workflows
+#### 2.5.5. Phase 5.5: Scheduled Automation & CI Sync Workflows (Complete)
 
-- [ ] **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16) - ci(automation): automated scheduled ingestion and calendar release workflow**
+- [x] **[#16](https://github.com/bdperkin/ecu-hockey-calendar/issues/16) - ci(automation): automated scheduled ingestion and calendar release workflow**
   - **Summary:** GitHub Actions scheduled workflow running periodic syncs and publishing static calendar releases.
   - **Description:** Automate periodic schedule checks, publish calendar artifacts, and trigger webhooks on changes.
 

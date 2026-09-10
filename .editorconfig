@@ -23,3 +23,9 @@ trim_trailing_whitespace = false
 
 [Makefile]
 indent_style = tab
+
+[*.{ics,csv}]
+end_of_line = crlf
+
+[*.ics]
+trim_trailing_whitespace = false

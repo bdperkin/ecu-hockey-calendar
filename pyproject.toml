@@ -175,7 +175,7 @@ imports.known-third-party = [ "alembic" ]
 [tool.codespell]
 ignore-words = ".codespell-ignore"
 ignore-words-list = "hist"
-skip = "*.git,*.lock,*.pyc,*.png,*.ico,.venv,build,dist,htmlcov,site,_version.py,*docs/_build*"
+skip = "*.git,*.lock,*.pyc,*.png,*.ico,.venv,build,dist,htmlcov,site,_version.py,*docs/_build*,*static*"
 quiet-level = 3
 
 [tool.interrogate]
