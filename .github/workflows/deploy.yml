@@ -176,12 +176,15 @@ jobs:
           echo "health_status=HEALTHY" >> "$GITHUB_OUTPUT"
       - name: Verify deployed service version provenance
         id: verify-version
-        if: steps.deploy.outputs.deployed == 'true' && (secrets.PRODUCTION_URL != '' || vars.PRODUCTION_URL
-          != '')
+        if: steps.check-health.outputs.health_status == 'HEALTHY'
         env:
           PRODUCTION_URL: ${{ secrets.PRODUCTION_URL || vars.PRODUCTION_URL }}
           EXPECTED_TAG: ${{ steps.params.outputs.image_tag }}
         run: |
+          if [ -z "$PRODUCTION_URL" ]; then
+            echo "::notice::PRODUCTION_URL secret/variable is not set. Skipping version verification."
+            exit 0
+          fi
           BASE_URL="${PRODUCTION_URL%/}"
           echo "Verifying deployed service version provenance at $BASE_URL..."
           ROOT_RESPONSE=$(curl -fsSL -H "Accept: application/json" -m 10 "$BASE_URL/" 2>&1) || {
