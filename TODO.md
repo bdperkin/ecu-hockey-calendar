@@ -403,7 +403,7 @@ ______________________________________________________________________
 
 #### 2.7.2. Phase 7.2: Operational Health Diagnostics Dashboard
 
-- [ ] **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98) - feat(api): content-negotiated HTML and JSON responses for health probe endpoint (/health)**
+- [x] **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98) - feat(api): content-negotiated HTML and JSON responses for health probe endpoint (/health)**
 
   - **Summary:** Serve a human-readable health dashboard to browsers while monitoring systems keep parsing the unchanged JSON payload.
   - **Description:** Render component cards for database and scraper subsystems, a source table with relative `last_scraped_at` ages, and formatted uptime, with accessible status labels alongside color coding. Preserve HTTP status semantics and the `HEAD /health` handler, and harden the `.github/workflows/deploy.yml` probe with an explicit `Accept: application/json` header so the `jq -r '.status'` deployment gate cannot regress.

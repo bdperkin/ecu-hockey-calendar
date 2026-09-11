@@ -1,0 +1,631 @@
+{% extends "base.html" %}
+
+{% block title %}
+    System Health &amp; Diagnostics - ECU Men's Ice Hockey
+{% endblock title %}
+
+{% block meta %}
+{% endblock meta %}
+
+{% block extra_styles %}
+    <style>
+  .health-container {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+
+  /* Overall Status Banner */
+  .health-banner {
+    border-radius: 8px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .banner-healthy {
+    background-color: #e8f5e9;
+    border: 2px solid #2e7d32;
+    color: #1b5e20;
+  }
+
+  .banner-degraded {
+    background-color: #fff8e1;
+    border: 2px solid #f57f17;
+    color: #b78103;
+  }
+
+  .banner-unhealthy {
+    background-color: #ffebee;
+    border: 2px solid #c62828;
+    color: #b71c1c;
+  }
+
+  .banner-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .banner-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .banner-healthy .banner-icon {
+    background-color: #2e7d32;
+    color: #ffffff;
+  }
+
+  .banner-degraded .banner-icon {
+    background-color: #f57f17;
+    color: #ffffff;
+  }
+
+  .banner-unhealthy .banner-icon {
+    background-color: #c62828;
+    color: #ffffff;
+  }
+
+  .banner-title-group h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  .banner-desc {
+    font-size: 0.95rem;
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .banner-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .banner-right {
+      align-items: flex-start;
+      width: 100%;
+    }
+  }
+
+  .banner-badge {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .banner-healthy .banner-badge {
+    background-color: #2e7d32;
+    color: #ffffff;
+  }
+
+  .banner-degraded .banner-badge {
+    background-color: #f57f17;
+    color: #ffffff;
+  }
+
+  .banner-unhealthy .banner-badge {
+    background-color: #c62828;
+    color: #ffffff;
+  }
+
+  .banner-refresh-indicator {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: currentColor;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+  }
+
+  /* Metric Highlights Strip */
+  .metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .metric-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .metric-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.35rem;
+  }
+
+  .metric-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--ecu-purple);
+  }
+
+  .metric-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* Component Cards Grid */
+  .section-heading {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ecu-purple);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .component-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-header h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+  }
+
+  .status-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .tag-operational, .tag-connected, .tag-healthy {
+    background-color: var(--badge-win-bg);
+    color: var(--badge-win-text);
+  }
+
+  .tag-degraded {
+    background-color: var(--badge-otl-bg);
+    color: var(--badge-otl-text);
+  }
+
+  .tag-unhealthy, .tag-failed {
+    background-color: var(--badge-loss-bg);
+    color: var(--badge-loss-text);
+  }
+
+  .tag-not_configured, .tag-neutral {
+    background-color: var(--badge-neutral-bg);
+    color: var(--badge-neutral-text);
+  }
+
+  .key-val-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .key-val-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .key-val-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .key-name {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .key-value {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+  }
+
+  /* Scraper Table Section */
+  .table-section {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scrapers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .scrapers-table th {
+    background-color: var(--bg-page);
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .scrapers-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+  }
+
+  .scrapers-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .scrapers-table tr:hover td {
+    background-color: #fafbfc;
+  }
+
+  .source-code-cell {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 700;
+    color: var(--ecu-purple);
+    font-size: 0.85rem;
+  }
+
+  .type-badge {
+    background-color: var(--border-light);
+    color: var(--text-dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    text-transform: uppercase;
+  }
+
+  .active-badge-yes {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .active-badge-no {
+    color: #6c757d;
+    background-color: #e2e3e5;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .timestamp-primary {
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .timestamp-relative {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .val-error {
+    color: #c62828;
+  }
+
+  .val-warning {
+    color: #f57f17;
+  }
+
+  .empty-cell {
+    text-align: center;
+    color: var(--text-muted);
+  }
+    </style>
+{% endblock extra_styles %}
+
+{% block content %}
+    <div class="health-container">
+        <!-- Overall System Status Banner -->
+        <section class="health-banner banner-{{ display_status }}"
+                 role="status"
+                 aria-label="Overall System Status: {{ display_status | upper }}">
+            <div class="banner-left">
+                <div class="banner-icon" aria-hidden="true">
+                    {% if display_status == "healthy" %}
+                        ✓
+                    {% elif display_status == "degraded" %}
+                        ⚠
+                    {% else %}
+                        ✖
+                    {% endif %}
+                </div>
+                <div class="banner-title-group">
+                    <h2>
+                        {% if display_status == "healthy" %}
+                            All Systems Operational
+                        {% elif display_status == "degraded" %}
+                            System Operating Degraded
+                        {% else %}
+                            System Critical Failure
+                        {% endif %}
+                    </h2>
+                    <p class="banner-desc">
+                        {% if display_status == "healthy" %}
+                            All primary data services, background components, and scrapers are functioning normally.
+                        {% elif display_status == "degraded" %}
+                            The service is running but one or more scrapers or auxiliary components are experiencing issues.
+                        {% else %}
+                            Database connectivity or critical dependency is down. Immediate operational triage required.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="banner-right">
+                <span class="banner-badge">{{ display_status }}</span>
+                <span class="banner-refresh-indicator">
+                    <span class="pulse-dot"></span> Live updates every 30s
+                </span>
+            </div>
+        </section>
+
+        <!-- Metric Highlights Strip -->
+        <section class="metrics-strip">
+            <div class="metric-card">
+                <div class="metric-label">Service Uptime</div>
+                <div class="metric-value">{{ formatted_uptime }}</div>
+                <div class="metric-sub">{{ data.uptime_seconds }}s total elapsed</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Database Status</div>
+                <div class="metric-value">{{ data.components.database.status | replace('_', ' ') | title }}</div>
+                <div class="metric-sub">
+                    {% if data.components.database.connected %}
+                        Connected ({{ data.components.database.dialect | default("SQL") }})
+                    {% else %}
+                        Not connected
+                    {% endif %}
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Active Scrapers</div>
+                <div class="metric-value">{{ active_scrapers_count }} / {{ total_scrapers_count }}</div>
+                <div class="metric-sub">{{ data.components.scrapers.status | title }} state</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">API Version</div>
+                <div class="metric-value">v{{ data.version }}</div>
+                <div class="metric-sub">{{ data.service }}</div>
+            </div>
+        </section>
+
+        <!-- Component Cards Grid -->
+        <h3 class="section-heading">Subsystem Health Diagnostics</h3>
+        <section class="components-grid">
+            <!-- Database Component Card -->
+            <div class="component-card">
+                <div>
+                    <div class="card-header">
+                        <h3>Relational Database</h3>
+                        <span class="status-tag tag-{{ data.components.database.status }}">
+                            {{ data.components.database.status | replace('_', ' ') }}
+                        </span>
+                    </div>
+                    <ul class="key-val-list">
+                        <li class="key-val-item">
+                            <span class="key-name">Connection Active</span>
+                            <span class="key-value">
+                                {% if data.components.database.connected %}
+                                    <span class="active-badge-yes">✓ True</span>
+                                {% else %}
+                                    <span class="active-badge-no">✕ False</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Storage Dialect</span>
+                            <span class="key-value">{{ data.components.database.dialect | default("None (In-Memory)") }}</span>
+                        </li>
+                        {% if data.components.database.message %}
+                            <li class="key-val-item">
+                                <span class="key-name">Diagnostic Note</span>
+                                <span class="key-value">{{ data.components.database.message }}</span>
+                            </li>
+                        {% endif %}
+                        {% if data.components.database.error %}
+                            <li class="key-val-item">
+                                <span class="key-name">Probe Error</span>
+                                <span class="key-value val-error">{{ data.components.database.error }}</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Scrapers Component Card -->
+            <div class="component-card">
+                <div>
+                    <div class="card-header">
+                        <h3>Data Ingestion Scrapers</h3>
+                        <span class="status-tag tag-{{ data.components.scrapers.status }}">
+                            {{ data.components.scrapers.status | replace('_', ' ') }}
+                        </span>
+                    </div>
+                    <ul class="key-val-list">
+                        <li class="key-val-item">
+                            <span class="key-name">Operational State</span>
+                            <span class="key-value">{{ data.components.scrapers.status | title }}</span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Registered Sources</span>
+                            <span class="key-value">{{ total_scrapers_count }} Sources</span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Active Scrapers</span>
+                            <span class="key-value">{{ active_scrapers_count }} Active</span>
+                        </li>
+                        {% if data.components.scrapers.error %}
+                            <li class="key-val-item">
+                                <span class="key-name">Diagnostic Warning</span>
+                                <span class="key-value val-warning">{{ data.components.scrapers.error }}</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scraper Sources Table -->
+        <section class="table-section">
+            <h3 class="section-heading">Ingestion Data Sources</h3>
+            <div class="table-wrapper">
+                <table class="scrapers-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Source Code</th>
+                            <th scope="col">Source Name</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Active</th>
+                            <th scope="col">Last Scraped At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if sources %}
+                            {% for source in sources %}
+                                <tr>
+                                    <td class="source-code-cell">{{ source.source_code }}</td>
+                                    <td>{{ source.name }}</td>
+                                    <td>
+                                        <span class="type-badge">{{ source.source_type }}</span>
+                                    </td>
+                                    <td>
+                                        {% if source.is_active %}
+                                            <span class="active-badge-yes">✓ Active</span>
+                                        {% else %}
+                                            <span class="active-badge-no">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if source.last_scraped_at %}
+                                            <div class="timestamp-primary">{{ source.last_scraped_formatted }}</div>
+                                            <div class="timestamp-relative">({{ source.last_scraped_relative }})</div>
+                                        {% else %}
+                                            <span class="text-muted">Never</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="empty-cell">No scraper sources registered.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Quick Navigation Actions -->
+        <section class="health-actions">
+            <a href="/" class="btn btn-outline">Home Directory</a>
+            <a href="/schedule" class="btn btn-outline">View Schedule</a>
+            <a href="/docs" class="btn btn-outline">API Documentation</a>
+            <a href="{{ json_url }}"
+               class="btn btn-outline"
+               id="health-view-as-json-btn">View as JSON</a>
+        </section>
+    </div>
+{% endblock content %}
+
+{% block extra_scripts %}
+    <script>
+    // Automatically refresh health dashboard every 30 seconds for wall displays
+    const REFRESH_INTERVAL_MS = 30000;
+    setTimeout(() => {
+      window.location.reload();
+    }, REFRESH_INTERVAL_MS);
+    </script>
+{% endblock extra_scripts %}
