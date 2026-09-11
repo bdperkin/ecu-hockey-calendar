@@ -29,3 +29,35 @@ end_of_line = crlf
 
 [*.ics]
 trim_trailing_whitespace = false
+
+[*.{html,jinja,jinja2}]
+indent_style = space
+indent_size = 2
+
+[*.toml]
+indent_style = space
+indent_size = 4
+
+[*.ini]
+indent_style = space
+indent_size = 4
+
+[{Dockerfile*,*.dockerfile}]
+indent_style = space
+indent_size = 4
+
+[{.dockerignore,.gitignore,.codespell-ignore}]
+indent_style = space
+indent_size = 2
+
+[.env*]
+indent_style = space
+indent_size = 2
+
+[*.txt]
+indent_style = space
+indent_size = 2
+
+[*.mako]
+indent_style = space
+indent_size = 4
