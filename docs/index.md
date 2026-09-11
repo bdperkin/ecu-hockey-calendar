@@ -11,7 +11,9 @@ A live public production deployment is available at
 providing instant calendar subscriptions
 (`webcal://ecu-hockey-api.onrender.com/calendar.ics`)
 and interactive API documentation
-([`/docs`](https://ecu-hockey-api.onrender.com/docs)).
+([`/docs`](https://ecu-hockey-api.onrender.com/docs)). See the
+[ECU Hockey Calendar Sync Guide](calendar_sync.md) for step-by-step
+subscription instructions for Apple Calendar, Google Calendar, and Outlook.
 
 ```{toctree}
 :maxdepth: 2
@@ -19,6 +21,7 @@ and interactive API documentation
 
 installation
 quickstart
+calendar_sync
 cli
 ingestion
 storage

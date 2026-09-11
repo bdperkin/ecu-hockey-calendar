@@ -115,6 +115,8 @@ The `/calendar.ics` endpoint provides a standard iCalendar feed compatible with 
 
 ### 3.3. Calendar Client Subscription Instructions
 
+For non-technical, step-by-step instructions, one-click setup, custom reminders, and troubleshooting advice, see the comprehensive [ECU Hockey Calendar Sync Guide](calendar_sync.md).
+
 #### 3.3.1. Apple Calendar (macOS & iOS)
 
 1. Open **Calendar** on macOS or iOS.
@@ -124,7 +126,7 @@ The `/calendar.ics` endpoint provides a standard iCalendar feed compatible with 
 3. Enter the subscription URL:
 
    ```text
-   webcal://your-domain.com/calendar.ics
+   webcal://ecu-hockey-api.onrender.com/calendar.ics
    ```
 
 4. Set the auto-refresh interval (recommended: **Every day** or **Every hour**).
@@ -140,7 +142,7 @@ The `/calendar.ics` endpoint provides a standard iCalendar feed compatible with 
 4. Enter the public HTTPS subscription URL:
 
    ```text
-   https://your-domain.com/calendar.ics
+   https://ecu-hockey-api.onrender.com/calendar.ics
    ```
 
 5. Click **Add calendar**.
@@ -154,7 +156,7 @@ The `/calendar.ics` endpoint provides a standard iCalendar feed compatible with 
 3. Paste the URL:
 
    ```text
-   https://your-domain.com/calendar.ics
+   https://ecu-hockey-api.onrender.com/calendar.ics
    ```
 
 4. Enter a calendar name (e.g., "ECU Ice Hockey") and click **Import**.

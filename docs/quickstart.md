@@ -190,7 +190,7 @@ for game in changes.created:
 
 ## 6. Serving Calendar Feeds & Data via FastAPI
 
-A live production instance is available at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/). You can subscribe to the live calendar or query the public feeds directly without a local installation:
+A live production instance is available at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/). You can subscribe to the live calendar or query the public feeds directly without a local installation (see the [ECU Hockey Calendar Sync Guide](calendar_sync.md) for full client setup instructions):
 
 ```bash
 # Instant one-click subscription to the live production feed
@@ -220,7 +220,9 @@ run_server(host="127.0.0.1", port=8000)
 
 ### 6.2. Subscribing to Calendar Feeds
 
-Subscribe to the RFC 5545 `.ics` feed directly in your favorite calendar application:
+For end-user setup instructions for Apple Calendar, Google Calendar, and Microsoft Outlook, see the [ECU Hockey Calendar Sync Guide](calendar_sync.md).
+
+To subscribe to or inspect the RFC 5545 `.ics` feed directly against your local development server:
 
 ```bash
 # Direct HTTP download
