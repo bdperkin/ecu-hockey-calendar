@@ -6,29 +6,30 @@ ______________________________________________________________________
 
 **Table of Contents**
 
-- [1. System Architecture](#1-system-architecture)
-- [2. Features](#2-features)
-- [3. Installation](#3-installation)
-- [4. Quickstart](#4-quickstart)
-  - [4.1. Managing and Exporting Schedules Manually](#41-managing-and-exporting-schedules-manually)
-  - [4.2. Ingesting Feeds from Live Web Sources](#42-ingesting-feeds-from-live-web-sources)
-  - [4.3. Reconciling Feeds & Resolving Conflicts](#43-reconciling-feeds--resolving-conflicts)
-  - [4.4. Relational Persistence & Migrations](#44-relational-persistence--migrations)
-  - [4.5. Detecting Schedule Changes & Alerting](#45-detecting-schedule-changes--alerting)
-  - [4.6. Calendar Feeds & REST API Service](#46-calendar-feeds--rest-api-service)
-    - [4.6.1. Calendar Subscription (Apple, Google, Outlook)](#461-calendar-subscription-apple-google-outlook)
-    - [4.6.2. Querying Public Schedule Feeds](#462-querying-public-schedule-feeds)
-    - [4.6.3. Health Probes & Administration](#463-health-probes--administration)
-  - [4.7. Command-Line Interface (`ecu-hockey`)](#47-command-line-interface--ecu-hockey)
-- [5. Database Schema Migrations](#5-database-schema-migrations)
-- [6. Production Deployment & Containerization](#6-production-deployment--containerization)
-  - [6.1. Live Production Deployment (`ecu-hockey-api.onrender.com`)](#61-live-production-deployment--ecu-hockey-apionrendercom)
-  - [6.2. Published Container Images (`ghcr.io`)](#62-published-container-images--ghcrio)
-  - [6.3. Local Container Orchestration with Docker Compose](#63-local-container-orchestration-with-docker-compose)
-- [7. Development and Contributing](#7-development-and-contributing)
-  - [7.1. Quick Setup](#71-quick-setup)
-- [8. Security](#8-security)
-- [9. License](#9-license)
+- [1. Subscribe to the Schedule](#1-subscribe-to-the-schedule)
+- [2. System Architecture](#2-system-architecture)
+- [3. Features](#3-features)
+- [4. Installation](#4-installation)
+- [5. Quickstart](#5-quickstart)
+  - [5.1. Managing and Exporting Schedules Manually](#51-managing-and-exporting-schedules-manually)
+  - [5.2. Ingesting Feeds from Live Web Sources](#52-ingesting-feeds-from-live-web-sources)
+  - [5.3. Reconciling Feeds & Resolving Conflicts](#53-reconciling-feeds--resolving-conflicts)
+  - [5.4. Relational Persistence & Migrations](#54-relational-persistence--migrations)
+  - [5.5. Detecting Schedule Changes & Alerting](#55-detecting-schedule-changes--alerting)
+  - [5.6. Calendar Feeds & REST API Service](#56-calendar-feeds--rest-api-service)
+    - [5.6.1. Calendar Subscription (Apple, Google, Outlook)](#561-calendar-subscription-apple-google-outlook)
+    - [5.6.2. Querying Public Schedule Feeds](#562-querying-public-schedule-feeds)
+    - [5.6.3. Health Probes & Administration](#563-health-probes--administration)
+  - [5.7. Command-Line Interface (`ecu-hockey`)](#57-command-line-interface--ecu-hockey)
+- [6. Database Schema Migrations](#6-database-schema-migrations)
+- [7. Production Deployment & Containerization](#7-production-deployment--containerization)
+  - [7.1. Live Production Deployment (`ecu-hockey-api.onrender.com`)](#71-live-production-deployment--ecu-hockey-apionrendercom)
+  - [7.2. Published Container Images (`ghcr.io`)](#72-published-container-images--ghcrio)
+  - [7.3. Local Container Orchestration with Docker Compose](#73-local-container-orchestration-with-docker-compose)
+- [8. Development and Contributing](#8-development-and-contributing)
+  - [8.1. Quick Setup](#81-quick-setup)
+- [9. Security](#9-security)
+- [10. License](#10-license)
 
 ______________________________________________________________________
 
@@ -48,7 +49,16 @@ East Carolina University - Men's Ice Hockey Team - Calendar.
 
 A modern, robust Python package for aggregating, reconciling, and distributing collegiate ice hockey schedules across web crawlers, relational persistence, conflict resolution, multi-channel webhook alerting, and calendar exports (RFC 5545 iCalendar, JSON, CSV).
 
-## 1. System Architecture
+## 1. Subscribe to the Schedule
+
+Never miss an East Carolina University Men's Ice Hockey matchup! Subscribe to the live schedule feed in your calendar application for automated updates, rescheduled match notices, and puck drop reminders:
+
+- **Apple Calendar (iPhone, iPad, Mac)**: [Instant One-Click Subscription](https://ecu-hockey-api.onrender.com/calendar.ics?webcal=true) or use `webcal://ecu-hockey-api.onrender.com/calendar.ics`
+- **Google Calendar, Microsoft Outlook, and others**: Subscribe by URL using `https://ecu-hockey-api.onrender.com/calendar.ics`
+
+For complete, step-by-step instructions for every calendar client, custom alarm offsets, and troubleshooting, see the [ECU Hockey Calendar Sync Guide](docs/calendar_sync.md).
+
+## 2. System Architecture
 
 The platform aggregates data from disparate upstream sources, reconciles scheduling discrepancies, persists canonical records with audit history, and distributes notifications and calendar feeds:
 
@@ -115,7 +125,7 @@ flowchart TD
     DB --> CLI
 ```
 
-## 2. Features
+## 3. Features
 
 - **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for running sync workflows, inspecting health/telemetry tables, reviewing discrepancies, exporting multi-format schedules, and hosting Uvicorn servers.
 - **Production Containerization & Deployment**: Multi-stage `Dockerfile`, `docker-compose.yml` service orchestration (API, scheduled scraper worker, PostgreSQL), and comprehensive hosting analysis in [`DEPLOYMENT.md`](DEPLOYMENT.md).
@@ -132,7 +142,7 @@ flowchart TD
 - **Interactive Documentation**: Auto-generated interactive Swagger UI (`/docs`), ReDoc (`/redoc`), and OpenAPI 3.1 JSON specifications.
 - **Strict Quality Standards**: 100% test coverage, strict `ty` static typing, and formatting via `ruff`.
 
-## 3. Installation
+## 4. Installation
 
 Install using `uv`:
 
@@ -146,9 +156,9 @@ Or install with standard `pip`:
 pip install ecu-hockey-calendar
 ```
 
-## 4. Quickstart
+## 5. Quickstart
 
-### 4.1. Managing and Exporting Schedules Manually
+### 5.1. Managing and Exporting Schedules Manually
 
 ```python
 from datetime import UTC, datetime
@@ -184,7 +194,7 @@ json_data = calendar.export_json()
 csv_data = calendar.export_csv()
 ```
 
-### 4.2. Ingesting Feeds from Live Web Sources
+### 5.2. Ingesting Feeds from Live Web Sources
 
 ```python
 import asyncio
@@ -211,7 +221,7 @@ async def crawl_schedules() -> None:
 asyncio.run(crawl_schedules())
 ```
 
-### 4.3. Reconciling Feeds & Resolving Conflicts
+### 5.3. Reconciling Feeds & Resolving Conflicts
 
 ```python
 from datetime import UTC, datetime
@@ -259,7 +269,7 @@ for game in result.reconciled_games:
     )
 ```
 
-### 4.4. Relational Persistence & Migrations
+### 5.4. Relational Persistence & Migrations
 
 ```python
 from ecu_hockey_calendar.storage import (
@@ -280,7 +290,7 @@ with get_sync_session(engine) as session:
     print(f"Total scheduled games in database: {len(games)}")
 ```
 
-### 4.5. Detecting Schedule Changes & Alerting
+### 5.5. Detecting Schedule Changes & Alerting
 
 ```python
 from datetime import UTC, datetime
@@ -311,16 +321,16 @@ for game in changes.created:
     )
 ```
 
-### 4.6. Calendar Feeds & REST API Service
+### 5.6. Calendar Feeds & REST API Service
 
-A live public production instance is available at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/) (see [§6.1. Live Production Deployment](#61-live-production-deployment-ecu-hockey-apionrendercom)). You can query the live service directly or launch the ASGI server locally for development:
+A live public production instance is available at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/) (see [§7.1. Live Production Deployment](#71-live-production-deployment-ecu-hockey-apionrendercom)). You can query the live service directly or launch the ASGI server locally for development:
 
 ```bash
 # Start API service locally with hot reloading
 uv run uvicorn ecu_hockey_calendar.api.app:create_app --factory --host 127.0.0.1 --port 8000 --reload
 ```
 
-#### 4.6.1. Calendar Subscription (Apple, Google, Outlook)
+#### 5.6.1. Calendar Subscription (Apple, Google, Outlook)
 
 Subscribe to real-time fixture updates using the standard `webcal://` scheme or direct download:
 
@@ -335,9 +345,9 @@ curl -s https://ecu-hockey-api.onrender.com/calendar.ics -o ecu_schedule.ics
 open "webcal://localhost:8000/calendar.ics"
 ```
 
-For **Google Calendar** and **Outlook**, add by URL: `https://ecu-hockey-api.onrender.com/calendar.ics` (or `http://localhost:8000/calendar.ics` when self-hosting).
+For **Google Calendar** and **Outlook**, add by URL: `https://ecu-hockey-api.onrender.com/calendar.ics` (or `http://localhost:8000/calendar.ics` when self-hosting). For comprehensive, client-specific instructions with step-by-step guidance for desktop and mobile, see the [ECU Hockey Calendar Sync Guide](docs/calendar_sync.md).
 
-#### 4.6.2. Querying Public Schedule Feeds
+#### 5.6.2. Querying Public Schedule Feeds
 
 Retrieve structured JSON or CSV data feeds with filtering:
 
@@ -349,7 +359,7 @@ curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
 curl -s "http://localhost:8000/api/schedule.csv?status=SCHEDULED" -o schedule.csv
 ```
 
-#### 4.6.3. Health Probes & Administration
+#### 5.6.3. Health Probes & Administration
 
 ```bash
 # Probe system health and database connectivity
@@ -364,7 +374,7 @@ curl -s "http://localhost:8000/api/v1/conflicts" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
 ```
 
-### 4.7. Command-Line Interface (`ecu-hockey`)
+### 5.7. Command-Line Interface (`ecu-hockey`)
 
 `ecu-hockey-calendar` includes a unified terminal-first CLI powered by Click and Rich:
 
@@ -393,7 +403,7 @@ ecu-hockey conflicts --review-only
 ecu-hockey serve --port 8000
 ```
 
-## 5. Database Schema Migrations
+## 6. Database Schema Migrations
 
 Database migrations are managed using Alembic. Run migrations to upgrade or downgrade your schema:
 
@@ -408,9 +418,9 @@ uv run alembic downgrade -1
 uv run alembic history
 ```
 
-## 6. Production Deployment & Containerization
+## 7. Production Deployment & Containerization
 
-### 6.1. Live Production Deployment (`ecu-hockey-api.onrender.com`)
+### 7.1. Live Production Deployment (`ecu-hockey-api.onrender.com`)
 
 A public production instance runs continuously on [Render](https://render.com) backed by managed PostgreSQL and an automated 6-hour synchronization worker:
 
@@ -438,7 +448,7 @@ A public production instance runs continuously on [Render](https://render.com) b
 
 For full curl examples, administrative route details, and the complete architecture specification, refer to [`DEPLOYMENT.md`](DEPLOYMENT.md#68-live-production-deployment-ecu-hockey-apionrendercom).
 
-### 6.2. Published Container Images (`ghcr.io`)
+### 7.2. Published Container Images (`ghcr.io`)
 
 Pre-built multi-architecture (`linux/amd64`, `linux/arm64`) container images are automatically published to the GitHub Container Registry on releases and merges to `main`:
 
@@ -450,7 +460,7 @@ docker pull ghcr.io/bdperkin/ecu-hockey-calendar:latest
 docker run -d --name ecu-hockey -p 8000:8000 ghcr.io/bdperkin/ecu-hockey-calendar:latest
 ```
 
-### 6.3. Local Container Orchestration with Docker Compose
+### 7.3. Local Container Orchestration with Docker Compose
 
 The repository also includes a production-ready, multi-stage `Dockerfile` and `docker-compose.yml` for unified local or production orchestration:
 
@@ -470,11 +480,11 @@ curl -s http://localhost:8000/health | jq .
 
 For an in-depth architectural comparison of background worker and API hosting providers (Render, Railway, Fly.io, AWS Lambda), persistent storage strategies, SSL/TLS termination requirements, and Instagram anti-bot scraping mitigations, see [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
-## 7. Development and Contributing
+## 8. Development and Contributing
 
 Contributions are welcome! Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).
 
-### 7.1. Quick Setup
+### 8.1. Quick Setup
 
 ```bash
 # Clone the repository
@@ -488,10 +498,10 @@ make setup
 make check
 ```
 
-## 8. Security
+## 9. Security
 
 Please report vulnerabilities confidentially through GitHub Private Vulnerability Reporting or refer to our [Security Policy](SECURITY.md).
 
-## 9. License
+## 10. License
 
 This project is licensed under the terms of the [MIT License](LICENSE).
