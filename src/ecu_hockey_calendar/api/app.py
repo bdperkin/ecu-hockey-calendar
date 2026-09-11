@@ -7,9 +7,11 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 
+from ecu_hockey_calendar.api.negotiation import negotiate_response
 from ecu_hockey_calendar.api.routes import (
     calendar_router,
     conflicts_router,
@@ -114,10 +116,37 @@ def create_app(
         "/",
         summary="API Service Status and Information",
         tags=["General"],
+        response_class=HTMLResponse,
+        response_model=None,
+        responses={
+            200: {
+                "description": "API service status and available endpoints",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "version": {"type": "string"},
+                                "status": {"type": "string"},
+                                "endpoints": {
+                                    "type": "object",
+                                    "additionalProperties": {"type": "string"},
+                                },
+                            },
+                            "required": ["name", "version", "status", "endpoints"],
+                        },
+                    },
+                    "text/html": {
+                        "schema": {"type": "string"},
+                    },
+                },
+            },
+        },
     )
-    def root() -> dict[str, Any]:
-        """Return general API information and service endpoints."""
-        return {
+    def root(request: Request) -> Response:
+        """Return API information and service endpoints via content negotiation."""
+        payload: dict[str, Any] = {
             "name": title,
             "version": pkg_version,
             "status": "online",
@@ -135,5 +164,16 @@ def create_app(
                 "sync_status": "/api/v1/sync/status",
             },
         }
+        return negotiate_response(
+            request,
+            payload,
+            "root.html",
+            context={"active_tab": "home"},
+        )
+
+    @app.head("/", include_in_schema=False)
+    def root_head(request: Request) -> Response:
+        """Return HEAD response for root endpoint."""
+        return root(request)
 
     return app

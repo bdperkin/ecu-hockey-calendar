@@ -95,18 +95,81 @@ app = create_app(
 - `ECU_HOCKEY_ADMIN_TOKEN` or `ADMIN_TOKEN`: Secret administrative token used to authorize protected management routes.
 - `DATABASE_URL`: Connection string for PostgreSQL or SQLite storage.
 
-## 3. RFC 5545 iCalendar Feed & webcal Subscriptions
+## 3. Service Status & Landing Directory (/)
+
+The root endpoint (`/`) acts as the front door to the API, serving both a responsive HTML portal for web browsers and structured JSON metadata for API clients via HTTP content negotiation.
+
+### 3.1. Endpoint Specification
+
+- **Method**: `GET`, `HEAD`
+- **Path**: `/`
+- **Content-Type**: `text/html; charset=utf-8` or `application/json` (negotiated)
+- **Header**: `Vary: Accept`
+
+### 3.2. Content Negotiation Rules
+
+Dual-format endpoints follow a deterministic negotiation contract:
+
+| Request Signal                                                     | Resolved Response                                      |
+| :----------------------------------------------------------------- | :----------------------------------------------------- |
+| `Accept` ranks `text/html` above `application/json` (web browsers) | `text/html; charset=utf-8`                             |
+| `Accept: application/json`                                         | `application/json`                                     |
+| `Accept: */*` (curl default, HTTP client libraries)                | `application/json` (preserves deploy health gates)     |
+| Missing / empty `Accept` header                                    | `application/json`                                     |
+| `?format=html` or `?format=json`                                   | Explicit query parameter override (wins over `Accept`) |
+
+Every response includes the `Vary: Accept` HTTP header to prevent reverse proxies and CDNs from poisoning caches across different client types.
+
+### 3.3. HTML Browser View
+
+When visited from a browser, the endpoint renders:
+
+- Service title, status indicator (`ONLINE`), and installed package version.
+- Quick action buttons to view the schedule, subscribe to iCal, or open API documentation.
+- Prominent calendar subscription box with webcal and HTTP `.ics` URLs and cross-links to the [Calendar Sync Guide](calendar_sync.md).
+- Interactive service endpoint directory with direct clickable links to all public and administrative routes.
+- Collapsible Developer Data View featuring syntax-highlighted, 2-space indented raw JSON and a "View as JSON" control.
+
+### 3.4. JSON Client Example
+
+```bash
+# Query JSON format directly via curl or Accept header
+curl -s "http://localhost:8000/" | jq .
+```
+
+```json
+{
+  "name": "ECU Men's Ice Hockey Calendar & Data API",
+  "version": "0.5.0",
+  "status": "online",
+  "endpoints": {
+    "calendar_ics": "/calendar.ics",
+    "conflicts": "/api/v1/conflicts",
+    "docs": "/docs",
+    "health": "/health",
+    "openapi": "/openapi.json",
+    "redoc": "/redoc",
+    "schedule_csv": "/api/schedule.csv",
+    "schedule_embed": "/schedule/embed",
+    "schedule_html": "/schedule",
+    "schedule_json": "/api/schedule.json",
+    "sync_status": "/api/v1/sync/status"
+  }
+}
+```
+
+## 4. RFC 5545 iCalendar Feed & webcal Subscriptions
 
 The `/calendar.ics` endpoint provides a standard iCalendar feed compatible with Apple Calendar, Google Calendar, Microsoft Outlook, and Mozilla Thunderbird.
 
-### 3.1. Endpoint Specification
+### 4.1. Endpoint Specification
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/calendar.ics`
 - **Content-Type**: `text/calendar; charset=utf-8`
 - **Content-Disposition**: `inline; filename="ecu-hockey-schedule.ics"`
 
-### 3.2. Query Parameters
+### 4.2. Query Parameters
 
 | Parameter       | Type      | Default | Description                                                                        |
 | :-------------- | :-------- | :------ | :--------------------------------------------------------------------------------- |
@@ -115,11 +178,11 @@ The `/calendar.ics` endpoint provides a standard iCalendar feed compatible with 
 | `alarm_minutes` | `integer` | `60`    | Lead time in minutes for reminder alarms (`VALARM`). Set to `0` to disable alarms. |
 | `webcal`        | `boolean` | `false` | When `true`, returns a `307 Temporary Redirect` to the `webcal://` URL.            |
 
-### 3.3. Calendar Client Subscription Instructions
+### 4.3. Calendar Client Subscription Instructions
 
 For non-technical, step-by-step instructions, one-click setup, custom reminders, and troubleshooting advice, see the comprehensive [ECU Hockey Calendar Sync Guide](calendar_sync.md).
 
-#### 3.3.1. Apple Calendar (macOS & iOS)
+#### 4.3.1. Apple Calendar (macOS & iOS)
 
 1. Open **Calendar** on macOS or iOS.
 
@@ -133,7 +196,7 @@ For non-technical, step-by-step instructions, one-click setup, custom reminders,
 
 4. Set the auto-refresh interval (recommended: **Every day** or **Every hour**).
 
-#### 3.3.2. Google Calendar
+#### 4.3.2. Google Calendar
 
 1. Open [Google Calendar](https://calendar.google.com/).
 
@@ -149,7 +212,7 @@ For non-technical, step-by-step instructions, one-click setup, custom reminders,
 
 5. Click **Add calendar**.
 
-#### 3.3.3. Microsoft Outlook
+#### 4.3.3. Microsoft Outlook
 
 1. Open **Outlook on the Web** or desktop Outlook.
 
@@ -163,18 +226,18 @@ For non-technical, step-by-step instructions, one-click setup, custom reminders,
 
 4. Enter a calendar name (e.g., "ECU Ice Hockey") and click **Import**.
 
-### 3.4. iCalendar Features
+### 4.4. iCalendar Features
 
 - **Deterministic UIDs**: Unique identifiers follow the scheme `ECU-HOCKEY-{season}-{hash}@ecuhockey.com`, ensuring calendar clients update existing events without creating duplicates.
 - **Timezone Support**: Full `VTIMEZONE` definition for `America/New_York`, handling Daylight Saving Time transitions automatically.
 - **Geo Coordinates**: Known rinks (such as The Factory Ice House and Polar Ice Raleigh) include exact latitude and longitude coordinates.
 - **Rich Details**: Each event incorporates match status, venue address, and direct ticketing links in the `DESCRIPTION` and `LOCATION` fields.
 
-## 4. Master Schedule Views & Data Feeds
+## 5. Master Schedule Views & Data Feeds
 
 Public interfaces provide human-readable web schedules and machine-readable data feeds in HTML, JSON, and CSV formats.
 
-### 4.1. Responsive HTML Schedule View (`/schedule`)
+### 5.1. Responsive HTML Schedule View (`/schedule`)
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/schedule`
@@ -191,7 +254,7 @@ Renders a mobile-first, ECU-branded web interface (`#592a8a` purple and `#fec923
 - Interactive filter form (`season`, `opponent`, `home_only`, `status`).
 - Built-in `@media print` stylesheet for refrigerator printouts and coach clipboards.
 
-### 4.2. Lightweight Embeddable iFrame Widget (`/schedule/embed`)
+### 5.2. Lightweight Embeddable iFrame Widget (`/schedule/embed`)
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/schedule/embed`
@@ -203,13 +266,13 @@ A stripped-down schedule view specifically designed for embedding into external 
 <iframe src="https://ecu-hockey-api.onrender.com/schedule/embed" width="100%" height="600" frameborder="0"></iframe>
 ```
 
-### 4.3. JSON Data Feed (`/api/schedule.json`)
+### 5.3. JSON Data Feed (`/api/schedule.json`)
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/api/schedule.json`
 - **Content-Type**: `application/json`
 
-#### 4.3.1. Query Parameters
+#### 5.3.1. Query Parameters
 
 | Parameter   | Type      | Default | Description                                                                 |
 | :---------- | :-------- | :------ | :-------------------------------------------------------------------------- |
@@ -218,7 +281,7 @@ A stripped-down schedule view specifically designed for embedding into external 
 | `home_only` | `boolean` | `false` | When `true`, returns only home games played at home rinks.                  |
 | `status`    | `string`  | `None`  | Filter by game status (`SCHEDULED`, `COMPLETED`, `CANCELLED`, `POSTPONED`). |
 
-#### 4.3.2. Example Request & Response
+#### 5.3.2. Example Request & Response
 
 ```bash
 curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
@@ -260,7 +323,7 @@ curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
 }
 ```
 
-### 4.4. CSV Data Feed (`/api/schedule.csv`)
+### 5.4. CSV Data Feed (`/api/schedule.csv`)
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/api/schedule.csv`
@@ -269,7 +332,7 @@ curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
 
 Supports identical query filters (`season`, `opponent`, `home_only`, `status`).
 
-#### 4.4.1. Example Request
+#### 5.4.1. Example Request
 
 ```bash
 curl -s "http://localhost:8000/api/schedule.csv?status=SCHEDULED"
@@ -282,7 +345,7 @@ game_id,season,date,time_et,opponent,is_home,venue,city,state,status,result,tick
 ECU-20261015-UNC,2026-2027,2026-10-15,19:00,UNC Chapel Hill,True,The Factory Ice House,Wake Forest,NC,SCHEDULED,,https://www.etix.com/ticket/v/13768
 ```
 
-## 5. Interactive API Documentation
+## 6. Interactive API Documentation
 
 The service exposes self-documenting OpenAPI specifications:
 
@@ -291,9 +354,9 @@ The service exposes self-documenting OpenAPI specifications:
 - **OpenAPI JSON**: Available at `/openapi.json` for client SDK code generation.
 - **Service Index**: `GET /` returns API versioning and endpoint discovery links.
 
-## 6. Health & Diagnostics Telemetry
+## 7. Health & Diagnostics Telemetry
 
-### 6.1. System Health Check (`/health`)
+### 7.1. System Health Check (`/health`)
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/health`
@@ -335,7 +398,7 @@ Response (HTTP 200 OK):
 
 If database connectivity fails, `/health` returns HTTP 503 Service Unavailable with sanitized diagnostic output.
 
-### 6.2. Synchronization Telemetry (`/api/v1/sync/status`)
+### 7.2. Synchronization Telemetry (`/api/v1/sync/status`)
 
 - **Method**: `GET`
 - **Path**: `/api/v1/sync/status`
@@ -375,11 +438,11 @@ curl -s http://localhost:8000/api/v1/sync/status | jq .
 }
 ```
 
-## 7. Administration & Conflict Review
+## 8. Administration & Conflict Review
 
 Administrative operations require authentication via HTTP Bearer token or `X-API-Key` header matching the server's configured admin token.
 
-### 7.1. Authentication Methods
+### 8.1. Authentication Methods
 
 Pass the secret token using either method:
 
@@ -393,7 +456,7 @@ curl -H "X-API-Key: secret-admin-token-12345" ...
 
 Requests without credentials or with invalid tokens receive HTTP 401 Unauthorized.
 
-### 7.2. Trigger On-Demand Synchronization (`POST /api/v1/sync/trigger`)
+### 8.2. Trigger On-Demand Synchronization (`POST /api/v1/sync/trigger`)
 
 Initiates an immediate crawl and reconciliation cycle across all or specified data sources when an execution handler is configured:
 
@@ -422,7 +485,7 @@ Response when unconfigured (HTTP 501 Not Implemented):
 }
 ```
 
-### 7.3. Cross-Source Conflict Review (`GET /api/v1/conflicts`)
+### 8.3. Cross-Source Conflict Review (`GET /api/v1/conflicts`)
 
 Inspects unresolved multi-source schedule discrepancies and change history:
 
@@ -431,7 +494,7 @@ curl -s "http://localhost:8000/api/v1/conflicts?severity=high&requires_review=tr
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
 ```
 
-#### 7.3.1. Query Parameters
+#### 8.3.1. Query Parameters
 
 | Parameter         | Type      | Default | Description                                                     |
 | :---------------- | :-------- | :------ | :-------------------------------------------------------------- |
@@ -442,7 +505,7 @@ curl -s "http://localhost:8000/api/v1/conflicts?severity=high&requires_review=tr
 | `limit`           | `integer` | `50`    | Maximum number of records to return (1-500).                    |
 | `offset`          | `integer` | `0`     | Number of records to skip for pagination.                       |
 
-#### 7.3.2. Example Response
+#### 8.3.2. Example Response
 
 ```json
 {
