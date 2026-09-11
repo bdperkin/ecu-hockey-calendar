@@ -396,7 +396,7 @@ ______________________________________________________________________
   - **Summary:** Resolve markdown file target omissions across `Makefile` and CI (including `DEPLOYMENT.md` and `CODE_OF_CONDUCT.md`), and add automated broken link checking.
   - **Description:** Unify markdown file targets across `Makefile` (`lint-md` and `format`) and `.github/workflows/ci.yml` so `DEPLOYMENT.md` and `CODE_OF_CONDUCT.md` are continuously validated. Add automated link checking (via `lychee` or Sphinx linkcheck with rate-limit exemptions) to detect broken internal and external URLs, and add `make lint-links`.
 
-- [ ] **[#132](https://github.com/bdperkin/ecu-hockey-calendar/issues/132) - ci(security): integrate automated dependency vulnerability auditing with uv audit**
+- [x] **[#132](https://github.com/bdperkin/ecu-hockey-calendar/issues/132) - ci(security): integrate automated dependency vulnerability auditing with uv audit**
 
   - **Summary:** Integrate automated dependency vulnerability scanning against the PyPA Advisory Database in Makefile and CI.
   - **Description:** Add `make audit` target running `uv audit` against the lockfile and installed virtual environment, add a blocking security vulnerability audit step to `.github/workflows/ci.yml`, and align pre-commit security hooks.
