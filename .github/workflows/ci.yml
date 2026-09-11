@@ -47,8 +47,8 @@ jobs:
           uv run xenon --max-absolute A --max-modules A --max-average A src
       - name: Check markdown formatting and linting
         run: |
-          uv run mdformat --check --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
-          uv run pymarkdown scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
+          uv run mdformat --check --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md DEPLOYMENT.md CODE_OF_CONDUCT.md docs/*.md
+          uv run pymarkdown scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md DEPLOYMENT.md CODE_OF_CONDUCT.md docs/*.md
       - name: Check YAML formatting with yamlfix
         run: uv run yamlfix --check .github/ codecov.yml docker-compose.yml render.yaml .hadolint.yaml
           .pre-commit-config.yaml .yamllint.yaml
@@ -174,3 +174,5 @@ jobs:
         run: uv sync --all-extras --dev
       - name: Build Sphinx Documentation (-W warnings as errors)
         run: uv run sphinx-build -W -b html docs docs/_build/html
+      - name: Validate documentation links with Sphinx linkcheck
+        run: uv run sphinx-build -W -b linkcheck docs docs/_build/linkcheck

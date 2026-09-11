@@ -4,6 +4,7 @@ PYTHON ?= python3
 UV ?= uv
 TY ?= ty
 YAML_TARGETS ?= .github/ codecov.yml docker-compose.yml render.yaml .hadolint.yaml .pre-commit-config.yaml .yamllint.yaml
+MARKDOWN_TARGETS ?= README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md DEPLOYMENT.md CODE_OF_CONDUCT.md docs/*.md
 
 .PHONY: help
 help: ## Display this help dialog
@@ -29,7 +30,7 @@ format: format-html format-yaml ## Auto-format code, markdown, toml, yaml, and t
 	$(UV) run ruff format src tests tools
 	$(UV) run ruff check --fix src tests tools
 	$(UV) run pyproject-fmt pyproject.toml || true
-	$(UV) run mdformat --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md DEPLOYMENT.md docs/*.md || true
+	$(UV) run mdformat --number $(MARKDOWN_TARGETS) || true
 	$(UV) run python tools/update_toc.py || true
 
 .PHONY: format-html
@@ -71,8 +72,8 @@ lint-complexity: ## Check code complexity with radon and xenon
 
 .PHONY: lint-md
 lint-md: ## Lint markdown files
-	$(UV) run mdformat --check --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
-	$(UV) run pymarkdown scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
+	$(UV) run mdformat --check --number $(MARKDOWN_TARGETS)
+	$(UV) run pymarkdown scan $(MARKDOWN_TARGETS)
 
 .PHONY: lint-yaml
 lint-yaml: ## Check yaml format with yamlfix and lint with yamllint
@@ -128,6 +129,10 @@ coverage: ## Display coverage report in terminal and generate HTML
 .PHONY: docs
 docs: ## Build Sphinx documentation in HTML
 	$(UV) run sphinx-build -W -b html docs docs/_build/html
+
+.PHONY: lint-links
+lint-links: ## Validate documentation links with Sphinx linkcheck
+	$(UV) run sphinx-build -W -b linkcheck docs docs/_build/linkcheck
 
 .PHONY: docs-serve
 docs-serve: docs ## Build and serve Sphinx documentation locally on port 8000

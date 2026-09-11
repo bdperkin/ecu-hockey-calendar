@@ -391,7 +391,7 @@ ______________________________________________________________________
   - **Summary:** Automated structural, syntactic, and schema verification for static export feeds (`static/calendar.ics`, `static/schedule.csv`, `static/schedule.json`).
   - **Description:** Add `check-json` to `.pre-commit-config.yaml`, add automated validation checking `calendar.ics` against RFC 5545 requirements (CRLF line endings, valid line folding, mandatory headers), checking `schedule.csv` against RFC 4180 structure, and validating `schedule.json` against the `Schedule` model schema. Provide `make lint-feeds` in `Makefile` and enforce in CI prior to artifact distribution.
 
-- [ ] **[#131](https://github.com/bdperkin/ecu-hockey-calendar/issues/131) - docs(quality): unify Markdown lint targets, resolve file discrepancies, and add link checking**
+- [x] **[#131](https://github.com/bdperkin/ecu-hockey-calendar/issues/131) - docs(quality): unify Markdown lint targets, resolve file discrepancies, and add link checking**
 
   - **Summary:** Resolve markdown file target omissions across `Makefile` and CI (including `DEPLOYMENT.md` and `CODE_OF_CONDUCT.md`), and add automated broken link checking.
   - **Description:** Unify markdown file targets across `Makefile` (`lint-md` and `format`) and `.github/workflows/ci.yml` so `DEPLOYMENT.md` and `CODE_OF_CONDUCT.md` are continuously validated. Add automated link checking (via `lychee` or Sphinx linkcheck with rate-limit exemptions) to detect broken internal and external URLs, and add `make lint-links`.
