@@ -77,3 +77,25 @@ autodoc_default_options = {
 suppress_warnings = [
     "sphinx_autodoc_typehints.guarded_import",
 ]
+
+# Linkcheck configuration
+linkcheck_ignore = [
+    r"^webcal://",
+    r"^mailto:",
+    r"http://localhost(:\d+)?",
+    r"http://127\.0\.0\.1(:\d+)?",
+    r"https://ecu-hockey-api\.onrender\.com/.*",
+    r"https://(www\.)?instagram\.com/.*",
+    r"https://(www\.)?twitter\.com/.*",
+    r"https://(www\.)?x\.com/.*",
+    r"https://github\.com/bdperkin/ecu-hockey-calendar/(blob|commit|pull|issues)/.*",
+]
+linkcheck_allowed_redirects = {
+    r"https://click\.palletsprojects\.com/": r"https://click\.palletsprojects\.com/.*",
+    r"https://rich\.readthedocs\.io/": r"https://rich\.readthedocs\.io/.*",
+    r"https://calendar\.google\.com/": r"https://workspace\.google\.com/.*",
+    r"https://developers\.cloudflare\.com/.*": r"https://developers\.cloudflare\.com/.*",
+}
+linkcheck_timeout = 15
+linkcheck_rate_limit_timeout = 5.0
+linkcheck_workers = 10
