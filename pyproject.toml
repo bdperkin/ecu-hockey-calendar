@@ -251,6 +251,7 @@ ini_options.filterwarnings = [
     "ignore::starlette.exceptions.StarletteDeprecationWarning",
     "ignore::DeprecationWarning:anyio.*",
     "ignore::DeprecationWarning:starlette.*",
+    "ignore::DeprecationWarning:weasyprint.*",
 ]
 
 [tool.coverage]

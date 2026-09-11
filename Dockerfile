@@ -36,6 +36,7 @@ RUN apt-get update && \
         curl \
         fonts-dejavu-core \
         libharfbuzz0b \
+        libharfbuzz-subset0 \
         libpango-1.0-0 \
         libpangoft2-1.0-0 && \
     rm -rf /var/lib/apt/lists/*
