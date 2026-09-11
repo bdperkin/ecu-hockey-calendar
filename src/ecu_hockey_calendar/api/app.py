@@ -25,10 +25,13 @@ from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
 from ecu_hockey_calendar.api.service import CalendarFeedService
 from ecu_hockey_calendar.calendar import ECUHockeyCalendar
 from ecu_hockey_calendar.storage.engine import create_sync_engine
+from ecu_hockey_calendar.sync_service import SyncManager
 from ecu_hockey_calendar.version import get_version
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
+
+    from sqlalchemy.engine import Engine
 
 DEFAULT_API_TITLE = "ECU Men's Ice Hockey Calendar & Data API"
 DEFAULT_API_DESCRIPTION = (
@@ -38,6 +41,55 @@ DEFAULT_API_DESCRIPTION = (
 )
 
 
+def _resolve_enable_sync(*, enable_sync_trigger: bool | None) -> bool:
+    """Resolve whether synchronization trigger API is enabled."""
+    if enable_sync_trigger is not None:
+        return enable_sync_trigger
+
+    raw_env = os.environ.get("ENABLE_API_SYNC_TRIGGER", "").lower()
+    return raw_env in ("true", "1", "yes")
+
+
+def _resolve_cooldown(sync_cooldown_seconds: int | None) -> int | None:
+    """Resolve synchronization trigger cooldown duration from argument or env."""
+    if sync_cooldown_seconds is not None:
+        return sync_cooldown_seconds
+
+    raw_cd = os.environ.get("SYNC_COOLDOWN_SECONDS", "")
+    if raw_cd.isdigit():
+        return int(raw_cd)
+
+    return None
+
+
+def _init_sync_manager(
+    engine: Engine | None,
+    *,
+    enable_sync_trigger: bool | None,
+    sync_cooldown_seconds: int | None,
+) -> tuple[SyncManager | None, Any]:
+    """Initialize SyncManager and trigger handler based on configuration.
+
+    Args:
+        engine: Active SQLAlchemy Engine or None.
+        enable_sync_trigger: Explicit toggle for on-demand sync trigger.
+        sync_cooldown_seconds: Explicit cooldown duration in seconds.
+
+    Returns:
+        Tuple of (SyncManager instance or None, trigger handler callable or None).
+    """
+    if not _resolve_enable_sync(enable_sync_trigger=enable_sync_trigger):
+        return None, None
+
+    cooldown = _resolve_cooldown(sync_cooldown_seconds)
+    kwargs: dict[str, Any] = {"engine": engine}
+    if cooldown is not None:
+        kwargs["cooldown_seconds"] = cooldown
+
+    sync_manager = SyncManager(**kwargs)
+    return sync_manager, sync_manager.trigger_handler
+
+
 def create_app(
     database_url: str | None = None,
     *,
@@ -45,6 +97,8 @@ def create_app(
     title: str = DEFAULT_API_TITLE,
     description: str = DEFAULT_API_DESCRIPTION,
     enable_cors: bool = True,
+    enable_sync_trigger: bool | None = None,
+    sync_cooldown_seconds: int | None = None,
 ) -> FastAPI:
     """Create and configure the FastAPI application instance.
 
@@ -54,6 +108,8 @@ def create_app(
         title: API documentation title.
         description: API documentation description.
         enable_cors: Whether to mount CORSMiddleware for cross-origin access.
+        enable_sync_trigger: Whether to enable background sync trigger API endpoint.
+        sync_cooldown_seconds: Optional minimum cooldown between sync cycles in seconds.
 
     Returns:
         Configured FastAPI application instance.
@@ -107,6 +163,15 @@ def create_app(
         app.state.db_engine = create_sync_engine(resolved_db_url)
     else:
         app.state.db_engine = None
+
+    (
+        app.state.sync_manager,
+        app.state.sync_trigger_handler,
+    ) = _init_sync_manager(
+        app.state.db_engine,
+        enable_sync_trigger=enable_sync_trigger,
+        sync_cooldown_seconds=sync_cooldown_seconds,
+    )
 
     # Include routers
     app.include_router(web_router)

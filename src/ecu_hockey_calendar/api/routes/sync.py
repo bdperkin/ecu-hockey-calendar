@@ -6,7 +6,15 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Annotated, Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    status,
+)
 from sqlalchemy import func, select
 
 from ecu_hockey_calendar.api.auth import verify_admin_token
@@ -18,8 +26,14 @@ from ecu_hockey_calendar.storage.models import (
     SyncStatus,
 )
 from ecu_hockey_calendar.storage.service import get_sync_audit_history
+from ecu_hockey_calendar.sync_service import (
+    DEFAULT_COOLDOWN_SECONDS,
+    SyncManager,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sqlalchemy import Engine
     from sqlalchemy.orm import Session
 
@@ -95,19 +109,62 @@ def _get_last_success_timestamp(session: Session) -> str | None:
     return last_success_dt.isoformat()
 
 
-def _determine_sync_status(audit: SyncAuditModel | None) -> str:
+def _determine_sync_status(
+    audit: SyncAuditModel | None,
+    *,
+    is_running: bool = False,
+) -> str:
     """Determine whether the sync engine is actively running."""
-    if audit is None:
-        return "idle"
+    if is_running:
+        return "syncing"
 
-    if audit.status == SyncStatus.RUNNING.value:
+    if audit is not None and audit.status == SyncStatus.RUNNING.value:
         return "syncing"
 
     return "idle"
 
 
-def _extract_db_sync_telemetry(engine: Engine) -> dict[str, Any]:
+def _build_manager_telemetry(sync_manager: SyncManager | None) -> dict[str, Any]:
+    """Extract operational telemetry status flags from SyncManager."""
+    if sync_manager is None:
+        return {
+            "sync_trigger_enabled": False,
+            "can_trigger": False,
+            "cooldown_remaining_seconds": 0,
+            "cooldown_total_seconds": DEFAULT_COOLDOWN_SECONDS,
+            "is_running": False,
+        }
+
+    return {
+        "sync_trigger_enabled": True,
+        "can_trigger": sync_manager.can_trigger(),
+        "cooldown_remaining_seconds": sync_manager.get_cooldown_remaining(),
+        "cooldown_total_seconds": sync_manager.cooldown_seconds,
+        "is_running": sync_manager.is_running,
+    }
+
+
+def _build_empty_db_telemetry(manager_meta: dict[str, Any]) -> dict[str, Any]:
+    """Build fallback telemetry payload when database engine is uninitialized."""
+    return {
+        "current_status": "syncing" if manager_meta["is_running"] else "idle",
+        "last_sync": _format_audit_record(None),
+        "last_success_at": None,
+        "total_sync_cycles": 0,
+        "sources": list(DEFAULT_SCRAPERS),
+        "sync_trigger_enabled": manager_meta["sync_trigger_enabled"],
+        "can_trigger": manager_meta["can_trigger"],
+        "cooldown_remaining_seconds": manager_meta["cooldown_remaining_seconds"],
+        "cooldown_total_seconds": manager_meta["cooldown_total_seconds"],
+    }
+
+
+def _extract_db_sync_telemetry(
+    engine: Engine,
+    sync_manager: SyncManager | None = None,
+) -> dict[str, Any]:
     """Query synchronization audit statistics from the database."""
+    manager_meta = _build_manager_telemetry(sync_manager)
     with get_sync_session(engine) as session:
         audits = get_sync_audit_history(session, limit=1)
         latest_audit = audits[0] if audits else None
@@ -115,11 +172,18 @@ def _extract_db_sync_telemetry(engine: Engine) -> dict[str, Any]:
         total_count = int(count_val) if count_val is not None else 0
 
         return {
-            "current_status": _determine_sync_status(latest_audit),
+            "current_status": _determine_sync_status(
+                latest_audit,
+                is_running=manager_meta["is_running"],
+            ),
             "last_sync": _format_audit_record(latest_audit),
             "last_success_at": _get_last_success_timestamp(session),
             "total_sync_cycles": total_count,
             "sources": _query_sources_telemetry(engine),
+            "sync_trigger_enabled": manager_meta["sync_trigger_enabled"],
+            "can_trigger": manager_meta["can_trigger"],
+            "cooldown_remaining_seconds": manager_meta["cooldown_remaining_seconds"],
+            "cooldown_total_seconds": manager_meta["cooldown_total_seconds"],
         }
 
 
@@ -145,17 +209,93 @@ def get_sync_status(request: Request) -> dict[str, Any]:
     if override is not None:
         return dict(override)
 
+    sync_manager: SyncManager | None = getattr(request.app.state, "sync_manager", None)
     engine: Engine | None = getattr(request.app.state, "db_engine", None)
     if engine is None:
-        return {
-            "current_status": "idle",
-            "last_sync": _format_audit_record(None),
-            "last_success_at": None,
-            "total_sync_cycles": 0,
-            "sources": list(DEFAULT_SCRAPERS),
-        }
+        return _build_empty_db_telemetry(_build_manager_telemetry(sync_manager))
 
-    return _extract_db_sync_telemetry(engine)
+    return _extract_db_sync_telemetry(engine, sync_manager=sync_manager)
+
+
+def _build_accepted_sync_response(cycle_id: str, source: str | None) -> dict[str, Any]:
+    """Construct 202 Accepted response payload for triggered sync cycle."""
+    return {
+        "status": "accepted",
+        "sync_cycle_id": cycle_id,
+        "target_source": source or "all",
+        "timestamp": datetime.now(UTC).isoformat(),
+        "message": "Synchronization cycle triggered successfully.",
+    }
+
+
+def _ensure_manager_engine(sync_manager: SyncManager, request: Request) -> None:
+    """Attach database engine to sync manager if not already configured."""
+    app_engine = getattr(request.app.state, "db_engine", None)
+    if sync_manager.engine is None and app_engine is not None:
+        sync_manager.engine = app_engine
+
+
+def _validate_sync_readiness(sync_manager: SyncManager) -> None:
+    """Validate that sync manager is not currently running or in cooldown."""
+    if sync_manager.is_running:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A synchronization cycle is already in progress.",
+        )
+
+    remaining = sync_manager.get_cooldown_remaining()
+    if remaining > 0:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                f"Synchronization trigger is in cooldown. Please wait "
+                f"{remaining} seconds before retrying."
+            ),
+            headers={"Retry-After": str(remaining)},
+        )
+
+
+def _dispatch_manager_cycle(
+    sync_manager: SyncManager,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    source: str | None,
+) -> dict[str, Any]:
+    """Execute sync trigger using in-process SyncManager."""
+    _ensure_manager_engine(sync_manager, request)
+    _validate_sync_readiness(sync_manager)
+
+    cycle_id = f"sync-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:8]}"
+    if not sync_manager.try_acquire(cycle_id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A synchronization cycle is already in progress.",
+        )
+
+    sync_manager.record_initial_audit(cycle_id, source_filter=source or "all")
+    background_tasks.add_task(
+        sync_manager.run_background_sync,
+        cycle_id,
+        source=source,
+    )
+    return _build_accepted_sync_response(cycle_id, source)
+
+
+def _dispatch_custom_handler(
+    handler: Callable[..., Any],
+    source: str | None,
+) -> dict[str, Any]:
+    """Execute custom sync trigger handler registered on application state."""
+    cycle_id = f"sync-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:8]}"
+    try:
+        handler(cycle_id, source=source)
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+    return _build_accepted_sync_response(cycle_id, source)
 
 
 @sync_router.post(
@@ -164,12 +304,19 @@ def get_sync_status(request: Request) -> dict[str, Any]:
     description=(
         "Administrative endpoint to trigger an on-demand schedule crawl and "
         "reconciliation cycle. Requires administrator authentication. Returns "
-        "501 Not Implemented if on-demand execution is not configured."
+        "409 Conflict if already running, 429 Too Many Requests if in cooldown, "
+        "or 501 Not Implemented if on-demand execution is not configured."
     ),
     status_code=status.HTTP_202_ACCEPTED,
     responses={
         status.HTTP_202_ACCEPTED: {
             "description": "Synchronization cycle triggered successfully.",
+        },
+        status.HTTP_409_CONFLICT: {
+            "description": "A synchronization cycle is already in progress.",
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "description": "Synchronization trigger cooldown is active.",
         },
         status.HTTP_501_NOT_IMPLEMENTED: {
             "description": (
@@ -182,6 +329,7 @@ def get_sync_status(request: Request) -> dict[str, Any]:
 )
 def trigger_sync_cycle(
     request: Request,
+    background_tasks: BackgroundTasks,
     *,
     source: Annotated[
         str | None,
@@ -197,32 +345,30 @@ def trigger_sync_cycle(
 
     Args:
         request: Incoming FastAPI HTTP request.
+        background_tasks: FastAPI background tasks collector.
         source: Optional source code to restrict sync.
 
     Returns:
         Response payload acknowledging sync task initiation.
 
     Raises:
+        HTTPException: 409 Conflict if a cycle is already executing.
+        HTTPException: 429 Too Many Requests if trigger is in cooldown.
         HTTPException: 501 Not Implemented if no sync trigger handler is registered.
     """
+    sync_manager: SyncManager | None = getattr(request.app.state, "sync_manager", None)
+    if sync_manager is not None:
+        return _dispatch_manager_cycle(sync_manager, request, background_tasks, source)
+
     handler = getattr(request.app.state, "sync_trigger_handler", None)
-    if not callable(handler):
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail=(
-                "On-demand synchronization trigger is not implemented or "
-                "configured in this deployment environment. Scheduled "
-                "synchronization runs via external cron."
-            ),
-        )
+    if callable(handler):
+        return _dispatch_custom_handler(handler, source)
 
-    cycle_id = f"sync-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:8]}"
-    handler(cycle_id, source=source)
-
-    return {
-        "status": "accepted",
-        "sync_cycle_id": cycle_id,
-        "target_source": source or "all",
-        "timestamp": datetime.now(UTC).isoformat(),
-        "message": "Synchronization cycle triggered successfully.",
-    }
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail=(
+            "On-demand synchronization trigger is not implemented or "
+            "configured in this deployment environment. Scheduled "
+            "synchronization runs via external cron."
+        ),
+    )
