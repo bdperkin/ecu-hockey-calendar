@@ -35,8 +35,9 @@ ______________________________________________________________________
     - [2.5.8. Phase 5.8: Production Service Documentation & End-User Onboarding](#258-phase-58-production-service-documentation--end-user-onboarding)
     - [2.5.9. Phase 5.9: Calendar Feed Determinism & CI Test Resilience](#259-phase-59-calendar-feed-determinism--ci-test-resilience)
     - [2.5.10. Phase 5.10: Administrative Endpoint Behavior Audit](#2510-phase-510-administrative-endpoint-behavior-audit)
-    - [2.5.11. Phase 5.11: Repository Badges & Status Indicators](#2511-phase-511-repository-badges--status-indicators)
-    - [2.5.12. Phase 5.12: Documentation Alignment](#2512-phase-512-documentation-alignment)
+    - [2.5.11. Phase 5.11: Unconfigured Sync Trigger Response Semantics](#2511-phase-511-unconfigured-sync-trigger-response-semantics)
+    - [2.5.12. Phase 5.12: Repository Badges & Status Indicators](#2512-phase-512-repository-badges--status-indicators)
+    - [2.5.13. Phase 5.13: Documentation Alignment](#2513-phase-513-documentation-alignment)
   - [2.6. Milestone 6: v0.6.0 - Public Web Interface & Fan Engagement](#26-milestone-6-v060---public-web-interface--fan-engagement)
     - [2.6.1. Phase 6.1: Responsive HTML Interface & Embeds](#261-phase-61-responsive-html-interface--embeds)
     - [2.6.2. Phase 6.2: Dual-Format Content Negotiation Foundation](#262-phase-62-dual-format-content-negotiation-foundation)
@@ -44,7 +45,8 @@ ______________________________________________________________________
     - [2.6.4. Phase 6.4: Printable Schedule Grid PDF Generation](#264-phase-64-printable-schedule-grid-pdf-generation)
   - [2.7. Milestone 7: v0.7.0 - Human-Readable Operations & Diagnostics](#27-milestone-7-v070---human-readable-operations--diagnostics)
     - [2.7.1. Phase 7.1: Operational Telemetry Dashboards](#271-phase-71-operational-telemetry-dashboards)
-    - [2.7.2. Phase 7.2: Administrative Conflict Triage Interface](#272-phase-72-administrative-conflict-triage-interface)
+    - [2.7.2. Phase 7.2: In-Process Background Synchronization Trigger](#272-phase-72-in-process-background-synchronization-trigger)
+    - [2.7.3. Phase 7.3: Administrative Conflict Triage Interface](#273-phase-73-administrative-conflict-triage-interface)
   - [2.8. Milestone 8: v0.8.0 - Syndication & Integrations](#28-milestone-8-v080---syndication--integrations)
     - [2.8.1. Phase 8.1: RSS / Atom Syndication Feeds](#281-phase-81-rss--atom-syndication-feeds)
     - [2.8.2. Phase 8.2: Comprehensive Documentation Audit & Reconciliation](#282-phase-82-comprehensive-documentation-audit--reconciliation)
@@ -305,18 +307,26 @@ ______________________________________________________________________
 
 #### 2.5.10. Phase 5.10: Administrative Endpoint Behavior Audit
 
-- [ ] **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102) - investigate(api): determine intended behavior of POST /api/v1/sync/trigger and whether it warrants dual-format responses**
+- [x] **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102) - investigate(api): determine intended behavior of POST /api/v1/sync/trigger and whether it warrants dual-format responses**
 
   - **Summary:** Investigate why `POST /api/v1/sync/trigger` reports success while performing no synchronization, and recommend the correct behavior before considering an HTML interface.
   - **Description:** `trigger_sync_cycle` dispatches through an optional `app.state.sync_trigger_handler` hook that `create_app` never assigns, so production requests return `202 Accepted` with a success message and an unused `sync_cycle_id` while no crawl runs. Determine whether this is intentional, weigh real trigger mechanisms against the split web/cron service topology and scraper rate limits, decide the honest response semantics when no mechanism is wired, and only then evaluate dual-format output versus a dashboard "Sync now" control. Raise follow-up implementation issues for the conclusions.
+  - **Findings:** Investigation completed (see [report](https://github.com/bdperkin/ecu-hockey-calendar/issues/102#issuecomment-5627626890)). Confirmed production no-op is an unintended defect. Recommended honest `501 Not Implemented` semantics when unconfigured ([#116](https://github.com/bdperkin/ecu-hockey-calendar/issues/116)), opt-in in-process background execution via FastAPI `BackgroundTasks` with concurrency locking and rate-limiting cooldown for v0.7.0 ([#117](https://github.com/bdperkin/ecu-hockey-calendar/issues/117)), and rejected dual-format HTML on `POST` in favor of an interactive dashboard control on the [#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99) status dashboard.
 
-#### 2.5.11. Phase 5.11: Repository Badges & Status Indicators
+#### 2.5.11. Phase 5.11: Unconfigured Sync Trigger Response Semantics
+
+- [ ] **[#116](https://github.com/bdperkin/ecu-hockey-calendar/issues/116) - fix(api): return 501 Not Implemented from POST /api/v1/sync/trigger when no trigger handler is registered**
+
+  - **Summary:** Return HTTP `501 Not Implemented` instead of `202 Accepted` when `app.state.sync_trigger_handler` is unconfigured.
+  - **Description:** In default and production configurations, `POST /api/v1/sync/trigger` returns `202 Accepted` with `"Synchronization cycle triggered successfully."` while executing no crawlers, reconciliation, or audit recording. Update the route handler to inspect `sync_trigger_handler` and return `HTTP 501 Not Implemented` with an explanatory error payload when no handler is registered. Update unit tests in `tests/test_api_health_diagnostics.py` to assert `501` semantics, and align `docs/api.md` and `DEPLOYMENT.md` endpoint inventories.
+
+#### 2.5.12. Phase 5.12: Repository Badges & Status Indicators
 
 - [ ] **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86) - docs(readme): audit project and implement missing status, quality, and technology badges**
   - **Summary:** Audit project workflows, security, and dependencies, and add missing badges to `README.md`.
   - **Description:** Identify and incorporate status badges for GitHub Pages documentation, CodeQL security scanning, pre-commit.ci, dependency review, semantic release, FastAPI, SQLAlchemy, and license/security policies into logically organized badge sections.
 
-#### 2.5.12. Phase 5.12: Documentation Alignment
+#### 2.5.13. Phase 5.13: Documentation Alignment
 
 - [ ] **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect end-to-end capabilities, CLI, and production deployment.
@@ -364,7 +374,14 @@ ______________________________________________________________________
   - **Summary:** Serve a synchronization telemetry dashboard to browsers while automation keeps receiving the unchanged JSON payload.
   - **Description:** Render a `current_status` badge, stat tiles for games created, updated, and deleted plus a conflicts tile linking through to the conflict triage view, human-readable and relative timestamps, formatted cycle duration, and a scraper source table. Surface `error_message` in a dedicated error panel, provide a friendly empty state when no sync has run, and note the six-hourly worker cadence.
 
-#### 2.7.2. Phase 7.2: Administrative Conflict Triage Interface
+#### 2.7.2. Phase 7.2: In-Process Background Synchronization Trigger
+
+- [ ] **[#117](https://github.com/bdperkin/ecu-hockey-calendar/issues/117) - feat(api): implement in-process background synchronization trigger with concurrency and cooldown safeguards**
+
+  - **Summary:** Implement in-process background crawl execution using FastAPI `BackgroundTasks` with concurrency locking, rate-limiting cooldowns, and audit telemetry tracking.
+  - **Description:** Extract the core synchronization pipeline into a shared, reusable service module, provide a default `BackgroundTasks` trigger handler enabled via `ENABLE_API_SYNC_TRIGGER=true`, protect against concurrent triggers with an `asyncio.Lock` returning `409 Conflict`, enforce a cooldown interval returning `429 Too Many Requests` with a `Retry-After` header to protect upstream sources and Instagram IP reputation, and record in-progress status in `SyncAuditModel` so `/api/v1/sync/status` immediately reports `syncing`. Powers the interactive "Sync now" control on the [#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99) dashboard.
+
+#### 2.7.3. Phase 7.3: Administrative Conflict Triage Interface
 
 - [ ] **[#100](https://github.com/bdperkin/ecu-hockey-calendar/issues/100) - feat(api): content-negotiated HTML and JSON responses for conflicts endpoint (/api/v1/conflicts)**
 
@@ -446,6 +463,7 @@ flowchart TD
         T96["#96: End-User Calendar Sync Guide"]
         T114["#114: Calendar ETag Determinism & Test Resilience"]
         T102["#102: Investigate Sync Trigger Endpoint"]
+        T116["#116: Fix Unconfigured Sync Trigger Semantics (501)"]
         T86["#86: README Badges Audit & Addition"]
         T63["#63: README & Sphinx Docs Update (v0.5.0)"]
     end
@@ -459,6 +477,7 @@ flowchart TD
 
     subgraph M7["Stage 6: Milestone 7 (Human-Readable Operations & Diagnostics)"]
         T98["#98: Dual-Format Health Probe"]
+        T117["#117: In-Process Background Sync Execution"]
         T99["#99: Dual-Format Sync Status"]
         T100["#100: Dual-Format Conflicts View"]
     end
@@ -489,18 +508,22 @@ flowchart TD
     T95 --> T96
     T96 --> T114
     T114 --> T102
-    T102 --> T86
+    T102 --> T116
+    T116 --> T86
     T86 --> T63
     T63 --> T77
     T77 --> T97
     T97 --> T101
     T101 --> T79
     T79 --> T98
-    T98 --> T99
+    T98 --> T117
+    T117 --> T99
     T99 --> T100
     T100 --> T78
     T78 --> T103
-    T102 -.informs.-> T99
+    T102 -.informs.-> T116
+    T102 -.informs.-> T117
+    T117 -.powers.-> T99
     T77 -.templates.-> T79
 ```
 
@@ -528,7 +551,9 @@ flowchart TD
    - Issue **[#94](https://github.com/bdperkin/ecu-hockey-calendar/issues/94)** is sequenced next because the version string is groundwork: Issues **[#95](https://github.com/bdperkin/ecu-hockey-calendar/issues/95)**, **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)**, and **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98)** all document or render it, and fixing the build fallback first prevents publishing documentation and dashboards that display `0.1.0.dev0`.
    - Issue **[#95](https://github.com/bdperkin/ecu-hockey-calendar/issues/95)** establishes the canonical production URLs and endpoint reference, correcting the stale hostname placeholder that downstream documentation cites.
    - Issue **[#96](https://github.com/bdperkin/ecu-hockey-calendar/issues/96)** carries the highest end-user value in the backlog: the production calendar feed is already live and correct, and this converts existing capability into actual fan adoption at no code risk.
-   - Issue **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102)** audits the administrative sync trigger, which currently reports success while performing no synchronization. It runs here so its findings land before Issue **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)** designs a dashboard control around it.
+   - Issue **[#114](https://github.com/bdperkin/ecu-hockey-calendar/issues/114)** resolves a second-boundary race condition in calendar ETag generation and adds pytest retry resilience to protect CI runs.
+   - Issue **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102)** audits the administrative sync trigger, confirming that reporting success for an unwired trigger is a live defect and recommending an in-process background worker architecture with concurrency and cooldown protection, while rejecting dual-format HTML on POST.
+   - Issue **[#116](https://github.com/bdperkin/ecu-hockey-calendar/issues/116)** addresses the immediate defect by returning `501 Not Implemented` when unconfigured.
    - Issue **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86)** adds repository presentation badges once the release version reported by Issue **[#94](https://github.com/bdperkin/ecu-hockey-calendar/issues/94)** is trustworthy.
    - Issue **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63)** closes the milestone as a verification sweep over everything above, narrowed to the CLI, container, and automation surfaces that Issues **[#95](https://github.com/bdperkin/ecu-hockey-calendar/issues/95)** and **[#96](https://github.com/bdperkin/ecu-hockey-calendar/issues/96)** do not already cover.
 5. **Milestone 6 (Public Web Interface & Fan Engagement)**:
@@ -537,7 +562,9 @@ flowchart TD
    - Issue **[#101](https://github.com/bdperkin/ecu-hockey-calendar/issues/101)** closes the browser experience by negotiating error responses, so a `404` or `422` reached from a rendered page no longer drops to a raw JSON blob.
    - Issue **[#79](https://github.com/bdperkin/ecu-hockey-calendar/issues/79)** renders the printable schedule grid through WeasyPrint, reusing the same template tree with a print stylesheet, which is why it is grouped with the web interface rather than with syndication.
 6. **Milestone 7 (Human-Readable Operations & Diagnostics)**:
-   - Issues **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98)** and **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)** extend the negotiation contract established in Issue **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** to the health probe and synchronization telemetry, making operational state legible to non-technical stakeholders in a browser while remaining byte-for-byte compatible for monitoring automation.
+   - Issue **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98)** extends the negotiation contract established in Issue **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** to the health probe, making operational state legible to non-technical stakeholders in a browser while remaining byte-for-byte compatible for monitoring automation.
+   - Issue **[#117](https://github.com/bdperkin/ecu-hockey-calendar/issues/117)** implements the in-process background synchronization engine with concurrency lock and cooldown safeguards specified in #102, powering the "Sync now" dashboard control in Issue **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)**.
+   - Issue **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)** delivers the synchronization telemetry dashboard and interactive controls.
    - Issue **[#100](https://github.com/bdperkin/ecu-hockey-calendar/issues/100)** completes the series with administrative conflict triage. It is sequenced last and carries the lowest priority because it is token-gated, giving it the narrowest reachable audience of any open issue.
 7. **Milestone 8 (Syndication & Integrations)**:
    - Issue **[#78](https://github.com/bdperkin/ecu-hockey-calendar/issues/78)** adds RSS 2.0 and Atom syndication for media outlets and automation platforms. It has no dependants and the least evidenced demand, so it is deferred to a forward-looking integrations bucket that can absorb future downstream surfaces.
