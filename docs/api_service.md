@@ -13,9 +13,11 @@ The API service integrates the calendar generation, data normalization, database
 │       Public Endpoints       │   Administrative Endpoints   │
 ├──────────────────────────────┼──────────────────────────────┤
 │ • GET /                      │ • POST /api/v1/sync/trigger  │
-│ • GET /calendar.ics (webcal) │ • GET  /api/v1/conflicts     │
+│ • GET /schedule (HTML View)  │ • GET  /api/v1/conflicts     │
+│ • GET /schedule/embed        │                              │
+│ • GET /calendar.ics (webcal) │ Auth: Bearer / X-API-Key     │
 │ • GET /api/schedule.json     │                              │
-│ • GET /api/schedule.csv      │ Auth: Bearer / X-API-Key     │
+│ • GET /api/schedule.csv      │                              │
 │ • GET /health                │                              │
 │ • GET /api/v1/sync/status    │                              │
 │ • GET /docs & /redoc         │                              │
@@ -168,17 +170,46 @@ For non-technical, step-by-step instructions, one-click setup, custom reminders,
 - **Geo Coordinates**: Known rinks (such as The Factory Ice House and Polar Ice Raleigh) include exact latitude and longitude coordinates.
 - **Rich Details**: Each event incorporates match status, venue address, and direct ticketing links in the `DESCRIPTION` and `LOCATION` fields.
 
-## 4. Public Master Schedule Data Feeds
+## 4. Master Schedule Views & Data Feeds
 
-Public data feeds provide machine-readable access to canonical schedules in JSON and CSV formats.
+Public interfaces provide human-readable web schedules and machine-readable data feeds in HTML, JSON, and CSV formats.
 
-### 4.1. JSON Data Feed (`/api/schedule.json`)
+### 4.1. Responsive HTML Schedule View (`/schedule`)
+
+- **Method**: `GET`, `HEAD`
+- **Path**: `/schedule`
+- **Content-Type**: `text/html; charset=utf-8`
+
+Renders a mobile-first, ECU-branded web interface (`#592a8a` purple and `#fec923` gold) displaying:
+
+- Game date and puck drop time converted to US Eastern Time (`America/New_York`).
+- Home vs. Away designation badges.
+- Opponent university name, city, state, competition division (e.g., ACHA M2), and conference (ACCHL).
+- Venue name, full address, and direct Google Maps directions links.
+- Official ticket purchase button for home matches.
+- Live match status badges (Scheduled, Final, Cancelled, Postponed) and score results.
+- Interactive filter form (`season`, `opponent`, `home_only`, `status`).
+- Built-in `@media print` stylesheet for refrigerator printouts and coach clipboards.
+
+### 4.2. Lightweight Embeddable iFrame Widget (`/schedule/embed`)
+
+- **Method**: `GET`, `HEAD`
+- **Path**: `/schedule/embed`
+- **Content-Type**: `text/html; charset=utf-8`
+
+A stripped-down schedule view specifically designed for embedding into external websites, local sports blogs, student news portals, and community rink pages without site navigation or footer clutter. Includes a one-click **Copy Embed Code** snippet generator:
+
+```html
+<iframe src="https://ecu-hockey-api.onrender.com/schedule/embed" width="100%" height="600" frameborder="0"></iframe>
+```
+
+### 4.3. JSON Data Feed (`/api/schedule.json`)
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/api/schedule.json`
 - **Content-Type**: `application/json`
 
-#### 4.1.1. Query Parameters
+#### 4.3.1. Query Parameters
 
 | Parameter   | Type      | Default | Description                                                                 |
 | :---------- | :-------- | :------ | :-------------------------------------------------------------------------- |
@@ -187,7 +218,7 @@ Public data feeds provide machine-readable access to canonical schedules in JSON
 | `home_only` | `boolean` | `false` | When `true`, returns only home games played at home rinks.                  |
 | `status`    | `string`  | `None`  | Filter by game status (`SCHEDULED`, `COMPLETED`, `CANCELLED`, `POSTPONED`). |
 
-#### 4.1.2. Example Request & Response
+#### 4.3.2. Example Request & Response
 
 ```bash
 curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
@@ -229,7 +260,7 @@ curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
 }
 ```
 
-### 4.2. CSV Data Feed (`/api/schedule.csv`)
+### 4.4. CSV Data Feed (`/api/schedule.csv`)
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/api/schedule.csv`
@@ -238,7 +269,7 @@ curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
 
 Supports identical query filters (`season`, `opponent`, `home_only`, `status`).
 
-#### 4.2.1. Example Request
+#### 4.4.1. Example Request
 
 ```bash
 curl -s "http://localhost:8000/api/schedule.csv?status=SCHEDULED"

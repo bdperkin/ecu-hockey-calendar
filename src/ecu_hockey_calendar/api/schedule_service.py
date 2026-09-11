@@ -1,18 +1,24 @@
-"""Schedule data serialization and query filtering service for JSON and CSV feeds."""
+"""Schedule data serialization and query filtering service for feeds."""
 
 from __future__ import annotations
 
 import csv
 import io
 import json
+import urllib.parse
 from datetime import UTC
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
+from zoneinfo import ZoneInfo
+
+import jinja2
 
 from ecu_hockey_calendar.api.service import (
     DEFAULT_ECU_TEAM_NAME,
     DEFAULT_TICKETS_URL,
     resolve_venue_details,
 )
+from ecu_hockey_calendar.models import GameResult
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -20,6 +26,34 @@ if TYPE_CHECKING:
     from ecu_hockey_calendar.models import Game
 
 AUGUST_MONTH_CUTOFF = 8
+DEFAULT_TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+EASTERN_TZ = ZoneInfo("America/New_York")
+
+FINAL_RESULTS = frozenset(
+    {
+        GameResult.WIN,
+        GameResult.LOSS,
+        GameResult.TIE,
+        GameResult.OVERTIME_LOSS,
+    },
+)
+
+STATUS_ALIASES: dict[str, set[str]] = {
+    "W": {"WIN", "WINS"},
+    "L": {"LOSS", "LOSSES"},
+    "T": {"TIE", "TIES"},
+    "OTL": {"OVERTIME_LOSS", "OT_LOSS"},
+    "CANCELLED": {"CANCELED"},
+}
+
+STATUS_METADATA: dict[GameResult, tuple[str, str, str]] = {
+    GameResult.WIN: ("Final", "status-win", "W"),
+    GameResult.LOSS: ("Final", "status-loss", "L"),
+    GameResult.OVERTIME_LOSS: ("Final (OT)", "status-otl", "OTL"),
+    GameResult.TIE: ("Final (Tie)", "status-tie", "T"),
+    GameResult.CANCELLED: ("Cancelled", "status-cancelled", ""),
+    GameResult.POSTPONED: ("Postponed", "status-postponed", ""),
+}
 
 
 def resolve_game_season(game: Game) -> str:
@@ -59,14 +93,10 @@ def _match_status(game: Game, status_query: str | None) -> bool:
     if sq in (rv, rn):
         return True
 
-    aliases: dict[str, set[str]] = {
-        "W": {"WIN", "WINS"},
-        "L": {"LOSS", "LOSSES"},
-        "T": {"TIE", "TIES"},
-        "OTL": {"OVERTIME_LOSS", "OT_LOSS"},
-        "CANCELLED": {"CANCELED"},
-    }
-    return sq in aliases.get(rv, set()) or sq in aliases.get(rn, set())
+    if sq in {"FINAL", "COMPLETED"}:
+        return game.result in FINAL_RESULTS
+
+    return sq in STATUS_ALIASES.get(rv, set()) or sq in STATUS_ALIASES.get(rn, set())
 
 
 def _match_season(game: Game, season_query: str | None) -> bool:
@@ -205,16 +235,232 @@ def _format_csv_row(game: Game, primary_team: str) -> dict[str, str]:
     }
 
 
-class ScheduleDataService:
-    """Service to produce normalized JSON and CSV master schedule data feeds."""
+def _resolve_game_scores(
+    game: Game,
+    *,
+    is_home: bool,
+) -> tuple[int | None, int | None]:
+    """Return primary team score and opponent score."""
+    if is_home:
+        return game.home_score, game.away_score
 
-    def __init__(self, primary_team_name: str = DEFAULT_ECU_TEAM_NAME) -> None:
+    return game.away_score, game.home_score
+
+
+def _resolve_html_status(
+    game: Game,
+    *,
+    is_home: bool,
+) -> tuple[str, str, str | None]:
+    """Resolve display status label, CSS badge class, and score text.
+
+    Args:
+        game: Domain Game instance.
+        is_home: True if primary team is the home team.
+
+    Returns:
+        Tuple of (status_label, status_badge_class, score_text).
+    """
+    meta = STATUS_METADATA.get(game.result)
+    if meta is None:
+        return "Scheduled", "status-scheduled", None
+
+    label, badge_class, prefix = meta
+    if not prefix:
+        return label, badge_class, None
+
+    ecu_score, opp_score = _resolve_game_scores(game, is_home=is_home)
+    if ecu_score is not None and opp_score is not None:
+        return label, badge_class, f"{prefix} {ecu_score}-{opp_score}"
+
+    return label, badge_class, prefix
+
+
+def _format_html_game(game: Game, primary_team: str) -> dict[str, Any]:
+    """Convert a Game into a dictionary formatted for HTML template rendering.
+
+    Args:
+        game: Domain Game instance.
+        primary_team: Canonical team name for home/away perspective.
+
+    Returns:
+        Dictionary formatted with presentation properties for HTML views.
+    """
+    is_home = game.is_home_game(primary_team)
+    opp = game.opponent_of(primary_team)
+    loc_str, _ = resolve_venue_details(game.venue)
+    query_target = loc_str or game.venue
+    map_url = (
+        f"https://www.google.com/maps/search/?api=1&query="
+        f"{urllib.parse.quote_plus(query_target)}"
+    )
+
+    start_eastern = game.start_time.astimezone(EASTERN_TZ)
+    date_str = (
+        f"{start_eastern.strftime('%a, %b')} {start_eastern.day}, {start_eastern.year}"
+    )
+    time_str = (
+        f"{start_eastern.strftime('%I:%M %p').lstrip('0')} {start_eastern.tzname()}"
+    )
+    start_iso = game.start_time.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    status_label, status_badge_class, score_text = _resolve_html_status(
+        game,
+        is_home=is_home,
+    )
+
+    return {
+        "game_id": game.game_id,
+        "season": resolve_game_season(game),
+        "date_str": date_str,
+        "time_str": time_str,
+        "start_time_iso": start_iso,
+        "is_home": is_home,
+        "designation": "Home" if is_home else "Away",
+        "opponent_name": opp.name,
+        "opponent_location": f"{opp.city}, {opp.state}",
+        "opponent_division": opp.division,
+        "opponent_conference": opp.conference,
+        "venue": game.venue,
+        "location": loc_str,
+        "map_url": map_url,
+        "status_label": status_label,
+        "status_badge_class": status_badge_class,
+        "score_text": score_text,
+        "tickets_url": DEFAULT_TICKETS_URL if is_home else None,
+    }
+
+
+def _build_feed_urls(base_url: str) -> dict[str, str]:
+    """Generate absolute or relative URLs for calendar and schedule feeds.
+
+    Args:
+        base_url: Optional base URL prefix.
+
+    Returns:
+        Dictionary mapping feed names to resolved URLs.
+    """
+    normalized = base_url.rstrip("/") if base_url else ""
+    return {
+        "schedule_url": f"{normalized}/schedule",
+        "embed_url": f"{normalized}/schedule/embed",
+        "ics_url": f"{normalized}/calendar.ics",
+        "csv_url": f"{normalized}/api/schedule.csv",
+        "json_url": f"{normalized}/api/schedule.json",
+    }
+
+
+def _extract_available_seasons(games: Sequence[Game]) -> list[str]:
+    """Extract sorted distinct collegiate seasons from games."""
+    return sorted({resolve_game_season(g) for g in games}, reverse=True)
+
+
+def _build_render_context(
+    games: Sequence[Game],
+    formatted_games: list[dict[str, Any]],
+    base_url: str,
+    filters: dict[str, str | bool | None],
+) -> dict[str, Any]:
+    """Build context dictionary for HTML template rendering."""
+    raw_season = filters.get("season")
+    raw_opp = filters.get("opponent")
+    raw_status = filters.get("status")
+    return {
+        "primary_team": str(filters.get("primary_team") or ""),
+        "games": formatted_games,
+        "total_games": len(formatted_games),
+        "available_seasons": _extract_available_seasons(games),
+        "selected_season": str(raw_season) if raw_season else "",
+        "selected_opponent": str(raw_opp) if raw_opp else "",
+        "selected_home_only": bool(filters.get("home_only")),
+        "selected_status": str(raw_status).lower() if raw_status else "",
+        "is_embed": bool(filters.get("embed")),
+        **_build_feed_urls(base_url),
+    }
+
+
+class ScheduleDataService:
+    """Service to produce normalized HTML, JSON, and CSV master schedule feeds."""
+
+    def __init__(
+        self,
+        primary_team_name: str = DEFAULT_ECU_TEAM_NAME,
+        templates_dir: Path | str | None = None,
+    ) -> None:
         """Initialize the schedule data service.
 
         Args:
             primary_team_name: Canonical team name for home/away orientation.
+            templates_dir: Optional custom path to Jinja2 templates directory.
         """
         self.primary_team_name = primary_team_name
+        resolved_dir = Path(templates_dir) if templates_dir else DEFAULT_TEMPLATES_DIR
+        self._jinja_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(str(resolved_dir)),
+            autoescape=jinja2.select_autoescape(["html", "xml"]),
+        )
+
+    @property
+    def jinja_env(self) -> jinja2.Environment:
+        """Return the configured Jinja2 environment instance.
+
+        Returns:
+            Jinja2 Environment object.
+        """
+        return self._jinja_env
+
+    def generate_html_schedule(
+        self,
+        games: Sequence[Game],
+        *,
+        season: str | None = None,
+        opponent: str | None = None,
+        home_only: bool = False,
+        status: str | None = None,
+        embed: bool = False,
+        base_url: str = "",
+    ) -> str:
+        """Render responsive HTML schedule view or lightweight embed widget.
+
+        Args:
+            games: Collection of games.
+            season: Optional season filter string.
+            opponent: Optional opponent substring query.
+            home_only: If True, include only home games.
+            status: Optional status query.
+            embed: If True, render lightweight iframe widget view.
+            base_url: Optional base URL for prefixing links.
+
+        Returns:
+            Rendered HTML page string.
+        """
+        filtered = filter_games(
+            games,
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            status=status,
+            primary_team=self.primary_team_name,
+        )
+        formatted_games = [
+            _format_html_game(g, self.primary_team_name) for g in filtered
+        ]
+        filters: dict[str, str | bool | None] = {
+            "primary_team": self.primary_team_name,
+            "season": season,
+            "opponent": opponent,
+            "home_only": home_only,
+            "status": status,
+            "embed": embed,
+        }
+        context = _build_render_context(
+            games,
+            formatted_games,
+            base_url,
+            filters,
+        )
+        template_name = "embed.html" if embed else "schedule.html"
+        template = self._jinja_env.get_template(template_name)
+        return template.render(context)
 
     def generate_json_feed(
         self,

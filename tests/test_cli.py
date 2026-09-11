@@ -431,9 +431,12 @@ class TestExportCommand:
     def test_export_detect_format(self) -> None:
         """Verify format detection from option and file extension."""
         assert _detect_format("json", None) == "json"
+        assert _detect_format("html", None) == "html"
         assert _detect_format(None, "sched.csv") == "csv"
         assert _detect_format(None, "sched.json") == "json"
         assert _detect_format(None, "sched.ics") == "ics"
+        assert _detect_format(None, "sched.html") == "html"
+        assert _detect_format(None, None, embed=True) == "html"
         assert _detect_format(None, "sched.txt") == "ics"
 
     def test_export_ics_stdout(self, runner: CliRunner, db_url: str) -> None:
@@ -454,6 +457,57 @@ class TestExportCommand:
         result = runner.invoke(export_command, ["-f", "csv", "--db-url", db_url])
         assert result.exit_code == 0
         assert "game_id,season,date" in result.output
+
+    def test_export_html_stdout(self, runner: CliRunner, db_url: str) -> None:
+        """Verify export command outputs HTML to stdout."""
+        result = runner.invoke(export_command, ["-f", "html", "--db-url", db_url])
+        assert result.exit_code == 0
+        assert "<!DOCTYPE html>" in result.output
+        assert "East Carolina University Men's Ice Hockey" in result.output
+
+    def test_export_html_embed_stdout(self, runner: CliRunner, db_url: str) -> None:
+        """Verify export command with --embed outputs widget HTML to stdout."""
+        result = runner.invoke(
+            export_command,
+            ["--embed", "-f", "html", "--db-url", db_url],
+        )
+        assert result.exit_code == 0
+        assert "embed-mode" in result.output
+        assert '<header class="site-header">' not in result.output
+
+    def test_export_html_to_file(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify export command auto-detects HTML and writes to file."""
+        out_file = tmp_path / "schedule.html"
+        result = runner.invoke(
+            export_command,
+            ["-o", str(out_file), "--db-url", db_url],
+        )
+        assert result.exit_code == 0
+        assert "Export Successful" in result.output
+        assert out_file.is_file()
+        assert "<!DOCTYPE html>" in out_file.read_text(encoding="utf-8")
+
+    def test_export_html_embed_to_file(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify export command with --embed writes embed view to file."""
+        out_file = tmp_path / "embed_schedule.html"
+        result = runner.invoke(
+            export_command,
+            ["--embed", "-o", str(out_file), "--db-url", db_url],
+        )
+        assert result.exit_code == 0
+        assert "HTML (EMBED)" in result.output
+        assert out_file.is_file()
+        assert "embed-mode" in out_file.read_text(encoding="utf-8")
 
     def test_export_to_file(
         self,

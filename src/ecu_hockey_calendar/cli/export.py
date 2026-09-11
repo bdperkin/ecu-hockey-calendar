@@ -1,6 +1,6 @@
 """Implementation of the 'ecu-hockey export' CLI command.
 
-Exports the master schedule into RFC 5545 iCalendar (.ics), JSON, or CSV formats
+Exports the master schedule into RFC 5545 iCalendar (.ics), JSON, CSV, or HTML formats
 with query parameter filtering.
 """
 
@@ -53,15 +53,29 @@ def _load_games(
 def _detect_format(
     fmt: str | None,
     output_path: str | Path | None,
+    *,
+    embed: bool = False,
 ) -> str:
-    """Infer export format from explicit argument or output file extension."""
+    """Infer export format from explicit argument or output file extension.
+
+    Args:
+        fmt: Explicitly specified format string.
+        output_path: Destination file path.
+        embed: Whether embed mode is requested.
+
+    Returns:
+        Resolved format string ('ics', 'json', 'csv', or 'html').
+    """
     if fmt:
         return fmt.lower()
 
     if output_path:
         ext = Path(output_path).suffix.lower().lstrip(".")
-        if ext in ("ics", "json", "csv"):
+        if ext in ("ics", "json", "csv", "html"):
             return ext
+
+    if embed:
+        return "html"
 
     return "ics"
 
@@ -75,8 +89,9 @@ def _serialize_schedule(
     home_only: bool,
     status_query: str | None,
     include_past: bool,
+    embed: bool = False,
 ) -> str:
-    """Serialize games into ics, json, or csv format."""
+    """Serialize games into ics, json, csv, or html format."""
     if resolved_format == "ics":
         ics_svc = CalendarFeedService()
         return ics_svc.generate_ics_feed(
@@ -93,6 +108,16 @@ def _serialize_schedule(
             opponent=opponent,
             home_only=home_only,
             status=status_query,
+        )
+
+    if resolved_format == "html":
+        return data_svc.generate_html_schedule(
+            games,
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            status=status_query,
+            embed=embed,
         )
 
     return data_svc.generate_csv_feed(
@@ -141,7 +166,7 @@ def _write_export_output(
     "--format",
     "-f",
     "export_format",
-    type=click.Choice(["ics", "json", "csv"], case_sensitive=False),
+    type=click.Choice(["ics", "json", "csv", "html"], case_sensitive=False),
     default=None,
     help=(
         "Output serialization format (auto-detected from "
@@ -179,6 +204,12 @@ def _write_export_output(
     help="Filter games by status (e.g., 'scheduled', 'final', 'cancelled').",
 )
 @click.option(
+    "--embed",
+    is_flag=True,
+    default=False,
+    help="Export lightweight embeddable widget HTML view instead of full schedule.",
+)
+@click.option(
     "--include-past/--future-only",
     default=True,
     help="Include completed/historical fixtures in export (defaults to all games).",
@@ -189,7 +220,7 @@ def _write_export_output(
     default=None,
     help="Database connection URL override (defaults to local SQLite or DATABASE_URL).",
 )
-def export_command(
+def export_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many-locals
     *,
     export_format: str | None,
     output_path: Path | None,
@@ -197,11 +228,12 @@ def export_command(
     opponent: str | None,
     home_only: bool,
     status_query: str | None,
+    embed: bool,
     include_past: bool,
     db_url: str | None,
 ) -> None:
-    """Export schedule to RFC 5545 iCalendar (.ics), JSON, or CSV file."""
-    resolved_format = _detect_format(export_format, output_path)
+    """Export schedule to RFC 5545 iCalendar (.ics), JSON, CSV, or HTML file."""
+    resolved_format = _detect_format(export_format, output_path, embed=embed)
 
     db_url_resolved = get_sync_database_url(db_url)
     engine = create_sync_engine(db_url_resolved)
@@ -221,5 +253,11 @@ def export_command(
         home_only=home_only,
         status_query=status_query,
         include_past=include_past,
+        embed=embed,
     )
-    _write_export_output(output_path, content, resolved_format, len(games))
+    format_label = (
+        "HTML (Embed)"
+        if (resolved_format == "html" and embed)
+        else resolved_format.upper()
+    )
+    _write_export_output(output_path, content, format_label, len(games))

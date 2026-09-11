@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}ECU Men's Ice Hockey Schedule Widget{% endblock %}
+
+{% block content %}
+<div class="embed-header">
+  <h2>{{ primary_team }} Ice Hockey</h2>
+  <a href="{{ schedule_url }}" target="_blank" rel="noopener noreferrer">Full Schedule &rarr;</a>
+</div>
+
+<div class="schedule-header-summary" style="margin: 0.75rem 0 0.5rem 0;">
+  <div class="schedule-count">
+    <strong>{{ total_games }}</strong> game{% if total_games != 1 %}s{% endif %} listed
+    {% if selected_season %} &bull; Season {{ selected_season }}{% endif %}
+    {% if selected_home_only %} &bull; Home Only{% endif %}
+  </div>
+</div>
+
+{% if games %}
+<!-- Desktop Schedule Table -->
+<div class="schedule-table-container">
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Date &amp; Time</th>
+        <th style="width: 10%;">Site</th>
+        <th style="width: 28%;">Opponent</th>
+        <th style="width: 24%;">Venue &amp; Location</th>
+        <th style="width: 10%;">Status</th>
+        <th style="width: 8%; text-align: center;">Tickets</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for game in games %}
+      <tr>
+        <td>
+          <strong>{{ game.date_str }}</strong><br>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">{{ game.time_str }}</span>
+        </td>
+        <td>
+          <span class="badge {% if game.is_home %}badge-home{% else %}badge-away{% endif %}">
+            {{ game.designation }}
+          </span>
+        </td>
+        <td class="matchup-col">
+          <div>{{ game.opponent_name }}</div>
+          <div class="matchup-opp-details">
+            {{ game.opponent_location }} &bull; {{ game.opponent_division }}
+          </div>
+        </td>
+        <td>
+          <div>{{ game.venue }}</div>
+          <div class="venue-details">{{ game.location }}</div>
+          {% if game.map_url %}
+          <a href="{{ game.map_url }}" target="_blank" rel="noopener noreferrer" class="map-link">View Map &rarr;</a>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge {{ game.status_badge_class }}">
+            {% if game.score_text %}
+              {{ game.score_text }}
+            {% else %}
+              {{ game.status_label }}
+            {% endif %}
+          </span>
+        </td>
+        <td style="text-align: center;">
+          {% if game.tickets_url %}
+          <a href="{{ game.tickets_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-ticket">Tickets</a>
+          {% else %}
+          <span style="color: var(--text-muted); font-size: 0.8rem;">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Mobile Schedule Cards -->
+<div class="schedule-cards-container">
+  {% for game in games %}
+  <div class="game-card">
+    <div class="card-top-bar">
+      <div class="card-date-time">{{ game.date_str }} &bull; {{ game.time_str }}</div>
+      <span class="badge {% if game.is_home %}badge-home{% else %}badge-away{% endif %}">
+        {{ game.designation }}
+      </span>
+    </div>
+    <div class="card-matchup">
+      <div>
+        <div class="card-opponent-name">{{ game.opponent_name }}</div>
+        <div class="matchup-opp-details">{{ game.opponent_location }} &bull; {{ game.opponent_division }}</div>
+      </div>
+    </div>
+    <div class="card-venue">
+      <div><strong>{{ game.venue }}</strong></div>
+      <div>{{ game.location }}</div>
+      {% if game.map_url %}
+      <a href="{{ game.map_url }}" target="_blank" rel="noopener noreferrer" class="map-link">View Map &rarr;</a>
+      {% endif %}
+    </div>
+    <div class="card-bottom-bar">
+      <div>
+        <span class="badge {{ game.status_badge_class }}">
+          {% if game.score_text %}
+            {{ game.score_text }}
+          {% else %}
+            {{ game.status_label }}
+          {% endif %}
+        </span>
+      </div>
+      {% if game.tickets_url %}
+      <div>
+        <a href="{{ game.tickets_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-ticket">Tickets</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <h3>No Games Found</h3>
+  <p>No games match the selected filter criteria.</p>
+</div>
+{% endif %}
+
+<section class="embed-snippet-card no-print" style="margin-top: 1rem; padding: 1rem;">
+  <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Embed Widget</h3>
+  <p style="font-size: 0.8rem; margin-bottom: 0.5rem;">Copy and paste this snippet into any webpage to embed this schedule.</p>
+  <div class="embed-code-group">
+    <input type="text" id="embed-code" class="embed-code-input" readonly value='&lt;iframe src="{{ embed_url }}" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;'>
+    <button type="button" class="btn btn-copy" onclick="copyEmbedCode()">Copy Embed Code</button>
+  </div>
+  <div id="copy-status" class="copy-status">Embed snippet copied to clipboard!</div>
+</section>
+{% endblock %}

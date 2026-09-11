@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}{{ primary_team }} Ice Hockey Schedule{% endblock %}
+
+{% block content %}
+<section class="filter-card">
+  <form class="filter-form" method="get" action="{{ schedule_url }}">
+    <div class="form-group">
+      <label for="season-select">Season</label>
+      <select id="season-select" name="season" class="form-control">
+        <option value="">All Seasons</option>
+        {% for s in available_seasons %}
+        <option value="{{ s }}" {% if s == selected_season %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="opponent-input">Opponent</label>
+      <input type="text" id="opponent-input" name="opponent" class="form-control" placeholder="Search opponent..." value="{{ selected_opponent }}">
+    </div>
+
+    <div class="form-group">
+      <label for="status-select">Game Status</label>
+      <select id="status-select" name="status" class="form-control">
+        <option value="">All Statuses</option>
+        <option value="scheduled" {% if selected_status == "scheduled" %}selected{% endif %}>Scheduled</option>
+        <option value="final" {% if selected_status == "final" or selected_status in ["w", "l", "t", "otl"] %}selected{% endif %}>Final / Completed</option>
+        <option value="cancelled" {% if selected_status == "cancelled" %}selected{% endif %}>Cancelled</option>
+        <option value="postponed" {% if selected_status == "postponed" %}selected{% endif %}>Postponed</option>
+      </select>
+    </div>
+
+    <div class="form-check">
+      <input type="checkbox" id="home-only-check" name="home_only" value="true" {% if selected_home_only %}checked{% endif %}>
+      <label for="home-only-check">Home Games Only</label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Filter</button>
+      <a href="{{ schedule_url }}" class="btn btn-secondary">Reset</a>
+    </div>
+  </form>
+</section>
+
+<div class="schedule-header-summary">
+  <div class="schedule-count">
+    <strong>{{ total_games }}</strong> game{% if total_games != 1 %}s{% endif %} listed
+    {% if selected_season %} &bull; Season {{ selected_season }}{% endif %}
+    {% if selected_home_only %} &bull; Home Matches Only{% endif %}
+  </div>
+  <div class="schedule-actions no-print">
+    <a href="{{ ics_url }}" class="btn btn-secondary" title="Subscribe via Apple, Google, or Outlook Calendar">📅 Subscribe (.ics)</a>
+    <a href="{{ csv_url }}" class="btn btn-secondary" title="Download CSV Schedule">📊 Export CSV</a>
+  </div>
+</div>
+
+{% if games %}
+<!-- Desktop Schedule Table -->
+<div class="schedule-table-container">
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th style="width: 18%;">Date &amp; Time</th>
+        <th style="width: 10%;">Site</th>
+        <th style="width: 28%;">Opponent</th>
+        <th style="width: 24%;">Venue &amp; Location</th>
+        <th style="width: 10%;">Status</th>
+        <th style="width: 10%; text-align: center;">Tickets</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for game in games %}
+      <tr>
+        <td>
+          <strong>{{ game.date_str }}</strong><br>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">{{ game.time_str }}</span>
+        </td>
+        <td>
+          <span class="badge {% if game.is_home %}badge-home{% else %}badge-away{% endif %}">
+            {{ game.designation }}
+          </span>
+        </td>
+        <td class="matchup-col">
+          <div>{{ game.opponent_name }}</div>
+          <div class="matchup-opp-details">
+            {{ game.opponent_location }} &bull; {{ game.opponent_division }}
+          </div>
+        </td>
+        <td>
+          <div>{{ game.venue }}</div>
+          <div class="venue-details">{{ game.location }}</div>
+          {% if game.map_url %}
+          <a href="{{ game.map_url }}" target="_blank" rel="noopener noreferrer" class="map-link">View Map &rarr;</a>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge {{ game.status_badge_class }}">
+            {% if game.score_text %}
+              {{ game.score_text }}
+            {% else %}
+              {{ game.status_label }}
+            {% endif %}
+          </span>
+        </td>
+        <td style="text-align: center;">
+          {% if game.tickets_url %}
+          <a href="{{ game.tickets_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-ticket">Tickets</a>
+          {% else %}
+          <span style="color: var(--text-muted); font-size: 0.8rem;">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Mobile Schedule Cards -->
+<div class="schedule-cards-container">
+  {% for game in games %}
+  <div class="game-card">
+    <div class="card-top-bar">
+      <div class="card-date-time">{{ game.date_str }} &bull; {{ game.time_str }}</div>
+      <span class="badge {% if game.is_home %}badge-home{% else %}badge-away{% endif %}">
+        {{ game.designation }}
+      </span>
+    </div>
+    <div class="card-matchup">
+      <div>
+        <div class="card-opponent-name">{{ game.opponent_name }}</div>
+        <div class="matchup-opp-details">{{ game.opponent_location }} &bull; {{ game.opponent_division }}</div>
+      </div>
+    </div>
+    <div class="card-venue">
+      <div><strong>{{ game.venue }}</strong></div>
+      <div>{{ game.location }}</div>
+      {% if game.map_url %}
+      <a href="{{ game.map_url }}" target="_blank" rel="noopener noreferrer" class="map-link">View Map &rarr;</a>
+      {% endif %}
+    </div>
+    <div class="card-bottom-bar">
+      <div>
+        <span class="badge {{ game.status_badge_class }}">
+          {% if game.score_text %}
+            {{ game.score_text }}
+          {% else %}
+            {{ game.status_label }}
+          {% endif %}
+        </span>
+      </div>
+      {% if game.tickets_url %}
+      <div>
+        <a href="{{ game.tickets_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-ticket">Tickets</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <h3>No Games Found</h3>
+  <p>No games match the selected filter criteria.</p>
+  <div style="margin-top: 1rem;">
+    <a href="{{ schedule_url }}" class="btn btn-secondary">Clear Filters</a>
+  </div>
+</div>
+{% endif %}
+
+<!-- Embed Widget Snippet Generator Card -->
+<section class="embed-snippet-card no-print">
+  <h3>Embed Schedule Widget</h3>
+  <p>Display this responsive schedule on your sports blog, club site, or community rink page.</p>
+  <div class="embed-code-group">
+    <input type="text" id="embed-code" class="embed-code-input" readonly value='&lt;iframe src="{{ embed_url }}" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;'>
+    <button type="button" class="btn btn-copy" onclick="copyEmbedCode()">Copy Embed Code</button>
+  </div>
+  <div id="copy-status" class="copy-status">Embed snippet copied to clipboard!</div>
+</section>
+{% endblock %}
