@@ -109,16 +109,18 @@ def get_calendar_feed(
         CalendarFeedService(),
     )
 
+    last_mod_dt = feed_service.get_last_modified(games)
+    last_mod_str = feed_service.format_http_date(last_mod_dt)
+
     ics_content = feed_service.generate_ics_feed(
         games,
         season=season,
         include_past=include_past,
         alarm_minutes=alarm_minutes,
+        dtstamp_override=last_mod_dt,
     )
 
     etag = feed_service.compute_etag(ics_content)
-    last_mod_dt = feed_service.get_last_modified(games)
-    last_mod_str = feed_service.format_http_date(last_mod_dt)
 
     # Prepare standard caching and webcal headers
     headers = {

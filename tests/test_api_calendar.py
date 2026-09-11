@@ -635,3 +635,22 @@ def test_line_folding_multibyte_and_chunks() -> None:
     emoji_only = "🏒"
     folded_forced = fold_line(emoji_only, max_octets=2)
     assert folded_forced == "🏒"
+
+
+def test_calendar_feed_caching_deterministic_over_time(
+    sample_games: list[Game],
+) -> None:
+    """Test calendar feed ETag remains stable across time when games are unchanged."""
+    app = create_app()
+    app.state.games_override = sample_games
+    client = TestClient(app)
+
+    res1 = client.get("/calendar.ics")
+    assert res1.status_code == 200
+    etag1 = res1.headers.get("etag")
+    assert etag1 is not None
+
+    # Subsequent conditional GET must return 304 and identical ETag
+    res2 = client.get("/calendar.ics", headers={"If-None-Match": etag1})
+    assert res2.status_code == 304
+    assert res2.headers.get("etag") == etag1

@@ -50,6 +50,7 @@ optional-dependencies.dev = [
     "pyproject-fmt>=2.5.0",
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
+    "pytest-rerunfailures>=15.0.0",
     "python-semantic-release>=9.16.0",
     "radon>=6.0.1",
     "ruff>=0.9.0",
@@ -79,6 +80,7 @@ optional-dependencies.test = [
     "coverage[toml]>=7.6.0",
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
+    "pytest-rerunfailures>=15.0.0",
 ]
 urls.Changelog = "https://github.com/bdperkin/ecu-hockey-calendar/blob/main/CHANGELOG.md"
 urls.Documentation = "https://github.com/bdperkin/ecu-hockey-calendar#readme"
@@ -90,6 +92,7 @@ scripts.ecu-hockey = "ecu_hockey_calendar.cli:main"
 [dependency-groups]
 dev = [
     "mdformat-gfm>=1.0.0",
+    "pytest-rerunfailures>=16.6.1",
 ]
 
 [tool.hatch]
