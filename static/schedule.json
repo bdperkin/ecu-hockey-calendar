@@ -12,7 +12,7 @@
     {
       "game_id": "game-vs-christopher-newport-on-09172021-0f476n5c1yj",
       "season": "2021-2022",
-      "start_time": "2021-09-18T05:15:00Z",
+      "start_time": "2021-09-18T01:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -42,7 +42,7 @@
     {
       "game_id": "game-vs-william-mary-on-10012021-qde1gui02e",
       "season": "2021-2022",
-      "start_time": "2021-10-02T05:15:00Z",
+      "start_time": "2021-10-02T01:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -72,7 +72,7 @@
     {
       "game_id": "game-vs-appalachian-state-on-10082021-jswtboim9e",
       "season": "2021-2022",
-      "start_time": "2021-10-09T05:15:00Z",
+      "start_time": "2021-10-09T01:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -102,7 +102,7 @@
     {
       "game_id": "game-vs-old-dominion-on-10152021-7bliufq6xva",
       "season": "2021-2022",
-      "start_time": "2021-10-16T05:15:00Z",
+      "start_time": "2021-10-16T01:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -132,7 +132,7 @@
     {
       "game_id": "game-vs-high-point-on-10232021-0orqa632rvs",
       "season": "2021-2022",
-      "start_time": "2021-10-24T00:00:00Z",
+      "start_time": "2021-10-23T20:00:00Z",
       "home_team": {
         "name": "High Point University",
         "city": "Unknown",
@@ -162,7 +162,7 @@
     {
       "game_id": "game-vs-uncw-on-10292021-vgosdkqjcm7",
       "season": "2021-2022",
-      "start_time": "2021-10-30T06:00:00Z",
+      "start_time": "2021-10-30T02:00:00Z",
       "home_team": {
         "name": "UNC Wilmington",
         "city": "Unknown",
@@ -192,7 +192,7 @@
     {
       "game_id": "game-vs-citadel-on-11052021-kwqxen97",
       "season": "2021-2022",
-      "start_time": "2021-11-06T05:15:00Z",
+      "start_time": "2021-11-06T01:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -222,7 +222,7 @@
     {
       "game_id": "game-vs-liberty-university-on-11132021-p340fu6rm9p",
       "season": "2021-2022",
-      "start_time": "2021-11-14T08:15:00Z",
+      "start_time": "2021-11-14T03:15:00Z",
       "home_team": {
         "name": "Liberty University",
         "city": "Unknown",
@@ -252,7 +252,7 @@
     {
       "game_id": "game-vs-navy-on-11192021-kwqxhi80",
       "season": "2021-2022",
-      "start_time": "2021-11-20T08:10:00Z",
+      "start_time": "2021-11-20T03:10:00Z",
       "home_team": {
         "name": "Navy",
         "city": "Unknown",
@@ -282,7 +282,7 @@
     {
       "game_id": "game-vs-stevenson-on-01152022-kyc5l7k6",
       "season": "2021-2022",
-      "start_time": "2022-01-16T07:15:00Z",
+      "start_time": "2022-01-16T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -312,7 +312,7 @@
     {
       "game_id": "game-vs-christopher-newport-on-01212022-w5kzukh8rfj",
       "season": "2021-2022",
-      "start_time": "2022-01-22T08:00:00Z",
+      "start_time": "2022-01-22T03:00:00Z",
       "home_team": {
         "name": "Christopher Newport",
         "city": "Unknown",
@@ -342,7 +342,7 @@
     {
       "game_id": "game-vs-costal-carolina-on-01282022-i0ml4lmq54s",
       "season": "2021-2022",
-      "start_time": "2022-01-29T08:00:00Z",
+      "start_time": "2022-01-29T03:00:00Z",
       "home_team": {
         "name": "Costal Carolina",
         "city": "Unknown",
@@ -372,7 +372,7 @@
     {
       "game_id": "game-vs-north-carolina-state-on-02042022-kwqxqrmc",
       "season": "2021-2022",
-      "start_time": "2022-02-05T05:45:00Z",
+      "start_time": "2022-02-05T00:45:00Z",
       "home_team": {
         "name": "North Carolina State",
         "city": "Unknown",
@@ -405,7 +405,7 @@
     {
       "game_id": "game-vs-charleston-on-02112022-yo37tfhscac",
       "season": "2021-2022",
-      "start_time": "2022-02-12T07:00:00Z",
+      "start_time": "2022-02-12T02:00:00Z",
       "home_team": {
         "name": "Charleston",
         "city": "Unknown",
@@ -435,7 +435,7 @@
     {
       "game_id": "game-vs-birmingham-on-02192022-0lirkprp19c",
       "season": "2021-2022",
-      "start_time": "2022-02-20T07:15:00Z",
+      "start_time": "2022-02-20T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -465,7 +465,7 @@
     {
       "game_id": "game-vs-west-virginia-on-02252022-kzw9co13",
       "season": "2021-2022",
-      "start_time": "2022-02-26T02:30:00Z",
+      "start_time": "2022-02-25T21:30:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -495,7 +495,7 @@
     {
       "game_id": "game-vs-costal-carolina-on-02262022-l05y3otj",
       "season": "2021-2022",
-      "start_time": "2022-02-27T06:00:00Z",
+      "start_time": "2022-02-27T01:00:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -525,7 +525,7 @@
     {
       "game_id": "game-vs-st-bonaventure-on-03182022-l0pq9hrp",
       "season": "2021-2022",
-      "start_time": "2022-03-18T21:15:00Z",
+      "start_time": "2022-03-18T17:15:00Z",
       "home_team": {
         "name": "St. Bonaventure",
         "city": "Unknown",
@@ -555,7 +555,7 @@
     {
       "game_id": "game-vs-farmingdale-state-on-03192022-l0pqa3n9",
       "season": "2021-2022",
-      "start_time": "2022-03-19T20:00:00Z",
+      "start_time": "2022-03-19T16:00:00Z",
       "home_team": {
         "name": "Farmingdale State",
         "city": "Unknown",
@@ -585,7 +585,7 @@
     {
       "game_id": "game-vs-penn-state-harrisburg-on-03202022-l0pqaybi",
       "season": "2021-2022",
-      "start_time": "2022-03-20T18:00:00Z",
+      "start_time": "2022-03-20T14:00:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -615,7 +615,7 @@
     {
       "game_id": "game-vs-charlotte-on-09162022-l7z5mdw6",
       "season": "2022-2023",
-      "start_time": "2022-09-17T04:31:00Z",
+      "start_time": "2022-09-17T00:31:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -645,7 +645,7 @@
     {
       "game_id": "game-vs-uncw-on-10012022-l7z5w2ax",
       "season": "2022-2023",
-      "start_time": "2022-10-02T06:00:00Z",
+      "start_time": "2022-10-02T02:00:00Z",
       "home_team": {
         "name": "UNC Wilmington",
         "city": "Unknown",
@@ -675,7 +675,7 @@
     {
       "game_id": "game-vs-north-carolina-on-10072022-l8yhqatx",
       "season": "2022-2023",
-      "start_time": "2022-10-08T06:15:30Z",
+      "start_time": "2022-10-08T02:15:30Z",
       "home_team": {
         "name": "North Carolina",
         "city": "Unknown",
@@ -705,7 +705,7 @@
     {
       "game_id": "game-vs-uncw-on-10212022-l7z5ynv3",
       "season": "2022-2023",
-      "start_time": "2022-10-22T06:00:00Z",
+      "start_time": "2022-10-22T02:00:00Z",
       "home_team": {
         "name": "UNC Wilmington",
         "city": "Unknown",
@@ -735,7 +735,7 @@
     {
       "game_id": "game-vs-duke-on-10222022-l8yi19fn",
       "season": "2022-2023",
-      "start_time": "2022-10-23T01:15:00Z",
+      "start_time": "2022-10-22T21:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -765,7 +765,7 @@
     {
       "game_id": "game-vs-stevenson-on-10282022-l7z5z7wj",
       "season": "2022-2023",
-      "start_time": "2022-10-29T05:15:00Z",
+      "start_time": "2022-10-29T01:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -795,7 +795,7 @@
     {
       "game_id": "game-vs-georgetown-university-on-11042022-l8yikvij",
       "season": "2022-2023",
-      "start_time": "2022-11-04T22:00:00Z",
+      "start_time": "2022-11-04T18:00:00Z",
       "home_team": {
         "name": "Georgetown University",
         "city": "Unknown",
@@ -825,7 +825,7 @@
     {
       "game_id": "game-vs-west-virginia-universtiy-on-11052022-l8ying52",
       "season": "2022-2023",
-      "start_time": "2022-11-05T19:45:00Z",
+      "start_time": "2022-11-05T15:45:00Z",
       "home_team": {
         "name": "West Virginia Universtiy",
         "city": "Unknown",
@@ -855,7 +855,7 @@
     {
       "game_id": "game-vs-tampa-on-11062022-l8yio5kg",
       "season": "2022-2023",
-      "start_time": "2022-11-06T19:15:00Z",
+      "start_time": "2022-11-06T14:15:00Z",
       "home_team": {
         "name": "Denison University",
         "city": "Unknown",
@@ -885,7 +885,7 @@
     {
       "game_id": "game-vs-high-point-on-11122022-l8yiphst",
       "season": "2022-2023",
-      "start_time": "2022-11-13T07:15:00Z",
+      "start_time": "2022-11-13T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -915,7 +915,7 @@
     {
       "game_id": "game-vs-north-carolina-on-11192022-l8yiqcb7",
       "season": "2022-2023",
-      "start_time": "2022-11-20T03:15:00Z",
+      "start_time": "2022-11-19T22:15:00Z",
       "home_team": {
         "name": "North Carolina",
         "city": "Unknown",
@@ -945,7 +945,7 @@
     {
       "game_id": "game-vs-south-carolina-on-01132023-l8yirf01",
       "season": "2022-2023",
-      "start_time": "2023-01-14T06:00:00Z",
+      "start_time": "2023-01-14T01:00:00Z",
       "home_team": {
         "name": "South Carolina",
         "city": "Unknown",
@@ -975,7 +975,7 @@
     {
       "game_id": "game-vs-elon-on-01212023-l8yisyk0",
       "season": "2022-2023",
-      "start_time": "2023-01-22T07:30:00Z",
+      "start_time": "2023-01-22T02:30:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -1008,7 +1008,7 @@
     {
       "game_id": "game-vs-appalachian-state-on-01272023-l8yj07j7",
       "season": "2022-2023",
-      "start_time": "2023-01-28T07:15:00Z",
+      "start_time": "2023-01-28T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -1038,7 +1038,7 @@
     {
       "game_id": "game-vs-elon-on-02102023-l8yj1jzc",
       "season": "2022-2023",
-      "start_time": "2023-02-11T07:15:00Z",
+      "start_time": "2023-02-11T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -1068,7 +1068,7 @@
     {
       "game_id": "game-vs-duke-on-02112023-ld28g5fk",
       "season": "2022-2023",
-      "start_time": "2023-02-12T03:15:00Z",
+      "start_time": "2023-02-11T22:15:00Z",
       "home_team": {
         "name": "Duke University",
         "city": "Unknown",
@@ -1101,7 +1101,7 @@
     {
       "game_id": "game-vs-charlotte-on-02172023-lfsot8lm",
       "season": "2022-2023",
-      "start_time": "2023-02-18T04:00:00Z",
+      "start_time": "2023-02-17T23:00:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -1131,7 +1131,7 @@
     {
       "game_id": "game-vs-north-carolina-state-on-09082023-lmo2ms07",
       "season": "2023-2024",
-      "start_time": "2023-09-09T04:15:00Z",
+      "start_time": "2023-09-09T00:15:00Z",
       "home_team": {
         "name": "North Carolina State",
         "city": "Unknown",
@@ -1164,7 +1164,7 @@
     {
       "game_id": "game-vs-appalachian-state-on-09152023-lmo2psfa",
       "season": "2023-2024",
-      "start_time": "2023-09-16T06:30:00Z",
+      "start_time": "2023-09-16T02:30:00Z",
       "home_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
@@ -1197,7 +1197,7 @@
     {
       "game_id": "game-vs-charlotte-on-09232023-lmo2u9j9",
       "season": "2023-2024",
-      "start_time": "2023-09-24T04:30:00Z",
+      "start_time": "2023-09-24T00:30:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -1227,7 +1227,7 @@
     {
       "game_id": "game-vs-north-carolina-on-09302023-lmo2vttj",
       "season": "2023-2024",
-      "start_time": "2023-10-01T02:15:00Z",
+      "start_time": "2023-09-30T22:15:00Z",
       "home_team": {
         "name": "North Carolina",
         "city": "Unknown",
@@ -1257,7 +1257,7 @@
     {
       "game_id": "game-vs-high-point-on-10022023-ln9g3d0p",
       "season": "2023-2024",
-      "start_time": "2023-10-01T19:00:00Z",
+      "start_time": "2023-10-01T15:00:00Z",
       "home_team": {
         "name": "High Point University",
         "city": "Unknown",
@@ -1287,7 +1287,7 @@
     {
       "game_id": "game-vs-costal-carolina-on-10132023-lmo2wowj",
       "season": "2023-2024",
-      "start_time": "2023-10-14T04:45:00Z",
+      "start_time": "2023-10-14T00:45:00Z",
       "home_team": {
         "name": "Coastal Carolina",
         "city": "Unknown",
@@ -1317,7 +1317,7 @@
     {
       "game_id": "game-vs-duke-on-10202023-lmo2y6jm",
       "season": "2023-2024",
-      "start_time": "2023-10-21T06:15:00Z",
+      "start_time": "2023-10-21T02:15:00Z",
       "home_team": {
         "name": "Duke University",
         "city": "Unknown",
@@ -1347,7 +1347,7 @@
     {
       "game_id": "game-vs-ucf-on-10272023-lmo339na",
       "season": "2023-2024",
-      "start_time": "2023-10-28T05:00:00Z",
+      "start_time": "2023-10-28T01:00:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -1377,7 +1377,7 @@
     {
       "game_id": "game-vs-st-joes-on-11032023-lncalx7o",
       "season": "2023-2024",
-      "start_time": "2023-11-03T22:45:00Z",
+      "start_time": "2023-11-03T18:45:00Z",
       "home_team": {
         "name": "St. Joes",
         "city": "Unknown",
@@ -1407,7 +1407,7 @@
     {
       "game_id": "game-vs-charlotte-on-11042023-lncamkln",
       "season": "2023-2024",
-      "start_time": "2023-11-05T08:30:00Z",
+      "start_time": "2023-11-05T03:30:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -1437,7 +1437,7 @@
     {
       "game_id": "game-vs-duke-on-11052023-lncanszc",
       "season": "2023-2024",
-      "start_time": "2023-11-05T17:15:00Z",
+      "start_time": "2023-11-05T12:15:00Z",
       "home_team": {
         "name": "Duke University",
         "city": "Unknown",
@@ -1467,7 +1467,7 @@
     {
       "game_id": "game-vs-west-virginia-universtiy-on-11102023-lmo354ds",
       "season": "2023-2024",
-      "start_time": "2023-11-11T04:45:00Z",
+      "start_time": "2023-11-10T23:45:00Z",
       "home_team": {
         "name": "West Virginia Universtiy",
         "city": "Unknown",
@@ -1497,7 +1497,7 @@
     {
       "game_id": "game-vs-elon-on-01122024-lrazkz3b",
       "season": "2023-2024",
-      "start_time": "2024-01-13T08:15:00Z",
+      "start_time": "2024-01-13T03:15:00Z",
       "home_team": {
         "name": "Elon University",
         "city": "Unknown",
@@ -1530,7 +1530,7 @@
     {
       "game_id": "game-vs-stevenson-on-01192024-lrazm0k1",
       "season": "2023-2024",
-      "start_time": "2024-01-20T04:00:00Z",
+      "start_time": "2024-01-19T23:00:00Z",
       "home_team": {
         "name": "Stevenson",
         "city": "Unknown",
@@ -1560,7 +1560,7 @@
     {
       "game_id": "game-vs-wake-forest-university-on-01262024-lrazpgs0",
       "season": "2023-2024",
-      "start_time": "2024-01-27T03:30:00Z",
+      "start_time": "2024-01-26T22:30:00Z",
       "home_team": {
         "name": "Wake Forest University",
         "city": "Unknown",
@@ -1590,7 +1590,7 @@
     {
       "game_id": "game-vs-elon-on-01122024-lrazq9o2",
       "season": "2023-2024",
-      "start_time": "2024-02-04T07:15:00Z",
+      "start_time": "2024-02-04T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -1620,7 +1620,7 @@
     {
       "game_id": "game-vs-wake-forest-university-on-02102024-lrazrqyq",
       "season": "2023-2024",
-      "start_time": "2024-02-11T07:00:00Z",
+      "start_time": "2024-02-11T02:00:00Z",
       "home_team": {
         "name": "Wake Forest University",
         "city": "Unknown",
@@ -1650,7 +1650,7 @@
     {
       "game_id": "game-vs-charlotte-on-02152024-lsj9ioo4",
       "season": "2023-2024",
-      "start_time": "2024-02-16T05:30:00Z",
+      "start_time": "2024-02-16T00:30:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -1680,7 +1680,7 @@
     {
       "game_id": "game-vs-uncw-on-09062024-lyiv7z2y",
       "season": "2024-2025",
-      "start_time": "2024-09-07T06:00:00Z",
+      "start_time": "2024-09-07T02:00:00Z",
       "home_team": {
         "name": "UNC Wilmington",
         "city": "Unknown",
@@ -1710,7 +1710,7 @@
     {
       "game_id": "game-vs-wake-forest-university-on-09212024-lyivcqpj",
       "season": "2024-2025",
-      "start_time": "2024-09-22T02:00:00Z",
+      "start_time": "2024-09-21T22:00:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -1740,7 +1740,7 @@
     {
       "game_id": "game-vs-elon-on-10042024-lyivf1e9",
       "season": "2024-2025",
-      "start_time": "2024-10-05T05:15:00Z",
+      "start_time": "2024-10-05T01:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -1770,7 +1770,7 @@
     {
       "game_id": "game-vs-high-point-on-10112024-lz8g6wol",
       "season": "2024-2025",
-      "start_time": "2024-10-12T04:15:00Z",
+      "start_time": "2024-10-12T00:15:00Z",
       "home_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
@@ -1800,7 +1800,7 @@
     {
       "game_id": "game-vs-george-washington-university-on-10252024-lyiyje16",
       "season": "2024-2025",
-      "start_time": "2024-10-26T06:30:00Z",
+      "start_time": "2024-10-26T02:30:00Z",
       "home_team": {
         "name": "George Washington University",
         "city": "Unknown",
@@ -1830,7 +1830,7 @@
     {
       "game_id": "game-vs-wake-forest-university-on-10262024-lyiylfdj",
       "season": "2024-2025",
-      "start_time": "2024-10-27T03:30:00Z",
+      "start_time": "2024-10-26T23:30:00Z",
       "home_team": {
         "name": "Wake Forest University",
         "city": "Unknown",
@@ -1860,7 +1860,7 @@
     {
       "game_id": "game-vs-tbd-on-11012024-lyixzd7k",
       "season": "2024-2025",
-      "start_time": "2024-11-01T22:45:00Z",
+      "start_time": "2024-11-01T18:45:00Z",
       "home_team": {
         "name": "St. Joesph's",
         "city": "Unknown",
@@ -1890,7 +1890,7 @@
     {
       "game_id": "game-vs-tbd-on-11022024-lyiy0ax4",
       "season": "2024-2025",
-      "start_time": "2024-11-02T18:30:00Z",
+      "start_time": "2024-11-02T14:30:00Z",
       "home_team": {
         "name": "George Washington University",
         "city": "Unknown",
@@ -1920,7 +1920,7 @@
     {
       "game_id": "game-vs-tbd-on-11032024-lyiy0vyu",
       "season": "2024-2025",
-      "start_time": "2024-11-03T19:45:00Z",
+      "start_time": "2024-11-03T14:45:00Z",
       "home_team": {
         "name": "Denison University",
         "city": "Unknown",
@@ -1950,7 +1950,7 @@
     {
       "game_id": "game-vs-uva-on-11102024-lyiwik7v",
       "season": "2024-2025",
-      "start_time": "2024-11-10T19:00:00Z",
+      "start_time": "2024-11-10T14:00:00Z",
       "home_team": {
         "name": "University of Virginia",
         "city": "Unknown",
@@ -1980,7 +1980,7 @@
     {
       "game_id": "game-vs-south-carolina-on-11162024-m3bz3zlc",
       "season": "2024-2025",
-      "start_time": "2024-11-16T06:00:00Z",
+      "start_time": "2024-11-16T01:00:00Z",
       "home_team": {
         "name": "South Carolina",
         "city": "Unknown",
@@ -2010,7 +2010,7 @@
     {
       "game_id": "game-vs-west-chester-university-on-11232024-lyiwuc3k",
       "season": "2024-2025",
-      "start_time": "2024-11-24T07:15:00Z",
+      "start_time": "2024-11-24T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2040,7 +2040,7 @@
     {
       "game_id": "game-vs-ucf-on-01102025-lyiwxkmn",
       "season": "2024-2025",
-      "start_time": "2025-01-12T21:00:00Z",
+      "start_time": "2025-01-12T16:00:00Z",
       "home_team": {
         "name": "UCF",
         "city": "Unknown",
@@ -2070,7 +2070,7 @@
     {
       "game_id": "game-vs-duke-on-01172025-lyiwzma7",
       "season": "2024-2025",
-      "start_time": "2025-01-18T08:15:00Z",
+      "start_time": "2025-01-18T03:15:00Z",
       "home_team": {
         "name": "Duke University",
         "city": "Unknown",
@@ -2103,7 +2103,7 @@
     {
       "game_id": "game-vs-duke-on-01182025-m61u4305",
       "season": "2024-2025",
-      "start_time": "2025-01-19T07:15:55Z",
+      "start_time": "2025-01-19T02:15:55Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2133,7 +2133,7 @@
     {
       "game_id": "game-vs-citadel-on-01262025-lzen0bl8",
       "season": "2024-2025",
-      "start_time": "2025-01-26T20:30:00Z",
+      "start_time": "2025-01-26T15:30:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2163,7 +2163,7 @@
     {
       "game_id": "game-vs-duke-on-02012025-lyix3sgi",
       "season": "2024-2025",
-      "start_time": "2025-02-02T07:15:00Z",
+      "start_time": "2025-02-02T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2193,7 +2193,7 @@
     {
       "game_id": "game-vs-high-point-on-02022025-lz8g8e4n",
       "season": "2024-2025",
-      "start_time": "2025-02-02T19:00:00Z",
+      "start_time": "2025-02-02T14:00:00Z",
       "home_team": {
         "name": "High Point University",
         "city": "Unknown",
@@ -2223,7 +2223,7 @@
     {
       "game_id": "game-vs-richmond-university-on-02082025-lyix5zzl",
       "season": "2024-2025",
-      "start_time": "2025-02-09T07:10:00Z",
+      "start_time": "2025-02-09T02:10:00Z",
       "home_team": {
         "name": "Richmond University",
         "city": "Unknown",
@@ -2253,7 +2253,7 @@
     {
       "game_id": "game-vs-alabama-d3-on-09122025-mem3yhoz",
       "season": "2025-2026",
-      "start_time": "2025-09-13T06:15:00Z",
+      "start_time": "2025-09-13T02:15:00Z",
       "home_team": {
         "name": "University of Alabama (D2)",
         "city": "Unknown",
@@ -2283,7 +2283,7 @@
     {
       "game_id": "game-vs-alabama-d3-on-09142025-mem3zdgh",
       "season": "2025-2026",
-      "start_time": "2025-09-14T18:30:00Z",
+      "start_time": "2025-09-14T14:30:00Z",
       "home_team": {
         "name": "University of Alabama (D2)",
         "city": "Unknown",
@@ -2313,7 +2313,7 @@
     {
       "game_id": "game-vs-uncw-on-09192025-mem48718",
       "season": "2025-2026",
-      "start_time": "2025-09-20T06:00:00Z",
+      "start_time": "2025-09-20T02:00:00Z",
       "home_team": {
         "name": "UNC Wilmington",
         "city": "Unknown",
@@ -2343,7 +2343,7 @@
     {
       "game_id": "game-vs-stevenson-on-09262025-mem4efvl",
       "season": "2025-2026",
-      "start_time": "2025-09-27T02:30:00Z",
+      "start_time": "2025-09-26T22:30:00Z",
       "home_team": {
         "name": "Stevenson",
         "city": "Unknown",
@@ -2373,7 +2373,7 @@
     {
       "game_id": "game-vs-william-mary-on-09272025-mfq2u6vd",
       "season": "2025-2026",
-      "start_time": "2025-09-27T22:30:00Z",
+      "start_time": "2025-09-27T18:30:00Z",
       "home_team": {
         "name": "William & Mary",
         "city": "Unknown",
@@ -2403,7 +2403,7 @@
     {
       "game_id": "game-vs-wake-forest-university-on-10032025-mem4hx7c",
       "season": "2025-2026",
-      "start_time": "2025-10-04T04:00:00Z",
+      "start_time": "2025-10-04T00:00:00Z",
       "home_team": {
         "name": "Wake Forest University",
         "city": "Unknown",
@@ -2433,7 +2433,7 @@
     {
       "game_id": "game-vs-elon-on-10042025-mem4m9k0",
       "season": "2025-2026",
-      "start_time": "2025-10-05T06:00:00Z",
+      "start_time": "2025-10-05T02:00:00Z",
       "home_team": {
         "name": "Elon University",
         "city": "Unknown",
@@ -2466,7 +2466,7 @@
     {
       "game_id": "game-vs-coastal-carolina-on-10102025-mermfunl",
       "season": "2025-2026",
-      "start_time": "2025-10-11T03:30:00Z",
+      "start_time": "2025-10-10T23:30:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2496,7 +2496,7 @@
     {
       "game_id": "game-vs-charlotte-on-10182025-memu79jc",
       "season": "2025-2026",
-      "start_time": "2025-10-19T06:00:00Z",
+      "start_time": "2025-10-19T02:00:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -2526,7 +2526,7 @@
     {
       "game_id": "game-vs-appalachian-state-on-10242025-memu9g3k",
       "season": "2025-2026",
-      "start_time": "2025-10-26T02:30:00Z",
+      "start_time": "2025-10-25T22:30:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2556,7 +2556,7 @@
     {
       "game_id": "game-vs-appalachian-state-on-10252025-memuafxd",
       "season": "2025-2026",
-      "start_time": "2025-10-26T22:00:00Z",
+      "start_time": "2025-10-26T18:00:00Z",
       "home_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
@@ -2586,7 +2586,7 @@
     {
       "game_id": "game-vs-north-carolina-on-11072025-met31ocx",
       "season": "2025-2026",
-      "start_time": "2025-11-08T07:15:00Z",
+      "start_time": "2025-11-08T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2616,7 +2616,7 @@
     {
       "game_id": "game-vs-tbd-on-11142025-memuboc2",
       "season": "2025-2026",
-      "start_time": "2025-11-14T19:45:00Z",
+      "start_time": "2025-11-14T14:45:00Z",
       "home_team": {
         "name": "Georgetown University",
         "city": "Unknown",
@@ -2646,7 +2646,7 @@
     {
       "game_id": "game-vs-tbd-on-11152025-memucmlv",
       "season": "2025-2026",
-      "start_time": "2025-11-15T18:15:00Z",
+      "start_time": "2025-11-15T13:15:00Z",
       "home_team": {
         "name": "St. Joesph's",
         "city": "Unknown",
@@ -2676,7 +2676,7 @@
     {
       "game_id": "game-vs-tbd-on-11162025-memudccm",
       "season": "2025-2026",
-      "start_time": "2025-11-16T22:00:00Z",
+      "start_time": "2025-11-16T17:00:00Z",
       "home_team": {
         "name": "James Madison University",
         "city": "Unknown",
@@ -2706,7 +2706,7 @@
     {
       "game_id": "game-vs-georgia-tech-on-11202025-memuks0e",
       "season": "2025-2026",
-      "start_time": "2025-11-21T05:30:00Z",
+      "start_time": "2025-11-21T00:30:00Z",
       "home_team": {
         "name": "Georgia Tech",
         "city": "Unknown",
@@ -2736,7 +2736,7 @@
     {
       "game_id": "game-vs-wake-forest-university-on-01102026-mk3el4qc",
       "season": "2025-2026",
-      "start_time": "2026-01-10T23:15:00Z",
+      "start_time": "2026-01-10T18:15:00Z",
       "home_team": {
         "name": "Wake Forest University",
         "city": "Unknown",
@@ -2766,7 +2766,7 @@
     {
       "game_id": "game-vs-george-washington-university-on-01172026-mk3enp8g",
       "season": "2025-2026",
-      "start_time": "2026-01-18T07:15:00Z",
+      "start_time": "2026-01-18T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2796,7 +2796,7 @@
     {
       "game_id": "game-vs-charlotte-on-01232026-mk3epgxf",
       "season": "2025-2026",
-      "start_time": "2026-01-23T22:00:00Z",
+      "start_time": "2026-01-23T17:00:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -2826,7 +2826,7 @@
     {
       "game_id": "game-vs-elon-on-01242026-mk3eqlfs",
       "season": "2025-2026",
-      "start_time": "2026-01-25T07:15:00Z",
+      "start_time": "2026-01-25T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -2856,7 +2856,7 @@
     {
       "game_id": "game-vs-elon-on-02062026-mk3es0pl",
       "season": "2025-2026",
-      "start_time": "2026-02-07T08:15:00Z",
+      "start_time": "2026-02-07T03:15:00Z",
       "home_team": {
         "name": "Elon University",
         "city": "Unknown",
@@ -2889,7 +2889,7 @@
     {
       "game_id": "game-vs-appalachian-state-on-02102026-mlhd2qyg",
       "season": "2025-2026",
-      "start_time": "2026-02-11T02:16:02Z",
+      "start_time": "2026-02-10T21:16:02Z",
       "home_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
@@ -2919,7 +2919,7 @@
     {
       "game_id": "game-vs-alabama-d2-on-09042026-mrxghe3d",
       "season": "2026-2027",
-      "start_time": "2026-09-05T04:00:00Z",
+      "start_time": "2026-09-05T00:00:00Z",
       "home_team": {
         "name": "University of Alabama (D2)",
         "city": "Unknown",
@@ -2949,7 +2949,7 @@
     {
       "game_id": "game-vs-alabama-d2-on-09062026-mrxgj4xd",
       "season": "2026-2027",
-      "start_time": "2026-09-06T21:00:00Z",
+      "start_time": "2026-09-06T17:00:00Z",
       "home_team": {
         "name": "University of Alabama (D2)",
         "city": "Unknown",
@@ -2979,7 +2979,7 @@
     {
       "game_id": "game-vs-duke-on-07232026-mrxgoqop",
       "season": "2026-2027",
-      "start_time": "2026-09-12T05:00:00Z",
+      "start_time": "2026-09-12T01:00:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -3009,7 +3009,7 @@
     {
       "game_id": "game-vs-charlotte-on-09192026-mrxgmz79",
       "season": "2026-2027",
-      "start_time": "2026-09-20T04:00:00Z",
+      "start_time": "2026-09-20T00:00:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -3039,7 +3039,7 @@
     {
       "game_id": "game-vs-charlotte-on-10092026-msyx0jgc",
       "season": "2026-2027",
-      "start_time": "2026-10-10T04:29:00Z",
+      "start_time": "2026-10-10T00:29:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -3069,7 +3069,7 @@
     {
       "game_id": "game-vs-clemson-on-07232026-mrxgwmq7",
       "season": "2026-2027",
-      "start_time": "2026-10-17T02:00:00Z",
+      "start_time": "2026-10-16T22:00:00Z",
       "home_team": {
         "name": "Clemson University",
         "city": "Unknown",
@@ -3099,7 +3099,7 @@
     {
       "game_id": "game-vs-clemson-on-10182026-mrxgyqol",
       "season": "2026-2027",
-      "start_time": "2026-10-18T19:45:00Z",
+      "start_time": "2026-10-18T15:45:00Z",
       "home_team": {
         "name": "Clemson University",
         "city": "Unknown",
@@ -3129,7 +3129,7 @@
     {
       "game_id": "game-vs-george-washington-university-on-10232026-mrxh0vrf",
       "season": "2026-2027",
-      "start_time": "2026-10-24T05:00:00Z",
+      "start_time": "2026-10-24T01:00:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -3159,7 +3159,7 @@
     {
       "game_id": "game-vs-christopher-newport-on-10242026-mrxh2ee5",
       "season": "2026-2027",
-      "start_time": "2026-10-24T21:45:00Z",
+      "start_time": "2026-10-24T17:45:00Z",
       "home_team": {
         "name": "Christopher Newport",
         "city": "Unknown",
@@ -3189,7 +3189,7 @@
     {
       "game_id": "game-vs-tbd-on-11062026-mry17c87",
       "season": "2026-2027",
-      "start_time": "2026-11-06T20:30:00Z",
+      "start_time": "2026-11-06T15:30:00Z",
       "home_team": {
         "name": "TBD",
         "city": "Unknown",
@@ -3219,7 +3219,7 @@
     {
       "game_id": "game-vs-tbd-on-11072026-mry18jcr",
       "season": "2026-2027",
-      "start_time": "2026-11-07T22:00:00Z",
+      "start_time": "2026-11-07T17:00:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -3249,7 +3249,7 @@
     {
       "game_id": "game-vs-high-point-on-11142026-mrxh6oid",
       "season": "2026-2027",
-      "start_time": "2026-11-15T04:45:00Z",
+      "start_time": "2026-11-14T23:45:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -3279,7 +3279,7 @@
     {
       "game_id": "game-vs-duke-on-01082027-mry1cna4",
       "season": "2026-2027",
-      "start_time": "2027-01-09T02:45:00Z",
+      "start_time": "2027-01-08T21:45:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
