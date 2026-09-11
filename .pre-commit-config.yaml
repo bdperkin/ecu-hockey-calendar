@@ -18,6 +18,7 @@ ci:
     - uv-audit
     - semgrep-ci
     - pyroma
+    - hadolint
 repos:
   - repo: meta
     hooks:
@@ -136,6 +137,14 @@ repos:
     hooks:
       - id: djlint-reformat
       - id: djlint
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.15.1
+    hooks:
+      - id: hadolint
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.38.0
+    hooks:
+      - id: check-compose-spec
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:

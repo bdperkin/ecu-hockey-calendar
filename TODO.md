@@ -371,7 +371,7 @@ ______________________________________________________________________
   - **Summary:** Add automated linting and formatting for all Jinja2 HTML templates across pre-commit, Makefile, and GitHub Actions CI.
   - **Description:** Add `djlint` to `pyproject.toml` with Jinja profile configuration, register the `djlint` pre-commit hook targeting `*.html`, add `format-html` and `lint-html` targets to `Makefile` wired into `make format` and `make lint`, resolve the 66 initial template lint findings across existing templates, and add template lint verification to `.github/workflows/ci.yml`.
 
-- [ ] **[#127](https://github.com/bdperkin/ecu-hockey-calendar/issues/127) - ci(docker): add Dockerfile linting with Hadolint and Compose validation**
+- [x] **[#127](https://github.com/bdperkin/ecu-hockey-calendar/issues/127) - ci(docker): add Dockerfile linting with Hadolint and Compose validation**
 
   - **Summary:** Introduce automated Dockerfile linting with Hadolint and validate `docker-compose.yml` against the official Compose specification.
   - **Description:** Add `hadolint/hadolint` to `.pre-commit-config.yaml`, resolve the `DL3025` shell-form warning in `Dockerfile`'s health check probe, add `make lint-docker` to `Makefile`, and integrate `hadolint/hadolint-action@v3` and `check-jsonschema` Compose specification validation into CI.
