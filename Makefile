@@ -24,13 +24,17 @@ lock: ## Update uv lockfile
 	$(UV) lock
 
 .PHONY: format
-format: ## Auto-format code, markdown, toml, and yaml
+format: format-html ## Auto-format code, markdown, toml, yaml, and templates
 	$(UV) run ruff format src tests tools
 	$(UV) run ruff check --fix src tests tools
 	$(UV) run pyproject-fmt pyproject.toml || true
 	$(UV) run mdformat --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md DEPLOYMENT.md docs/*.md || true
 	$(UV) run yamlfix codecov.yml .pre-commit-config.yaml .github/dependabot.yml .github/workflows/*.yml
 	$(UV) run python tools/update_toc.py || true
+
+.PHONY: format-html
+format-html: ## Auto-format HTML and Jinja templates with djlint
+	$(UV) run djlint --reformat src/ecu_hockey_calendar/api/templates
 
 .PHONY: lint-ruff
 lint-ruff: ## Run ruff linter
@@ -70,8 +74,13 @@ lint-md: ## Lint markdown files
 lint-yaml: ## Check yaml format
 	$(UV) run yamlfix --check codecov.yml .pre-commit-config.yaml .github/dependabot.yml .github/workflows/*.yml
 
+.PHONY: lint-html
+lint-html: ## Lint and check HTML and Jinja templates with djlint
+	$(UV) run djlint --check src/ecu_hockey_calendar/api/templates
+	$(UV) run djlint --lint src/ecu_hockey_calendar/api/templates
+
 .PHONY: lint
-lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml ## Run all linter checks
+lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html ## Run all linter checks
 
 .PHONY: typecheck
 typecheck: ## Run strict ty static type checker

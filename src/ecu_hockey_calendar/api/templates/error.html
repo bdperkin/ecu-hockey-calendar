@@ -3,7 +3,7 @@
 {% block title %}{{ error_title }} - ECU Hockey Calendar{% endblock %}
 
 {% block extra_styles %}
-<style>
+    <style>
   .error-container {
     max-width: 960px;
     margin: 1.5rem auto;
@@ -261,97 +261,97 @@
     flex-wrap: wrap;
     margin-top: 1.5rem;
   }
-</style>
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="error-container">
-  <div class="error-card error-card-{{ status_code }}">
-    <div class="error-header">
-      <div>
-        <h1 class="error-title">{{ error_title }}</h1>
-        <p class="error-lead">{{ error_message }}</p>
-      </div>
-      <span class="error-code-badge error-code-{{ status_code }}">HTTP {{ status_code }}</span>
-    </div>
+    <div class="error-container">
+        <div class="error-card error-card-{{ status_code }}">
+            <div class="error-header">
+                <div>
+                    <h1 class="error-title">{{ error_title }}</h1>
+                    <p class="error-lead">{{ error_message }}</p>
+                </div>
+                <span class="error-code-badge error-code-{{ status_code }}">HTTP {{ status_code }}</span>
+            </div>
 
-    {% if error_detail and error_detail != error_message %}
-    <div class="error-detail-box">
-      <strong>Details:</strong> <code>{{ error_detail }}</code>
-    </div>
-    {% endif %}
+            {% if error_detail and error_detail != error_message %}
+                <div class="error-detail-box">
+                    <strong>Details:</strong> <code>{{ error_detail }}</code>
+                </div>
+            {% endif %}
 
-    {% if status_code == 401 %}
-    <div class="error-auth-card">
-      <h3>Administrative Authentication Required</h3>
-      <p>This endpoint requires administrative authorization. You can authenticate by supplying a valid administrator token via either of the following HTTP request headers:</p>
-      <div class="auth-snippet">
-        <code>Authorization: Bearer &lt;ADMIN_TOKEN&gt;</code>
-      </div>
-      <div class="auth-snippet">
-        <code>X-API-Key: &lt;ADMIN_TOKEN&gt;</code>
-      </div>
-      <p style="margin-top: 0.5rem; margin-bottom: 0;">
-        Tokens are configured on the server via the <code>ECU_HOCKEY_ADMIN_TOKEN</code> environment variable.
-      </p>
-    </div>
-    {% endif %}
+            {% if status_code == 401 %}
+                <div class="error-auth-card">
+                    <h3>Administrative Authentication Required</h3>
+                    <p>This endpoint requires administrative authorization. You can authenticate by supplying a valid administrator token via either of the following HTTP request headers:</p>
+                    <div class="auth-snippet">
+                        <code>Authorization: Bearer &lt;ADMIN_TOKEN&gt;</code>
+                    </div>
+                    <div class="auth-snippet">
+                        <code>X-API-Key: &lt;ADMIN_TOKEN&gt;</code>
+                    </div>
+                    <p style="margin-top: 0.5rem; margin-bottom: 0;">
+                        Tokens are configured on the server via the <code>ECU_HOCKEY_ADMIN_TOKEN</code> environment variable.
+                    </p>
+                </div>
+            {% endif %}
 
-    {% if validation_errors %}
-    <div class="validation-section">
-      <h3>Validation Errors ({{ validation_errors | length }})</h3>
-      <div class="validation-table-wrapper">
-        <table class="validation-table">
-          <thead>
-            <tr>
-              <th>Field / Location</th>
-              <th>Problem</th>
-              <th>Supplied Value</th>
-              <th>Rule Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for err in validation_errors %}
-            <tr>
-              <td class="val-field">{{ err.field }}</td>
-              <td>{{ err.message }}</td>
-              <td><code class="val-input">{{ err.input }}</code></td>
-              <td><span class="val-type">{{ err.type }}</span></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {% endif %}
+            {% if validation_errors %}
+                <div class="validation-section">
+                    <h3>Validation Errors ({{ validation_errors | length }})</h3>
+                    <div class="validation-table-wrapper">
+                        <table class="validation-table">
+                            <thead>
+                                <tr>
+                                    <th>Field / Location</th>
+                                    <th>Problem</th>
+                                    <th>Supplied Value</th>
+                                    <th>Rule Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for err in validation_errors %}
+                                    <tr>
+                                        <td class="val-field">{{ err.field }}</td>
+                                        <td>{{ err.message }}</td>
+                                        <td><code class="val-input">{{ err.input }}</code></td>
+                                        <td><span class="val-type">{{ err.type }}</span></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
 
-    <div class="error-actions">
-      <a href="/schedule" class="btn btn-primary">View Schedule</a>
-      <a href="/" class="btn btn-secondary">Service Home</a>
-      <a href="/docs" class="btn btn-outline">API Documentation</a>
-    </div>
+            <div class="error-actions">
+                <a href="/schedule" class="btn btn-primary">View Schedule</a>
+                <a href="/" class="btn btn-secondary">Service Home</a>
+                <a href="/docs" class="btn btn-outline">API Documentation</a>
+            </div>
 
-    <div class="quick-links-section">
-      <h3>Helpful Navigation</h3>
-      <div class="quick-links-grid">
-        <a href="/" class="quick-link-card">
-          <span class="quick-link-title">Home Directory</span>
-          <span class="quick-link-desc">Return to the API service index and overview.</span>
-        </a>
-        <a href="/schedule" class="quick-link-card">
-          <span class="quick-link-title">Full Schedule</span>
-          <span class="quick-link-desc">Browse upcoming and past ECU Hockey games.</span>
-        </a>
-        <a href="/health" class="quick-link-card">
-          <span class="quick-link-title">System Health</span>
-          <span class="quick-link-desc">Inspect subsystem operational telemetry and scrapers.</span>
-        </a>
-        <a href="/docs" class="quick-link-card">
-          <span class="quick-link-title">Interactive API Docs</span>
-          <span class="quick-link-desc">Explore Swagger UI documentation and schemas.</span>
-        </a>
-      </div>
+            <div class="quick-links-section">
+                <h3>Helpful Navigation</h3>
+                <div class="quick-links-grid">
+                    <a href="/" class="quick-link-card">
+                        <span class="quick-link-title">Home Directory</span>
+                        <span class="quick-link-desc">Return to the API service index and overview.</span>
+                    </a>
+                    <a href="/schedule" class="quick-link-card">
+                        <span class="quick-link-title">Full Schedule</span>
+                        <span class="quick-link-desc">Browse upcoming and past ECU Hockey games.</span>
+                    </a>
+                    <a href="/health" class="quick-link-card">
+                        <span class="quick-link-title">System Health</span>
+                        <span class="quick-link-desc">Inspect subsystem operational telemetry and scrapers.</span>
+                    </a>
+                    <a href="/docs" class="quick-link-card">
+                        <span class="quick-link-title">Interactive API Docs</span>
+                        <span class="quick-link-desc">Explore Swagger UI documentation and schemas.</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 {% endblock %}

@@ -366,7 +366,7 @@ ______________________________________________________________________
 
 #### 2.7.1. Phase 7.1: Multi-Format Tooling & Quality Gate Hardening
 
-- [ ] **[#126](https://github.com/bdperkin/ecu-hockey-calendar/issues/126) - chore(tooling): add HTML and Jinja2 template linting and formatting with djlint**
+- [x] **[#126](https://github.com/bdperkin/ecu-hockey-calendar/issues/126) - chore(tooling): add HTML and Jinja2 template linting and formatting with djlint**
 
   - **Summary:** Add automated linting and formatting for all Jinja2 HTML templates across pre-commit, Makefile, and GitHub Actions CI.
   - **Description:** Add `djlint` to `pyproject.toml` with Jinja profile configuration, register the `djlint` pre-commit hook targeting `*.html`, add `format-html` and `lint-html` targets to `Makefile` wired into `make format` and `make lint`, resolve the 66 initial template lint findings across existing templates, and add template lint verification to `.github/workflows/ci.yml`.

@@ -3,7 +3,7 @@
 {% block title %}{{ data.name }} - Service Directory &amp; Status{% endblock %}
 
 {% block extra_styles %}
-<style>
+    <style>
   .root-hero {
     background: #ffffff;
     border: 1px solid var(--border-color);
@@ -256,84 +256,87 @@
     display: inline-block;
     width: fit-content;
   }
-</style>
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="root-container">
-  <!-- Hero Section -->
-  <section class="root-hero">
-    <div class="hero-header">
-      <div class="hero-title-group">
-        <h2>{{ data.name }}</h2>
-        <div class="hero-badges">
-          <span class="badge-status-online">
-            <span class="status-dot"></span>
-            {{ data.status | upper }}
-          </span>
-          <span class="badge-version-pill">v{{ data.version }}</span>
-        </div>
-      </div>
-    </div>
-    <p class="hero-desc">
-      Official real-time calendar subscription feeds, responsive schedule views, and machine-readable REST API endpoints for East Carolina University Men's Ice Hockey (ACHA M2 / ACCHL).
-    </p>
-    <div class="hero-actions">
-      <a href="/schedule" class="btn btn-primary">View Schedule</a>
-      <a href="/calendar.ics" class="btn btn-secondary">Subscribe (.ics)</a>
-      <a href="/docs" class="btn btn-outline">API Docs</a>
-      <a href="{{ json_url }}" class="btn btn-outline" id="hero-view-as-json-btn">View as JSON</a>
-    </div>
-  </section>
+    <div class="root-container">
+        <!-- Hero Section -->
+        <section class="root-hero">
+            <div class="hero-header">
+                <div class="hero-title-group">
+                    <h2>{{ data.name }}</h2>
+                    <div class="hero-badges">
+                        <span class="badge-status-online">
+                            <span class="status-dot"></span>
+                            {{ data.status | upper }}
+                        </span>
+                        <span class="badge-version-pill">v{{ data.version }}</span>
+                    </div>
+                </div>
+            </div>
+            <p class="hero-desc">
+                Official real-time calendar subscription feeds, responsive schedule views, and machine-readable REST API endpoints for East Carolina University Men's Ice Hockey (ACHA M2 / ACCHL).
+            </p>
+            <div class="hero-actions">
+                <a href="/schedule" class="btn btn-primary">View Schedule</a>
+                <a href="/calendar.ics" class="btn btn-secondary">Subscribe (.ics)</a>
+                <a href="/docs" class="btn btn-outline">API Docs</a>
+                <a href="{{ json_url }}"
+                   class="btn btn-outline"
+                   id="hero-view-as-json-btn">View as JSON</a>
+            </div>
+        </section>
 
-  <!-- Prominent Calendar Subscription Showcase -->
-  <section class="subscription-showcase">
-    <div class="subscription-content">
-      <div>
-        <h3 class="sub-heading">Live Calendar Subscription</h3>
-        <p class="sub-text">
-          Never miss a puck drop. Add Pirates game fixtures, start times, and rink directions directly to your personal calendar. Automatically updates whenever games are rescheduled or final scores are published.
-        </p>
-        <div class="sub-links-box">
-          <div class="sub-link-row">
-            <span class="sub-link-tag">Standard iCal URL:</span>
-            <a href="/calendar.ics" class="sub-link-code">/calendar.ics</a>
-          </div>
-          <div class="sub-link-row">
-            <span class="sub-link-tag">Webcal Protocol:</span>
-            <span class="sub-link-code">webcal://{{ request.url.netloc }}/calendar.ics</span>
-          </div>
-        </div>
-      </div>
-      <div class="sub-guide-box">
-        <a href="https://github.com/bdperkin/ecu-hockey-calendar/blob/main/docs/calendar_sync.md" target="_blank" rel="noopener noreferrer" class="btn btn-gold">
-          Calendar Sync Guide &rarr;
-        </a>
-        <span class="sync-note">Setup instructions for Apple, Google, and Outlook</span>
-      </div>
-    </div>
-  </section>
+        <!-- Prominent Calendar Subscription Showcase -->
+        <section class="subscription-showcase">
+            <div class="subscription-content">
+                <div>
+                    <h3 class="sub-heading">Live Calendar Subscription</h3>
+                    <p class="sub-text">
+                        Never miss a puck drop. Add Pirates game fixtures, start times, and rink directions directly to your personal calendar. Automatically updates whenever games are rescheduled or final scores are published.
+                    </p>
+                    <div class="sub-links-box">
+                        <div class="sub-link-row">
+                            <span class="sub-link-tag">Standard iCal URL:</span>
+                            <a href="/calendar.ics" class="sub-link-code">/calendar.ics</a>
+                        </div>
+                        <div class="sub-link-row">
+                            <span class="sub-link-tag">Webcal Protocol:</span>
+                            <span class="sub-link-code">webcal://{{ request.url.netloc }}/calendar.ics</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sub-guide-box">
+                    <a href="https://github.com/bdperkin/ecu-hockey-calendar/blob/main/docs/calendar_sync.md"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="btn btn-gold">Calendar Sync Guide →</a>
+                    <span class="sync-note">Setup instructions for Apple, Google, and Outlook</span>
+                </div>
+            </div>
+        </section>
 
-  <!-- Endpoints Directory -->
-  <section class="endpoints-section">
-    <div class="endpoints-header">
-      <h3>Service Endpoints Directory</h3>
-      <p>Navigate directly to interactive tools, schedule views, data feeds, or developer APIs:</p>
-    </div>
+        <!-- Endpoints Directory -->
+        <section class="endpoints-section">
+            <div class="endpoints-header">
+                <h3>Service Endpoints Directory</h3>
+                <p>Navigate directly to interactive tools, schedule views, data feeds, or developer APIs:</p>
+            </div>
 
-    <div class="endpoints-grid">
-      {% if data.endpoints %}
-      {% for key, path in data.endpoints.items() %}
-      <div class="endpoint-card">
-        <div class="endpoint-top">
-          <span class="method-badge">GET</span>
-          <a href="{{ path }}" class="endpoint-link">{{ path }}</a>
-        </div>
-        <span class="endpoint-key-label">{{ key }}</span>
-      </div>
-      {% endfor %}
-      {% endif %}
+            <div class="endpoints-grid">
+                {% if data.endpoints %}
+                    {% for key, path in data.endpoints.items() %}
+                        <div class="endpoint-card">
+                            <div class="endpoint-top">
+                                <span class="method-badge">GET</span>
+                                <a href="{{ path }}" class="endpoint-link">{{ path }}</a>
+                            </div>
+                            <span class="endpoint-key-label">{{ key }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </section>
     </div>
-  </section>
-</div>
 {% endblock %}

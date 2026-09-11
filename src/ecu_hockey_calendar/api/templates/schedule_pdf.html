@@ -3,7 +3,7 @@
 {% block title %}{{ primary_team }} Ice Hockey Schedule — Printable Grid{% endblock %}
 
 {% block extra_styles %}
-<style>
+    <style>
   @page {
     size: letter;
     margin: 0.5in;
@@ -179,80 +179,80 @@
     border-radius: 4px;
     margin-top: 15px;
   }
-</style>
+    </style>
 {% endblock %}
 
 {% block content %}
-<header class="pdf-header-banner">
-  <div class="pdf-title-block">
-    <h1>East Carolina University Men's Ice Hockey</h1>
-    <div class="pdf-subtitle">
-      {% if selected_season %}{{ selected_season }} Season Schedule{% else %}Master Team Schedule{% endif %}
-      {% if selected_home_only %} &bull; Home Games Only{% endif %}
-    </div>
-  </div>
-  <div class="pdf-meta-block">
-    <div><strong>Total Games:</strong> {{ total_games }}</div>
-    <div><strong>Generated:</strong> {{ generated_date }}</div>
-    <div class="pdf-ticket-info">Tickets: {{ tickets_url | default('ecuhockey.com/tickets') }}</div>
-  </div>
-</header>
-
-{% if games %}
-<table class="pdf-schedule-table">
-  <thead>
-    <tr>
-      <th style="width: 16%;">Date &amp; Day</th>
-      <th style="width: 12%;">Time (ET)</th>
-      <th style="width: 28%;">Opponent</th>
-      <th style="width: 10%; text-align: center;">Site</th>
-      <th style="width: 22%;">Venue &amp; City</th>
-      <th style="width: 12%; text-align: center;">Result / Notes</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for game in games %}
-    <tr>
-      <td><strong>{{ game.date_str }}</strong></td>
-      <td>{{ game.time_str }}</td>
-      <td>
-        <div><strong>{{ game.opponent_name }}</strong></div>
-        {% if game.opponent_division or game.opponent_conference %}
-        <div style="font-size: 7pt; color: #555555;">
-          {{ game.opponent_division }}{% if game.opponent_division and game.opponent_conference %} &bull; {% endif %}{{ game.opponent_conference }}
+    <header class="pdf-header-banner">
+        <div class="pdf-title-block">
+            <h1>East Carolina University Men's Ice Hockey</h1>
+            <div class="pdf-subtitle">
+                {% if selected_season %}{{ selected_season }} Season Schedule{% else %}Master Team Schedule{% endif %}
+                {% if selected_home_only %}• Home Games Only{% endif %}
+            </div>
         </div>
-        {% endif %}
-      </td>
-      <td style="text-align: center;">
-        <span class="pdf-badge {% if game.is_home %}pdf-badge-home{% else %}pdf-badge-away{% endif %}">
-          {{ game.designation | upper }}
-        </span>
-      </td>
-      <td>
-        <div>{{ game.venue }}</div>
-        {% if game.location %}
-        <div style="font-size: 7pt; color: #555555;">{{ game.location }}</div>
-        {% endif %}
-      </td>
-      <td style="text-align: center;">
-        {% if game.score_text %}
-          <span class="pdf-final-result {% if 'W ' in game.score_text %}pdf-final-win{% elif 'L ' in game.score_text %}pdf-final-loss{% else %}pdf-final-neutral{% endif %}">
-            {{ game.score_text }}
-          </span>
-        {% elif game.status_label and game.status_label != 'Scheduled' %}
-          <span class="pdf-final-result pdf-final-neutral">{{ game.status_label }}</span>
-        {% else %}
-          <span class="pdf-score-box">[ &nbsp; &nbsp; &mdash; &nbsp; &nbsp; ]</span>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-<div class="pdf-empty-state">
-  <h2 style="font-size: 12pt; margin-bottom: 4px;">No Games Scheduled</h2>
-  <p style="font-size: 8.5pt; color: #555555;">No fixtures match the selected schedule criteria.</p>
-</div>
-{% endif %}
+        <div class="pdf-meta-block">
+            <div><strong>Total Games:</strong> {{ total_games }}</div>
+            <div><strong>Generated:</strong> {{ generated_date }}</div>
+            <div class="pdf-ticket-info">Tickets: {{ tickets_url | default("ecuhockey.com/tickets") }}</div>
+        </div>
+    </header>
+
+    {% if games %}
+        <table class="pdf-schedule-table">
+            <thead>
+                <tr>
+                    <th style="width: 16%;">Date &amp; Day</th>
+                    <th style="width: 12%;">Time (ET)</th>
+                    <th style="width: 28%;">Opponent</th>
+                    <th style="width: 10%; text-align: center;">Site</th>
+                    <th style="width: 22%;">Venue &amp; City</th>
+                    <th style="width: 12%; text-align: center;">Result / Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in games %}
+                    <tr>
+                        <td><strong>{{ game.date_str }}</strong></td>
+                        <td>{{ game.time_str }}</td>
+                        <td>
+                            <div><strong>{{ game.opponent_name }}</strong></div>
+                            {% if game.opponent_division or game.opponent_conference %}
+                                <div style="font-size: 7pt; color: #555555;">
+                                    {{ game.opponent_division }}{% if game.opponent_division and game.opponent_conference %} • {% endif %}{{ game.opponent_conference }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="pdf-badge {% if game.is_home %}pdf-badge-home{% else %}pdf-badge-away{% endif %}">
+                                {{ game.designation | upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <div>{{ game.venue }}</div>
+                            {% if game.location %}
+                                <div style="font-size: 7pt; color: #555555;">{{ game.location }}</div>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if game.score_text %}
+                                <span class="pdf-final-result {% if 'W ' in game.score_text %}pdf-final-win{% elif 'L ' in game.score_text %}pdf-final-loss{% else %}pdf-final-neutral{% endif %}">
+                                    {{ game.score_text }}
+                                </span>
+                            {% elif game.status_label and game.status_label != "Scheduled" %}
+                                <span class="pdf-final-result pdf-final-neutral">{{ game.status_label }}</span>
+                            {% else %}
+                                <span class="pdf-score-box">[ &nbsp; &nbsp; — &nbsp; &nbsp; ]</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="pdf-empty-state">
+            <h2 style="font-size: 12pt; margin-bottom: 4px;">No Games Scheduled</h2>
+            <p style="font-size: 8.5pt; color: #555555;">No fixtures match the selected schedule criteria.</p>
+        </div>
+    {% endif %}
 {% endblock %}

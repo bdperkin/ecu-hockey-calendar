@@ -41,6 +41,7 @@ optional-dependencies.dev = [
     "codespell>=2.4.0",
     "coverage[toml]>=7.6.0",
     "deptry>=0.23.0",
+    "djlint>=1.46.0",
     "furo>=2024.8.6",
     "interrogate>=1.7.0",
     "markdown-toc-creator>=0.1.3",
@@ -71,6 +72,7 @@ optional-dependencies.docs = [
 optional-dependencies.lint = [
     "codespell>=2.4.0",
     "deptry>=0.23.0",
+    "djlint>=1.46.0",
     "interrogate>=1.7.0",
     "pylint>=3.3.0",
     "radon>=6.0.1",
@@ -103,6 +105,13 @@ version.raw-options = { dist_name = "ecu-hockey-calendar", fallback_version = "0
 build.hooks.vcs.version-file = "src/ecu_hockey_calendar/_version.py"
 build.targets.wheel.packages = [ "src/ecu_hockey_calendar" ]
 build.targets.wheel.artifacts = [ "src/ecu_hockey_calendar/api/templates/**" ]
+
+[tool.djlint]
+profile = "jinja"
+indent = 4
+max_line_length = 120
+preserve_blank_lines = true
+ignore = "H021,J018"
 
 [tool.ruff]
 target-version = "py312"
