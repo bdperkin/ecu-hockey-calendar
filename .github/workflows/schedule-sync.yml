@@ -129,6 +129,8 @@ jobs:
             echo "json_size=$JSON_SIZE"
             echo "csv_size=$CSV_SIZE"
           } >> "$GITHUB_OUTPUT"
+      - name: Validate exported static calendar feeds
+        run: uv run python tools/validate_feeds.py static
       - name: Upload static calendar artifacts
         uses: actions/upload-artifact@v4
         with:

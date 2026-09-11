@@ -77,6 +77,8 @@ jobs:
         run: |
           uv run validate-pyproject pyproject.toml
           uv run pyproject-fmt --check pyproject.toml
+      - name: Validate static export feeds (ICS, CSV, JSON)
+        run: uv run python tools/validate_feeds.py static
   typecheck:
     name: Static Type Checking
     runs-on: ubuntu-latest
