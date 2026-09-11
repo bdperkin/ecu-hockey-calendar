@@ -537,3 +537,55 @@ curl -s "http://localhost:8000/api/v1/conflicts?severity=high&requires_review=tr
   ]
 }
 ```
+
+## 9. Content-Negotiated Error Responses
+
+The API implements deterministic HTTP content negotiation for client and server error responses, ensuring that interactive web browsers receive styled, helpful HTML error pages while automated API consumers, deployment health probes, and CLI tools continue to receive byte-for-byte identical JSON error payloads.
+
+### 9.1. Error Negotiation Contract
+
+Error responses adhere to the exact same negotiation rules as the root status endpoint:
+
+| Client Request Signal                                              | Resolved Error Format                                  |
+| :----------------------------------------------------------------- | :----------------------------------------------------- |
+| `Accept` ranks `text/html` above `application/json` (web browsers) | `text/html; charset=utf-8`                             |
+| `Accept: application/json`                                         | `application/json`                                     |
+| `Accept: */*` (default `curl`, monitoring probes)                  | `application/json`                                     |
+| Absent / missing `Accept` header                                   | `application/json`                                     |
+| `?format=html` or `?format=json`                                   | Explicit query parameter override (wins over `Accept`) |
+
+All negotiated error responses set `Vary: Accept` to guarantee reverse proxy and CDN caches do not serve HTML to automated clients or JSON to browsers.
+
+### 9.2. Supported HTTP Status Codes
+
+#### 9.2.1. 401 Unauthorized
+
+- **JSON Body**: `{"detail": "Missing administrative authentication credentials."}`
+- **HTML Page**: Explains authentication requirements and displays code examples for both `Authorization: Bearer <ADMIN_TOKEN>` and `X-API-Key: <ADMIN_TOKEN>` headers without disclosing internal secrets.
+- **Header Preservation**: `WWW-Authenticate: Bearer` is preserved in both formats.
+
+#### 9.2.2. 404 Not Found
+
+- **JSON Body**: `{"detail": "Not Found"}`
+- **HTML Page**: Plain-language explanation that the resource or page does not exist, with helpful navigation cards directing visitors to `/`, `/schedule`, `/health`, and `/docs`.
+
+#### 9.2.3. 405 Method Not Allowed
+
+- **JSON Body**: `{"detail": "Method Not Allowed"}`
+- **HTML Page**: Informs the user that the HTTP method requested is not permitted on the target route.
+
+#### 9.2.4. 422 Unprocessable Entity (Validation Error)
+
+- **JSON Body**: `{"detail": [{"loc": ["query", "home_only"], "msg": "Input should be a valid boolean...", "type": "bool_parsing", "input": "maybe"}]}`
+- **HTML Page**: Renders a clear, human-readable table detailing each failed field, the specific validation error message, the supplied invalid input value, and the underlying validation rule type.
+
+#### 9.2.5. 500 Internal Server Error
+
+- **JSON Body**: `{"detail": "Internal Server Error"}`
+- **HTML Page**: Sanitized server error page stating that an unexpected error occurred and that the issue has been captured in server telemetry.
+- **Security Invariant (CodeQL Alert #14)**: No exception class names, tracebacks, internal file paths, or sensitive credentials are ever transmitted to the client in either format. Full diagnostics are recorded strictly in server-side application logs.
+
+### 9.3. Caching & Protocol Integrity
+
+- **304 Not Modified**: Conditional caching responses generated via `If-None-Match` or `If-Modified-Since` on calendar and schedule endpoints are never routed through error handlers and always return an empty response body.
+- **HEAD Requests**: Error responses to `HEAD` requests preserve identical HTTP status codes, `Content-Type`, and header sets while returning an empty response body.

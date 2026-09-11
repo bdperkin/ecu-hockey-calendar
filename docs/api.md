@@ -266,7 +266,15 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 34. CLI Entry Points & Core Commands
+## 34. Content-Negotiated Error Handlers
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.errors
+   :members:
+   :show-inheritance:
+```
+
+## 35. CLI Entry Points & Core Commands
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.main
@@ -274,7 +282,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 35. CLI Synchronization Command
+## 36. CLI Synchronization Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.sync
@@ -283,7 +291,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 36. CLI Status & Telemetry Command
+## 37. CLI Status & Telemetry Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.status
@@ -292,7 +300,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 37. CLI Schedule Export Command
+## 38. CLI Schedule Export Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.export
@@ -301,7 +309,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 38. CLI Conflict Inspection Command
+## 39. CLI Conflict Inspection Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.conflicts
@@ -310,7 +318,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 39. CLI API Server Command
+## 40. CLI API Server Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.serve
@@ -318,7 +326,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 40. CLI Notification Dispatch Command
+## 41. CLI Notification Dispatch Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.notify
@@ -326,7 +334,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 41. CLI Console & Rich Utilities
+## 42. CLI Console & Rich Utilities
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.console

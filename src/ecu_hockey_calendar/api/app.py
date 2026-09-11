@@ -11,6 +11,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
+from ecu_hockey_calendar.api.errors import register_exception_handlers
 from ecu_hockey_calendar.api.negotiation import negotiate_response
 from ecu_hockey_calendar.api.routes import (
     calendar_router,
@@ -85,6 +86,9 @@ def create_app(
             allow_methods=["GET", "HEAD", "OPTIONS"],
             allow_headers=["*"],
         )
+
+    # Register content-negotiated exception handlers
+    register_exception_handlers(app)
 
     # Initialize application state dependencies
     app.state.start_time = datetime.now(UTC)

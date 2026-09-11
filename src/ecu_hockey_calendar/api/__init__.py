@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from ecu_hockey_calendar.api.app import create_app
 from ecu_hockey_calendar.api.auth import resolve_admin_token, verify_admin_token
+from ecu_hockey_calendar.api.errors import register_exception_handlers
 from ecu_hockey_calendar.api.negotiation import (
     determine_response_format,
     negotiate_response,
@@ -52,6 +53,7 @@ __all__ = [
     "fold_line",
     "generate_game_uid",
     "negotiate_response",
+    "register_exception_handlers",
     "resolve_admin_token",
     "resolve_game_season",
     "resolve_venue_details",
