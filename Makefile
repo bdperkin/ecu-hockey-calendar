@@ -95,8 +95,17 @@ lint-actions: ## Lint GitHub Actions workflow files with actionlint and validate
 	$(UV) run check-jsonschema --builtin-schema github-workflows .github/workflows/*.yml
 	$(UV) run check-jsonschema --builtin-schema dependabot .github/dependabot.yml
 
+.PHONY: lint-editorconfig
+lint-editorconfig: ## Validate files against .editorconfig rules
+	$(UV) run ec
+
+.PHONY: lint-toml
+lint-toml: ## Validate pyproject.toml schema and canonical formatting
+	$(UV) run validate-pyproject pyproject.toml
+	$(UV) run pyproject-fmt --check pyproject.toml
+
 .PHONY: lint
-lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html lint-docker lint-actions ## Run all linter checks
+lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html lint-docker lint-actions lint-editorconfig lint-toml ## Run all linter checks
 
 .PHONY: typecheck
 typecheck: ## Run strict ty static type checker

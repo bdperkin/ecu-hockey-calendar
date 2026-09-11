@@ -71,6 +71,12 @@ jobs:
           config: .hadolint.yaml
       - name: Validate Docker Compose specification
         run: uv run check-jsonschema --builtin-schema compose-spec docker-compose.yml
+      - name: Validate EditorConfig rules with editorconfig-checker
+        run: uv run ec
+      - name: Validate pyproject.toml schema and formatting
+        run: |
+          uv run validate-pyproject pyproject.toml
+          uv run pyproject-fmt --check pyproject.toml
   typecheck:
     name: Static Type Checking
     runs-on: ubuntu-latest

@@ -381,7 +381,7 @@ ______________________________________________________________________
   - **Summary:** Validate all GitHub Actions workflow files with `actionlint` and harmonize `yamllint` enforcement across Makefile and CI.
   - **Description:** Add `actionlint` to pre-commit, Makefile (`make lint-actions`), and CI to statically catch expression, shell syntax, and action configuration defects. Add `yamllint` to dev dependencies, update `make lint-yaml` and `.github/workflows/ci.yml` to run `yamllint -c .yamllint.yaml .`, expand `yamlfix` across all repository YAML files (`render.yaml`, `docker-compose.yml`), and add workflow schema verification with `check-jsonschema`.
 
-- [ ] **[#129](https://github.com/bdperkin/ecu-hockey-calendar/issues/129) - chore(tooling): enforce EditorConfig rules and TOML validation across Makefile, pre-commit, and CI**
+- [x] **[#129](https://github.com/bdperkin/ecu-hockey-calendar/issues/129) - chore(tooling): enforce EditorConfig rules and TOML validation across Makefile, pre-commit, and CI**
 
   - **Summary:** Expand `.editorconfig` rules to cover all newly introduced project file types, and enforce strict TOML validation and formatting in CI.
   - **Description:** Extend `.editorconfig` with rules for HTML/Jinja, Docker, Git, and TOML files. Add `editorconfig-checker` and `validate-pyproject[all]` to `pyproject.toml` dev dependencies, add `make lint-editorconfig` and `make lint-toml` to `Makefile` wired into `make lint`, and add EditorConfig and TOML validation steps to `.github/workflows/ci.yml`.
