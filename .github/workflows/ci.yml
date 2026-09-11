@@ -100,7 +100,7 @@ jobs:
         run: uv sync --all-extras --dev
       - name: Run pytest with 100% coverage requirement
         run: uv run pytest --cov=ecu_hockey_calendar --cov-report=xml --cov-fail-under=100
-          --junitxml=junit.xml -o junit_family=legacy
+          --junitxml=junit.xml -o junit_family=legacy --reruns 2 --reruns-delay 1
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v7
         with:

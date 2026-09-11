@@ -33,9 +33,10 @@ ______________________________________________________________________
     - [2.5.6. Phase 5.6: GitHub Pages Documentation & Static Calendar Deployment (Complete)](#256-phase-56-github-pages-documentation--static-calendar-deployment-complete)
     - [2.5.7. Phase 5.7: Build Version Provenance & Deployed Version Reporting (Complete)](#257-phase-57-build-version-provenance--deployed-version-reporting-complete)
     - [2.5.8. Phase 5.8: Production Service Documentation & End-User Onboarding](#258-phase-58-production-service-documentation--end-user-onboarding)
-    - [2.5.9. Phase 5.9: Administrative Endpoint Behavior Audit](#259-phase-59-administrative-endpoint-behavior-audit)
-    - [2.5.10. Phase 5.10: Repository Badges & Status Indicators](#2510-phase-510-repository-badges--status-indicators)
-    - [2.5.11. Phase 5.11: Documentation Alignment](#2511-phase-511-documentation-alignment)
+    - [2.5.9. Phase 5.9: Calendar Feed Determinism & CI Test Resilience](#259-phase-59-calendar-feed-determinism--ci-test-resilience)
+    - [2.5.10. Phase 5.10: Administrative Endpoint Behavior Audit](#2510-phase-510-administrative-endpoint-behavior-audit)
+    - [2.5.11. Phase 5.11: Repository Badges & Status Indicators](#2511-phase-511-repository-badges--status-indicators)
+    - [2.5.12. Phase 5.12: Documentation Alignment](#2512-phase-512-documentation-alignment)
   - [2.6. Milestone 6: v0.6.0 - Public Web Interface & Fan Engagement](#26-milestone-6-v060---public-web-interface--fan-engagement)
     - [2.6.1. Phase 6.1: Responsive HTML Interface & Embeds](#261-phase-61-responsive-html-interface--embeds)
     - [2.6.2. Phase 6.2: Dual-Format Content Negotiation Foundation](#262-phase-62-dual-format-content-negotiation-foundation)
@@ -296,20 +297,26 @@ ______________________________________________________________________
   - **Summary:** Publish a non-technical, step-by-step guide for subscribing to the live schedule feed in Google Calendar, Apple Calendar, and Outlook.
   - **Description:** Add `docs/calendar_sync.md` to the Sphinx toctree with numbered per-client instructions for the production HTTPS feed (`https://ecu-hockey-api.onrender.com/calendar.ics`) and the macOS/iOS instant subscription URL (`webcal://ecu-hockey-api.onrender.com/calendar.ics`), a one-click `?webcal=true` subscribe link, optional `season`, `include_past`, and `alarm_minutes` filters, and a troubleshooting FAQ covering refresh cadence and cold-start latency. Document the equivalent local development flow, add a concise subscribe section to `README.md`, and replace the `your-domain.com` placeholders in `docs/api_service.md` with cross-links to the guide.
 
-#### 2.5.9. Phase 5.9: Administrative Endpoint Behavior Audit
+#### 2.5.9. Phase 5.9: Calendar Feed Determinism & CI Test Resilience
+
+- [x] **[#114](https://github.com/bdperkin/ecu-hockey-calendar/issues/114) - fix(api): resolve second-boundary race condition in calendar ETag generation and add CI test resilience (Complete)**
+  - **Summary:** Stabilize `/calendar.ics` conditional caching across clock ticks by passing `last_mod_dt` as `dtstamp_override` and adding pytest retry support.
+  - **Description:** Address the second-boundary race condition where `generate_ics_feed` injected `datetime.now(UTC)` into every `VEVENT`, causing ETags to mutate every second on identical schedule records. Pre-compute `last_mod_dt` and pass it as `dtstamp_override` to guarantee deterministic ETag calculation across requests when games are unchanged, and introduce `pytest-rerunfailures` with `--reruns 2 --reruns-delay 1` in CI workflows for test suite resilience.
+
+#### 2.5.10. Phase 5.10: Administrative Endpoint Behavior Audit
 
 - [ ] **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102) - investigate(api): determine intended behavior of POST /api/v1/sync/trigger and whether it warrants dual-format responses**
 
   - **Summary:** Investigate why `POST /api/v1/sync/trigger` reports success while performing no synchronization, and recommend the correct behavior before considering an HTML interface.
   - **Description:** `trigger_sync_cycle` dispatches through an optional `app.state.sync_trigger_handler` hook that `create_app` never assigns, so production requests return `202 Accepted` with a success message and an unused `sync_cycle_id` while no crawl runs. Determine whether this is intentional, weigh real trigger mechanisms against the split web/cron service topology and scraper rate limits, decide the honest response semantics when no mechanism is wired, and only then evaluate dual-format output versus a dashboard "Sync now" control. Raise follow-up implementation issues for the conclusions.
 
-#### 2.5.10. Phase 5.10: Repository Badges & Status Indicators
+#### 2.5.11. Phase 5.11: Repository Badges & Status Indicators
 
 - [ ] **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86) - docs(readme): audit project and implement missing status, quality, and technology badges**
   - **Summary:** Audit project workflows, security, and dependencies, and add missing badges to `README.md`.
   - **Description:** Identify and incorporate status badges for GitHub Pages documentation, CodeQL security scanning, pre-commit.ci, dependency review, semantic release, FastAPI, SQLAlchemy, and license/security policies into logically organized badge sections.
 
-#### 2.5.11. Phase 5.11: Documentation Alignment
+#### 2.5.12. Phase 5.12: Documentation Alignment
 
 - [ ] **[#63](https://github.com/bdperkin/ecu-hockey-calendar/issues/63) - docs: update README.md and Sphinx documentation to reflect current project capabilities**
   - **Summary:** Update `README.md` and Sphinx docs in `docs/` to reflect end-to-end capabilities, CLI, and production deployment.
@@ -437,6 +444,7 @@ flowchart TD
         T94["#94: Fix Deployed Version Provenance"]
         T95["#95: Document Live Production Deployment"]
         T96["#96: End-User Calendar Sync Guide"]
+        T114["#114: Calendar ETag Determinism & Test Resilience"]
         T102["#102: Investigate Sync Trigger Endpoint"]
         T86["#86: README Badges Audit & Addition"]
         T63["#63: README & Sphinx Docs Update (v0.5.0)"]
@@ -479,7 +487,8 @@ flowchart TD
     T16 --> T94
     T94 --> T95
     T95 --> T96
-    T96 --> T102
+    T96 --> T114
+    T114 --> T102
     T102 --> T86
     T86 --> T63
     T63 --> T77
