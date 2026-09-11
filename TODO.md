@@ -43,10 +43,12 @@ ______________________________________________________________________
     - [2.6.2. Phase 6.2: Dual-Format Content Negotiation Foundation](#262-phase-62-dual-format-content-negotiation-foundation)
     - [2.6.3. Phase 6.3: Negotiated Error Responses](#263-phase-63-negotiated-error-responses)
     - [2.6.4. Phase 6.4: Printable Schedule Grid PDF Generation](#264-phase-64-printable-schedule-grid-pdf-generation)
-  - [2.7. Milestone 7: v0.7.0 - Human-Readable Operations & Diagnostics](#27-milestone-7-v070---human-readable-operations--diagnostics)
-    - [2.7.1. Phase 7.1: Operational Telemetry Dashboards](#271-phase-71-operational-telemetry-dashboards)
-    - [2.7.2. Phase 7.2: In-Process Background Synchronization Trigger](#272-phase-72-in-process-background-synchronization-trigger)
-    - [2.7.3. Phase 7.3: Administrative Conflict Triage Interface](#273-phase-73-administrative-conflict-triage-interface)
+  - [2.7. Milestone 7: v0.7.0 - Quality Hardening, Operations & Diagnostics](#27-milestone-7-v070---quality-hardening-operations--diagnostics)
+    - [2.7.1. Phase 7.1: Multi-Format Tooling & Quality Gate Hardening](#271-phase-71-multi-format-tooling--quality-gate-hardening)
+    - [2.7.2. Phase 7.2: Operational Health Diagnostics Dashboard](#272-phase-72-operational-health-diagnostics-dashboard)
+    - [2.7.3. Phase 7.3: In-Process Background Synchronization Engine](#273-phase-73-in-process-background-synchronization-engine)
+    - [2.7.4. Phase 7.4: Synchronization Telemetry & Interactive Controls Dashboard](#274-phase-74-synchronization-telemetry--interactive-controls-dashboard)
+    - [2.7.5. Phase 7.5: Administrative Conflict Triage Interface](#275-phase-75-administrative-conflict-triage-interface)
   - [2.8. Milestone 8: v0.8.0 - Syndication & Integrations](#28-milestone-8-v080---syndication--integrations)
     - [2.8.1. Phase 8.1: RSS / Atom Syndication Feeds](#281-phase-81-rss--atom-syndication-feeds)
     - [2.8.2. Phase 8.2: Comprehensive Documentation Audit & Reconciliation](#282-phase-82-comprehensive-documentation-audit--reconciliation)
@@ -360,28 +362,67 @@ ______________________________________________________________________
   - **Summary:** High-fidelity printable PDF schedule export using WeasyPrint for family refrigerators and bench clipboards.
   - **Description:** Provide `/api/schedule.pdf` and CLI `ecu-hockey export -f pdf` rendering a high-contrast, print-optimized calendar grid on standard US Letter layout.
 
-### 2.7. Milestone 7: v0.7.0 - Human-Readable Operations & Diagnostics
+### 2.7. Milestone 7: v0.7.0 - Quality Hardening, Operations & Diagnostics
 
-#### 2.7.1. Phase 7.1: Operational Telemetry Dashboards
+#### 2.7.1. Phase 7.1: Multi-Format Tooling & Quality Gate Hardening
+
+- [ ] **[#126](https://github.com/bdperkin/ecu-hockey-calendar/issues/126) - chore(tooling): add HTML and Jinja2 template linting and formatting with djlint**
+
+  - **Summary:** Add automated linting and formatting for all Jinja2 HTML templates across pre-commit, Makefile, and GitHub Actions CI.
+  - **Description:** Add `djlint` to `pyproject.toml` with Jinja profile configuration, register the `djlint` pre-commit hook targeting `*.html`, add `format-html` and `lint-html` targets to `Makefile` wired into `make format` and `make lint`, resolve the 66 initial template lint findings across existing templates, and add template lint verification to `.github/workflows/ci.yml`.
+
+- [ ] **[#127](https://github.com/bdperkin/ecu-hockey-calendar/issues/127) - ci(docker): add Dockerfile linting with Hadolint and Compose validation**
+
+  - **Summary:** Introduce automated Dockerfile linting with Hadolint and validate `docker-compose.yml` against the official Compose specification.
+  - **Description:** Add `hadolint/hadolint` to `.pre-commit-config.yaml`, resolve the `DL3025` shell-form warning in `Dockerfile`'s health check probe, add `make lint-docker` to `Makefile`, and integrate `hadolint/hadolint-action@v3` and `check-jsonschema` Compose specification validation into CI.
+
+- [ ] **[#128](https://github.com/bdperkin/ecu-hockey-calendar/issues/128) - ci(actions): validate GitHub Actions workflows and YAML configurations with actionlint and yamllint**
+
+  - **Summary:** Validate all GitHub Actions workflow files with `actionlint` and harmonize `yamllint` enforcement across Makefile and CI.
+  - **Description:** Add `actionlint` to pre-commit, Makefile (`make lint-actions`), and CI to statically catch expression, shell syntax, and action configuration defects. Add `yamllint` to dev dependencies, update `make lint-yaml` and `.github/workflows/ci.yml` to run `yamllint -c .yamllint.yaml .`, expand `yamlfix` across all repository YAML files (`render.yaml`, `docker-compose.yml`), and add workflow schema verification with `check-jsonschema`.
+
+- [ ] **[#129](https://github.com/bdperkin/ecu-hockey-calendar/issues/129) - chore(tooling): enforce EditorConfig rules and TOML validation across Makefile, pre-commit, and CI**
+
+  - **Summary:** Expand `.editorconfig` rules to cover all newly introduced project file types, and enforce strict TOML validation and formatting in CI.
+  - **Description:** Extend `.editorconfig` with rules for HTML/Jinja, Docker, Git, and TOML files. Add `editorconfig-checker` and `validate-pyproject[all]` to `pyproject.toml` dev dependencies, add `make lint-editorconfig` and `make lint-toml` to `Makefile` wired into `make lint`, and add EditorConfig and TOML validation steps to `.github/workflows/ci.yml`.
+
+- [ ] **[#130](https://github.com/bdperkin/ecu-hockey-calendar/issues/130) - feat(quality): implement static feed validation for CSV, iCalendar (ICS), and JSON exports**
+
+  - **Summary:** Automated structural, syntactic, and schema verification for static export feeds (`static/calendar.ics`, `static/schedule.csv`, `static/schedule.json`).
+  - **Description:** Add `check-json` to `.pre-commit-config.yaml`, add automated validation checking `calendar.ics` against RFC 5545 requirements (CRLF line endings, valid line folding, mandatory headers), checking `schedule.csv` against RFC 4180 structure, and validating `schedule.json` against the `Schedule` model schema. Provide `make lint-feeds` in `Makefile` and enforce in CI prior to artifact distribution.
+
+- [ ] **[#131](https://github.com/bdperkin/ecu-hockey-calendar/issues/131) - docs(quality): unify Markdown lint targets, resolve file discrepancies, and add link checking**
+
+  - **Summary:** Resolve markdown file target omissions across `Makefile` and CI (including `DEPLOYMENT.md` and `CODE_OF_CONDUCT.md`), and add automated broken link checking.
+  - **Description:** Unify markdown file targets across `Makefile` (`lint-md` and `format`) and `.github/workflows/ci.yml` so `DEPLOYMENT.md` and `CODE_OF_CONDUCT.md` are continuously validated. Add automated link checking (via `lychee` or Sphinx linkcheck with rate-limit exemptions) to detect broken internal and external URLs, and add `make lint-links`.
+
+- [ ] **[#132](https://github.com/bdperkin/ecu-hockey-calendar/issues/132) - ci(security): integrate automated dependency vulnerability auditing with uv audit**
+
+  - **Summary:** Integrate automated dependency vulnerability scanning against the PyPA Advisory Database in Makefile and CI.
+  - **Description:** Add `make audit` target running `uv audit` against the lockfile and installed virtual environment, add a blocking security vulnerability audit step to `.github/workflows/ci.yml`, and align pre-commit security hooks.
+
+#### 2.7.2. Phase 7.2: Operational Health Diagnostics Dashboard
 
 - [ ] **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98) - feat(api): content-negotiated HTML and JSON responses for health probe endpoint (/health)**
 
   - **Summary:** Serve a human-readable health dashboard to browsers while monitoring systems keep parsing the unchanged JSON payload.
   - **Description:** Render component cards for database and scraper subsystems, a source table with relative `last_scraped_at` ages, and formatted uptime, with accessible status labels alongside color coding. Preserve HTTP status semantics and the `HEAD /health` handler, and harden the `.github/workflows/deploy.yml` probe with an explicit `Accept: application/json` header so the `jq -r '.status'` deployment gate cannot regress.
 
-- [ ] **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99) - feat(api): content-negotiated HTML and JSON responses for sync status endpoint (/api/v1/sync/status)**
-
-  - **Summary:** Serve a synchronization telemetry dashboard to browsers while automation keeps receiving the unchanged JSON payload.
-  - **Description:** Render a `current_status` badge, stat tiles for games created, updated, and deleted plus a conflicts tile linking through to the conflict triage view, human-readable and relative timestamps, formatted cycle duration, and a scraper source table. Surface `error_message` in a dedicated error panel, provide a friendly empty state when no sync has run, and note the six-hourly worker cadence.
-
-#### 2.7.2. Phase 7.2: In-Process Background Synchronization Trigger
+#### 2.7.3. Phase 7.3: In-Process Background Synchronization Engine
 
 - [ ] **[#117](https://github.com/bdperkin/ecu-hockey-calendar/issues/117) - feat(api): implement in-process background synchronization trigger with concurrency and cooldown safeguards**
 
   - **Summary:** Implement in-process background crawl execution using FastAPI `BackgroundTasks` with concurrency locking, rate-limiting cooldowns, and audit telemetry tracking.
   - **Description:** Extract the core synchronization pipeline into a shared, reusable service module, provide a default `BackgroundTasks` trigger handler enabled via `ENABLE_API_SYNC_TRIGGER=true`, protect against concurrent triggers with an `asyncio.Lock` returning `409 Conflict`, enforce a cooldown interval returning `429 Too Many Requests` with a `Retry-After` header to protect upstream sources and Instagram IP reputation, and record in-progress status in `SyncAuditModel` so `/api/v1/sync/status` immediately reports `syncing`. Powers the interactive "Sync now" control on the [#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99) dashboard.
 
-#### 2.7.3. Phase 7.3: Administrative Conflict Triage Interface
+#### 2.7.4. Phase 7.4: Synchronization Telemetry & Interactive Controls Dashboard
+
+- [ ] **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99) - feat(api): content-negotiated HTML and JSON responses for sync status endpoint (/api/v1/sync/status)**
+
+  - **Summary:** Serve a synchronization telemetry dashboard to browsers while automation keeps receiving the unchanged JSON payload.
+  - **Description:** Render a `current_status` badge, stat tiles for games created, updated, and deleted plus a conflicts tile linking through to the conflict triage view, human-readable and relative timestamps, formatted cycle duration, and a scraper source table. Surface `error_message` in a dedicated error panel, provide a friendly empty state when no sync has run, and note the six-hourly worker cadence.
+
+#### 2.7.5. Phase 7.5: Administrative Conflict Triage Interface
 
 - [ ] **[#100](https://github.com/bdperkin/ecu-hockey-calendar/issues/100) - feat(api): content-negotiated HTML and JSON responses for conflicts endpoint (/api/v1/conflicts)**
 
@@ -475,11 +516,22 @@ flowchart TD
         T79["#79: Printable Schedule PDF Export"]
     end
 
-    subgraph M7["Stage 6: Milestone 7 (Human-Readable Operations & Diagnostics)"]
-        T98["#98: Dual-Format Health Probe"]
-        T117["#117: In-Process Background Sync Execution"]
-        T99["#99: Dual-Format Sync Status"]
-        T100["#100: Dual-Format Conflicts View"]
+    subgraph M7["Stage 6: Milestone 7 (Quality Hardening, Operations & Diagnostics)"]
+        subgraph M7_QUALITY["Quality Hardening & Tooling Guardrails"]
+            T126["#126: HTML & Jinja2 Linting (djlint)"]
+            T127["#127: Dockerfile & Compose Linting (hadolint)"]
+            T128["#128: Workflows & YAML Linting (actionlint/yamllint)"]
+            T129["#129: EditorConfig & TOML Validation"]
+            T130["#130: Static Feed Validation (CSV/ICS/JSON)"]
+            T131["#131: Markdown Targets & Broken Links"]
+            T132["#132: Dependency Vulnerability Auditing (uv audit)"]
+        end
+        subgraph M7_OPS["Human-Readable Operations & Dashboards"]
+            T98["#98: Dual-Format Health Probe"]
+            T117["#117: In-Process Background Sync Execution"]
+            T99["#99: Dual-Format Sync Status"]
+            T100["#100: Dual-Format Conflicts View"]
+        end
     end
 
     subgraph M8["Stage 7: Milestone 8 (Syndication & Integrations)"]
@@ -515,7 +567,14 @@ flowchart TD
     T77 --> T97
     T97 --> T101
     T101 --> T79
-    T79 --> T98
+    T79 --> T126
+    T126 --> T127
+    T127 --> T128
+    T128 --> T129
+    T129 --> T130
+    T130 --> T131
+    T131 --> T132
+    T132 --> T98
     T98 --> T117
     T117 --> T99
     T99 --> T100
@@ -525,6 +584,9 @@ flowchart TD
     T102 -.informs.-> T117
     T117 -.powers.-> T99
     T77 -.templates.-> T79
+    T126 -.lints.-> T98
+    T126 -.lints.-> T99
+    T126 -.lints.-> T100
 ```
 
 ### 4.1. Sequencing Rationale
@@ -561,9 +623,10 @@ flowchart TD
    - Issue **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** adds the `Accept` negotiation helper and converts `/` from a raw JSON payload into the service's front door, reusing the layout from Issue **[#77](https://github.com/bdperkin/ecu-hockey-calendar/issues/77)** rather than duplicating it.
    - Issue **[#101](https://github.com/bdperkin/ecu-hockey-calendar/issues/101)** closes the browser experience by negotiating error responses, so a `404` or `422` reached from a rendered page no longer drops to a raw JSON blob.
    - Issue **[#79](https://github.com/bdperkin/ecu-hockey-calendar/issues/79)** renders the printable schedule grid through WeasyPrint, reusing the same template tree with a print stylesheet, which is why it is grouped with the web interface rather than with syndication.
-6. **Milestone 7 (Human-Readable Operations & Diagnostics)**:
+6. **Milestone 7 (Quality Hardening, Operations & Diagnostics)**:
+   - **Quality Hardening & Multi-Format Guardrails**: Issues **[#126](https://github.com/bdperkin/ecu-hockey-calendar/issues/126)** through **[#132](https://github.com/bdperkin/ecu-hockey-calendar/issues/132)** establish automated linting, validation, and vulnerability auditing across newly introduced file formats (Jinja2 templates, Dockerfiles, GitHub workflows, YAML configs, EditorConfig rules, TOML metadata, static feeds, and dependencies). Sequenced first so all subsequent operational templates and feature commits are continuously protected against syntax errors, formatting drift, and regressions. Specifically, Issue **[#126](https://github.com/bdperkin/ecu-hockey-calendar/issues/126)** equips template development with `djlint` guardrails *before* authoring the dashboards in Issues **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98)**, **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)**, and **[#100](https://github.com/bdperkin/ecu-hockey-calendar/issues/100)**.
    - Issue **[#98](https://github.com/bdperkin/ecu-hockey-calendar/issues/98)** extends the negotiation contract established in Issue **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** to the health probe, making operational state legible to non-technical stakeholders in a browser while remaining byte-for-byte compatible for monitoring automation.
-   - Issue **[#117](https://github.com/bdperkin/ecu-hockey-calendar/issues/117)** implements the in-process background synchronization engine with concurrency lock and cooldown safeguards specified in #102, powering the "Sync now" dashboard control in Issue **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)**.
+   - Issue **[#117](https://github.com/bdperkin/ecu-hockey-calendar/issues/117)** implements the in-process background synchronization engine with concurrency lock and cooldown safeguards specified in Issue **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102)**, powering the "Sync now" dashboard control in Issue **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)**.
    - Issue **[#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99)** delivers the synchronization telemetry dashboard and interactive controls.
    - Issue **[#100](https://github.com/bdperkin/ecu-hockey-calendar/issues/100)** completes the series with administrative conflict triage. It is sequenced last and carries the lowest priority because it is token-gated, giving it the narrowest reachable audience of any open issue.
 7. **Milestone 8 (Syndication & Integrations)**:
