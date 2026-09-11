@@ -86,7 +86,8 @@ We provide a `Makefile` to streamline local developer tasks:
 - `make coverage`: Generate and view the HTML coverage report.
 - `make docs`: Build Sphinx documentation with markdown (`myst-parser`) and Furo theme.
 - `make docs-serve`: Serve built documentation locally on port 8000.
-- `make check`: Run format verification, linting, typechecking, and test suite.
+- `make audit`: Audit project dependencies for known vulnerabilities with `uv audit`.
+- `make check`: Run format verification, linting, security audit, typechecking, and test suite.
 - `make clean`: Clean build artifacts, caches, and test logs.
 
 ## 4. Quality Standards

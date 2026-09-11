@@ -46,6 +46,7 @@ Instead, please report vulnerabilities privately using one of the following meth
 ## 3. Security Practices
 
 - **Automated Dependency Updates**: Dependabot monitors all dependencies and GitHub Actions.
+- **Vulnerability Auditing**: Automated dependency vulnerability scanning with `uv audit` in CI and local workflows against the PyPA Advisory Database.
 - **CodeQL Scanning**: Static Application Security Testing (SAST) runs on all pushes and pull requests.
 - **Secret Scanning & Push Protection**: Enabled to block accidental disclosure of API keys and credentials.
 - **Private Vulnerability Reporting**: Enabled for confidential disclosures.

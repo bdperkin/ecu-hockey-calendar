@@ -112,6 +112,11 @@ lint-feeds: ## Validate static schedule export feeds (ICS, CSV, JSON)
 .PHONY: lint
 lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html lint-docker lint-actions lint-editorconfig lint-toml lint-feeds ## Run all linter checks
 
+.PHONY: audit
+audit: ## Audit project dependencies for known security vulnerabilities with uv audit
+	$(UV) lock --check
+	$(UV) audit
+
 .PHONY: typecheck
 typecheck: ## Run strict ty static type checker
 	$(TY) check
@@ -140,7 +145,7 @@ docs-serve: docs ## Build and serve Sphinx documentation locally on port 8000
 	$(UV) run python -m http.server 8000 --directory docs/_build/html
 
 .PHONY: check
-check: lint typecheck test docs ## Run full validation suite (lint, typecheck, test, docs)
+check: lint audit typecheck test docs ## Run full validation suite (lint, audit, typecheck, test, docs)
 
 .PHONY: clean
 clean: ## Remove temporary build files, cache, and test artifacts
