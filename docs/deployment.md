@@ -157,3 +157,6 @@ curl -fsSL -X POST "https://ecu-hockey-api.onrender.com/api/v1/sync/trigger" \
   -H "Authorization: Bearer $ADMIN_API_TOKEN" \
   -H "Content-Type: application/json" | jq .
 ```
+
+> [!NOTE]
+> `POST /api/v1/sync/trigger` returns `202 Accepted` when an execution handler is attached, or `501 Not Implemented` in deployments where on-demand execution is not wired and synchronization is handled exclusively via scheduled cron.

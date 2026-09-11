@@ -588,14 +588,26 @@ def test_health_and_sync_empty_database(tmp_path: Path) -> None:
 
 
 def test_trigger_sync_without_handler(admin_app: TestClient) -> None:
-    """Test POST /api/v1/sync/trigger succeeds when no trigger handler is registered."""
+    """Test POST /api/v1/sync/trigger returns 501 when no handler is registered."""
+    # 1. Unset handler (None)
     admin_app.app.state.sync_trigger_handler = None  # type: ignore[attr-defined]
     resp = admin_app.post(
         "/api/v1/sync/trigger",
         headers={"Authorization": f"Bearer {TEST_SECRET}"},
     )
-    assert resp.status_code == 202
-    assert resp.json()["status"] == "accepted"
+    assert resp.status_code == 501
+    data = resp.json()
+    assert "not implemented or configured" in data["detail"]
+    assert "external cron" in data["detail"]
+
+    # 2. Non-callable handler object
+    admin_app.app.state.sync_trigger_handler = "non_callable_string"  # type: ignore[attr-defined]
+    resp_non_callable = admin_app.post(
+        "/api/v1/sync/trigger",
+        headers={"Authorization": f"Bearer {TEST_SECRET}"},
+    )
+    assert resp_non_callable.status_code == 501
+    assert "not implemented or configured" in resp_non_callable.json()["detail"]
 
 
 def test_conflict_conversion_edge_cases() -> None:

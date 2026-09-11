@@ -364,21 +364,30 @@ Requests without credentials or with invalid tokens receive HTTP 401 Unauthorize
 
 ### 7.2. Trigger On-Demand Synchronization (`POST /api/v1/sync/trigger`)
 
-Initiates an immediate crawl and reconciliation cycle across all or specified data sources:
+Initiates an immediate crawl and reconciliation cycle across all or specified data sources when an execution handler is configured:
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/sync/trigger?source=ecuhockey" \
   -H "Authorization: Bearer secret-admin-token-12345"
 ```
 
-Response (HTTP 202 Accepted):
+Response when handler is wired (HTTP 202 Accepted):
 
 ```json
 {
   "status": "accepted",
-  "message": "Synchronization task initiated.",
-  "cycle_id": "sync-20260908180500-e9a1b2c3",
-  "source": "ecuhockey"
+  "sync_cycle_id": "sync-20260908180500-e9a1b2c3",
+  "target_source": "ecuhockey",
+  "timestamp": "2026-09-08T18:05:00.000000+00:00",
+  "message": "Synchronization cycle triggered successfully."
+}
+```
+
+Response when unconfigured (HTTP 501 Not Implemented):
+
+```json
+{
+  "detail": "On-demand synchronization trigger is not implemented or configured in this deployment environment. Scheduled synchronization runs via external cron."
 }
 ```
 

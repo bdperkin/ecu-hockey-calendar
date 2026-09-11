@@ -532,6 +532,9 @@ curl -fsSL "https://ecu-hockey-api.onrender.com/api/v1/conflicts?severity=high" 
   -H "Authorization: Bearer $ADMIN_API_TOKEN" | jq .
 ```
 
+> [!NOTE]
+> `POST /api/v1/sync/trigger` returns `202 Accepted` when an execution handler is attached, or `501 Not Implemented` in deployments where on-demand execution is not wired and synchronization is handled exclusively via scheduled cron.
+
 #### 6.8.4. Calendar Client Subscription Instructions
 
 Subscribing to the live feed allows external calendar clients to synchronize fixture changes, venue updates, and postponements automatically.

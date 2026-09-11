@@ -315,7 +315,7 @@ ______________________________________________________________________
 
 #### 2.5.11. Phase 5.11: Unconfigured Sync Trigger Response Semantics
 
-- [ ] **[#116](https://github.com/bdperkin/ecu-hockey-calendar/issues/116) - fix(api): return 501 Not Implemented from POST /api/v1/sync/trigger when no trigger handler is registered**
+- [x] **[#116](https://github.com/bdperkin/ecu-hockey-calendar/issues/116) - fix(api): return 501 Not Implemented from POST /api/v1/sync/trigger when no trigger handler is registered**
 
   - **Summary:** Return HTTP `501 Not Implemented` instead of `202 Accepted` when `app.state.sync_trigger_handler` is unconfigured.
   - **Description:** In default and production configurations, `POST /api/v1/sync/trigger` returns `202 Accepted` with `"Synchronization cycle triggered successfully."` while executing no crawlers, reconciliation, or audit recording. Update the route handler to inspect `sync_trigger_handler` and return `HTTP 501 Not Implemented` with an explanatory error payload when no handler is registered. Update unit tests in `tests/test_api_health_diagnostics.py` to assert `501` semantics, and align `docs/api.md` and `DEPLOYMENT.md` endpoint inventories.
