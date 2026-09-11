@@ -828,6 +828,8 @@
                         <li><a href="{{ csv_url or '/api/schedule.csv' }}">Download CSV</a></li>
                         <li><a href="{{ json_url or '/api/schedule.json' }}">JSON Feed</a></li>
                         <li><a href="/docs">API Docs</a></li>
+                        <li><a href="/health"
+   class="{% if active_tab == 'health' %}active{% endif %}">Health</a></li>
                     </ul>
                     <div class="nav-actions">
                         <a href="{{ embed_url or '/schedule/embed' }}" class="btn btn-secondary">Embed Widget</a>

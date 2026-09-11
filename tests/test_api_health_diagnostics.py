@@ -26,8 +26,14 @@ from ecu_hockey_calendar.api.routes.conflicts import (
     _convert_conflict_item,
 )
 from ecu_hockey_calendar.api.routes.health import (
+    _calculate_relative_age,
     _calculate_uptime,
+    _determine_display_status,
+    _enrich_source_records,
+    _format_relative_time,
+    _pluralize,
     _probe_scrapers,
+    format_uptime,
 )
 from ecu_hockey_calendar.reconciliation.models import (
     ConflictField,
@@ -661,3 +667,226 @@ def test_create_app_environment_fallbacks(
     assert app.state.admin_token == "env-secret-token"
     assert app.state.db_engine is not None
     app.state.db_engine.dispose()
+
+
+def test_health_probe_html_content_negotiation() -> None:
+    """Test GET /health returns styled HTML dashboard for text/html Accept header."""
+    app = create_app()
+    client = TestClient(app)
+
+    response = client.get(
+        "/health",
+        headers={"Accept": "text/html,application/xhtml+xml"},
+    )
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "Accept" in response.headers["Vary"]
+
+    html_text = response.text
+    assert "System Health &amp; Diagnostics" in html_text
+    assert "All Systems Operational" in html_text
+    assert "banner-healthy" in html_text
+    assert "Relational Database" in html_text
+    assert "Data Ingestion Scrapers" in html_text
+    assert "Ingestion Data Sources" in html_text
+    assert "Live updates every 30s" in html_text
+    assert "View as JSON" in html_text
+    assert "Raw JSON Payload (pretty-printed)" in html_text
+
+
+def test_health_probe_format_parameter_override() -> None:
+    """Test format query parameter overrides Accept header on /health endpoint."""
+    app = create_app()
+    client = TestClient(app)
+
+    # Accept JSON but format=html -> returns HTML
+    html_resp = client.get(
+        "/health?format=html",
+        headers={"Accept": "application/json"},
+    )
+    assert html_resp.status_code == 200
+    assert "text/html" in html_resp.headers["content-type"]
+    assert "System Health &amp; Diagnostics" in html_resp.text
+
+    # Accept HTML but format=json -> returns JSON
+    json_resp = client.get("/health?format=json", headers={"Accept": "text/html"})
+    assert json_resp.status_code == 200
+    assert "application/json" in json_resp.headers["content-type"]
+    assert json_resp.json()["status"] == "healthy"
+
+
+def test_health_probe_json_default_and_explicit_accept() -> None:
+    """Test GET /health returns unchanged JSON for default wildcard or explicit json."""
+    app = create_app()
+    client = TestClient(app)
+
+    # 1. Default request (*/*)
+    default_resp = client.get("/health")
+    assert default_resp.status_code == 200
+    assert "application/json" in default_resp.headers["content-type"]
+    data = default_resp.json()
+    assert data["status"] == "healthy"
+    assert "service" in data
+    assert "version" in data
+    assert "timestamp" in data
+    assert "uptime_seconds" in data
+    assert "components" in data
+
+    # 2. Explicit Accept: application/json
+    json_resp = client.get("/health", headers={"Accept": "application/json"})
+    assert json_resp.status_code == 200
+    assert "application/json" in json_resp.headers["content-type"]
+    assert json_resp.json()["status"] == "healthy"
+
+    # 3. Explicit Accept: */*
+    wildcard_resp = client.get("/health", headers={"Accept": "*/*"})
+    assert wildcard_resp.status_code == 200
+    assert "application/json" in wildcard_resp.headers["content-type"]
+
+
+def test_health_probe_html_degraded_status() -> None:
+    """Test GET /health HTML dashboard renders amber degraded banner."""
+    app = create_app()
+    app.state.scraper_health_override = {
+        "status": "degraded",
+        "sources": [
+            {
+                "source_code": "ecuhockey",
+                "name": "ECU Club Hockey Official Schedule",
+                "source_type": "primary_sot",
+                "is_active": False,
+                "last_scraped_at": "2026-09-08T12:00:00Z",
+            },
+        ],
+        "error": "Simulated scraper warning",
+    }
+    client = TestClient(app)
+    response = client.get("/health", headers={"Accept": "text/html"})
+
+    assert response.status_code == 200
+    html_text = response.text
+    assert "banner-degraded" in html_text
+    assert "System Operating Degraded" in html_text
+    assert "Simulated scraper warning" in html_text
+
+
+def test_health_probe_html_unhealthy_status() -> None:
+    """Test GET /health HTML dashboard renders red unhealthy banner on DB failure."""
+    app = create_app()
+    mock_engine = MagicMock()
+    mock_engine.connect.side_effect = RuntimeError("Database unreachable")
+    app.state.db_engine = mock_engine
+
+    client = TestClient(app)
+    response = client.get("/health", headers={"Accept": "text/html"})
+
+    assert response.status_code == 503
+    html_text = response.text
+    assert "banner-unhealthy" in html_text
+    assert "System Critical Failure" in html_text
+    assert "Probe Error" in html_text
+    assert "Database connectivity probe failed" in html_text
+
+
+def test_health_probe_html_empty_sources() -> None:
+    """Test GET /health HTML dashboard with empty scraper sources list."""
+    app = create_app()
+    app.state.scraper_health_override = {
+        "status": "operational",
+        "sources": [],
+    }
+    client = TestClient(app)
+    response = client.get("/health", headers={"Accept": "text/html"})
+
+    assert response.status_code == 200
+    assert "No scraper sources registered." in response.text
+
+
+def test_format_uptime_durations() -> None:
+    """Test format_uptime duration representations across magnitude tiers."""
+    assert format_uptime(0.0) == "0s"
+    assert format_uptime(-5.0) == "0s"
+    assert format_uptime(45.2) == "45s"
+    assert format_uptime(59.9) == "59s"
+    assert format_uptime(60.0) == "1m 0s"
+    assert format_uptime(125.0) == "2m 5s"
+    assert format_uptime(3600.0) == "1h 0m 0s"
+    assert format_uptime(3665.0) == "1h 1m 5s"
+    assert format_uptime(86400.0) == "1d 0h 0m 0s"
+    assert format_uptime(90065.0) == "1d 1h 1m 5s"
+
+
+def test_relative_time_and_pluralize() -> None:
+    """Test _pluralize, _calculate_relative_age, and _format_relative_time helpers."""
+    # _pluralize
+    assert _pluralize(1, "minute") == "1 minute ago"
+    assert _pluralize(5, "minute") == "5 minutes ago"
+    assert _pluralize(1, "hour") == "1 hour ago"
+    assert _pluralize(3, "hour") == "3 hours ago"
+    assert _pluralize(1, "day") == "1 day ago"
+    assert _pluralize(4, "day") == "4 days ago"
+
+    # _calculate_relative_age
+    assert _calculate_relative_age(30.0) == "just now"
+    assert _calculate_relative_age(59.0) == "just now"
+    assert _calculate_relative_age(60.0) == "1 minute ago"
+    assert _calculate_relative_age(120.0) == "2 minutes ago"
+    assert _calculate_relative_age(3600.0) == "1 hour ago"
+    assert _calculate_relative_age(7200.0) == "2 hours ago"
+    assert _calculate_relative_age(86400.0) == "1 day ago"
+    assert _calculate_relative_age(172800.0) == "2 days ago"
+
+    # _format_relative_time
+    assert _format_relative_time(None) == ("Never", "Never")
+    assert _format_relative_time("") == ("Never", "Never")
+    assert _format_relative_time("not-a-date") == ("Invalid", "Invalid")
+
+    ref_now = datetime(2026, 9, 11, 14, 0, 0, tzinfo=UTC)
+    # Naive timestamp string
+    ts_naive = "2026-09-11T12:00:00"
+    fmt_naive, rel_naive = _format_relative_time(ts_naive, now=ref_now)
+    assert fmt_naive == "Sep 11, 2026, 12:00 PM UTC"
+    assert rel_naive == "2 hours ago"
+
+    # UTC aware timestamp string
+    ts_aware = "2026-09-11T13:58:30+00:00"
+    fmt_aware, rel_aware = _format_relative_time(ts_aware, now=ref_now)
+    assert fmt_aware == "Sep 11, 2026, 01:58 PM UTC"
+    assert rel_aware == "1 minute ago"
+
+
+def test_determine_display_status() -> None:
+    """Test _determine_display_status banner resolution logic."""
+    assert _determine_display_status("unhealthy", "operational") == "unhealthy"
+    assert _determine_display_status("unhealthy", "degraded") == "unhealthy"
+    assert _determine_display_status("degraded", "operational") == "degraded"
+    assert _determine_display_status("healthy", "degraded") == "degraded"
+    assert _determine_display_status("healthy", "operational") == "healthy"
+
+
+def test_enrich_source_records() -> None:
+    """Test _enrich_source_records formats timestamps and relative age."""
+    ref_now = datetime(2026, 9, 11, 14, 0, 0, tzinfo=UTC)
+    sources = [
+        {
+            "source_code": "ecuhockey",
+            "name": "ECU",
+            "source_type": "primary_sot",
+            "is_active": True,
+            "last_scraped_at": "2026-09-11T12:00:00+00:00",
+        },
+        {
+            "source_code": "acchockey",
+            "name": "ACC",
+            "source_type": "league",
+            "is_active": False,
+            "last_scraped_at": None,
+        },
+    ]
+    enriched = _enrich_source_records(sources, now=ref_now)
+    assert len(enriched) == 2
+    assert enriched[0]["last_scraped_formatted"] == "Sep 11, 2026, 12:00 PM UTC"
+    assert enriched[0]["last_scraped_relative"] == "2 hours ago"
+    assert enriched[1]["last_scraped_formatted"] == "Never"
+    assert enriched[1]["last_scraped_relative"] == "Never"
