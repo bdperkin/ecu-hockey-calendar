@@ -36,13 +36,25 @@ ______________________________________________________________________
 <!--TOC-->
 
 [![CI](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/codeql.yml/badge.svg)](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/codeql.yml)
+[![Dependency Review](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/dependency-review.yml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/bdperkin/ecu-hockey-calendar/main.svg)](https://results.pre-commit.ci/latest/github/bdperkin/ecu-hockey-calendar/main)
+[![Pages](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/pages.yml/badge.svg)](https://bdperkin.github.io/ecu-hockey-calendar/)
 [![codecov](https://codecov.io/gh/bdperkin/ecu-hockey-calendar/graph/badge.svg?token=)](https://codecov.io/gh/bdperkin/ecu-hockey-calendar)
+
+[![GitHub Release](https://img.shields.io/github/v/release/bdperkin/ecu-hockey-calendar?logo=github)](https://github.com/bdperkin/ecu-hockey-calendar/releases)
+[![GHCR Package](https://img.shields.io/badge/container-ghcr.io-blue?logo=docker&logoColor=white)](https://github.com/bdperkin/ecu-hockey-calendar/pkgs/container/ecu-hockey-calendar)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org/)
+[![Security Policy](https://img.shields.io/badge/security-SECURITY.md-red?logo=github)](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/SECURITY.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/CODE_OF_CONDUCT.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 [![Python Version](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-d71e00?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type Checked with ty](https://img.shields.io/badge/type_checker-ty-blueviolet)](https://github.com/astral-sh/ty)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pages](https://github.com/bdperkin/ecu-hockey-calendar/actions/workflows/pages.yml/badge.svg)](https://bdperkin.github.io/ecu-hockey-calendar/)
 [![Documentation](https://img.shields.io/badge/docs-Sphinx-blue)](https://bdperkin.github.io/ecu-hockey-calendar/)
 
 East Carolina University - Men's Ice Hockey Team - Calendar.
