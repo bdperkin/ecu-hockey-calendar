@@ -124,9 +124,11 @@ jobs:
           ICS_SIZE=$(wc -c < static/calendar.ics)
           JSON_SIZE=$(wc -c < static/schedule.json)
           CSV_SIZE=$(wc -c < static/schedule.csv)
-          echo "ics_size=$ICS_SIZE" >> "$GITHUB_OUTPUT"
-          echo "json_size=$JSON_SIZE" >> "$GITHUB_OUTPUT"
-          echo "csv_size=$CSV_SIZE" >> "$GITHUB_OUTPUT"
+          {
+            echo "ics_size=$ICS_SIZE"
+            echo "json_size=$JSON_SIZE"
+            echo "csv_size=$CSV_SIZE"
+          } >> "$GITHUB_OUTPUT"
       - name: Upload static calendar artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -215,6 +217,9 @@ jobs:
             echo "| **Release Assets Published** | \`${RELEASE_TAG}\` |"
             echo ""
             echo "### 🌐 Static Calendar Distribution"
-            echo "- **GitHub Pages**: [\`calendar.ics\`](https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics) | [\`schedule.json\`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.json) | [\`schedule.csv\`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.csv)"
+            echo "- **GitHub Pages**:"
+            echo "  - [\`calendar.ics\`](https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics)"
+            echo "  - [\`schedule.json\`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.json)"
+            echo "  - [\`schedule.csv\`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.csv)"
             echo "- **Repository Artifacts**: Available in run artifacts (\`calendar-feeds\` zip)"
           } >> "$GITHUB_STEP_SUMMARY"

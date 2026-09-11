@@ -49,9 +49,17 @@ jobs:
         run: |
           uv run mdformat --check --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
           uv run pymarkdown scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
-      - name: Check YAML formatting
-        run: uv run yamlfix --check codecov.yml .pre-commit-config.yaml .github/dependabot.yml
-          .github/workflows/*.yml
+      - name: Check YAML formatting with yamlfix
+        run: uv run yamlfix --check .github/ codecov.yml docker-compose.yml render.yaml .hadolint.yaml
+          .pre-commit-config.yaml .yamllint.yaml
+      - name: Lint YAML files with yamllint
+        run: uv run yamllint -c .yamllint.yaml --strict .
+      - name: Lint GitHub Actions workflows with actionlint
+        run: uv run actionlint .github/workflows/*.yml
+      - name: Validate GitHub Actions and Dependabot schemas
+        run: |
+          uv run check-jsonschema --builtin-schema github-workflows .github/workflows/*.yml
+          uv run check-jsonschema --builtin-schema dependabot .github/dependabot.yml
       - name: Check HTML and Jinja template formatting and linting
         run: |
           uv run djlint --check src/ecu_hockey_calendar/api/templates
@@ -84,7 +92,7 @@ jobs:
       - name: Install ty
         run: |
           curl -LsSf https://astral.sh/ty/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Run ty type checking
         run: ty check
   test:

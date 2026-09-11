@@ -1,5 +1,9 @@
 ---
 extends: default
+ignore: |
+  .venv/
+  build/
+  dist/
 rules:
   line-length:
     max: 150

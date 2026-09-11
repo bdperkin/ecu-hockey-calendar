@@ -3,6 +3,7 @@
 PYTHON ?= python3
 UV ?= uv
 TY ?= ty
+YAML_TARGETS ?= .github/ codecov.yml docker-compose.yml render.yaml .hadolint.yaml .pre-commit-config.yaml .yamllint.yaml
 
 .PHONY: help
 help: ## Display this help dialog
@@ -24,17 +25,20 @@ lock: ## Update uv lockfile
 	$(UV) lock
 
 .PHONY: format
-format: format-html ## Auto-format code, markdown, toml, yaml, and templates
+format: format-html format-yaml ## Auto-format code, markdown, toml, yaml, and templates
 	$(UV) run ruff format src tests tools
 	$(UV) run ruff check --fix src tests tools
 	$(UV) run pyproject-fmt pyproject.toml || true
 	$(UV) run mdformat --number README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md DEPLOYMENT.md docs/*.md || true
-	$(UV) run yamlfix codecov.yml .pre-commit-config.yaml .github/dependabot.yml .github/workflows/*.yml
 	$(UV) run python tools/update_toc.py || true
 
 .PHONY: format-html
 format-html: ## Auto-format HTML and Jinja templates with djlint
 	$(UV) run djlint --reformat src/ecu_hockey_calendar/api/templates
+
+.PHONY: format-yaml
+format-yaml: ## Auto-format YAML files with yamlfix
+	$(UV) run yamlfix $(YAML_TARGETS)
 
 .PHONY: lint-ruff
 lint-ruff: ## Run ruff linter
@@ -71,8 +75,9 @@ lint-md: ## Lint markdown files
 	$(UV) run pymarkdown scan README.md CONTRIBUTING.md SECURITY.md SUPPORT.md TODO.md docs/*.md
 
 .PHONY: lint-yaml
-lint-yaml: ## Check yaml format
-	$(UV) run yamlfix --check codecov.yml .pre-commit-config.yaml .github/dependabot.yml .github/workflows/*.yml
+lint-yaml: ## Check yaml format with yamlfix and lint with yamllint
+	$(UV) run yamlfix --check $(YAML_TARGETS)
+	$(UV) run yamllint -c .yamllint.yaml --strict .
 
 .PHONY: lint-html
 lint-html: ## Lint and check HTML and Jinja templates with djlint
@@ -84,8 +89,14 @@ lint-docker: ## Lint Dockerfile with hadolint and validate compose spec
 	$(UV) run hadolint Dockerfile
 	$(UV) run check-jsonschema --builtin-schema compose-spec docker-compose.yml
 
+.PHONY: lint-actions
+lint-actions: ## Lint GitHub Actions workflow files with actionlint and validate schemas
+	$(UV) run actionlint .github/workflows/*.yml
+	$(UV) run check-jsonschema --builtin-schema github-workflows .github/workflows/*.yml
+	$(UV) run check-jsonschema --builtin-schema dependabot .github/dependabot.yml
+
 .PHONY: lint
-lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html lint-docker ## Run all linter checks
+lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html lint-docker lint-actions ## Run all linter checks
 
 .PHONY: typecheck
 typecheck: ## Run strict ty static type checker

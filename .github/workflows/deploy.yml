@@ -221,7 +221,8 @@ jobs:
             sleep $RETRY_DELAY
           done
           if [ "$VERIFIED" != "true" ]; then
-            echo "::error::Failed to verify deployed service version within $((MAX_RETRIES * RETRY_DELAY)) seconds. Last observed: root='$ROOT_VERSION', openapi='$OPENAPI_VERSION'"
+            echo "::error::Failed to verify deployed service version within $((MAX_RETRIES * RETRY_DELAY)) seconds." \
+              "Last observed: root='$ROOT_VERSION', openapi='$OPENAPI_VERSION'"
             exit 1
           fi
           echo "deployed_version=$ROOT_VERSION" >> "$GITHUB_OUTPUT"
