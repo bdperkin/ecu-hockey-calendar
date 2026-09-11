@@ -8,6 +8,125 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.5.0 (2026-09-11)
+
+### Bug Fixes
+
+- **api**: Resolve DATABASE_URL and ADMIN_API_TOKEN from environment in create_app
+  ([#93](https://github.com/bdperkin/ecu-hockey-calendar/pull/93),
+  [`3f948f6`](https://github.com/bdperkin/ecu-hockey-calendar/commit/3f948f6e6def244cd8e7813f2a644037374d934c))
+
+- **api**: Resolve second-boundary race condition in calendar ETag generation and add CI test
+  resilience (#114) ([#115](https://github.com/bdperkin/ecu-hockey-calendar/pull/115),
+  [`be8807f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/be8807ffa667a55743fe57c5f483c483fe5720e7))
+
+- **api**: Return 501 Not Implemented from POST /api/v1/sync/trigger when unconfigured (#116)
+  ([#119](https://github.com/bdperkin/ecu-hockey-calendar/pull/119),
+  [`65a3c0e`](https://github.com/bdperkin/ecu-hockey-calendar/commit/65a3c0e2bc4d9c62434acd237d08b636ec2931b9))
+
+- **ci**: Add polling retry loop to deployment version provenance verification
+  ([#109](https://github.com/bdperkin/ecu-hockey-calendar/pull/109),
+  [`c9a6f47`](https://github.com/bdperkin/ecu-hockey-calendar/commit/c9a6f4703088aff7b8498a079b30f710789260be))
+
+- **ci**: Fix deployment workflow syntax and rename workflow to Deployment
+  ([#90](https://github.com/bdperkin/ecu-hockey-calendar/pull/90),
+  [`d6ff862`](https://github.com/bdperkin/ecu-hockey-calendar/commit/d6ff8620c8ccdb4d3d09a8e0a895f270c8332483))
+
+- **ci**: Resolve invalid secrets context in deployment workflow and restore workflow display name
+  (#107) ([#108](https://github.com/bdperkin/ecu-hockey-calendar/pull/108),
+  [`043450d`](https://github.com/bdperkin/ecu-hockey-calendar/commit/043450dbb4ced190e047fd6a0a9f8d1a9581e327))
+
+- **deploy**: Update Render blueprint instance plans to modern compute tiers
+  ([#91](https://github.com/bdperkin/ecu-hockey-calendar/pull/91),
+  [`8824759`](https://github.com/bdperkin/ecu-hockey-calendar/commit/8824759c090877386b9dbe20003db7dd74cd5553))
+
+- **packaging**: Resolve fallback version 0.1.0.dev0 reported by containerized API and deployments
+  (#94) ([#106](https://github.com/bdperkin/ecu-hockey-calendar/pull/106),
+  [`d8e0358`](https://github.com/bdperkin/ecu-hockey-calendar/commit/d8e0358fa12e3350a1022fe2cbeeec86af19436d))
+
+- **quality**: Resolve CodeQL empty-except alerts in version resolution module (#110)
+  ([#111](https://github.com/bdperkin/ecu-hockey-calendar/pull/111),
+  [`a4ad8a1`](https://github.com/bdperkin/ecu-hockey-calendar/commit/a4ad8a125e984450cdfa47220056042f36a090f2))
+
+- **release**: Diagnose and align release versioning with project milestones (closes #73)
+  ([#75](https://github.com/bdperkin/ecu-hockey-calendar/pull/75),
+  [`f0e8df4`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f0e8df4b2c76262367a9524a051e523b2f49b4ce))
+
+- **storage**: Add psycopg driver and normalize postgres URLs to postgresql+psycopg
+  ([#92](https://github.com/bdperkin/ecu-hockey-calendar/pull/92),
+  [`0e81122`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0e811227d5da697f5c70d8a96e32992ec535e951))
+
+### Continuous Integration
+
+- **automation**: Automated scheduled ingestion and calendar release workflow (#16)
+  ([#105](https://github.com/bdperkin/ecu-hockey-calendar/pull/105),
+  [`be8da4d`](https://github.com/bdperkin/ecu-hockey-calendar/commit/be8da4ddfe06726ab911b8b5e531071d158e22e0))
+
+- **deploy**: Automated production deployment to hosting service via GitHub Actions (closes #84)
+  ([#89](https://github.com/bdperkin/ecu-hockey-calendar/pull/89),
+  [`cabd679`](https://github.com/bdperkin/ecu-hockey-calendar/commit/cabd679616d230e87204347f6ed018e776697c0a))
+
+- **docker**: Automated publication of production container images to ghcr.io via GitHub Actions
+  (closes #82) ([#88](https://github.com/bdperkin/ecu-hockey-calendar/pull/88),
+  [`aa8f00b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/aa8f00b2feb991a138737ee9e204ac69a70afd99))
+
+### Documentation
+
+- Update README.md and Sphinx documentation to reflect current project capabilities (#63)
+  ([#121](https://github.com/bdperkin/ecu-hockey-calendar/pull/121),
+  [`8106ed1`](https://github.com/bdperkin/ecu-hockey-calendar/commit/8106ed1ed79d27216fcb788de15675355ee8aa0e))
+
+- **calendar**: Add end-user ECU Hockey Calendar Sync Guide for Google, Apple, and Outlook
+  subscriptions ([#113](https://github.com/bdperkin/ecu-hockey-calendar/pull/113),
+  [`6103730`](https://github.com/bdperkin/ecu-hockey-calendar/commit/61037303a783ccc25c6c954509e0ca3a846ff0f7))
+
+- **deployment**: Architectural hosting analysis and production deployment guide (closes #14)
+  ([#81](https://github.com/bdperkin/ecu-hockey-calendar/pull/81),
+  [`74535c6`](https://github.com/bdperkin/ecu-hockey-calendar/commit/74535c67920af89618fe9b67f81579952f7ad354))
+
+- **deployment**: Document live production deployment at ecu-hockey-api.onrender.com with full
+  endpoint reference ([#112](https://github.com/bdperkin/ecu-hockey-calendar/pull/112),
+  [`fe8813e`](https://github.com/bdperkin/ecu-hockey-calendar/commit/fe8813eb901cc6e1d457903fec918c9549f75bc4))
+
+- **readme**: Audit and add status, quality, and technology badges (#86)
+  ([#120](https://github.com/bdperkin/ecu-hockey-calendar/pull/120),
+  [`1cacc97`](https://github.com/bdperkin/ecu-hockey-calendar/commit/1cacc973fb7f6b23bbaed9ee2659f0e341e67d86))
+
+- **roadmap**: Add ten issues and restructure milestone sequencing by user value
+  ([#104](https://github.com/bdperkin/ecu-hockey-calendar/pull/104),
+  [`ba3c724`](https://github.com/bdperkin/ecu-hockey-calendar/commit/ba3c724fdd32fd1d18852dabba921e7cc03853a7))
+
+- **roadmap**: Record findings for issue #102 and schedule follow-up issues #116 and #117
+  ([#118](https://github.com/bdperkin/ecu-hockey-calendar/pull/118),
+  [`890fb91`](https://github.com/bdperkin/ecu-hockey-calendar/commit/890fb91af6813ecf681b1d5751448935a8c48d1b))
+
+- **roadmap**: Track ghcr container publication issue in TODO.md
+  ([#83](https://github.com/bdperkin/ecu-hockey-calendar/pull/83),
+  [`f660db9`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f660db952cbd59b0e88b2f951a2e99103a5c15d0))
+
+- **roadmap**: Track milestone 6 fan engagement and export issues in TODO.md
+  ([#80](https://github.com/bdperkin/ecu-hockey-calendar/pull/80),
+  [`ba6f528`](https://github.com/bdperkin/ecu-hockey-calendar/commit/ba6f528cfc47f97de6a49bb065ed0498ef7e51ba))
+
+- **roadmap**: Track production deployment issue in TODO.md
+  ([#85](https://github.com/bdperkin/ecu-hockey-calendar/pull/85),
+  [`f9c2ef1`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f9c2ef1dd75bde4102ed062974a2e4a1a27d2fce))
+
+- **roadmap**: Track readme badges audit issue in TODO.md
+  ([#87](https://github.com/bdperkin/ecu-hockey-calendar/pull/87),
+  [`295952e`](https://github.com/bdperkin/ecu-hockey-calendar/commit/295952e01ada4af3e83dbe1dcfe1a4ecf46f1ea7))
+
+- **roadmap**: Track release version alignment issue #73 in TODO.md
+  ([#74](https://github.com/bdperkin/ecu-hockey-calendar/pull/74),
+  [`2a16f19`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2a16f19d1b60610e0cb472b246abeb7addbaceaa))
+
+### Features
+
+- **cli**: Command-line interface for schedule sync, inspection, and export (closes #13)
+  ([#76](https://github.com/bdperkin/ecu-hockey-calendar/pull/76),
+  [`f265731`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f265731a17829c9b5d05785b97685907836892e6))
+
+
 ## v0.4.0 (2026-09-08)
 
 ### Features
