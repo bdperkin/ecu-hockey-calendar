@@ -8,6 +8,35 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.6.0 (2026-09-11)
+
+### Chores
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`0caa954`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0caa95400000238c71a766f3f777e7f0dccff340))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`9f16957`](https://github.com/bdperkin/ecu-hockey-calendar/commit/9f169570d197bb74bc1e76f1e4326d46b2e7dd7e))
+
+### Features
+
+- **api**: Content-negotiated HTML and JSON error responses for 401, 404, 422, and 500 (#101)
+  ([#124](https://github.com/bdperkin/ecu-hockey-calendar/pull/124),
+  [`2bf782b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2bf782bfd29494a73203288eb01c306c04300777))
+
+- **api**: Content-negotiated HTML and JSON responses for service status endpoint (/) (#97)
+  ([#123](https://github.com/bdperkin/ecu-hockey-calendar/pull/123),
+  [`e2eaa04`](https://github.com/bdperkin/ecu-hockey-calendar/commit/e2eaa04993daf96c4788630cbe554ef3c342aa69))
+
+- **export**: Printable schedule grid PDF generation for parents and coaches (#79)
+  ([#125](https://github.com/bdperkin/ecu-hockey-calendar/pull/125),
+  [`49f70fa`](https://github.com/bdperkin/ecu-hockey-calendar/commit/49f70fa4c0e19ae2ed10a91c58243ca74daf8121))
+
+- **web**: Responsive HTML schedule view and embeddable iframe widget (#77)
+  ([#122](https://github.com/bdperkin/ecu-hockey-calendar/pull/122),
+  [`0e79502`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0e79502d157fa941c8c8d8e7cc7dabad221e5459))
+
+
 ## v0.5.0 (2026-09-11)
 
 ### Bug Fixes
