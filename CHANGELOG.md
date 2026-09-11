@@ -8,6 +8,52 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.7.0 (2026-09-11)
+
+### Chores
+
+- **roadmap**: Incorporate multi-format quality hardening into Milestone 7 (#126-#132)
+  ([#133](https://github.com/bdperkin/ecu-hockey-calendar/pull/133),
+  [`b0f9260`](https://github.com/bdperkin/ecu-hockey-calendar/commit/b0f9260164a8c2ecbd1ab33c17f41f668b1dd9aa))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`99d0547`](https://github.com/bdperkin/ecu-hockey-calendar/commit/99d0547afa29b502471ecd5ec4d93fe221597c71))
+
+- **tooling**: Add HTML and Jinja2 template linting and formatting with djlint (#126)
+  ([#134](https://github.com/bdperkin/ecu-hockey-calendar/pull/134),
+  [`18d9d4c`](https://github.com/bdperkin/ecu-hockey-calendar/commit/18d9d4c8fa5b115d92c6fd406872d703a6140291))
+
+- **tooling**: Enforce EditorConfig rules and TOML validation across Makefile, pre-commit, and CI
+  (#129) ([#137](https://github.com/bdperkin/ecu-hockey-calendar/pull/137),
+  [`b66bcbb`](https://github.com/bdperkin/ecu-hockey-calendar/commit/b66bcbb3e1e69ccab13e3e9e531ff6ce38a5b892))
+
+### Continuous Integration
+
+- **actions**: Validate GitHub Actions workflows and YAML configurations with actionlint and
+  yamllint (#128) ([#136](https://github.com/bdperkin/ecu-hockey-calendar/pull/136),
+  [`9835c9f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/9835c9f729f7fabce3d76bde8e00836fa21b2974))
+
+- **docker**: Add Dockerfile linting with Hadolint and Compose validation (#127)
+  ([#135](https://github.com/bdperkin/ecu-hockey-calendar/pull/135),
+  [`bd4bde5`](https://github.com/bdperkin/ecu-hockey-calendar/commit/bd4bde5acd551045a9be51c4290cd86dfcdcdca9))
+
+- **security**: Integrate automated dependency vulnerability auditing with uv audit
+  ([#140](https://github.com/bdperkin/ecu-hockey-calendar/pull/140),
+  [`5793a5e`](https://github.com/bdperkin/ecu-hockey-calendar/commit/5793a5ede636f876d27a5f93fd9b249490621b0d))
+
+### Documentation
+
+- **quality**: Unify Markdown lint targets, resolve file discrepancies, and add link checking
+  ([#139](https://github.com/bdperkin/ecu-hockey-calendar/pull/139),
+  [`5e9523f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/5e9523fc7cb4864bc078254ab205ffea0e73e86a))
+
+### Features
+
+- **quality**: Implement static feed validation for CSV, iCalendar (ICS), and JSON exports
+  ([#138](https://github.com/bdperkin/ecu-hockey-calendar/pull/138),
+  [`801d115`](https://github.com/bdperkin/ecu-hockey-calendar/commit/801d1150a57db7b4bf80de1ba31e76a58af3cf63))
+
+
 ## v0.6.0 (2026-09-11)
 
 ### Chores
