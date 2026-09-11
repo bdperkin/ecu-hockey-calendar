@@ -695,6 +695,118 @@
         color: #000000 !important;
       }
     }
+
+    /* JSON Inspector & Syntax Highlighting */
+    .json-inspector-section {
+      margin-top: 2.5rem;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .json-inspector-container {
+      padding: 1.25rem;
+    }
+
+    .json-inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .json-inspector-title {
+      font-weight: 700;
+      color: var(--ecu-purple);
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .json-inspector-details {
+      margin-top: 0.5rem;
+    }
+
+    .json-inspector-details summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      padding: 0.6rem 0.85rem;
+      background-color: var(--bg-page);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      user-select: none;
+      transition: background-color 0.15s ease;
+    }
+
+    .json-inspector-details summary:hover {
+      background-color: var(--border-light);
+    }
+
+    .json-inspector-body {
+      margin-top: 0.75rem;
+      background: #1e1e2e;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      max-height: 480px;
+    }
+
+    .json-pre {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #cdd6f4;
+      margin: 0;
+      tab-size: 2;
+    }
+
+    .json-key { color: #89b4fa; font-weight: 600; }
+    .json-string { color: #a6e3a1; }
+    .json-number { color: #fab387; }
+    .json-boolean { color: #f38ba8; font-weight: 600; }
+    .json-null { color: #6c7086; font-style: italic; }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-dark);
+      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.85rem;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--ecu-purple);
+      color: var(--ecu-purple);
+      background-color: var(--border-light);
+    }
+
+    .btn-sm {
+      padding: 0.3rem 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    .footer-bottom {
+      max-width: 1140px;
+      margin: 1.5rem auto 0;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--ecu-gold);
+    }
   </style>
   {% block extra_styles %}{% endblock %}
 </head>
@@ -708,14 +820,15 @@
   <nav class="site-nav">
     <div class="nav-container">
       <ul class="nav-links">
-        <li><a href="{{ schedule_url }}" class="active">Schedule</a></li>
-        <li><a href="{{ ics_url }}">Calendar Subscription (.ics)</a></li>
-        <li><a href="{{ csv_url }}">Download CSV</a></li>
-        <li><a href="{{ json_url }}">JSON Feed</a></li>
+        <li><a href="/" class="{% if active_tab == 'home' %}active{% endif %}">Home</a></li>
+        <li><a href="{{ schedule_url or '/schedule' }}" class="{% if active_tab == 'schedule' %}active{% endif %}">Schedule</a></li>
+        <li><a href="{{ ics_url or '/calendar.ics' }}">Calendar Subscription (.ics)</a></li>
+        <li><a href="{{ csv_url or '/api/schedule.csv' }}">Download CSV</a></li>
+        <li><a href="{{ json_url or '/api/schedule.json' }}">JSON Feed</a></li>
         <li><a href="/docs">API Docs</a></li>
       </ul>
       <div class="nav-actions">
-        <a href="{{ embed_url }}" class="btn btn-secondary">Embed Widget</a>
+        <a href="{{ embed_url or '/schedule/embed' }}" class="btn btn-secondary">Embed Widget</a>
       </div>
     </div>
   </nav>
@@ -723,6 +836,23 @@
 
   <main class="{% if is_embed %}embed-content{% else %}main-content{% endif %}">
     {% block content %}{% endblock %}
+
+    {% if json_payload and not is_embed %}
+    <section class="json-inspector-section">
+      <div class="json-inspector-container">
+        <div class="json-inspector-header">
+          <span class="json-inspector-title">Developer Data View</span>
+          <a href="{{ json_url }}" class="btn btn-outline btn-sm" id="view-as-json-btn">View as JSON</a>
+        </div>
+        <details class="json-inspector-details">
+          <summary class="json-inspector-summary">Raw JSON Payload (pretty-printed)</summary>
+          <div class="json-inspector-body">
+            <pre class="json-pre"><code>{{ json_payload | safe }}</code></pre>
+          </div>
+        </details>
+      </div>
+    </section>
+    {% endif %}
   </main>
 
   {% if not is_embed %}
@@ -735,15 +865,19 @@
       </div>
       <div class="footer-section">
         <h4>Subscriptions &amp; Feeds</h4>
-        <p><a href="{{ ics_url }}">Apple / Google / Outlook iCal Feed</a></p>
-        <p><a href="{{ csv_url }}">Spreadsheet CSV Export</a></p>
-        <p><a href="{{ json_url }}">Developer JSON Endpoint</a></p>
+        <p><a href="{{ ics_url or '/calendar.ics' }}">Apple / Google / Outlook iCal Feed</a></p>
+        <p><a href="{{ csv_url or '/api/schedule.csv' }}">Spreadsheet CSV Export</a></p>
+        <p><a href="{{ json_url or '/api/schedule.json' }}">Developer JSON Endpoint</a></p>
       </div>
       <div class="footer-section">
-        <h4>Widget Integration</h4>
-        <p><a href="{{ embed_url }}">Get Responsive Embed iFrame</a></p>
+        <h4>Widget &amp; System</h4>
+        <p><a href="{{ embed_url or '/schedule/embed' }}">Get Responsive Embed iFrame</a></p>
+        <p><a href="/health">Health &amp; Diagnostics</a></p>
         <p><a href="https://ecuhockey.com" target="_blank" rel="noopener noreferrer">Official ECU Hockey Website</a></p>
       </div>
+    </div>
+    <div class="footer-bottom">
+      <p>ECU Hockey Calendar &amp; Data API v{{ service_version | default('0.5.0') }}</p>
     </div>
   </footer>
   {% endif %}
