@@ -11,8 +11,10 @@ A live public production deployment is available at
 providing instant calendar subscriptions
 (`webcal://ecu-hockey-api.onrender.com/calendar.ics`)
 and interactive API documentation
-([`/docs`](https://ecu-hockey-api.onrender.com/docs)). See the
-[ECU Hockey Calendar Sync Guide](calendar_sync.md) for step-by-step
+([`/docs`](https://ecu-hockey-api.onrender.com/docs)). A high-availability
+static CDN mirror is published to GitHub Pages at
+[`https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics`](https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics).
+See the [ECU Hockey Calendar Sync Guide](calendar_sync.md) for step-by-step
 subscription instructions for Apple Calendar, Google Calendar, and Outlook.
 
 ```{toctree}
@@ -36,13 +38,15 @@ changelog
 
 ## 1. Features
 
-- **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for syncing, health inspections, conflict diagnosis, schedule exporting, and API server hosting.
+- **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for syncing, health inspections, conflict diagnosis, schedule exporting, alert dispatching, and API server hosting.
 - **Multi-Source Web Crawlers**: Automated ingestion from official team sites (`ecuhockey.com`), ACCHL league portals (`acchockey.com`), ticketing platforms, Instagram feeds, and opponent calendars.
 - **Relational Persistence & Migrations**: SQLAlchemy 2.0 ORM models for SQLite and PostgreSQL with automated Alembic schema migrations.
 - **Schedule Reconciliation Engine**: Multi-tier source precedence, opponent and venue fuzzy matching, and timezone-aware date alignment.
 - **Change Detection & Audit Trail**: Real-time diffing of game schedule changes, cancellations, and conflict flags with full cycle telemetry.
 - **Multi-Platform Webhook Alerts**: Rich formatted alerts dispatched to Discord, Slack, and Telegram channels.
 - **FastAPI Calendar & Data Service**: Live production deployment at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/) providing RFC 5545 iCalendar (`/calendar.ics`) and webcal subscription feeds, public JSON and CSV master schedule feeds, and interactive OpenAPI documentation.
+- **Static High-Availability Feeds**: Pre-compiled calendar feeds (`calendar.ics`, `schedule.json`, `schedule.csv`) deployed to GitHub Pages via automated 6-hour GitHub Actions workflows.
+- **Containerization & Continuous Deployment**: Multi-stage Docker container publication to GitHub Container Registry (`ghcr.io/bdperkin/ecu-hockey-calendar`) and automated Render deployments.
 - **Diagnostics & Conflict Administration**: Service health checks, synchronization telemetry, on-demand sync triggering, and administrative conflict review.
 - **Interoperability**: Export schedules to CSV, JSON, and dictionary representations.
 - **Strict Quality**: 100% line and branch test coverage, strict type annotations checked by `ty`, and formatting via `ruff`.

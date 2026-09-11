@@ -64,9 +64,30 @@ Database schema migrations are managed via Alembic:
 docker compose exec api alembic upgrade head
 ```
 
-### 2.4. Continuous Deployment via GitHub Actions
+### 2.4. Automated Container Publication Pipeline
 
-The repository includes an automated Continuous Deployment workflow (`.github/workflows/deploy.yml`):
+The repository features an automated multi-platform container build and publication pipeline ([`.github/workflows/docker.yml`](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/.github/workflows/docker.yml)):
+
+- **Multi-Architecture**: Compiles native container images for both `linux/amd64` and `linux/arm64` using Docker Buildx and QEMU emulation.
+- **Smart Tagging**: Automatically tags images on GitHub Container Registry:
+  - `edge`: Latest successful commit on `main`.
+  - `vX.Y.Z`: Semantic version release tags (e.g., `v0.4.0`).
+  - `latest`: Most recent production release.
+  - `sha-<commit>`: Immutable commit SHA for precise provenance and rollbacks.
+- **Build Caching**: Utilizes GitHub Actions cache backend (`type=gha`) for fast incremental image layers.
+
+### 2.5. Scheduled Ingestion & Static Feeds Automation
+
+An automated synchronization and feed export pipeline ([`.github/workflows/schedule-sync.yml`](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/.github/workflows/schedule-sync.yml)) operates on a 6-hour cron schedule (`0 */6 * * *`):
+
+- **Headless Ingestion**: Executes `ecu-hockey sync` across all configured scrapers (official team site, ACCHL league, tickets, Instagram).
+- **Multi-Channel Alerting**: Dispatches rich embed notifications to Discord, Slack, and Telegram when fixtures are added, modified, or cancelled.
+- **Static Feed Generation**: Automatically compiles static master schedule exports (`static/calendar.ics`, `static/schedule.json`, `static/schedule.csv`).
+- **CDN Deployment**: Changes committed to `static/` trigger the GitHub Pages pipeline ([`.github/workflows/pages.yml`](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/.github/workflows/pages.yml)) to update the high-availability static mirror at `https://bdperkin.github.io/ecu-hockey-calendar/`.
+
+### 2.6. Continuous Deployment via GitHub Actions
+
+The repository includes an automated Continuous Deployment workflow ([`.github/workflows/deploy.yml`](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/.github/workflows/deploy.yml)):
 
 - **Automatic Trigger**: Executes upon successful completion of the `Docker` build workflow on `main` (deploying `edge`), or on release publication (`vX.Y.Z`).
 - **Manual Trigger**: Supports `workflow_dispatch` with environment selection (`production` or `staging`) and custom image tags.
@@ -78,7 +99,7 @@ To configure CD:
 1. In GitHub Repository **Settings** > **Environments**, create the `production` environment.
 2. Add secrets `DEPLOY_HOOK_URL` (Render deploy hook) and `PRODUCTION_URL` (public HTTPS URL).
 
-### 2.5. Turnkey Render Blueprint
+### 2.7. Turnkey Render Blueprint
 
 Deploy the entire production stack (FastAPI service, PostgreSQL database, and 6-hour cron worker) with a single click using [`render.yaml`](https://github.com/bdperkin/ecu-hockey-calendar/blob/main/render.yaml) in the Render dashboard.
 
