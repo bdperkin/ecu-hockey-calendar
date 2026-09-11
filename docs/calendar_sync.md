@@ -13,16 +13,33 @@ Subscribing gives you an automated, hands-off schedule that updates itself as ga
 
 ## 2. Subscription URLs
 
-Choose the URL that matches your device and calendar client:
+Choose the URL that matches your device, calendar client, and preference:
 
-| Calendar Client                           | Method                      | Subscription URL                                                                                 |
-| :---------------------------------------- | :-------------------------- | :----------------------------------------------------------------------------------------------- |
-| **Apple Calendar (iOS / iPadOS / macOS)** | One-Click Instant Subscribe | [Subscribe to ECU Hockey Schedule](https://ecu-hockey-api.onrender.com/calendar.ics?webcal=true) |
-| **Apple Calendar (macOS manual)**         | Webcal Feed                 | `webcal://ecu-hockey-api.onrender.com/calendar.ics`                                              |
-| **Google Calendar, Outlook, and others**  | Add by URL (HTTPS)          | `https://ecu-hockey-api.onrender.com/calendar.ics`                                               |
+| Calendar Client                                | Feed Type                | Subscription URL                                                                                 |
+| :--------------------------------------------- | :----------------------- | :----------------------------------------------------------------------------------------------- |
+| **Apple Calendar (iOS / iPadOS / macOS)**      | Dynamic Live (One-Click) | [Subscribe to ECU Hockey Schedule](https://ecu-hockey-api.onrender.com/calendar.ics?webcal=true) |
+| **Apple Calendar (macOS manual)**              | Dynamic Webcal           | `webcal://ecu-hockey-api.onrender.com/calendar.ics`                                              |
+| **Google Calendar, Outlook, and others**       | Dynamic Live (HTTPS)     | `https://ecu-hockey-api.onrender.com/calendar.ics`                                               |
+| **All Clients (High-Availability CDN Mirror)** | Static CDN Feed          | `https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics`                                    |
 
 > [!TIP]
 > On iPhone, iPad, and Mac, clicking [Subscribe to ECU Hockey Schedule](https://ecu-hockey-api.onrender.com/calendar.ics?webcal=true) will prompt your device to open Apple Calendar and subscribe immediately.
+
+### 2.1. Hosted Feed Options
+
+The project provides two independent, officially maintained subscription endpoints:
+
+1. **Dynamic Production API Feed (`ecu-hockey-api.onrender.com`)**:
+
+   - **URL**: `https://ecu-hockey-api.onrender.com/calendar.ics`
+   - **Features**: Generates live feeds dynamically with optional custom alarm offsets (e.g., `?alarm_minutes=120`), supports instant `webcal://` one-click registration, and responds directly from PostgreSQL storage.
+   - **Note**: On Render's free hosting tier, an initial request after 15 minutes of inactivity may incur a 30–50 second cold-start delay while the container spins up.
+
+2. **Static High-Availability CDN Mirror (`bdperkin.github.io`)**:
+
+   - **URL**: `https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics`
+   - **Features**: Hosted on GitHub Pages via global CDN with zero spin-up or cold-start latency and 99.99% uptime. Synchronized and re-published every 6 hours by the automated GitHub Actions scheduled crawler workflow.
+   - **Companion Data Feeds**: Also provides static [`schedule.json`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.json) and [`schedule.csv`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.csv).
 
 ## 3. Step-by-Step Setup by Application
 

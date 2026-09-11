@@ -249,3 +249,71 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 32. CLI Entry Points & Core Commands
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.cli.main
+   :members:
+   :show-inheritance:
+```
+
+## 33. CLI Synchronization Command
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.cli.sync
+   :members:
+   :exclude-members: select
+   :show-inheritance:
+```
+
+## 34. CLI Status & Telemetry Command
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.cli.status
+   :members:
+   :exclude-members: select
+   :show-inheritance:
+```
+
+## 35. CLI Schedule Export Command
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.cli.export
+   :members:
+   :exclude-members: select
+   :show-inheritance:
+```
+
+## 36. CLI Conflict Inspection Command
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.cli.conflicts
+   :members:
+   :exclude-members: select
+   :show-inheritance:
+```
+
+## 37. CLI API Server Command
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.cli.serve
+   :members:
+   :show-inheritance:
+```
+
+## 38. CLI Notification Dispatch Command
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.cli.notify
+   :members:
+   :show-inheritance:
+```
+
+## 39. CLI Console & Rich Utilities
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.cli.console
+   :members:
+   :show-inheritance:
+```

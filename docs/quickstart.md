@@ -272,3 +272,47 @@ curl -X POST "http://127.0.0.1:8000/api/v1/sync/trigger" \
 curl -s "http://127.0.0.1:8000/api/v1/conflicts?severity=high" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
 ```
+
+### 6.6. Static GitHub Pages Calendar Feeds
+
+In addition to the dynamic production API, static calendar feeds are continuously compiled and hosted on GitHub Pages:
+
+- **iCalendar Feed**: [`https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics`](https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics)
+- **JSON Feed**: [`https://bdperkin.github.io/ecu-hockey-calendar/schedule.json`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.json)
+- **CSV Feed**: [`https://bdperkin.github.io/ecu-hockey-calendar/schedule.csv`](https://bdperkin.github.io/ecu-hockey-calendar/schedule.csv)
+
+These static feeds are refreshed every 6 hours via GitHub Actions and delivered with zero cold-start delay from GitHub's global CDN.
+
+## 7. Command-Line Interface (`ecu-hockey`) Quickstart
+
+For operators and terminal users, `ecu-hockey` provides unified subcommands without requiring custom scripts:
+
+```bash
+# Verify CLI installation and inspect subcommands
+ecu-hockey --help
+
+# Synchronize schedule across all sources with database persistence
+ecu-hockey sync
+
+# Preview synchronization changes without persisting (dry-run)
+ecu-hockey sync --season 2026-2027 --dry-run
+
+# Inspect service health, scraper telemetry, and team record
+ecu-hockey status
+
+# Export fixtures to RFC 5545 iCalendar, CSV, or JSON
+ecu-hockey export schedule.ics
+ecu-hockey export --home-only -f csv home_matches.csv
+ecu-hockey export -f json | jq '.[0]'
+
+# Review cross-source discrepancies flagged during reconciliation
+ecu-hockey conflicts --review-only
+
+# Launch the local Uvicorn ASGI server
+ecu-hockey serve --port 8000
+
+# Dispatch a test webhook alert across configured channels
+ecu-hockey notify -m "ECU Hockey schedule sync completed successfully." -t "Schedule Sync"
+```
+
+For the complete options reference and advanced flags, see the [CLI Reference](cli.md).

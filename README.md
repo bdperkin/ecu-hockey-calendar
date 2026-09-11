@@ -21,11 +21,14 @@ ______________________________________________________________________
     - [5.6.2. Querying Public Schedule Feeds](#562-querying-public-schedule-feeds)
     - [5.6.3. Health Probes & Administration](#563-health-probes--administration)
   - [5.7. Command-Line Interface (`ecu-hockey`)](#57-command-line-interface--ecu-hockey)
+    - [5.7.1. Subcommand Reference Table](#571-subcommand-reference-table)
 - [6. Database Schema Migrations](#6-database-schema-migrations)
 - [7. Production Deployment & Containerization](#7-production-deployment--containerization)
   - [7.1. Live Production Deployment (`ecu-hockey-api.onrender.com`)](#71-live-production-deployment--ecu-hockey-apionrendercom)
   - [7.2. Published Container Images (`ghcr.io`)](#72-published-container-images--ghcrio)
   - [7.3. Local Container Orchestration with Docker Compose](#73-local-container-orchestration-with-docker-compose)
+  - [7.4. Scheduled Ingestion & Static Feeds Automation](#74-scheduled-ingestion--static-feeds-automation)
+  - [7.5. Automated Continuous Deployment](#75-automated-continuous-deployment)
 - [8. Development and Contributing](#8-development-and-contributing)
   - [8.1. Quick Setup](#81-quick-setup)
 - [9. Security](#9-security)
@@ -67,6 +70,8 @@ Never miss an East Carolina University Men's Ice Hockey matchup! Subscribe to th
 
 - **Apple Calendar (iPhone, iPad, Mac)**: [Instant One-Click Subscription](https://ecu-hockey-api.onrender.com/calendar.ics?webcal=true) or use `webcal://ecu-hockey-api.onrender.com/calendar.ics`
 - **Google Calendar, Microsoft Outlook, and others**: Subscribe by URL using `https://ecu-hockey-api.onrender.com/calendar.ics`
+- **High-Availability Static CDN Mirror (GitHub Pages)**: Subscribe by URL using `https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics` (zero cold starts, refreshed every 6 hours via GitHub Actions)
+- **Static Master Data Feeds**: [JSON Schedule](https://bdperkin.github.io/ecu-hockey-calendar/schedule.json) | [CSV Schedule](https://bdperkin.github.io/ecu-hockey-calendar/schedule.csv)
 
 For complete, step-by-step instructions for every calendar client, custom alarm offsets, and troubleshooting, see the [ECU Hockey Calendar Sync Guide](docs/calendar_sync.md).
 
@@ -156,7 +161,13 @@ flowchart TD
 
 ## 4. Installation
 
-Install using `uv`:
+Install the standalone CLI tool globally using `uv tool`:
+
+```bash
+uv tool install ecu-hockey-calendar
+```
+
+Or add `ecu-hockey-calendar` to an existing project with `uv`:
 
 ```bash
 uv add ecu-hockey-calendar
@@ -413,7 +424,23 @@ ecu-hockey conflicts --review-only
 
 # Launch local Uvicorn ASGI server hosting the calendar feeds
 ecu-hockey serve --port 8000
+
+# Dispatch a test notification alert across configured webhooks
+ecu-hockey notify -m "ECU vs NC State rescheduled to 8:00 PM" -s warning
 ```
+
+#### 5.7.1. Subcommand Reference Table
+
+| Subcommand  | Purpose                                                     | Key Options & Flags                                                                                         |
+| :---------- | :---------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
+| `sync`      | Crawl sources, reconcile matches, diff state, and update DB | `--source [all\|ecuhockey\|acchockey]`, `--dry-run`, `--notify / --no-notify`, `--season`, `--db-url`       |
+| `status`    | Display operational health, DB status, and season record    | `--season`, `--db-url`                                                                                      |
+| `export`    | Export canonical schedule to `.ics`, `.json`, or `.csv`     | `-f, --format [ics\|json\|csv]`, `-o, --output <file>`, `--season`, `--opponent`, `--home-only`, `--status` |
+| `conflicts` | Review multi-source discrepancies and flagged matches       | `--severity [low\|medium\|high\|critical]`, `--review-only`, `--field <name>`, `--db-url`                   |
+| `serve`     | Run the FastAPI ASGI server with Uvicorn                    | `-h, --host`, `-p, --port`, `--reload / --no-reload`, `--db-url`                                            |
+| `notify`    | Dispatch custom alerts across webhook channels              | `-m, --message`, `-t, --title`, `-s, --severity [info\|warning\|alert]`, `-c, --channel`                    |
+
+For advanced usage details and exhaustive flag options, see the [CLI Documentation](docs/cli.md).
 
 ## 6. Database Schema Migrations
 
@@ -489,6 +516,23 @@ docker compose up -d --build
 # Check health probe
 curl -s http://localhost:8000/health | jq .
 ```
+
+### 7.4. Scheduled Ingestion & Static Feeds Automation
+
+An automated GitHub Actions workflow ([`.github/workflows/schedule-sync.yml`](.github/workflows/schedule-sync.yml)) executes every 6 hours (`0 */6 * * *`):
+
+- Ingests and reconciles fixtures across all primary, league, ticket, and social sources.
+- Dispatches rich alert notifications to Discord, Slack, and Telegram for any detected changes.
+- Exports static schedule feeds to `static/` (`calendar.ics`, `schedule.json`, `schedule.csv`).
+- Triggers GitHub Pages deployment ([`.github/workflows/pages.yml`](.github/workflows/pages.yml)) to refresh the static CDN mirror at `https://bdperkin.github.io/ecu-hockey-calendar/`.
+
+### 7.5. Automated Continuous Deployment
+
+The repository includes an automated Continuous Deployment pipeline ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)):
+
+- Automatically triggers upon successful container publication on `main` or new release tags.
+- Applies schema migrations (`alembic upgrade head`) before shifting live traffic.
+- Performs automated health probe verification against `/health` to guarantee service readiness.
 
 For an in-depth architectural comparison of background worker and API hosting providers (Render, Railway, Fly.io, AWS Lambda), persistent storage strategies, SSL/TLS termination requirements, and Instagram anti-bot scraping mitigations, see [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
