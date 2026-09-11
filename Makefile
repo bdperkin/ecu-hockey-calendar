@@ -104,8 +104,12 @@ lint-toml: ## Validate pyproject.toml schema and canonical formatting
 	$(UV) run validate-pyproject pyproject.toml
 	$(UV) run pyproject-fmt --check pyproject.toml
 
+.PHONY: lint-feeds
+lint-feeds: ## Validate static schedule export feeds (ICS, CSV, JSON)
+	$(UV) run python tools/validate_feeds.py static
+
 .PHONY: lint
-lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html lint-docker lint-actions lint-editorconfig lint-toml ## Run all linter checks
+lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html lint-docker lint-actions lint-editorconfig lint-toml lint-feeds ## Run all linter checks
 
 .PHONY: typecheck
 typecheck: ## Run strict ty static type checker

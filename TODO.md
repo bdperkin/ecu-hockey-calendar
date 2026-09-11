@@ -386,7 +386,7 @@ ______________________________________________________________________
   - **Summary:** Expand `.editorconfig` rules to cover all newly introduced project file types, and enforce strict TOML validation and formatting in CI.
   - **Description:** Extend `.editorconfig` with rules for HTML/Jinja, Docker, Git, and TOML files. Add `editorconfig-checker` and `validate-pyproject[all]` to `pyproject.toml` dev dependencies, add `make lint-editorconfig` and `make lint-toml` to `Makefile` wired into `make lint`, and add EditorConfig and TOML validation steps to `.github/workflows/ci.yml`.
 
-- [ ] **[#130](https://github.com/bdperkin/ecu-hockey-calendar/issues/130) - feat(quality): implement static feed validation for CSV, iCalendar (ICS), and JSON exports**
+- [x] **[#130](https://github.com/bdperkin/ecu-hockey-calendar/issues/130) - feat(quality): implement static feed validation for CSV, iCalendar (ICS), and JSON exports**
 
   - **Summary:** Automated structural, syntactic, and schema verification for static export feeds (`static/calendar.ics`, `static/schedule.csv`, `static/schedule.json`).
   - **Description:** Add `check-json` to `.pre-commit-config.yaml`, add automated validation checking `calendar.ics` against RFC 5545 requirements (CRLF line endings, valid line folding, mandatory headers), checking `schedule.csv` against RFC 4180 structure, and validating `schedule.json` against the `Schedule` model schema. Provide `make lint-feeds` in `Makefile` and enforce in CI prior to artifact distribution.
