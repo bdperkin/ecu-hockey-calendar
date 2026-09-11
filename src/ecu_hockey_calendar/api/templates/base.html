@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}ECU Men's Ice Hockey Schedule{% endblock %}</title>
-  {% block meta %}{% endblock %}
-  <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}ECU Men's Ice Hockey Schedule{% endblock %}</title>
+        {% block meta %}{% endblock %}
+        <style>
     :root {
       --ecu-purple: #592a8a;
       --ecu-gold: #fec923;
@@ -807,85 +807,90 @@
       font-size: 0.85rem;
       color: var(--ecu-gold);
     }
-  </style>
-  {% block extra_styles %}{% endblock %}
-</head>
-<body class="{% if is_embed %}embed-mode{% elif is_pdf %}pdf-mode{% endif %}">
-  {% if not is_embed and not is_pdf %}
-  <header class="site-header">
-    <h1>East Carolina University Men's Ice Hockey</h1>
-    <p>Official Team Schedule &amp; Game Information</p>
-  </header>
+        </style>
+        {% block extra_styles %}{% endblock %}
+    </head>
+    <body class="{% if is_embed %}embed-mode{% elif is_pdf %}pdf-mode{% endif %}">
+        {% if not is_embed and not is_pdf %}
+            <header class="site-header">
+                <h1>East Carolina University Men's Ice Hockey</h1>
+                <p>Official Team Schedule &amp; Game Information</p>
+            </header>
 
-  <nav class="site-nav">
-    <div class="nav-container">
-      <ul class="nav-links">
-        <li><a href="/" class="{% if active_tab == 'home' %}active{% endif %}">Home</a></li>
-        <li><a href="{{ schedule_url or '/schedule' }}" class="{% if active_tab == 'schedule' %}active{% endif %}">Schedule</a></li>
-        <li><a href="{{ ics_url or '/calendar.ics' }}">Calendar Subscription (.ics)</a></li>
-        <li><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF</a></li>
-        <li><a href="{{ csv_url or '/api/schedule.csv' }}">Download CSV</a></li>
-        <li><a href="{{ json_url or '/api/schedule.json' }}">JSON Feed</a></li>
-        <li><a href="/docs">API Docs</a></li>
-      </ul>
-      <div class="nav-actions">
-        <a href="{{ embed_url or '/schedule/embed' }}" class="btn btn-secondary">Embed Widget</a>
-      </div>
-    </div>
-  </nav>
-  {% endif %}
+            <nav class="site-nav">
+                <div class="nav-container">
+                    <ul class="nav-links">
+                        <li><a href="/" class="{% if active_tab == 'home' %}active{% endif %}">Home</a></li>
+                        <li><a href="{{ schedule_url or '/schedule' }}"
+   class="{% if active_tab == 'schedule' %}active{% endif %}">Schedule</a></li>
+                        <li><a href="{{ ics_url or '/calendar.ics' }}">Calendar Subscription (.ics)</a></li>
+                        <li><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF</a></li>
+                        <li><a href="{{ csv_url or '/api/schedule.csv' }}">Download CSV</a></li>
+                        <li><a href="{{ json_url or '/api/schedule.json' }}">JSON Feed</a></li>
+                        <li><a href="/docs">API Docs</a></li>
+                    </ul>
+                    <div class="nav-actions">
+                        <a href="{{ embed_url or '/schedule/embed' }}" class="btn btn-secondary">Embed Widget</a>
+                    </div>
+                </div>
+            </nav>
+        {% endif %}
 
-  <main class="{% if is_embed %}embed-content{% elif is_pdf %}pdf-content{% else %}main-content{% endif %}">
-    {% block content %}{% endblock %}
+        <main class="{% if is_embed %}embed-content{% elif is_pdf %}pdf-content{% else %}main-content{% endif %}">
+            {% block content %}{% endblock %}
 
-    {% if json_payload and not is_embed and not is_pdf %}
-    <section class="json-inspector-section">
-      <div class="json-inspector-container">
-        <div class="json-inspector-header">
-          <span class="json-inspector-title">Developer Data View</span>
-          <a href="{{ json_url }}" class="btn btn-outline btn-sm" id="view-as-json-btn">View as JSON</a>
-        </div>
-        <details class="json-inspector-details">
-          <summary class="json-inspector-summary">Raw JSON Payload (pretty-printed)</summary>
-          <div class="json-inspector-body">
-            <pre class="json-pre"><code>{{ json_payload | safe }}</code></pre>
-          </div>
-        </details>
-      </div>
-    </section>
-    {% endif %}
-  </main>
+            {% if json_payload and not is_embed and not is_pdf %}
+                <section class="json-inspector-section">
+                    <div class="json-inspector-container">
+                        <div class="json-inspector-header">
+                            <span class="json-inspector-title">Developer Data View</span>
+                            <a href="{{ json_url }}"
+                               class="btn btn-outline btn-sm"
+                               id="view-as-json-btn">View as JSON</a>
+                        </div>
+                        <details class="json-inspector-details">
+                            <summary class="json-inspector-summary">Raw JSON Payload (pretty-printed)</summary>
+                            <div class="json-inspector-body">
+                                <pre class="json-pre"><code>{{ json_payload | safe }}</code></pre>
+                            </div>
+                        </details>
+                    </div>
+                </section>
+            {% endif %}
+        </main>
 
-  {% if not is_embed and not is_pdf %}
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-section">
-        <h4>East Carolina University Ice Hockey</h4>
-        <p>Member of the Atlantic Collegiate Conference Hockey League (ACCHL)</p>
-        <p>Greenville, North Carolina</p>
-      </div>
-      <div class="footer-section">
-        <h4>Subscriptions &amp; Feeds</h4>
-        <p><a href="{{ ics_url or '/calendar.ics' }}">Apple / Google / Outlook iCal Feed</a></p>
-        <p><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF Grid</a></p>
-        <p><a href="{{ csv_url or '/api/schedule.csv' }}">Spreadsheet CSV Export</a></p>
-        <p><a href="{{ json_url or '/api/schedule.json' }}">Developer JSON Endpoint</a></p>
-      </div>
-      <div class="footer-section">
-        <h4>Widget &amp; System</h4>
-        <p><a href="{{ embed_url or '/schedule/embed' }}">Get Responsive Embed iFrame</a></p>
-        <p><a href="/health">Health &amp; Diagnostics</a></p>
-        <p><a href="https://ecuhockey.com" target="_blank" rel="noopener noreferrer">Official ECU Hockey Website</a></p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>ECU Hockey Calendar &amp; Data API v{{ service_version | default('0.5.0') }}</p>
-    </div>
-  </footer>
-  {% endif %}
+        {% if not is_embed and not is_pdf %}
+            <footer class="site-footer">
+                <div class="footer-container">
+                    <div class="footer-section">
+                        <h4>East Carolina University Ice Hockey</h4>
+                        <p>Member of the Atlantic Collegiate Conference Hockey League (ACCHL)</p>
+                        <p>Greenville, North Carolina</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Subscriptions &amp; Feeds</h4>
+                        <p><a href="{{ ics_url or '/calendar.ics' }}">Apple / Google / Outlook iCal Feed</a></p>
+                        <p><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF Grid</a></p>
+                        <p><a href="{{ csv_url or '/api/schedule.csv' }}">Spreadsheet CSV Export</a></p>
+                        <p><a href="{{ json_url or '/api/schedule.json' }}">Developer JSON Endpoint</a></p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Widget &amp; System</h4>
+                        <p><a href="{{ embed_url or '/schedule/embed' }}">Get Responsive Embed iFrame</a></p>
+                        <p><a href="/health">Health &amp; Diagnostics</a></p>
+                        <p><a href="https://ecuhockey.com"
+   target="_blank"
+   rel="noopener noreferrer">Official ECU Hockey Website</a></p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>ECU Hockey Calendar &amp; Data API v{{ service_version | default("0.5.0") }}</p>
+                </div>
+            </footer>
+        {% endif %}
 
-  {% if not is_pdf %}
-  <script>
+        {% if not is_pdf %}
+            <script>
     function copyEmbedCode() {
       const input = document.getElementById("embed-code");
       if (!input) return;
@@ -906,8 +911,8 @@
         setTimeout(() => { msg.style.display = "none"; }, 3000);
       }
     }
-  </script>
-  {% block extra_scripts %}{% endblock %}
-  {% endif %}
-</body>
+            </script>
+            {% block extra_scripts %}{% endblock %}
+        {% endif %}
+    </body>
 </html>

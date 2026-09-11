@@ -131,6 +131,11 @@ repos:
       - id: pymarkdown
         args: [scan]
         exclude: ^CHANGELOG\.md$
+  - repo: https://github.com/djlint/djLint
+    rev: v1.46.1
+    hooks:
+      - id: djlint-reformat
+      - id: djlint
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
