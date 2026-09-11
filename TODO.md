@@ -322,7 +322,7 @@ ______________________________________________________________________
 
 #### 2.5.12. Phase 5.12: Repository Badges & Status Indicators
 
-- [ ] **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86) - docs(readme): audit project and implement missing status, quality, and technology badges**
+- [x] **[#86](https://github.com/bdperkin/ecu-hockey-calendar/issues/86) - docs(readme): audit project and implement missing status, quality, and technology badges**
   - **Summary:** Audit project workflows, security, and dependencies, and add missing badges to `README.md`.
   - **Description:** Identify and incorporate status badges for GitHub Pages documentation, CodeQL security scanning, pre-commit.ci, dependency review, semantic release, FastAPI, SQLAlchemy, and license/security policies into logically organized badge sections.
 
