@@ -43,7 +43,8 @@ jobs:
       - name: Resolve package version
         id: pkg_version
         run: |
-          VERSION=$(uv run --with hatch-vcs python -c "from hatch_vcs.version_source import VCSVersionSource; print(VCSVersionSource('.', {}).get_version_data()['version'])")
+          VERSION=$(uv run --with hatch-vcs python -c \
+            "from hatch_vcs.version_source import VCSVersionSource; print(VCSVersionSource('.', {}).get_version_data()['version'])")
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Resolved package version for container build: ${VERSION}"
       - name: Set up QEMU

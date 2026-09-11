@@ -19,6 +19,7 @@ ci:
     - semgrep-ci
     - pyroma
     - hadolint
+    - actionlint
 repos:
   - repo: meta
     hooks:
@@ -141,10 +142,16 @@ repos:
     rev: v2.15.1
     hooks:
       - id: hadolint
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.38.0
     hooks:
       - id: check-compose-spec
+      - id: check-github-workflows
+      - id: check-dependabot
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:

@@ -376,7 +376,7 @@ ______________________________________________________________________
   - **Summary:** Introduce automated Dockerfile linting with Hadolint and validate `docker-compose.yml` against the official Compose specification.
   - **Description:** Add `hadolint/hadolint` to `.pre-commit-config.yaml`, resolve the `DL3025` shell-form warning in `Dockerfile`'s health check probe, add `make lint-docker` to `Makefile`, and integrate `hadolint/hadolint-action@v3` and `check-jsonschema` Compose specification validation into CI.
 
-- [ ] **[#128](https://github.com/bdperkin/ecu-hockey-calendar/issues/128) - ci(actions): validate GitHub Actions workflows and YAML configurations with actionlint and yamllint**
+- [x] **[#128](https://github.com/bdperkin/ecu-hockey-calendar/issues/128) - ci(actions): validate GitHub Actions workflows and YAML configurations with actionlint and yamllint**
 
   - **Summary:** Validate all GitHub Actions workflow files with `actionlint` and harmonize `yamllint` enforcement across Makefile and CI.
   - **Description:** Add `actionlint` to pre-commit, Makefile (`make lint-actions`), and CI to statically catch expression, shell syntax, and action configuration defects. Add `yamllint` to dev dependencies, update `make lint-yaml` and `.github/workflows/ci.yml` to run `yamllint -c .yamllint.yaml .`, expand `yamlfix` across all repository YAML files (`render.yaml`, `docker-compose.yml`), and add workflow schema verification with `check-jsonschema`.
