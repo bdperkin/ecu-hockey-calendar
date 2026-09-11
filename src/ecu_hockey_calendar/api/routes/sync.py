@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Annotated, Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, select
 
 from ecu_hockey_calendar.api.auth import verify_admin_token
@@ -163,9 +163,21 @@ def get_sync_status(request: Request) -> dict[str, Any]:
     summary="Trigger Synchronization Cycle",
     description=(
         "Administrative endpoint to trigger an on-demand schedule crawl and "
-        "reconciliation cycle. Requires administrator authentication."
+        "reconciliation cycle. Requires administrator authentication. Returns "
+        "501 Not Implemented if on-demand execution is not configured."
     ),
     status_code=status.HTTP_202_ACCEPTED,
+    responses={
+        status.HTTP_202_ACCEPTED: {
+            "description": "Synchronization cycle triggered successfully.",
+        },
+        status.HTTP_501_NOT_IMPLEMENTED: {
+            "description": (
+                "On-demand synchronization trigger is not implemented or "
+                "configured in this deployment environment."
+            ),
+        },
+    },
     dependencies=[Depends(verify_admin_token)],
 )
 def trigger_sync_cycle(
@@ -189,12 +201,23 @@ def trigger_sync_cycle(
 
     Returns:
         Response payload acknowledging sync task initiation.
-    """
-    cycle_id = f"sync-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:8]}"
 
+    Raises:
+        HTTPException: 501 Not Implemented if no sync trigger handler is registered.
+    """
     handler = getattr(request.app.state, "sync_trigger_handler", None)
-    if callable(handler):
-        handler(cycle_id, source=source)
+    if not callable(handler):
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=(
+                "On-demand synchronization trigger is not implemented or "
+                "configured in this deployment environment. Scheduled "
+                "synchronization runs via external cron."
+            ),
+        )
+
+    cycle_id = f"sync-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:8]}"
+    handler(cycle_id, source=source)
 
     return {
         "status": "accepted",
