@@ -287,7 +287,7 @@ Complete API documentation for `ecu-hockey-calendar`.
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.sync
    :members:
-   :exclude-members: select
+   :exclude-members: select, Base
    :show-inheritance:
 ```
 
@@ -339,5 +339,14 @@ Complete API documentation for `ecu-hockey-calendar`.
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.console
    :members:
+   :show-inheritance:
+```
+
+## 43. Synchronization Pipeline & Concurrency Manager
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.sync_service
+   :members:
+   :exclude-members: select
    :show-inheritance:
 ```

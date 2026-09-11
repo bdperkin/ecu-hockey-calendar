@@ -412,7 +412,7 @@ ______________________________________________________________________
 
 #### 2.7.3. Phase 7.3: In-Process Background Synchronization Engine
 
-- [ ] **[#117](https://github.com/bdperkin/ecu-hockey-calendar/issues/117) - feat(api): implement in-process background synchronization trigger with concurrency and cooldown safeguards**
+- [x] **[#117](https://github.com/bdperkin/ecu-hockey-calendar/issues/117) - feat(api): implement in-process background synchronization trigger with concurrency and cooldown safeguards**
 
   - **Summary:** Implement in-process background crawl execution using FastAPI `BackgroundTasks` with concurrency locking, rate-limiting cooldowns, and audit telemetry tracking.
   - **Description:** Extract the core synchronization pipeline into a shared, reusable service module, provide a default `BackgroundTasks` trigger handler enabled via `ENABLE_API_SYNC_TRIGGER=true`, protect against concurrent triggers with an `asyncio.Lock` returning `409 Conflict`, enforce a cooldown interval returning `429 Too Many Requests` with a `Retry-After` header to protect upstream sources and Instagram IP reputation, and record in-progress status in `SyncAuditModel` so `/api/v1/sync/status` immediately reports `syncing`. Powers the interactive "Sync now" control on the [#99](https://github.com/bdperkin/ecu-hockey-calendar/issues/99) dashboard.
