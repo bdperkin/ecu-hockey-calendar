@@ -51,7 +51,8 @@ ______________________________________________________________________
     - [2.7.5. Phase 7.5: Administrative Conflict Triage Interface](#275-phase-75-administrative-conflict-triage-interface)
   - [2.8. Milestone 8: v0.8.0 - Syndication & Integrations](#28-milestone-8-v080---syndication--integrations)
     - [2.8.1. Phase 8.1: RSS / Atom Syndication Feeds](#281-phase-81-rss--atom-syndication-feeds)
-    - [2.8.2. Phase 8.2: Comprehensive Documentation Audit & Reconciliation](#282-phase-82-comprehensive-documentation-audit--reconciliation)
+    - [2.8.2. Phase 8.2: Visual Brand Identity & Project Logo Assets](#282-phase-82-visual-brand-identity--project-logo-assets)
+    - [2.8.3. Phase 8.3: Comprehensive Documentation Audit & Reconciliation](#283-phase-83-comprehensive-documentation-audit--reconciliation)
 - [3. CodeQL Security & Quality Audit Trail](#3-codeql-security--quality-audit-trail)
 - [4. Implementation Sequencing & Dependency Graph](#4-implementation-sequencing--dependency-graph)
   - [4.1. Sequencing Rationale](#41-sequencing-rationale)
@@ -437,7 +438,14 @@ ______________________________________________________________________
   - **Summary:** Dynamic RSS 2.0 and Atom 1.0 XML feeds powered by `feedgen` for media outlets and automation workflows.
   - **Description:** Provide `/feed.rss` and `/feed.atom` feeds exposing fixture announcements, time changes, and final scores for integration with Zapier, Make.com, and Discord bots.
 
-#### 2.8.2. Phase 8.2: Comprehensive Documentation Audit & Reconciliation
+#### 2.8.2. Phase 8.2: Visual Brand Identity & Project Logo Assets
+
+- [ ] **[#142](https://github.com/bdperkin/ecu-hockey-calendar/issues/142) - docs(branding): establish project logo and visual brand identity across repository, documentation, and web interfaces**
+
+  - **Summary:** Author vector SVG logo and visual branding assets for ECU Men's Ice Hockey Calendar, integrating into `README.md`, Sphinx docs, web templates, and repository social preview.
+  - **Description:** Design a crisp SVG vector logo and high-resolution transparent PNG tailored to ECU pirate athletics palette (`--ecu-purple` `#592A8A`, `--ecu-gold` `#FFC72C`, with light/dark contrast), center a 100-200px responsive logo at the top of `README.md`, configure Sphinx `html_logo` and `html_favicon` in `docs/conf.py`, embed the visual identity in `base.html` web application headers, and supply a 1280x640 Open Graph social preview asset for GitHub link cards. Sequenced prior to the final documentation audit ([#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103)) so all asset links and rendered docs are verified.
+
+#### 2.8.3. Phase 8.3: Comprehensive Documentation Audit & Reconciliation
 
 - [ ] **[#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103) - docs: comprehensive internal and external documentation audit and reconciliation**
   - **Summary:** Final verification pass proving every internal and external documentation surface matches the shipped system once all preceding roadmap issues are complete.
@@ -536,6 +544,7 @@ flowchart TD
 
     subgraph M8["Stage 7: Milestone 8 (Syndication & Integrations)"]
         T78["#78: RSS / Atom Syndication Feeds"]
+        T142["#142: Visual Brand Identity & Logo"]
         T103["#103: Full Documentation Audit"]
     end
 
@@ -579,7 +588,8 @@ flowchart TD
     T117 --> T99
     T99 --> T100
     T100 --> T78
-    T78 --> T103
+    T78 --> T142
+    T142 --> T103
     T102 -.informs.-> T116
     T102 -.informs.-> T117
     T117 -.powers.-> T99
@@ -631,4 +641,5 @@ flowchart TD
    - Issue **[#100](https://github.com/bdperkin/ecu-hockey-calendar/issues/100)** completes the series with administrative conflict triage. It is sequenced last and carries the lowest priority because it is token-gated, giving it the narrowest reachable audience of any open issue.
 7. **Milestone 8 (Syndication & Integrations)**:
    - Issue **[#78](https://github.com/bdperkin/ecu-hockey-calendar/issues/78)** adds RSS 2.0 and Atom syndication for media outlets and automation platforms. It has no dependants and the least evidenced demand, so it is deferred to a forward-looking integrations bucket that can absorb future downstream surfaces.
+   - Issue **[#142](https://github.com/bdperkin/ecu-hockey-calendar/issues/142)** establishes the visual brand identity, SVG vector logo, and Open Graph social preview assets across `README.md`, Sphinx docs, and web application templates. Sequenced prior to Issue **[#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103)** so the final comprehensive documentation audit validates logo placement, Sphinx asset rendering, and image links across all surfaces.
    - Issue **[#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103)** closes the roadmap with a full documentation audit. It is sequenced last by necessity: it verifies the documentation against the completed system rather than against intent. It also covers three structural gaps — Issues **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** through **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102)** change public API behavior without carrying documentation requirements, Milestones 6, 7, and 8 have no documentation alignment phase of their own, and several surfaces (`docs/api.md`, `docs/cli.md`, `docs/index.md`, repository topics) are owned by no issue at all.
