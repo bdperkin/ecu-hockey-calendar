@@ -79,8 +79,13 @@ lint-html: ## Lint and check HTML and Jinja templates with djlint
 	$(UV) run djlint --check src/ecu_hockey_calendar/api/templates
 	$(UV) run djlint --lint src/ecu_hockey_calendar/api/templates
 
+.PHONY: lint-docker
+lint-docker: ## Lint Dockerfile with hadolint and validate compose spec
+	$(UV) run hadolint Dockerfile
+	$(UV) run check-jsonschema --builtin-schema compose-spec docker-compose.yml
+
 .PHONY: lint
-lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html ## Run all linter checks
+lint: lint-ruff lint-pylint lint-codespell lint-interrogate lint-deptry lint-vulture lint-complexity lint-md lint-yaml lint-html lint-docker ## Run all linter checks
 
 .PHONY: typecheck
 typecheck: ## Run strict ty static type checker
