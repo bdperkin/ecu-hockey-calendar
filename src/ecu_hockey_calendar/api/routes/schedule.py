@@ -10,7 +10,10 @@ from ecu_hockey_calendar.api.routes.common import (
     check_conditional_headers,
     get_active_games,
 )
-from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
+from ecu_hockey_calendar.api.schedule_service import (
+    ScheduleDataService,
+    resolve_pdf_filename,
+)
 from ecu_hockey_calendar.api.service import (
     DEFAULT_CACHE_MAX_AGE,
     DEFAULT_STALE_WHILE_REVALIDATE,
@@ -26,7 +29,7 @@ schedule_router = APIRouter(prefix="/api", tags=["Schedule"])
 
 
 def _build_schedule_caching_headers(
-    content: str,
+    content: str | bytes,
     games: Sequence[Game],
     media_type: str,
     filename: str,
@@ -367,3 +370,197 @@ def head_schedule_csv(
         status_filter=status_filter,
     )
     return Response(status_code=res.status_code, headers=dict(res.headers))
+
+
+def serve_schedule_pdf(
+    request: Request,
+    *,
+    season: str | None = None,
+    opponent: str | None = None,
+    home_only: bool = False,
+    status_filter: str | None = None,
+) -> Response:
+    """Serve printable high-contrast PDF master schedule grid.
+
+    Args:
+        request: Incoming HTTP request.
+        season: Optional season filter string.
+        opponent: Optional opponent substring query.
+        home_only: If True, include only home matches.
+        status_filter: Optional match status filter.
+
+    Returns:
+        FastAPI Response with application/pdf body and caching headers.
+    """
+    games = get_active_games(request, season)
+    service: ScheduleDataService = getattr(
+        request.app.state,
+        "schedule_service",
+        ScheduleDataService(),
+    )
+    pdf_bytes = service.generate_pdf_schedule(
+        games,
+        season=season,
+        opponent=opponent,
+        home_only=home_only,
+        status=status_filter,
+    )
+    filename = resolve_pdf_filename(season, games)
+    headers = _build_schedule_caching_headers(
+        content=pdf_bytes,
+        games=games,
+        media_type="application/pdf",
+        filename=filename,
+    )
+    if check_conditional_headers(request, headers["ETag"], headers["Last-Modified"]):
+        return Response(
+            status_code=status.HTTP_304_NOT_MODIFIED,
+            headers=headers,
+        )
+
+    return Response(
+        content=pdf_bytes,
+        status_code=status.HTTP_200_OK,
+        media_type="application/pdf",
+        headers=headers,
+    )
+
+
+def serve_head_schedule_pdf(
+    request: Request,
+    *,
+    season: str | None = None,
+    opponent: str | None = None,
+    home_only: bool = False,
+    status_filter: str | None = None,
+) -> Response:
+    """Serve HEAD response for schedule PDF endpoint.
+
+    Args:
+        request: Incoming HTTP request.
+        season: Optional season filter.
+        opponent: Optional opponent query.
+        home_only: Home games only flag.
+        status_filter: Optional status filter.
+
+    Returns:
+        Empty Response containing cache headers.
+    """
+    res = serve_schedule_pdf(
+        request=request,
+        season=season,
+        opponent=opponent,
+        home_only=home_only,
+        status_filter=status_filter,
+    )
+    return Response(status_code=res.status_code, headers=dict(res.headers))
+
+
+@schedule_router.get(
+    "/schedule.pdf",
+    summary="Printable Master Schedule PDF Grid",
+    description=(
+        "High-contrast printable PDF schedule grid formatted for parents, coaches, "
+        "refrigerators, and bench clipboards on standard US Letter paper."
+    ),
+    response_class=Response,
+    responses={
+        200: {
+            "content": {"application/pdf": {}},
+            "description": "Printable master schedule PDF grid document.",
+        },
+        304: {"description": "Schedule data not modified since last poll."},
+    },
+)
+def get_schedule_pdf(
+    request: Request,
+    *,
+    season: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+            ),
+        ),
+    ] = None,
+    opponent: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter games by opponent team name (case-insensitive substring)."
+            ),
+        ),
+    ] = None,
+    home_only: Annotated[
+        bool,
+        Query(description="If True, only home matches are included in the PDF."),
+    ] = False,
+    status_filter: Annotated[
+        str | None,
+        Query(
+            alias="status",
+            description=(
+                "Filter games by match status (e.g. 'SCHEDULED', 'W', 'CANCELLED')."
+            ),
+        ),
+    ] = None,
+) -> Response:
+    """Serve printable schedule grid PDF from API prefix route."""
+    return serve_schedule_pdf(
+        request=request,
+        season=season,
+        opponent=opponent,
+        home_only=home_only,
+        status_filter=status_filter,
+    )
+
+
+@schedule_router.head(
+    "/schedule.pdf",
+    summary="Master Schedule PDF Headers",
+    description=(
+        "Inspect master schedule PDF cache headers without retrieving body payload."
+    ),
+    response_class=Response,
+)
+def head_schedule_pdf(
+    request: Request,
+    *,
+    season: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+            ),
+        ),
+    ] = None,
+    opponent: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter games by opponent team name (case-insensitive substring)."
+            ),
+        ),
+    ] = None,
+    home_only: Annotated[
+        bool,
+        Query(description="If True, only home matches are included in the PDF."),
+    ] = False,
+    status_filter: Annotated[
+        str | None,
+        Query(
+            alias="status",
+            description=(
+                "Filter games by match status (e.g. 'SCHEDULED', 'W', 'CANCELLED')."
+            ),
+        ),
+    ] = None,
+) -> Response:
+    """Serve HEAD response for API schedule PDF endpoint."""
+    return serve_head_schedule_pdf(
+        request=request,
+        season=season,
+        opponent=opponent,
+        home_only=home_only,
+        status_filter=status_filter,
+    )

@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}{{ primary_team }} Ice Hockey Schedule — Printable Grid{% endblock %}
+
+{% block extra_styles %}
+<style>
+  @page {
+    size: letter;
+    margin: 0.5in;
+    @bottom-left {
+      content: "Official ECU Men's Ice Hockey • ecuhockey.com";
+      font-size: 8pt;
+      color: #666666;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 8pt;
+      color: #666666;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  }
+
+  body.pdf-mode {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 8.5pt;
+    line-height: 1.25;
+    margin: 0;
+    padding: 0;
+  }
+
+  .pdf-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Header banner */
+  .pdf-header-banner {
+    background-color: #592a8a;
+    color: #ffffff;
+    border-bottom: 3.5px solid #fec923;
+    padding: 10px 14px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .pdf-title-block h1 {
+    font-size: 14pt;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .pdf-title-block .pdf-subtitle {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #fec923;
+    margin-top: 2px;
+  }
+
+  .pdf-meta-block {
+    text-align: right;
+    font-size: 7.5pt;
+    color: #e6dbf2;
+    line-height: 1.35;
+  }
+
+  .pdf-meta-block strong {
+    color: #ffffff;
+  }
+
+  .pdf-meta-block .pdf-ticket-info {
+    color: #fec923;
+    font-weight: 700;
+  }
+
+  /* Schedule Grid Table */
+  .pdf-schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+  }
+
+  .pdf-schedule-table thead {
+    display: table-header-group;
+  }
+
+  .pdf-schedule-table tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .pdf-schedule-table th {
+    background-color: #592a8a;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 5px 6px;
+    border: 1px solid #431e6b;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .pdf-schedule-table td {
+    padding: 4.5px 6px;
+    border: 1px solid #d4d4d4;
+    vertical-align: middle;
+  }
+
+  .pdf-schedule-table tbody tr:nth-child(even) {
+    background-color: #f9f9fc;
+  }
+
+  /* Badges & Indicators */
+  .pdf-badge {
+    display: inline-block;
+    padding: 2px 5px;
+    font-weight: 700;
+    font-size: 7pt;
+    border-radius: 3px;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .pdf-badge-home {
+    background-color: #592a8a;
+    color: #ffffff;
+  }
+
+  .pdf-badge-away {
+    background-color: #f0f0f4;
+    color: #333333;
+    border: 1px solid #c8c8c8;
+  }
+
+  /* Result / Notes */
+  .pdf-score-box {
+    display: inline-block;
+    border: 1px dashed #777777;
+    padding: 1px 7px;
+    min-width: 44px;
+    text-align: center;
+    font-family: monospace;
+    font-size: 7.5pt;
+    color: #666666;
+    background-color: #fafafa;
+    border-radius: 2px;
+  }
+
+  .pdf-final-result {
+    font-weight: 700;
+    font-size: 7.5pt;
+  }
+
+  .pdf-final-win {
+    color: #0f5132;
+  }
+
+  .pdf-final-loss {
+    color: #842029;
+  }
+
+  .pdf-final-neutral {
+    color: #41464b;
+  }
+
+  .pdf-empty-state {
+    text-align: center;
+    padding: 30px 15px;
+    border: 1px dashed #bbbbbb;
+    border-radius: 4px;
+    margin-top: 15px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="pdf-header-banner">
+  <div class="pdf-title-block">
+    <h1>East Carolina University Men's Ice Hockey</h1>
+    <div class="pdf-subtitle">
+      {% if selected_season %}{{ selected_season }} Season Schedule{% else %}Master Team Schedule{% endif %}
+      {% if selected_home_only %} &bull; Home Games Only{% endif %}
+    </div>
+  </div>
+  <div class="pdf-meta-block">
+    <div><strong>Total Games:</strong> {{ total_games }}</div>
+    <div><strong>Generated:</strong> {{ generated_date }}</div>
+    <div class="pdf-ticket-info">Tickets: {{ tickets_url | default('ecuhockey.com/tickets') }}</div>
+  </div>
+</header>
+
+{% if games %}
+<table class="pdf-schedule-table">
+  <thead>
+    <tr>
+      <th style="width: 16%;">Date &amp; Day</th>
+      <th style="width: 12%;">Time (ET)</th>
+      <th style="width: 28%;">Opponent</th>
+      <th style="width: 10%; text-align: center;">Site</th>
+      <th style="width: 22%;">Venue &amp; City</th>
+      <th style="width: 12%; text-align: center;">Result / Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for game in games %}
+    <tr>
+      <td><strong>{{ game.date_str }}</strong></td>
+      <td>{{ game.time_str }}</td>
+      <td>
+        <div><strong>{{ game.opponent_name }}</strong></div>
+        {% if game.opponent_division or game.opponent_conference %}
+        <div style="font-size: 7pt; color: #555555;">
+          {{ game.opponent_division }}{% if game.opponent_division and game.opponent_conference %} &bull; {% endif %}{{ game.opponent_conference }}
+        </div>
+        {% endif %}
+      </td>
+      <td style="text-align: center;">
+        <span class="pdf-badge {% if game.is_home %}pdf-badge-home{% else %}pdf-badge-away{% endif %}">
+          {{ game.designation | upper }}
+        </span>
+      </td>
+      <td>
+        <div>{{ game.venue }}</div>
+        {% if game.location %}
+        <div style="font-size: 7pt; color: #555555;">{{ game.location }}</div>
+        {% endif %}
+      </td>
+      <td style="text-align: center;">
+        {% if game.score_text %}
+          <span class="pdf-final-result {% if 'W ' in game.score_text %}pdf-final-win{% elif 'L ' in game.score_text %}pdf-final-loss{% else %}pdf-final-neutral{% endif %}">
+            {{ game.score_text }}
+          </span>
+        {% elif game.status_label and game.status_label != 'Scheduled' %}
+          <span class="pdf-final-result pdf-final-neutral">{{ game.status_label }}</span>
+        {% else %}
+          <span class="pdf-score-box">[ &nbsp; &nbsp; &mdash; &nbsp; &nbsp; ]</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="pdf-empty-state">
+  <h2 style="font-size: 12pt; margin-bottom: 4px;">No Games Scheduled</h2>
+  <p style="font-size: 8.5pt; color: #555555;">No fixtures match the selected schedule criteria.</p>
+</div>
+{% endif %}
+{% endblock %}

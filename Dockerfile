@@ -30,9 +30,14 @@ RUN uv sync --frozen --no-dev
 # Final production runtime stage
 FROM python:3.12-slim AS runtime
 
-# Install curl for container health check probes
+# Install curl for health probes and Pango/fonts libraries for WeasyPrint PDF generation
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends \
+        curl \
+        fonts-dejavu-core \
+        libharfbuzz0b \
+        libpango-1.0-0 \
+        libpangoft2-1.0-0 && \
     rm -rf /var/lib/apt/lists/*
 
 # Create unprivileged application user and group
