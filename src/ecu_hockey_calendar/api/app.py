@@ -16,6 +16,7 @@ from ecu_hockey_calendar.api.routes import (
     health_router,
     schedule_router,
     sync_router,
+    web_router,
 )
 from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
 from ecu_hockey_calendar.api.service import CalendarFeedService
@@ -102,6 +103,7 @@ def create_app(
         app.state.db_engine = None
 
     # Include routers
+    app.include_router(web_router)
     app.include_router(health_router)
     app.include_router(calendar_router)
     app.include_router(schedule_router)
@@ -127,6 +129,8 @@ def create_app(
                 "openapi": "/openapi.json",
                 "redoc": "/redoc",
                 "schedule_csv": "/api/schedule.csv",
+                "schedule_embed": "/schedule/embed",
+                "schedule_html": "/schedule",
                 "schedule_json": "/api/schedule.json",
                 "sync_status": "/api/v1/sync/status",
             },

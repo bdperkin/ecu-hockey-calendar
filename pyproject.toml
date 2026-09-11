@@ -30,6 +30,7 @@ dependencies = [
     "click>=8.1.0",
     "fastapi>=0.141.1",
     "httpx>=0.27.0",
+    "jinja2>=3.1.4",
     "psycopg[binary]>=3.2.0",
     "rich>=13.0.0",
     "sqlalchemy>=2.0.0",
@@ -100,6 +101,7 @@ version.source = "vcs"
 version.raw-options = { dist_name = "ecu-hockey-calendar", fallback_version = "0.0.0+unknown" }
 build.hooks.vcs.version-file = "src/ecu_hockey_calendar/_version.py"
 build.targets.wheel.packages = [ "src/ecu_hockey_calendar" ]
+build.targets.wheel.artifacts = [ "src/ecu_hockey_calendar/api/templates/**" ]
 
 [tool.ruff]
 target-version = "py312"

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ECU Men's Ice Hockey Schedule{% endblock %}</title>
+  {% block meta %}{% endblock %}
+  <style>
+    :root {
+      --ecu-purple: #592a8a;
+      --ecu-gold: #fec923;
+      --ecu-purple-dark: #431e6b;
+      --ecu-gold-dark: #d4a516;
+      --bg-page: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-dark: #212529;
+      --text-muted: #6c757d;
+      --border-color: #dee2e6;
+      --border-light: #edf2f7;
+      --badge-win-bg: #d1e7dd;
+      --badge-win-text: #0f5132;
+      --badge-loss-bg: #f8d7da;
+      --badge-loss-text: #842029;
+      --badge-otl-bg: #fff3cd;
+      --badge-otl-text: #664d03;
+      --badge-neutral-bg: #e2e3e5;
+      --badge-neutral-text: #41464b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-dark);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body.embed-mode {
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header */
+    .site-header {
+      background: linear-gradient(135deg, var(--ecu-purple) 0%, var(--ecu-purple-dark) 100%);
+      color: #ffffff;
+      border-bottom: 4px solid var(--ecu-gold);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .site-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+
+    .site-header p {
+      font-size: 0.95rem;
+      color: var(--ecu-gold);
+      font-weight: 500;
+    }
+
+    /* Navigation */
+    .site-nav {
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+    }
+
+    .nav-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-dark);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 4px;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: var(--border-light);
+      color: var(--ecu-purple);
+    }
+
+    .nav-links a.active {
+      background-color: var(--ecu-purple);
+      color: #ffffff;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      width: 100%;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    .embed-content {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0;
+    }
+
+    /* Embed Header */
+    .embed-header {
+      background: var(--ecu-purple);
+      color: #ffffff;
+      border-bottom: 3px solid var(--ecu-gold);
+      padding: 0.75rem 1rem;
+      border-radius: 6px 6px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .embed-header h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .embed-header a {
+      color: var(--ecu-gold);
+      font-size: 0.85rem;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .embed-header a:hover {
+      text-decoration: underline;
+    }
+
+    /* Filter Form */
+    .filter-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .filter-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex: 1 1 180px;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .form-control {
+      padding: 0.45rem 0.65rem;
+      font-size: 0.9rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: var(--text-dark);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--ecu-purple);
+      box-shadow: 0 0 0 2px rgba(89, 42, 138, 0.2);
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.5rem;
+      cursor: pointer;
+    }
+
+    .form-check input {
+      accent-color: var(--ecu-purple);
+      width: 1rem;
+      height: 1rem;
+      cursor: pointer;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background-color: var(--ecu-gold);
+      color: #1b1c1d;
+      border-color: var(--ecu-gold-dark);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--ecu-gold-dark);
+    }
+
+    .btn-secondary {
+      background-color: #ffffff;
+      color: var(--text-dark);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-light);
+    }
+
+    .btn-ticket {
+      background-color: var(--ecu-purple);
+      color: #ffffff;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+    }
+
+    .btn-ticket:hover {
+      background-color: var(--ecu-purple-dark);
+      color: var(--ecu-gold);
+    }
+
+    .btn-copy {
+      background-color: var(--ecu-purple);
+      color: #ffffff;
+    }
+
+    .btn-copy:hover {
+      background-color: var(--ecu-purple-dark);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+
+    .badge-home {
+      background-color: var(--ecu-purple);
+      color: #ffffff;
+    }
+
+    .badge-away {
+      background-color: #6c757d;
+      color: #ffffff;
+    }
+
+    .status-win {
+      background-color: var(--badge-win-bg);
+      color: var(--badge-win-text);
+      border: 1px solid #badbcc;
+    }
+
+    .status-loss {
+      background-color: var(--badge-loss-bg);
+      color: var(--badge-loss-text);
+      border: 1px solid #f5c2c7;
+    }
+
+    .status-otl, .status-tie {
+      background-color: var(--badge-otl-bg);
+      color: var(--badge-otl-text);
+      border: 1px solid #ffecb5;
+    }
+
+    .status-scheduled {
+      background-color: #e7f1ff;
+      color: #0c63e4;
+      border: 1px solid #b6d4fe;
+    }
+
+    .status-cancelled, .status-postponed {
+      background-color: var(--badge-neutral-bg);
+      color: var(--badge-neutral-text);
+      border: 1px solid #ced4da;
+    }
+
+    /* Schedule Summary */
+    .schedule-header-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .schedule-count {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Desktop Table Layout */
+    .schedule-table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .schedule-table th {
+      background-color: var(--ecu-purple);
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.75rem 1rem;
+      border: none;
+    }
+
+    .schedule-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+
+    .schedule-table tbody tr:hover {
+      background-color: rgba(89, 42, 138, 0.03);
+    }
+
+    .schedule-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .matchup-col {
+      font-weight: 600;
+    }
+
+    .matchup-opp-details {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .venue-details {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .map-link {
+      display: inline-block;
+      font-size: 0.8rem;
+      color: var(--ecu-purple);
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    .map-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Mobile Cards Layout */
+    .schedule-cards-container {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .game-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .card-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 0.5rem;
+    }
+
+    .card-date-time {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+    }
+
+    .card-matchup {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .card-opponent-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .card-venue {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .card-bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.25rem;
+    }
+
+    /* Embed Snippet Generator Box */
+    .embed-snippet-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .embed-snippet-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: var(--ecu-purple);
+    }
+
+    .embed-snippet-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .embed-code-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .embed-code-input {
+      flex: 1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--border-light);
+      color: var(--text-dark);
+    }
+
+    .copy-status {
+      font-size: 0.8rem;
+      color: #198754;
+      font-weight: 600;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    /* Empty state */
+    .empty-state {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* Footer */
+    .site-footer {
+      background-color: #1b1c1d;
+      color: #adb5bd;
+      padding: 2rem 1rem;
+      font-size: 0.85rem;
+      margin-top: auto;
+      border-top: 3px solid var(--ecu-gold);
+    }
+
+    .footer-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .footer-section h4 {
+      color: #ffffff;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-section a {
+      color: var(--ecu-gold);
+      text-decoration: none;
+    }
+
+    .footer-section a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 768px) {
+      .site-header h1 {
+        font-size: 1.35rem;
+      }
+
+      .nav-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .schedule-table-container {
+        display: none;
+      }
+
+      .schedule-cards-container {
+        display: flex;
+      }
+
+      .embed-code-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    /* Print Stylesheet (Generic for #77 and #79 WeasyPrint PDF) */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 10pt;
+        margin: 0;
+        padding: 0;
+      }
+
+      .site-header {
+        background: none !important;
+        color: #000000 !important;
+        border-bottom: 2px solid #592a8a !important;
+        padding: 0.5rem 0 !important;
+        text-align: left !important;
+      }
+
+      .site-header h1 {
+        font-size: 14pt !important;
+        color: #592a8a !important;
+      }
+
+      .site-header p {
+        color: #333333 !important;
+        font-size: 10pt !important;
+      }
+
+      .site-nav,
+      .site-footer,
+      .filter-card,
+      .embed-snippet-card,
+      .btn-ticket,
+      .btn-copy,
+      .map-link,
+      .no-print {
+        display: none !important;
+      }
+
+      .main-content,
+      .embed-content {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+
+      .schedule-cards-container {
+        display: none !important;
+      }
+
+      .schedule-table-container {
+        display: block !important;
+        border: 1px solid #cccccc !important;
+        box-shadow: none !important;
+      }
+
+      table.schedule-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto;
+      }
+
+      table.schedule-table tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+
+      table.schedule-table th,
+      table.schedule-table td {
+        border: 1px solid #dddddd !important;
+        padding: 6px 8px !important;
+        color: #000000 !important;
+      }
+
+      table.schedule-table th {
+        background-color: #f0f0f0 !important;
+        color: #000000 !important;
+        font-weight: bold;
+      }
+
+      .badge {
+        border: 1px solid #888888 !important;
+        background: none !important;
+        color: #000000 !important;
+      }
+
+      a {
+        text-decoration: none !important;
+        color: #000000 !important;
+      }
+    }
+  </style>
+  {% block extra_styles %}{% endblock %}
+</head>
+<body class="{% if is_embed %}embed-mode{% endif %}">
+  {% if not is_embed %}
+  <header class="site-header">
+    <h1>East Carolina University Men's Ice Hockey</h1>
+    <p>Official Team Schedule &amp; Game Information</p>
+  </header>
+
+  <nav class="site-nav">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="{{ schedule_url }}" class="active">Schedule</a></li>
+        <li><a href="{{ ics_url }}">Calendar Subscription (.ics)</a></li>
+        <li><a href="{{ csv_url }}">Download CSV</a></li>
+        <li><a href="{{ json_url }}">JSON Feed</a></li>
+        <li><a href="/docs">API Docs</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="{{ embed_url }}" class="btn btn-secondary">Embed Widget</a>
+      </div>
+    </div>
+  </nav>
+  {% endif %}
+
+  <main class="{% if is_embed %}embed-content{% else %}main-content{% endif %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% if not is_embed %}
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h4>East Carolina University Ice Hockey</h4>
+        <p>Member of the Atlantic Collegiate Conference Hockey League (ACCHL)</p>
+        <p>Greenville, North Carolina</p>
+      </div>
+      <div class="footer-section">
+        <h4>Subscriptions &amp; Feeds</h4>
+        <p><a href="{{ ics_url }}">Apple / Google / Outlook iCal Feed</a></p>
+        <p><a href="{{ csv_url }}">Spreadsheet CSV Export</a></p>
+        <p><a href="{{ json_url }}">Developer JSON Endpoint</a></p>
+      </div>
+      <div class="footer-section">
+        <h4>Widget Integration</h4>
+        <p><a href="{{ embed_url }}">Get Responsive Embed iFrame</a></p>
+        <p><a href="https://ecuhockey.com" target="_blank" rel="noopener noreferrer">Official ECU Hockey Website</a></p>
+      </div>
+    </div>
+  </footer>
+  {% endif %}
+
+  <script>
+    function copyEmbedCode() {
+      const input = document.getElementById("embed-code");
+      if (!input) return;
+      input.select();
+      input.setSelectionRange(0, 99999);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(input.value).then(showCopiedFeedback);
+      } else {
+        document.execCommand("copy");
+        showCopiedFeedback();
+      }
+    }
+
+    function showCopiedFeedback() {
+      const msg = document.getElementById("copy-status");
+      if (msg) {
+        msg.style.display = "block";
+        setTimeout(() => { msg.style.display = "none"; }, 3000);
+      }
+    }
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
