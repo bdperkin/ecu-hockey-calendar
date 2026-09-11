@@ -6,6 +6,7 @@ with query parameter filtering.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -71,7 +72,7 @@ def _detect_format(
 
     if output_path:
         ext = Path(output_path).suffix.lower().lstrip(".")
-        if ext in ("ics", "json", "csv", "html"):
+        if ext in ("ics", "json", "csv", "html", "pdf"):
             return ext
 
     if embed:
@@ -90,8 +91,8 @@ def _serialize_schedule(
     status_query: str | None,
     include_past: bool,
     embed: bool = False,
-) -> str:
-    """Serialize games into ics, json, csv, or html format."""
+) -> str | bytes:
+    """Serialize games into ics, json, csv, html, or pdf format."""
     if resolved_format == "ics":
         ics_svc = CalendarFeedService()
         return ics_svc.generate_ics_feed(
@@ -120,6 +121,15 @@ def _serialize_schedule(
             embed=embed,
         )
 
+    if resolved_format == "pdf":
+        return data_svc.generate_pdf_schedule(
+            games,
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            status=status_query,
+        )
+
     return data_svc.generate_csv_feed(
         games,
         season=season,
@@ -129,29 +139,54 @@ def _serialize_schedule(
     )
 
 
-def _write_export_output(
-    output_path: Path | None,
-    content: str,
-    resolved_format: str,
-    games_count: int,
-) -> None:
-    """Write serialized content to file or standard output."""
-    normalized_content = content
-    if not normalized_content.endswith(("\n", "\r\n")):
-        normalized_content += "\n"
-
+def _write_binary_export(output_path: Path | None, data: bytes) -> int:
+    """Write binary content to destination file or standard output."""
     if output_path is None:
-        click.echo(normalized_content, nl=False)
-        return
+        sys.stdout.buffer.write(data)
+        return len(data)
 
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(normalized_content, encoding="utf-8")
+        output_path.write_bytes(data)
     except OSError as exc:
         print_error(f"Failed to write output file {output_path}: {exc}")
         raise click.ClickException(str(exc)) from exc
 
-    byte_size = len(normalized_content.encode("utf-8"))
+    return len(data)
+
+
+def _write_text_export(output_path: Path | None, content: str) -> int:
+    """Write normalized text content to destination file or standard output."""
+    normalized = content if content.endswith(("\n", "\r\n")) else f"{content}\n"
+    if output_path is None:
+        click.echo(normalized, nl=False)
+        return len(normalized.encode("utf-8"))
+
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(normalized, encoding="utf-8")
+    except OSError as exc:
+        print_error(f"Failed to write output file {output_path}: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+    return len(normalized.encode("utf-8"))
+
+
+def _write_export_output(
+    output_path: Path | None,
+    content: str | bytes,
+    resolved_format: str,
+    games_count: int,
+) -> None:
+    """Write serialized content to file or standard output."""
+    if isinstance(content, bytes):
+        byte_size = _write_binary_export(output_path, content)
+    else:
+        byte_size = _write_text_export(output_path, content)
+
+    if output_path is None:
+        return
+
     panel_msg = (
         f"Format: [bold #fec923]{resolved_format.upper()}[/bold #fec923]\n"
         f"Destination: [bold white]{output_path.resolve()}[/bold white]\n"
@@ -166,7 +201,7 @@ def _write_export_output(
     "--format",
     "-f",
     "export_format",
-    type=click.Choice(["ics", "json", "csv", "html"], case_sensitive=False),
+    type=click.Choice(["ics", "json", "csv", "html", "pdf"], case_sensitive=False),
     default=None,
     help=(
         "Output serialization format (auto-detected from "
@@ -232,7 +267,7 @@ def export_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-ma
     include_past: bool,
     db_url: str | None,
 ) -> None:
-    """Export schedule to RFC 5545 iCalendar (.ics), JSON, CSV, or HTML file."""
+    """Export schedule to RFC 5545 iCalendar (.ics), JSON, CSV, HTML, or PDF file."""
     resolved_format = _detect_format(export_format, output_path, embed=embed)
 
     db_url_resolved = get_sync_database_url(db_url)

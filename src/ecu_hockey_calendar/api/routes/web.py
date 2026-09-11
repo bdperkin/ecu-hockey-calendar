@@ -10,6 +10,10 @@ from ecu_hockey_calendar.api.routes.common import (
     check_conditional_headers,
     get_active_games,
 )
+from ecu_hockey_calendar.api.routes.schedule import (
+    serve_head_schedule_pdf,
+    serve_schedule_pdf,
+)
 from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
 from ecu_hockey_calendar.api.service import (
     DEFAULT_CACHE_MAX_AGE,
@@ -355,3 +359,113 @@ def head_schedule_embed(
         status_filter=status_filter,
     )
     return Response(status_code=res.status_code, headers=dict(res.headers))
+
+
+@web_router.get(
+    "/schedule.pdf",
+    summary="Printable Schedule PDF Grid",
+    description=(
+        "High-contrast printable PDF schedule grid formatted for parents, coaches, "
+        "refrigerators, and bench clipboards on standard US Letter paper."
+    ),
+    response_class=Response,
+    responses={
+        200: {
+            "content": {"application/pdf": {}},
+            "description": "Printable master schedule PDF grid document.",
+        },
+        304: {"description": "Schedule data not modified since last poll."},
+    },
+)
+def get_web_schedule_pdf(
+    request: Request,
+    *,
+    season: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+            ),
+        ),
+    ] = None,
+    opponent: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter games by opponent team name (case-insensitive substring)."
+            ),
+        ),
+    ] = None,
+    home_only: Annotated[
+        bool,
+        Query(description="If True, only home matches are included in the PDF."),
+    ] = False,
+    status_filter: Annotated[
+        str | None,
+        Query(
+            alias="status",
+            description=(
+                "Filter games by match status (e.g. 'SCHEDULED', 'W', 'CANCELLED')."
+            ),
+        ),
+    ] = None,
+) -> Response:
+    """Serve printable schedule grid PDF from web root route."""
+    return serve_schedule_pdf(
+        request=request,
+        season=season,
+        opponent=opponent,
+        home_only=home_only,
+        status_filter=status_filter,
+    )
+
+
+@web_router.head(
+    "/schedule.pdf",
+    summary="Web Schedule PDF Headers",
+    description=(
+        "Inspect web schedule PDF cache headers without retrieving body payload."
+    ),
+    response_class=Response,
+)
+def head_web_schedule_pdf(
+    request: Request,
+    *,
+    season: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+            ),
+        ),
+    ] = None,
+    opponent: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter games by opponent team name (case-insensitive substring)."
+            ),
+        ),
+    ] = None,
+    home_only: Annotated[
+        bool,
+        Query(description="If True, only home matches are included in the PDF."),
+    ] = False,
+    status_filter: Annotated[
+        str | None,
+        Query(
+            alias="status",
+            description=(
+                "Filter games by match status (e.g. 'SCHEDULED', 'W', 'CANCELLED')."
+            ),
+        ),
+    ] = None,
+) -> Response:
+    """Serve HEAD response for web schedule PDF endpoint."""
+    return serve_head_schedule_pdf(
+        request=request,
+        season=season,
+        opponent=opponent,
+        home_only=home_only,
+        status_filter=status_filter,
+    )

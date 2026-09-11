@@ -18,6 +18,7 @@ The API service integrates the calendar generation, data normalization, database
 │ • GET /calendar.ics (webcal) │ Auth: Bearer / X-API-Key     │
 │ • GET /api/schedule.json     │                              │
 │ • GET /api/schedule.csv      │                              │
+│ • GET /schedule.pdf          │                              │
 │ • GET /health                │                              │
 │ • GET /api/v1/sync/status    │                              │
 │ • GET /docs & /redoc         │                              │
@@ -153,6 +154,7 @@ curl -s "http://localhost:8000/" | jq .
     "schedule_embed": "/schedule/embed",
     "schedule_html": "/schedule",
     "schedule_json": "/api/schedule.json",
+    "schedule_pdf": "/schedule.pdf",
     "sync_status": "/api/v1/sync/status"
   }
 }
@@ -235,7 +237,7 @@ For non-technical, step-by-step instructions, one-click setup, custom reminders,
 
 ## 5. Master Schedule Views & Data Feeds
 
-Public interfaces provide human-readable web schedules and machine-readable data feeds in HTML, JSON, and CSV formats.
+Public interfaces provide human-readable web schedules and machine-readable data feeds in HTML, JSON, CSV, and PDF formats.
 
 ### 5.1. Responsive HTML Schedule View (`/schedule`)
 
@@ -343,6 +345,50 @@ Output:
 ```text
 game_id,season,date,time_et,opponent,is_home,venue,city,state,status,result,tickets_url
 ECU-20261015-UNC,2026-2027,2026-10-15,19:00,UNC Chapel Hill,True,The Factory Ice House,Wake Forest,NC,SCHEDULED,,https://www.etix.com/ticket/v/13768
+```
+
+### 5.5. Printable Schedule PDF Grid (`/schedule.pdf`, `/api/schedule.pdf`)
+
+- **Method**: `GET`, `HEAD`
+- **Paths**: `/schedule.pdf`, `/api/schedule.pdf`
+- **Content-Type**: `application/pdf`
+- **Content-Disposition**: `attachment; filename="ecu_hockey_schedule_<season>.pdf"`
+
+Generates a high-contrast, ECU-branded printable schedule grid formatted specifically for parents, coaches, refrigerators, and bench clipboards on standard US Letter paper (`@page { size: letter; margin: 0.5in; }`).
+
+#### 5.5.1. Features & Layout
+
+- **Single / Two-Page Budget**: Compact CSS layout engineered to fit a full season cleanly across 1–2 pages without clipped rows or orphaned headers.
+- **Header Banner**: Official ECU Men's Ice Hockey purple and gold banner displaying the active season, generation timestamp, ticket purchase URL, and total game count.
+- **Printed Table Columns**:
+  - **Date & Day**: Game date with 3-letter day abbreviation (e.g., `Fri, Oct 16, 2026`).
+  - **Time (ET)**: Puck drop time in Eastern Time or `TBD`.
+  - **Opponent**: Opponent name with division and conference labels (e.g., `UNC Chapel Hill (ACHA M2 - ACCHL)`).
+  - **Designation**: High-contrast `HOME` or `AWAY` badge.
+  - **Venue & City**: Arena name and city/state location.
+  - **Result / Notes**: Final score and result for completed games (e.g., `W 4 - 2`), status annotations (e.g., `POSTPONED`), or blank `[  —  ]` score-tracking boxes for upcoming matches.
+- **Print Optimization**: Repeated table headers on subsequent pages (`thead { display: table-header-group; }`), page numbers via CSS paged media counters (`Page X of Y`), and forced avoidance of row breaks (`tr { break-inside: avoid; }`).
+- **HTTP Caching**: Full conditional caching support (`ETag`, `Last-Modified`, and `304 Not Modified` via `If-None-Match` and `If-Modified-Since`).
+
+#### 5.5.2. Query Parameters
+
+Supports the standard schedule query filters:
+
+| Parameter   | Type      | Default | Description                                                                 |
+| :---------- | :-------- | :------ | :-------------------------------------------------------------------------- |
+| `season`    | `string`  | `None`  | Filter by season label (e.g. `2026-2027`). Defaults to all seasons.         |
+| `opponent`  | `string`  | `None`  | Case-insensitive substring match on opponent team name.                     |
+| `home_only` | `boolean` | `false` | When `true`, includes only home matches.                                    |
+| `status`    | `string`  | `None`  | Filter by game status (`SCHEDULED`, `COMPLETED`, `CANCELLED`, `POSTPONED`). |
+
+#### 5.5.3. Example Request
+
+```bash
+# Download printable PDF schedule for the 2026-2027 season
+curl -fsSL -o schedule.pdf "http://localhost:8000/schedule.pdf?season=2026-2027"
+
+# Inspect PDF cache headers without downloading payload
+curl -I "http://localhost:8000/schedule.pdf"
 ```
 
 ## 6. Interactive API Documentation

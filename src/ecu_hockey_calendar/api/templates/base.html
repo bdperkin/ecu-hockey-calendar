@@ -810,8 +810,8 @@
   </style>
   {% block extra_styles %}{% endblock %}
 </head>
-<body class="{% if is_embed %}embed-mode{% endif %}">
-  {% if not is_embed %}
+<body class="{% if is_embed %}embed-mode{% elif is_pdf %}pdf-mode{% endif %}">
+  {% if not is_embed and not is_pdf %}
   <header class="site-header">
     <h1>East Carolina University Men's Ice Hockey</h1>
     <p>Official Team Schedule &amp; Game Information</p>
@@ -823,6 +823,7 @@
         <li><a href="/" class="{% if active_tab == 'home' %}active{% endif %}">Home</a></li>
         <li><a href="{{ schedule_url or '/schedule' }}" class="{% if active_tab == 'schedule' %}active{% endif %}">Schedule</a></li>
         <li><a href="{{ ics_url or '/calendar.ics' }}">Calendar Subscription (.ics)</a></li>
+        <li><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF</a></li>
         <li><a href="{{ csv_url or '/api/schedule.csv' }}">Download CSV</a></li>
         <li><a href="{{ json_url or '/api/schedule.json' }}">JSON Feed</a></li>
         <li><a href="/docs">API Docs</a></li>
@@ -834,10 +835,10 @@
   </nav>
   {% endif %}
 
-  <main class="{% if is_embed %}embed-content{% else %}main-content{% endif %}">
+  <main class="{% if is_embed %}embed-content{% elif is_pdf %}pdf-content{% else %}main-content{% endif %}">
     {% block content %}{% endblock %}
 
-    {% if json_payload and not is_embed %}
+    {% if json_payload and not is_embed and not is_pdf %}
     <section class="json-inspector-section">
       <div class="json-inspector-container">
         <div class="json-inspector-header">
@@ -855,7 +856,7 @@
     {% endif %}
   </main>
 
-  {% if not is_embed %}
+  {% if not is_embed and not is_pdf %}
   <footer class="site-footer">
     <div class="footer-container">
       <div class="footer-section">
@@ -866,6 +867,7 @@
       <div class="footer-section">
         <h4>Subscriptions &amp; Feeds</h4>
         <p><a href="{{ ics_url or '/calendar.ics' }}">Apple / Google / Outlook iCal Feed</a></p>
+        <p><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF Grid</a></p>
         <p><a href="{{ csv_url or '/api/schedule.csv' }}">Spreadsheet CSV Export</a></p>
         <p><a href="{{ json_url or '/api/schedule.json' }}">Developer JSON Endpoint</a></p>
       </div>
@@ -882,6 +884,7 @@
   </footer>
   {% endif %}
 
+  {% if not is_pdf %}
   <script>
     function copyEmbedCode() {
       const input = document.getElementById("embed-code");
@@ -905,5 +908,6 @@
     }
   </script>
   {% block extra_scripts %}{% endblock %}
+  {% endif %}
 </body>
 </html>

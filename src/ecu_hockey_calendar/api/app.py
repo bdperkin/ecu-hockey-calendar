@@ -165,6 +165,7 @@ def create_app(
                 "schedule_embed": "/schedule/embed",
                 "schedule_html": "/schedule",
                 "schedule_json": "/api/schedule.json",
+                "schedule_pdf": "/schedule.pdf",
                 "sync_status": "/api/v1/sync/status",
             },
         }

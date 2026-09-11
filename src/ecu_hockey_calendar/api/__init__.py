@@ -13,6 +13,7 @@ from ecu_hockey_calendar.api.schedule_service import (
     ScheduleDataService,
     filter_games,
     resolve_game_season,
+    resolve_pdf_filename,
 )
 from ecu_hockey_calendar.api.server import run_server
 from ecu_hockey_calendar.api.service import (
@@ -56,6 +57,7 @@ __all__ = [
     "register_exception_handlers",
     "resolve_admin_token",
     "resolve_game_season",
+    "resolve_pdf_filename",
     "resolve_venue_details",
     "run_server",
     "verify_admin_token",

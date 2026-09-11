@@ -432,12 +432,20 @@ class TestExportCommand:
         """Verify format detection from option and file extension."""
         assert _detect_format("json", None) == "json"
         assert _detect_format("html", None) == "html"
+        assert _detect_format("pdf", None) == "pdf"
         assert _detect_format(None, "sched.csv") == "csv"
         assert _detect_format(None, "sched.json") == "json"
         assert _detect_format(None, "sched.ics") == "ics"
         assert _detect_format(None, "sched.html") == "html"
+        assert _detect_format(None, "sched.pdf") == "pdf"
         assert _detect_format(None, None, embed=True) == "html"
         assert _detect_format(None, "sched.txt") == "ics"
+
+    def test_export_pdf_stdout(self, runner: CliRunner, db_url: str) -> None:
+        """Verify export command outputs binary PDF to stdout."""
+        result = runner.invoke(export_command, ["-f", "pdf", "--db-url", db_url])
+        assert result.exit_code == 0
+        assert b"%PDF-1." in result.stdout_bytes
 
     def test_export_ics_stdout(self, runner: CliRunner, db_url: str) -> None:
         """Verify export command outputs valid iCalendar to stdout."""
@@ -567,6 +575,31 @@ class TestExportCommand:
             result = runner.invoke(
                 export_command,
                 ["-o", "/root/forbidden.ics", "--db-url", db_url],
+            )
+            assert result.exit_code != 0
+
+    def test_export_pdf_to_file(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify export command auto-detects PDF and writes binary file."""
+        out_file = tmp_path / "schedule.pdf"
+        result = runner.invoke(
+            export_command,
+            ["-o", str(out_file), "--home-only", "--db-url", db_url],
+        )
+        assert result.exit_code == 0
+        assert out_file.is_file()
+        assert out_file.read_bytes().startswith(b"%PDF-1.")
+
+    def test_export_pdf_os_error(self, runner: CliRunner, db_url: str) -> None:
+        """Verify export handles binary file write failures."""
+        with patch("pathlib.Path.write_bytes", side_effect=OSError("Disk full")):
+            result = runner.invoke(
+                export_command,
+                ["-f", "pdf", "-o", "/forbidden/schedule.pdf", "--db-url", db_url],
             )
             assert result.exit_code != 0
 

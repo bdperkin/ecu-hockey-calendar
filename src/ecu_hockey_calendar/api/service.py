@@ -532,16 +532,17 @@ class CalendarFeedService:
         return "\r\n".join(fold_line(line) for line in lines) + "\r\n"
 
     @staticmethod
-    def compute_etag(content: str) -> str:
+    def compute_etag(content: str | bytes) -> str:
         """Compute deterministic entity tag (ETag) for content payload.
 
         Args:
-            content: Raw string content.
+            content: Raw string or binary content.
 
         Returns:
             Quoted ETag string, e.g. '"a1b2c3..."'.
         """
-        digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        payload = content.encode("utf-8") if isinstance(content, str) else content
+        digest = hashlib.sha256(payload).hexdigest()
         return f'"{digest}"'
 
     @staticmethod

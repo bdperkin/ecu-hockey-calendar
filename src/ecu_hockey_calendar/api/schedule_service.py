@@ -8,14 +8,16 @@ import json
 import urllib.parse
 from datetime import UTC
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 from zoneinfo import ZoneInfo
 
 import jinja2
+import weasyprint
 
 from ecu_hockey_calendar.api.service import (
     DEFAULT_ECU_TEAM_NAME,
     DEFAULT_TICKETS_URL,
+    CalendarFeedService,
     resolve_venue_details,
 )
 from ecu_hockey_calendar.models import GameResult
@@ -344,6 +346,7 @@ def _build_feed_urls(base_url: str) -> dict[str, str]:
         "schedule_url": f"{normalized}/schedule",
         "embed_url": f"{normalized}/schedule/embed",
         "ics_url": f"{normalized}/calendar.ics",
+        "pdf_url": f"{normalized}/schedule.pdf",
         "csv_url": f"{normalized}/api/schedule.csv",
         "json_url": f"{normalized}/api/schedule.json",
     }
@@ -352,6 +355,28 @@ def _build_feed_urls(base_url: str) -> dict[str, str]:
 def _extract_available_seasons(games: Sequence[Game]) -> list[str]:
     """Extract sorted distinct collegiate seasons from games."""
     return sorted({resolve_game_season(g) for g in games}, reverse=True)
+
+
+def resolve_pdf_filename(season: str | None, games: Sequence[Game]) -> str:
+    """Resolve attachment filename for PDF schedule downloads.
+
+    Args:
+        season: Optional season filter string.
+        games: Sequence of domain Game objects.
+
+    Returns:
+        Formatted filename ending in .pdf.
+    """
+    if season:
+        clean = season.strip().replace(" ", "-")
+        return f"ecu_hockey_schedule_{clean}.pdf"
+
+    seasons = _extract_available_seasons(games)
+    if len(seasons) == 1:
+        clean = seasons[0].strip().replace(" ", "-")
+        return f"ecu_hockey_schedule_{clean}.pdf"
+
+    return "ecu_hockey_schedule.pdf"
 
 
 def _build_render_context(
@@ -375,6 +400,32 @@ def _build_render_context(
         "selected_status": str(raw_status).lower() if raw_status else "",
         "is_embed": bool(filters.get("embed")),
         **_build_feed_urls(base_url),
+    }
+
+
+def _build_pdf_render_context(
+    games: Sequence[Game],
+    formatted_games: list[dict[str, Any]],
+    filters: dict[str, str | bool | None],
+    generated_date: str | None = None,
+) -> dict[str, Any]:
+    """Build context dictionary for printable PDF schedule rendering."""
+    raw_season = filters.get("season")
+    if generated_date is None:
+        last_mod = CalendarFeedService.get_last_modified(games)
+        generated_date = last_mod.astimezone(EASTERN_TZ).strftime("%b %d, %Y")
+
+    return {
+        "primary_team": str(filters.get("primary_team") or ""),
+        "games": formatted_games,
+        "total_games": len(formatted_games),
+        "available_seasons": _extract_available_seasons(games),
+        "selected_season": str(raw_season) if raw_season else "",
+        "selected_home_only": bool(filters.get("home_only")),
+        "generated_date": generated_date,
+        "tickets_url": DEFAULT_TICKETS_URL,
+        "is_pdf": True,
+        "is_embed": False,
     }
 
 
@@ -461,6 +512,57 @@ class ScheduleDataService:
         template_name = "embed.html" if embed else "schedule.html"
         template = self._jinja_env.get_template(template_name)
         return template.render(context)
+
+    def generate_pdf_schedule(
+        self,
+        games: Sequence[Game],
+        *,
+        season: str | None = None,
+        opponent: str | None = None,
+        home_only: bool = False,
+        status: str | None = None,
+        generated_date: str | None = None,
+    ) -> bytes:
+        """Render printable high-contrast PDF schedule grid for parents and coaches.
+
+        Args:
+            games: Collection of domain Game instances.
+            season: Optional season filter string.
+            opponent: Optional opponent substring query.
+            home_only: If True, include only home games.
+            status: Optional status query.
+            generated_date: Optional explicit date string displayed on document header.
+
+        Returns:
+            Binary PDF document bytes starting with %PDF-1.
+        """
+        filtered = filter_games(
+            games,
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            status=status,
+            primary_team=self.primary_team_name,
+        )
+        formatted_games = [
+            _format_html_game(g, self.primary_team_name) for g in filtered
+        ]
+        filters: dict[str, str | bool | None] = {
+            "primary_team": self.primary_team_name,
+            "season": season,
+            "opponent": opponent,
+            "home_only": home_only,
+            "status": status,
+        }
+        context = _build_pdf_render_context(
+            filtered,
+            formatted_games,
+            filters,
+            generated_date=generated_date,
+        )
+        template = self._jinja_env.get_template("schedule_pdf.html")
+        rendered_html = template.render(context)
+        return cast("bytes", weasyprint.HTML(string=rendered_html).write_pdf())
 
     def generate_json_feed(
         self,
