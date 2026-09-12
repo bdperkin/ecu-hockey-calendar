@@ -139,3 +139,35 @@ def test_export_csv(unc_team: Team) -> None:
     )
     assert ecu_host_str in lines[1]
     assert unc_host_str in lines[2]
+
+
+def test_export_rss(unc_team: Team) -> None:
+    """Test RSS 2.0 export on ECUHockeyCalendar."""
+    calendar = ECUHockeyCalendar(season="2026-2027")
+    calendar.add_match(
+        opponent=unc_team,
+        start_time=datetime(2026, 11, 6, 19, 30, tzinfo=UTC),
+        venue="The Factory Ice House",
+        is_home=True,
+    )
+    rss_xml = calendar.export_rss(feed_url="https://ecuhockey.com/feed.rss")
+    assert "<rss" in rss_xml
+    assert 'version="2.0"' in rss_xml
+    assert "ECU Men's Ice Hockey Schedule" in rss_xml
+    assert "ECU Hockey vs UNC Chapel Hill" in rss_xml
+
+
+def test_export_atom(unc_team: Team) -> None:
+    """Test Atom 1.0 export on ECUHockeyCalendar."""
+    calendar = ECUHockeyCalendar(season="2026-2027")
+    calendar.add_match(
+        opponent=unc_team,
+        start_time=datetime(2026, 11, 6, 19, 30, tzinfo=UTC),
+        venue="The Factory Ice House",
+        is_home=True,
+    )
+    atom_xml = calendar.export_atom(feed_url="https://ecuhockey.com/feed.atom")
+    assert "<feed" in atom_xml
+    assert "http://www.w3.org/2005/Atom" in atom_xml
+    assert "ECU Men's Ice Hockey Schedule" in atom_xml
+    assert "ECU Hockey vs UNC Chapel Hill" in atom_xml

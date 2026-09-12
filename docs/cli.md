@@ -94,7 +94,7 @@ ______________________________________________________________________
 
 ### 3.3. `ecu-hockey export`
 
-Exports the schedule into standard RFC 5545 iCalendar (`.ics`), structured JSON, CSV, standalone responsive HTML, or high-contrast printable PDF grid format. Output can be saved directly to a file or streamed to standard output for piping.
+Exports the schedule into standard RFC 5545 iCalendar (`.ics`), structured JSON, CSV, standalone responsive HTML, high-contrast printable PDF grid, RSS 2.0 XML, or Atom 1.0 XML format. Output can be saved directly to a file or streamed to standard output for piping.
 
 ```bash
 ecu-hockey export [OPTIONS] [OUTPUT_FILE]
@@ -102,23 +102,29 @@ ecu-hockey export [OPTIONS] [OUTPUT_FILE]
 
 **Options:**
 
-| Option                           | Environment Variable | Default               | Description                                                                                                 |
-| :------------------------------- | :------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------- |
-| `-f, --format`                   | —                    | Auto-detected / `ics` | Output serialization format (`ics`, `json`, `csv`, `html`, `pdf`). Auto-detected from `--output` extension. |
-| `-o, --output`                   | —                    | `None` (stdout)       | Destination file path (if omitted, writes to stdout).                                                       |
-| `--season`                       | —                    | `None`                | Optional season filter (e.g., `2026-2027`).                                                                 |
-| `--opponent`                     | —                    | `None`                | Filter games by opponent team name substring.                                                               |
-| `--home-only`                    | —                    | `False`               | Filter games to only home matchups hosted by ECU.                                                           |
-| `--status`                       | —                    | `None`                | Filter by fixture status (e.g., `scheduled`, `final`, `cancelled`).                                         |
-| `--embed`                        | —                    | `False`               | Export lightweight embeddable widget HTML view instead of full schedule page.                               |
-| `--include-past / --future-only` | —                    | `--include-past`      | Include completed and historical fixtures in export.                                                        |
-| `--db-url`                       | `DATABASE_URL`       | `None`                | Database connection URL override.                                                                           |
+| Option                           | Environment Variable | Default               | Description                                                                                                                |
+| :------------------------------- | :------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------- |
+| `-f, --format`                   | —                    | Auto-detected / `ics` | Output serialization format (`ics`, `json`, `csv`, `html`, `pdf`, `rss`, `atom`). Auto-detected from `--output` extension. |
+| `-o, --output`                   | —                    | `None` (stdout)       | Destination file path (if omitted, writes to stdout).                                                                      |
+| `--season`                       | —                    | `None`                | Optional season filter (e.g., `2026-2027`).                                                                                |
+| `--opponent`                     | —                    | `None`                | Filter games by opponent team name substring.                                                                              |
+| `--home-only`                    | —                    | `False`               | Filter games to only home matchups hosted by ECU.                                                                          |
+| `--status`                       | —                    | `None`                | Filter by fixture status (e.g., `scheduled`, `final`, `cancelled`).                                                        |
+| `--embed`                        | —                    | `False`               | Export lightweight embeddable widget HTML view instead of full schedule page.                                              |
+| `--include-past / --future-only` | —                    | `--include-past`      | Include completed and historical fixtures in export.                                                                       |
+| `--db-url`                       | `DATABASE_URL`       | `None`                | Database connection URL override.                                                                                          |
 
 **Examples:**
 
 ```bash
 # Export iCalendar file
 ecu-hockey export schedule.ics
+
+# Export RSS 2.0 syndication feed
+ecu-hockey export -f rss -o schedule.rss
+
+# Export Atom 1.0 syndication feed for upcoming matches only
+ecu-hockey export --future-only -f atom -o schedule.atom
 
 # Export CSV spreadsheet of home games only
 ecu-hockey export --home-only -f csv -o home_games.csv

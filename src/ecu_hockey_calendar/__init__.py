@@ -6,6 +6,7 @@ team schedules, game dates, venues, and calendar formats.
 
 from ecu_hockey_calendar.calendar import ECUHockeyCalendar
 from ecu_hockey_calendar.models import Game, GameResult, Schedule, Team
+from ecu_hockey_calendar.syndication import SyndicationConfig, SyndicationFeedService
 from ecu_hockey_calendar.version import (
     FALLBACK_VERSION,
     __version__,
@@ -18,6 +19,8 @@ __all__ = [
     "Game",
     "GameResult",
     "Schedule",
+    "SyndicationConfig",
+    "SyndicationFeedService",
     "Team",
     "__version__",
     "get_version",

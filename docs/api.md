@@ -350,3 +350,19 @@ Complete API documentation for `ecu-hockey-calendar`.
    :exclude-members: select
    :show-inheritance:
 ```
+
+## 44. RSS 2.0 and Atom 1.0 Syndication Engine
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.syndication
+   :members:
+   :show-inheritance:
+```
+
+## 45. API Syndication Route Handlers
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.routes.syndication
+   :members:
+   :show-inheritance:
+```

@@ -6,7 +6,7 @@ import csv
 import io
 import json
 import urllib.parse
-from datetime import UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 from zoneinfo import ZoneInfo
@@ -117,6 +117,20 @@ def _match_home_only(game: Game, *, home_only: bool, primary_team: str) -> bool:
     return game.is_home_game(primary_team)
 
 
+def _match_future_only(
+    game: Game,
+    *,
+    future_only: bool,
+    now_utc: datetime | None,
+) -> bool:
+    """Check if game meets future-only filter."""
+    if not future_only:
+        return True
+
+    ref_time = now_utc if now_utc is not None else datetime.now(UTC)
+    return game.start_time.astimezone(UTC) >= ref_time
+
+
 def _game_matches_filters(
     game: Game,
     *,
@@ -124,7 +138,9 @@ def _game_matches_filters(
     opponent: str | None,
     home_only: bool,
     status: str | None,
+    future_only: bool = False,
     primary_team: str,
+    now_utc: datetime | None = None,
 ) -> bool:
     """Check if a single game satisfies all applied query filters."""
     if not _match_season(game, season):
@@ -134,6 +150,9 @@ def _game_matches_filters(
         return False
 
     if not _match_home_only(game, home_only=home_only, primary_team=primary_team):
+        return False
+
+    if not _match_future_only(game, future_only=future_only, now_utc=now_utc):
         return False
 
     return _match_status(game, status)
@@ -146,7 +165,9 @@ def filter_games(
     opponent: str | None = None,
     home_only: bool = False,
     status: str | None = None,
+    future_only: bool = False,
     primary_team: str = DEFAULT_ECU_TEAM_NAME,
+    now_utc: datetime | None = None,
 ) -> list[Game]:
     """Filter and sort games based on query parameters.
 
@@ -156,7 +177,9 @@ def filter_games(
         opponent: Optional opponent substring query.
         home_only: If True, only home matches are included.
         status: Optional match status/result query.
+        future_only: If True, only future matches are included.
         primary_team: Canonical team name.
+        now_utc: Optional reference timestamp for future_only filtering.
 
     Returns:
         Sorted list of matching Game objects in chronological order.
@@ -170,7 +193,9 @@ def filter_games(
             opponent=opponent,
             home_only=home_only,
             status=status,
+            future_only=future_only,
             primary_team=primary_team,
+            now_utc=now_utc,
         )
     ]
     return sorted(matched, key=lambda g: g.start_time)
@@ -349,6 +374,8 @@ def _build_feed_urls(base_url: str) -> dict[str, str]:
         "pdf_url": f"{normalized}/schedule.pdf",
         "csv_url": f"{normalized}/api/schedule.csv",
         "json_url": f"{normalized}/api/schedule.json",
+        "rss_url": f"{normalized}/feed.rss",
+        "atom_url": f"{normalized}/feed.atom",
     }
 
 

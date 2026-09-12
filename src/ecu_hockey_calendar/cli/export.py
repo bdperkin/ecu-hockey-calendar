@@ -27,6 +27,7 @@ from ecu_hockey_calendar.storage.engine import (
     get_sync_session,
 )
 from ecu_hockey_calendar.storage.models import GameModel
+from ecu_hockey_calendar.syndication import SyndicationFeedService
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -51,6 +52,11 @@ def _load_games(
     return list(default_cal.schedule.games)
 
 
+VALID_EXTENSIONS: frozenset[str] = frozenset(
+    {"ics", "json", "csv", "html", "pdf", "rss", "atom"},
+)
+
+
 def _detect_format(
     fmt: str | None,
     output_path: str | Path | None,
@@ -65,14 +71,14 @@ def _detect_format(
         embed: Whether embed mode is requested.
 
     Returns:
-        Resolved format string ('ics', 'json', 'csv', or 'html').
+        Resolved format string ('ics', 'json', 'csv', 'html', 'pdf', 'rss', or 'atom').
     """
     if fmt:
         return fmt.lower()
 
     if output_path:
         ext = Path(output_path).suffix.lower().lstrip(".")
-        if ext in ("ics", "json", "csv", "html", "pdf"):
+        if ext in VALID_EXTENSIONS:
             return ext
 
     if embed:
@@ -81,7 +87,39 @@ def _detect_format(
     return "ics"
 
 
-def _serialize_schedule(
+def _serialize_syndication(
+    games: list[Game],
+    feed_format: str,
+    *,
+    season: str | None,
+    opponent: str | None,
+    home_only: bool,
+    status_query: str | None,
+    include_past: bool,
+) -> str:
+    """Serialize games into RSS or Atom syndication feed format."""
+    feed_svc = SyndicationFeedService()
+    if feed_format == "rss":
+        return feed_svc.generate_rss_feed(
+            games,
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            future_only=not include_past,
+            status=status_query,
+        )
+
+    return feed_svc.generate_atom_feed(
+        games,
+        season=season,
+        opponent=opponent,
+        home_only=home_only,
+        future_only=not include_past,
+        status=status_query,
+    )
+
+
+def _serialize_document(
     games: list[Game],
     resolved_format: str,
     *,
@@ -89,18 +127,9 @@ def _serialize_schedule(
     opponent: str | None,
     home_only: bool,
     status_query: str | None,
-    include_past: bool,
     embed: bool = False,
 ) -> str | bytes:
-    """Serialize games into ics, json, csv, html, or pdf format."""
-    if resolved_format == "ics":
-        ics_svc = CalendarFeedService()
-        return ics_svc.generate_ics_feed(
-            games,
-            season=season,
-            include_past=include_past,
-        )
-
+    """Serialize games into json, csv, html, or pdf format."""
     data_svc = ScheduleDataService()
     if resolved_format == "json":
         return data_svc.generate_json_string(
@@ -136,6 +165,48 @@ def _serialize_schedule(
         opponent=opponent,
         home_only=home_only,
         status=status_query,
+    )
+
+
+def _serialize_schedule(
+    games: list[Game],
+    resolved_format: str,
+    *,
+    season: str | None,
+    opponent: str | None,
+    home_only: bool,
+    status_query: str | None,
+    include_past: bool,
+    embed: bool = False,
+) -> str | bytes:
+    """Serialize games into ics, json, csv, html, pdf, rss, or atom format."""
+    if resolved_format == "ics":
+        ics_svc = CalendarFeedService()
+        return ics_svc.generate_ics_feed(
+            games,
+            season=season,
+            include_past=include_past,
+        )
+
+    if resolved_format in ("rss", "atom"):
+        return _serialize_syndication(
+            games,
+            resolved_format,
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            status_query=status_query,
+            include_past=include_past,
+        )
+
+    return _serialize_document(
+        games,
+        resolved_format,
+        season=season,
+        opponent=opponent,
+        home_only=home_only,
+        status_query=status_query,
+        embed=embed,
     )
 
 
@@ -201,7 +272,10 @@ def _write_export_output(
     "--format",
     "-f",
     "export_format",
-    type=click.Choice(["ics", "json", "csv", "html", "pdf"], case_sensitive=False),
+    type=click.Choice(
+        ["ics", "json", "csv", "html", "pdf", "rss", "atom"],
+        case_sensitive=False,
+    ),
     default=None,
     help=(
         "Output serialization format (auto-detected from "
@@ -267,7 +341,7 @@ def export_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-ma
     include_past: bool,
     db_url: str | None,
 ) -> None:
-    """Export schedule to RFC 5545 iCalendar (.ics), JSON, CSV, HTML, or PDF file."""
+    """Export schedule to RFC 5545 (.ics), JSON, CSV, HTML, PDF, RSS, or Atom file."""
     resolved_format = _detect_format(export_format, output_path, embed=embed)
 
     db_url_resolved = get_sync_database_url(db_url)

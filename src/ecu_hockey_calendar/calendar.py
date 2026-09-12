@@ -14,6 +14,10 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
 from ecu_hockey_calendar.models import Game, GameResult, Schedule, Team
+from ecu_hockey_calendar.syndication import (
+    SyndicationConfig,
+    SyndicationFeedService,
+)
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -197,3 +201,57 @@ class ECUHockeyCalendar:
             )
 
         return output.getvalue()
+
+    def export_rss(
+        self,
+        *,
+        feed_url: str | None = None,
+        future_only: bool = False,
+        pretty: bool = True,
+    ) -> str:
+        """Export the season schedule as an RSS 2.0 XML syndication feed string.
+
+        Args:
+            feed_url: Optional canonical self URL for the feed.
+            future_only: If True, include only future upcoming matches.
+            pretty: If True, format XML with indentation.
+
+        Returns:
+            A string containing valid RSS 2.0 XML data.
+        """
+        config = SyndicationConfig(primary_team_name=self.team.name)
+        service = SyndicationFeedService(config=config)
+        return service.generate_rss_feed(
+            self.schedule.games,
+            season=self.season,
+            feed_url=feed_url,
+            future_only=future_only,
+            pretty=pretty,
+        )
+
+    def export_atom(
+        self,
+        *,
+        feed_url: str | None = None,
+        future_only: bool = False,
+        pretty: bool = True,
+    ) -> str:
+        """Export the season schedule as an Atom 1.0 XML syndication feed string.
+
+        Args:
+            feed_url: Optional canonical self URL for the feed.
+            future_only: If True, include only future upcoming matches.
+            pretty: If True, format XML with indentation.
+
+        Returns:
+            A string containing valid Atom 1.0 XML data.
+        """
+        config = SyndicationConfig(primary_team_name=self.team.name)
+        service = SyndicationFeedService(config=config)
+        return service.generate_atom_feed(
+            self.schedule.games,
+            season=self.season,
+            feed_url=feed_url,
+            future_only=future_only,
+            pretty=pretty,
+        )

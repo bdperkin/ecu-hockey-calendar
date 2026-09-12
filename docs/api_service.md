@@ -19,6 +19,7 @@ The API service integrates the calendar generation, data normalization, database
 │ • GET /api/schedule.json     │                              │
 │ • GET /api/schedule.csv      │                              │
 │ • GET /schedule.pdf          │                              │
+│ • GET /feed.rss & .atom      │                              │
 │ • GET /health                │                              │
 │ • GET /api/v1/sync/status    │                              │
 │ • GET /docs & /redoc         │                              │
@@ -28,6 +29,7 @@ The API service integrates the calendar generation, data normalization, database
 ┌──────────────────────────────┐┌──────────────────────────────┐
 │  CalendarFeedService         ││  Database Engine             │
 │  ScheduleDataService         ││  SQLAlchemy 2.0 (Sync/Async) │
+│  SyndicationFeedService      ││                              │
 └──────────────────────────────┘└──────────────────────────────┘
 ```
 
@@ -389,6 +391,62 @@ curl -fsSL -o schedule.pdf "http://localhost:8000/schedule.pdf?season=2026-2027"
 
 # Inspect PDF cache headers without downloading payload
 curl -I "http://localhost:8000/schedule.pdf"
+```
+
+### 5.6. RSS 2.0 Syndication Feed (`/feed.rss`, `/api/schedule.rss`)
+
+- **Method**: `GET`, `HEAD`
+- **Paths**: `/feed.rss`, `/api/schedule.rss`
+- **Content-Type**: `application/rss+xml; charset=utf-8`
+- **Content-Disposition**: `inline; filename="ecu-hockey-schedule.rss"`
+
+Generates a standardized RSS 2.0 XML schedule syndication feed for sports media, student newspapers, fan RSS readers, and automated pipelines.
+
+#### 5.6.1. Features & Schema
+
+- **Standard RSS 2.0 Structure**: Clean channel metadata, item elements with `<title>`, `<link>`, `<description>`, `<content:encoded>`, `<pubDate>`, and deterministic non-permalink `<guid>` (`urn:ecu-hockey:game:<game_id>`).
+- **Category Tags**: Tagged with `<category>ACCHL</category>`, `<category>ACHA M2</category>`, `<category>Hockey</category>`, and `<category>ECU</category>`.
+- **Informative Titles**: Formatted with match outcome for completed matches (`Final: ECU 4, UNC Chapel Hill 2`), status annotations (`Postponed: ...`), or scheduled designation (`ECU Hockey vs NC State (Home Match)`).
+- **Rich Descriptions**: Includes Eastern Time puck drop, venue name, address, designation, result status, ticketing URL, and opponent conference info.
+- **HTTP Caching**: Full conditional caching support with `Cache-Control: public, max-age=300, stale-while-revalidate=600`, `ETag`, `Last-Modified`, and `304 Not Modified` responses.
+
+#### 5.6.2. Query Parameters
+
+| Parameter     | Type      | Default | Description                                                             |
+| :------------ | :-------- | :------ | :---------------------------------------------------------------------- |
+| `season`      | `string`  | `None`  | Filter by season label (e.g. `2026-2027`). Defaults to all seasons.     |
+| `opponent`    | `string`  | `None`  | Case-insensitive substring match on opponent team name.                 |
+| `home_only`   | `boolean` | `false` | When `true`, returns only home fixtures hosted by ECU.                  |
+| `future_only` | `boolean` | `false` | When `true`, filters to only future upcoming fixtures.                  |
+| `status`      | `string`  | `None`  | Filter by game status (`scheduled`, `final`, `cancelled`, `postponed`). |
+
+#### 5.6.3. Example Request
+
+```bash
+# Retrieve RSS 2.0 schedule feed
+curl -fsSL "http://localhost:8000/feed.rss?home_only=true"
+
+# Inspect RSS caching headers
+curl -I "http://localhost:8000/feed.rss"
+```
+
+### 5.7. Atom 1.0 Syndication Feed (`/feed.atom`, `/api/schedule.atom`)
+
+- **Method**: `GET`, `HEAD`
+- **Paths**: `/feed.atom`, `/api/schedule.atom`
+- **Content-Type**: `application/atom+xml; charset=utf-8`
+- **Content-Disposition**: `inline; filename="ecu-hockey-schedule.atom"`
+
+Provides an Atom 1.0 XML schedule syndication feed conforming strictly to RFC 4287 for syndication platforms and feed readers. Supports the same filtering options and HTTP caching headers as the RSS 2.0 feed.
+
+#### 5.7.1. Example Request
+
+```bash
+# Retrieve Atom 1.0 schedule feed
+curl -fsSL "http://localhost:8000/feed.atom?future_only=true"
+
+# Conditional request with ETag
+curl -I -H 'If-None-Match: "3277839352210134707"' "http://localhost:8000/feed.atom"
 ```
 
 ## 6. Interactive API Documentation
