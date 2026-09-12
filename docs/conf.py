@@ -61,8 +61,10 @@ myst_heading_anchors = 3
 html_theme = "furo"
 html_title = f"{project} v{release}"
 html_baseurl = "https://bdperkin.github.io/ecu-hockey-calendar/"
-html_static_path = []
+html_static_path = ["_static"]
 html_extra_path = ["../static"]
+html_logo = "_static/ecu_hockey_logo.svg"
+html_favicon = "_static/favicon.ico"
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

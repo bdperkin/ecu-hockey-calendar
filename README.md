@@ -1,5 +1,9 @@
 # ecu-hockey-calendar
 
+<p align="center">
+  <img src="docs/_static/ecu_hockey_logo.svg" alt="East Carolina University Men's Ice Hockey Logo" width="160" height="160">
+</p>
+
 <!--TOC-->
 
 ______________________________________________________________________

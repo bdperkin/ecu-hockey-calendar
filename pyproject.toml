@@ -119,14 +119,17 @@ version.source = "vcs"
 version.raw-options = { dist_name = "ecu-hockey-calendar", fallback_version = "0.0.0+unknown" }
 build.hooks.vcs.version-file = "src/ecu_hockey_calendar/_version.py"
 build.targets.wheel.packages = [ "src/ecu_hockey_calendar" ]
-build.targets.wheel.artifacts = [ "src/ecu_hockey_calendar/api/templates/**" ]
+build.targets.wheel.artifacts = [
+    "src/ecu_hockey_calendar/api/static/**",
+    "src/ecu_hockey_calendar/api/templates/**",
+]
 
 [tool.djlint]
 profile = "jinja"
 indent = 4
 max_line_length = 120
 preserve_blank_lines = true
-ignore = "H021,J018"
+ignore = "H021,J004,J018"
 
 [tool.ruff]
 target-version = "py312"
@@ -349,4 +352,5 @@ exclude = "\\.git|\\.tox|\\.pytest_cache|\\.venv|node_modules"
 [tool.pymarkdown]
 plugins.md013.enabled = false
 plugins.md024.siblings_only = true
+plugins.md033.allowed_elements = "!--,![CDATA[,!DOCTYPE,p,img"
 plugins.md036.enabled = false

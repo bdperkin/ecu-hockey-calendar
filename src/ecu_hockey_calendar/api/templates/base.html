@@ -4,6 +4,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}ECU Men's Ice Hockey Schedule{% endblock %}</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        <link rel="icon" type="image/svg+xml" href="/static/ecu_hockey_logo.svg">
         {% block meta %}{% endblock %}
         <style>
     :root {
@@ -55,8 +57,27 @@
       color: #ffffff;
       border-bottom: 4px solid var(--ecu-gold);
       padding: 1.5rem 1rem;
-      text-align: center;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+    }
+
+    .header-logo {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .header-text {
+      text-align: left;
     }
 
     .site-header h1 {
@@ -70,6 +91,17 @@
       font-size: 0.95rem;
       color: var(--ecu-gold);
       font-weight: 500;
+    }
+
+    @media (max-width: 600px) {
+      .header-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+      }
+      .header-text {
+        text-align: center;
+      }
     }
 
     /* Navigation */
@@ -813,8 +845,17 @@
     <body class="{% if is_embed %}embed-mode{% elif is_pdf %}pdf-mode{% endif %}">
         {% if not is_embed and not is_pdf %}
             <header class="site-header">
-                <h1>East Carolina University Men's Ice Hockey</h1>
-                <p>Official Team Schedule &amp; Game Information</p>
+                <div class="header-container">
+                    <img src="/static/ecu_hockey_logo.svg"
+                         alt="East Carolina University Men's Ice Hockey Logo"
+                         class="header-logo"
+                         width="64"
+                         height="64">
+                    <div class="header-text">
+                        <h1>East Carolina University Men's Ice Hockey</h1>
+                        <p>Official Team Schedule &amp; Game Information</p>
+                    </div>
+                </div>
             </header>
 
             <nav class="site-nav">

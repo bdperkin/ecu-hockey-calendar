@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Query, Request, Response, status
+from fastapi.responses import FileResponse
 
 from ecu_hockey_calendar.api.routes.common import (
     check_conditional_headers,
@@ -26,6 +28,7 @@ if TYPE_CHECKING:
 
     from ecu_hockey_calendar.models import Game
 
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 web_router = APIRouter(tags=["Web Views"])
 
 
@@ -469,3 +472,32 @@ def head_web_schedule_pdf(
         home_only=home_only,
         status_filter=status_filter,
     )
+
+
+@web_router.get(
+    "/favicon.ico",
+    summary="Website Favicon",
+    description="Serve multi-resolution website favicon icon.",
+    include_in_schema=False,
+)
+def get_favicon() -> Response:
+    """Serve website favicon.
+
+    Returns:
+        FastAPI Response streaming the multi-resolution favicon.ico asset.
+    """
+    return FileResponse(
+        STATIC_DIR / "favicon.ico",
+        media_type="image/x-icon",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@web_router.head("/favicon.ico", include_in_schema=False)
+def head_favicon() -> Response:
+    """Serve HEAD response for website favicon.
+
+    Returns:
+        Empty FastAPI Response with favicon headers.
+    """
+    return get_favicon()
