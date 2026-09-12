@@ -16,10 +16,14 @@ from ecu_hockey_calendar.api.negotiation import (
     _compare_media_ranks,
     _is_better_match,
     _is_empty_or_wildcard,
+    _is_number_start,
+    _is_object_key,
     _matches_target,
     _parse_media_range,
     _parse_q_value,
     _resolve_query_format,
+    _scan_json_literal,
+    _scan_json_string,
     get_jinja_env,
     highlight_json,
     parse_accept_header,
@@ -197,19 +201,57 @@ def test_highlight_json_tokens() -> None:
     payload = {
         "name": "Pirates",
         "active": True,
+        "disabled": False,
         "count": 42,
+        "negative": -100,
+        "exp": 2.5e3,
         "ratio": 3.14,
         "empty": None,
         "sub": {"nested": "value with true and 123 in string"},
+        "html_content": "<span>&amp;</span>",
+        "escaped": 'quoted "value" here',
+        "items": ["plain string", "string with : colon"],
     }
     html_out = highlight_json(payload)
-    assert '<span class="json-key">&quot;name&quot;</span>' in html_out
+    assert '<span class="json-key">&quot;name&quot;</span>:' in html_out
     assert '<span class="json-string">&quot;Pirates&quot;</span>' in html_out
     assert '<span class="json-boolean">true</span>' in html_out
+    assert '<span class="json-boolean">false</span>' in html_out
     assert '<span class="json-number">42</span>' in html_out
+    assert '<span class="json-number">-100</span>' in html_out
+    assert '<span class="json-number">2500.0</span>' in html_out
     assert '<span class="json-number">3.14</span>' in html_out
     assert '<span class="json-null">null</span>' in html_out
     assert "value with true and 123 in string" in html_out
+    assert "&lt;span&gt;&amp;amp;&lt;/span&gt;" in html_out
+    assert (
+        '<span class="json-string">&quot;quoted \\&quot;value\\&quot; here&quot;</span>'
+        in html_out
+    )
+    assert '<span class="json-string">&quot;plain string&quot;</span>' in html_out
+    assert (
+        '<span class="json-string">&quot;string with : colon&quot;</span>' in html_out
+    )
+
+
+def test_json_scanner_helpers() -> None:
+    """Verify tokenizer edge cases and error handling."""
+    unclosed, end_idx = _scan_json_string('"unterminated', 0, 13)
+    assert unclosed == '"unterminated'
+    assert end_idx == 13
+
+    assert _is_number_start("-5", 0, 2) is True
+    assert _is_number_start("-abc", 0, 4) is False
+    assert _is_number_start("-", 0, 1) is False
+    assert _is_number_start("x", 0, 1) is False
+
+    assert _is_object_key("   : ", 0, 5) is True
+    assert _is_object_key("   , ", 0, 5) is False
+    assert _is_object_key("   ", 0, 3) is False
+
+    lit, adv = _scan_json_literal("unknown", 0)
+    assert lit is None
+    assert adv == 0
 
 
 def test_build_negotiated_headers() -> None:

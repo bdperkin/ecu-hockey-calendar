@@ -240,9 +240,6 @@ def format_relative_time(
     return formatted_ts, relative_age
 
 
-_format_relative_time = format_relative_time
-
-
 def enrich_source_records(
     sources: list[dict[str, Any]],
     now: datetime | None = None,
@@ -268,9 +265,6 @@ def enrich_source_records(
         enriched.append(item)
 
     return enriched
-
-
-_enrich_source_records = enrich_source_records
 
 
 def _determine_display_status(

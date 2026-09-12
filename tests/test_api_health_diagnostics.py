@@ -29,10 +29,10 @@ from ecu_hockey_calendar.api.routes.health import (
     _calculate_relative_age,
     _calculate_uptime,
     _determine_display_status,
-    _enrich_source_records,
-    _format_relative_time,
     _pluralize,
     _probe_scrapers,
+    enrich_source_records,
+    format_relative_time,
     format_uptime,
 )
 from ecu_hockey_calendar.reconciliation.models import (
@@ -818,7 +818,7 @@ def test_format_uptime_durations() -> None:
 
 
 def test_relative_time_and_pluralize() -> None:
-    """Test _pluralize, _calculate_relative_age, and _format_relative_time helpers."""
+    """Test _pluralize, _calculate_relative_age, and format_relative_time helpers."""
     # _pluralize
     assert _pluralize(1, "minute") == "1 minute ago"
     assert _pluralize(5, "minute") == "5 minutes ago"
@@ -837,21 +837,21 @@ def test_relative_time_and_pluralize() -> None:
     assert _calculate_relative_age(86400.0) == "1 day ago"
     assert _calculate_relative_age(172800.0) == "2 days ago"
 
-    # _format_relative_time
-    assert _format_relative_time(None) == ("Never", "Never")
-    assert _format_relative_time("") == ("Never", "Never")
-    assert _format_relative_time("not-a-date") == ("Invalid", "Invalid")
+    # format_relative_time
+    assert format_relative_time(None) == ("Never", "Never")
+    assert format_relative_time("") == ("Never", "Never")
+    assert format_relative_time("not-a-date") == ("Invalid", "Invalid")
 
     ref_now = datetime(2026, 9, 11, 14, 0, 0, tzinfo=UTC)
     # Naive timestamp string
     ts_naive = "2026-09-11T12:00:00"
-    fmt_naive, rel_naive = _format_relative_time(ts_naive, now=ref_now)
+    fmt_naive, rel_naive = format_relative_time(ts_naive, now=ref_now)
     assert fmt_naive == "Sep 11, 2026, 12:00 PM UTC"
     assert rel_naive == "2 hours ago"
 
     # UTC aware timestamp string
     ts_aware = "2026-09-11T13:58:30+00:00"
-    fmt_aware, rel_aware = _format_relative_time(ts_aware, now=ref_now)
+    fmt_aware, rel_aware = format_relative_time(ts_aware, now=ref_now)
     assert fmt_aware == "Sep 11, 2026, 01:58 PM UTC"
     assert rel_aware == "1 minute ago"
 
@@ -866,7 +866,7 @@ def test_determine_display_status() -> None:
 
 
 def test_enrich_source_records() -> None:
-    """Test _enrich_source_records formats timestamps and relative age."""
+    """Test enrich_source_records formats timestamps and relative age."""
     ref_now = datetime(2026, 9, 11, 14, 0, 0, tzinfo=UTC)
     sources = [
         {
@@ -884,7 +884,7 @@ def test_enrich_source_records() -> None:
             "last_scraped_at": None,
         },
     ]
-    enriched = _enrich_source_records(sources, now=ref_now)
+    enriched = enrich_source_records(sources, now=ref_now)
     assert len(enriched) == 2
     assert enriched[0]["last_scraped_formatted"] == "Sep 11, 2026, 12:00 PM UTC"
     assert enriched[0]["last_scraped_relative"] == "2 hours ago"
