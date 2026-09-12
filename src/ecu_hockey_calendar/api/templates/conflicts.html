@@ -1,0 +1,849 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Schedule Discrepancies &amp; Conflicts - ECU Men's Ice Hockey
+{% endblock title %}
+
+{% block meta %}
+{% endblock meta %}
+
+{% block extra_styles %}
+    <style>
+  .conflicts-container {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+
+  /* Administrative Dashboard Header Banner */
+  .conflicts-banner {
+    background: linear-gradient(135deg, #2b1055 0%, #431e6b 100%);
+    border: 2px solid var(--ecu-purple);
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .banner-text-group h2 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+  }
+
+  .banner-text-group p {
+    font-size: 0.9rem;
+    color: var(--ecu-gold);
+    margin: 0;
+    opacity: 0.95;
+  }
+
+  .banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .banner-cross-link {
+    background-color: rgba(254, 201, 35, 0.15);
+    border: 1px solid var(--ecu-gold);
+    color: var(--ecu-gold);
+    font-weight: 700;
+  }
+
+  .banner-cross-link:hover {
+    background-color: var(--ecu-gold);
+    color: #2b1055;
+    border-color: var(--ecu-gold);
+  }
+
+  /* Summary Metrics Cards Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .metric-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .metric-card-review-needed {
+    border-left: 4px solid #d32f2f;
+  }
+
+  .metric-card-critical {
+    border-left: 4px solid #c62828;
+  }
+
+  .metric-card-total {
+    border-left: 4px solid var(--ecu-purple);
+  }
+
+  .metric-card-filtered {
+    border-left: 4px solid #1976d2;
+  }
+
+  .metric-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+  }
+
+  .metric-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.2;
+  }
+
+  .metric-subtext {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* Filter Form Card */
+  .filter-panel {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .filter-panel-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ecu-purple);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: flex-end;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .filter-group label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .filter-actions-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* Active Filter Notification Bar */
+  .active-filters-bar {
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #3730a3;
+  }
+
+  .filter-tag-list {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-tag {
+    background: #ffffff;
+    border: 1px solid #c7d2fe;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+
+  /* Conflicts Triage Table Section */
+  .triage-section {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .triage-header-row {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    background: #fafbfc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .triage-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .triage-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    text-align: left;
+  }
+
+  .triage-table th {
+    background: #f1f3f5;
+    color: #495057;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  .triage-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+  }
+
+  .triage-table tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* Row Highlights */
+  .row-review-priority {
+    background-color: #fffaf0;
+    border-left: 4px solid #f59e0b;
+  }
+
+  .row-review-priority:hover {
+    background-color: #fff7ed;
+  }
+
+  .game-id-cell code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.825rem;
+    background: #f1f3f5;
+    padding: 0.2rem 0.45rem;
+    border-radius: 4px;
+    color: #1e293b;
+    word-break: break-all;
+  }
+
+  .field-name-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #4338ca;
+    background: #e0e7ff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Labeled Severity Badges (never color alone) */
+  .badge-severity {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .badge-severity-critical {
+    background-color: #ffebee;
+    color: #b71c1c;
+    border: 1px solid #ef5350;
+  }
+
+  .badge-severity-high {
+    background-color: #fff3e0;
+    color: #b25e00;
+    border: 1px solid #ff9800;
+  }
+
+  .badge-severity-medium {
+    background-color: #fffde7;
+    color: #826604;
+    border: 1px solid #fbc02d;
+  }
+
+  .badge-severity-low {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border: 1px solid #4caf50;
+  }
+
+  /* Review Status Badges */
+  .badge-review-required {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #f87171;
+    white-space: nowrap;
+  }
+
+  .badge-review-cleared {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #86efac;
+    white-space: nowrap;
+  }
+
+  /* Side-by-Side Value Comparison */
+  .comparison-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-width: 280px;
+  }
+
+  .comparison-block {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .source-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .source-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+  }
+
+  .source-tag-a {
+    color: #0284c7;
+  }
+
+  .source-tag-b {
+    color: #d97706;
+  }
+
+  .value-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    word-break: break-word;
+  }
+
+  .vs-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.15rem 0.35rem;
+    background: #e2e8f0;
+    border-radius: 4px;
+    user-select: none;
+  }
+
+  .comparison-note {
+    font-size: 0.775rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 0.2rem;
+  }
+
+  .details-cell {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .recorded-timestamp {
+    font-size: 0.775rem;
+    color: #475569;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .resolved-pill {
+    display: inline-block;
+    font-size: 0.725rem;
+    font-weight: 600;
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+  }
+
+  /* Pagination Bar */
+  .pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1.25rem;
+    background: #fafbfc;
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .pagination-info {
+    font-size: 0.875rem;
+    color: var(--text-dark);
+  }
+
+  .pagination-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .btn.disabled, .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Friendly Empty States */
+  .empty-card {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    background: #ffffff;
+  }
+
+  .empty-card-icon {
+    font-size: 2.75rem;
+    margin-bottom: 0.75rem;
+    line-height: 1;
+  }
+
+  .empty-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-card p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto 1.25rem;
+  }
+
+  .empty-card-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Quick Navigation Actions */
+  .conflicts-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    justify-content: flex-start;
+  }
+
+  /* Auto-refresh Notice */
+  .refresh-indicator {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 0.5rem;
+  }
+    </style>
+{% endblock extra_styles %}
+
+{% block content %}
+    <div class="conflicts-container">
+        <!-- Administrative Header Banner with Top-Level Status & Cross-Link -->
+        <section class="conflicts-banner">
+            <div class="banner-text-group">
+                <h2>Administrative Conflict Triage</h2>
+                <p>Multi-source discrepancy auditing, side-by-side reconciliation, and data integrity verification</p>
+            </div>
+            <div class="banner-actions">
+                <a href="/api/v1/sync/status"
+                   class="btn btn-outline banner-cross-link"
+                   id="btn-nav-sync-status">← Back to Sync Dashboard</a>
+                <a href="{{ json_url }}"
+                   class="btn btn-outline banner-cross-link"
+                   id="banner-view-as-json-btn">View as JSON</a>
+            </div>
+        </section>
+
+        <!-- Summary Metrics Cards Grid -->
+        <section class="metrics-grid">
+            <div class="metric-card metric-card-total">
+                <span class="metric-label">Total Conflicts</span>
+                <span class="metric-value">{{ metrics.total }}</span>
+                <span class="metric-subtext">Active across all sources</span>
+            </div>
+            <div class="metric-card metric-card-review-needed">
+                <span class="metric-label">Review Required</span>
+                <span class="metric-value">{{ metrics.review_needed }}</span>
+                <span class="metric-subtext">Flagged for administrator review</span>
+            </div>
+            <div class="metric-card metric-card-critical">
+                <span class="metric-label">Critical / High</span>
+                <span class="metric-value">{{ metrics.critical_count + metrics.high_count }}</span>
+                <span class="metric-subtext">Severe timing or venue disputes</span>
+            </div>
+            <div class="metric-card metric-card-filtered">
+                <span class="metric-label">Showing Records</span>
+                <span class="metric-value">{{ pagination.showing_end - pagination.showing_start + (1 if pagination.total_count > 0 else 0) }}</span>
+                <span class="metric-subtext">Of {{ data.filtered_count }} matching filters</span>
+            </div>
+        </section>
+
+        <!-- Working Filter Form -->
+        <section class="filter-panel">
+            <div class="filter-panel-heading">
+                <span>Filter Discrepancies</span>
+                {% if has_active_filters %}
+                    <a href="/api/v1/conflicts" class="btn btn-outline btn-sm">Reset All</a>
+                {% endif %}
+            </div>
+            <form method="get"
+                  action="/api/v1/conflicts"
+                  class="filter-form"
+                  id="conflicts-filter-form">
+                <div class="filter-grid">
+                    <!-- Severity Select -->
+                    <div class="filter-group">
+                        <label for="filter-severity">Severity Level</label>
+                        <select name="severity" id="filter-severity" class="form-control">
+                            <option value="">All Severities</option>
+                            <option value="critical"
+                                    {% if filters.severity == 'critical' %}selected{% endif %}>Critical</option>
+                            <option value="high" {% if filters.severity == 'high' %}selected{% endif %}>High</option>
+                            <option value="medium"
+                                    {% if filters.severity == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="low" {% if filters.severity == 'low' %}selected{% endif %}>Low</option>
+                        </select>
+                    </div>
+
+                    <!-- Game ID Text Input -->
+                    <div class="filter-group">
+                        <label for="filter-game-id">Game ID</label>
+                        <input type="text"
+                               name="game_id"
+                               id="filter-game-id"
+                               class="form-control"
+                               placeholder="e.g. ecu-unc-20241011"
+                               value="{{ filters.game_id }}">
+                    </div>
+
+                    <!-- Field Name Text Input -->
+                    <div class="filter-group">
+                        <label for="filter-field">Discrepancy Field</label>
+                        <input type="text"
+                               name="field"
+                               id="filter-field"
+                               class="form-control"
+                               placeholder="e.g. start_time, venue"
+                               value="{{ filters.field }}">
+                    </div>
+
+                    <!-- Requires Review Select -->
+                    <div class="filter-group">
+                        <label for="filter-review">Review Status</label>
+                        <select name="requires_review" id="filter-review" class="form-control">
+                            <option value="">All Review States</option>
+                            <option value="true"
+                                    {% if filters.requires_review == True or filters.requires_review == 'true' %}selected{% endif %}>
+                                Action Required Only
+                            </option>
+                            <option value="false"
+                                    {% if filters.requires_review == False or filters.requires_review == 'false' %}selected{% endif %}>
+                                No Review Needed
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="filter-actions-group">
+                        <button type="submit" class="btn btn-primary" id="btn-submit-filter">Apply Filters</button>
+                        {% if has_active_filters %}
+                            <a href="/api/v1/conflicts"
+                               class="btn btn-outline"
+                               id="btn-clear-active-filters">Clear</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Active Filter Indicator Notification -->
+        {% if has_active_filters %}
+            <div class="active-filters-bar">
+                <div class="filter-tag-list">
+                    <span>Active Filters:</span>
+                    {% if filters.severity %}<span class="filter-tag">Severity: {{ filters.severity }}</span>{% endif %}
+                    {% if filters.game_id %}<span class="filter-tag">Game ID: {{ filters.game_id }}</span>{% endif %}
+                    {% if filters.field %}<span class="filter-tag">Field: {{ filters.field }}</span>{% endif %}
+                    {% if filters.requires_review is not none %}
+                        <span class="filter-tag">Review: {{ filters.requires_review }}</span>
+                    {% endif %}
+                </div>
+                <div>
+                    <strong>{{ data.total_conflicts }}</strong> matching {{ "record" if data.total_conflicts == 1 else "records" }}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Triage Table / Results -->
+        <section class="triage-section">
+            <div class="triage-header-row">
+                <span class="triage-title">Discrepancy Triage Table</span>
+                <span class="text-muted">Total: {{ data.total_conflicts }} records</span>
+            </div>
+
+            {% if conflicts %}
+                <div class="table-responsive">
+                    <table class="triage-table"
+                           aria-label="Administrative Schedule Discrepancy Triage Table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Game ID</th>
+                                <th scope="col">Field</th>
+                                <th scope="col">Severity</th>
+                                <th scope="col">Side-by-Side Competing Values</th>
+                                <th scope="col">Review Status</th>
+                                <th scope="col">Details &amp; Audit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in conflicts %}
+                                <tr class="conflict-row {% if c.requires_review %}row-review-priority{% endif %}"
+                                    data-game-id="{{ c.game_id }}"
+                                    data-severity="{{ c.severity_lower }}">
+                                    <!-- Game ID -->
+                                    <td class="game-id-cell">
+                                        <code>{{ c.game_id }}</code>
+                                    </td>
+
+                                    <!-- Conflicting Field -->
+                                    <td>
+                                        <span class="field-name-tag">{{ c.field }}</span>
+                                    </td>
+
+                                    <!-- Severity Badge (Text Label + Icon, never color alone) -->
+                                    <td>
+                                        <span class="badge-severity badge-severity-{{ c.severity_lower }}"
+                                              aria-label="Severity: {{ c.severity_label }}">
+                                            <span aria-hidden="true">{{ c.severity_icon }}</span>
+                                            <span>{{ c.severity_label }}</span>
+                                        </span>
+                                    </td>
+
+                                    <!-- Side-by-Side Value Comparison -->
+                                    <td>
+                                        <div class="comparison-list">
+                                            {% for comp in c.comparisons %}
+                                                <div class="comparison-block">
+                                                    <div class="source-col">
+                                                        <span class="source-tag source-tag-a">{{ comp.source_a }}</span>
+                                                        <span class="value-text">{{ comp.value_a }}</span>
+                                                    </div>
+                                                    <span class="vs-badge" aria-label="competing against">vs</span>
+                                                    <div class="source-col">
+                                                        <span class="source-tag source-tag-b">{{ comp.source_b }}</span>
+                                                        <span class="value-text">{{ comp.value_b }}</span>
+                                                    </div>
+                                                </div>
+                                                {% if comp.notes %}
+                                                    <div class="comparison-note">{{ comp.notes }}</div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+
+                                    <!-- Review Requirement Flag -->
+                                    <td>
+                                        {% if c.requires_review %}
+                                            <span class="badge-review-required"
+                                                  aria-label="Administrative Review Required">
+                                                <span aria-hidden="true">⚠️</span> Action Required
+                                            </span>
+                                        {% else %}
+                                            <span class="badge-review-cleared" aria-label="Review Cleared">
+                                                <span aria-hidden="true">✓</span> Cleared
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Details and Audit Information -->
+                                    <td class="details-cell">
+                                        {% if c.recorded_at_formatted and c.recorded_at_formatted != "Unknown" %}
+                                            <div class="recorded-timestamp">{{ c.recorded_at_formatted }}</div>
+                                        {% endif %}
+                                        {% if c.summary %}
+                                            <div class="summary-text">{{ c.summary }}</div>
+                                        {% endif %}
+                                        {% if c.resolved %}
+                                            <span class="resolved-pill">Resolved: {{ c.resolved_value or 'Auto' }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing <strong>{{ pagination.showing_start }}-{{ pagination.showing_end }}</strong> of <strong>{{ pagination.total_count }}</strong> conflicts
+                    </div>
+                    <div class="pagination-buttons">
+                        {% if pagination.has_prev %}
+                            <a href="{{ pagination.prev_url }}"
+                               class="btn btn-outline btn-sm"
+                               id="btn-pagination-prev">← Previous</a>
+                        {% else %}
+                            <span class="btn btn-outline btn-sm disabled"
+                                  aria-disabled="true"
+                                  id="btn-pagination-prev-disabled">← Previous</span>
+                        {% endif %}
+
+                        {% if pagination.has_next %}
+                            <a href="{{ pagination.next_url }}"
+                               class="btn btn-outline btn-sm"
+                               id="btn-pagination-next">Next →</a>
+                        {% else %}
+                            <span class="btn btn-outline btn-sm disabled"
+                                  aria-disabled="true"
+                                  id="btn-pagination-next-disabled">Next →</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <!-- Empty States -->
+                <div class="empty-card">
+                    {% if has_active_filters %}
+                        <div class="empty-card-icon">🔍</div>
+                        <h3>No Conflicts Match Filters</h3>
+                        <p>No discrepancy records match your applied filter parameters. Try broadening your filter criteria.</p>
+                        <div class="empty-card-actions">
+                            <a href="/api/v1/conflicts" class="btn btn-primary">Clear Active Filters</a>
+                            <a href="/api/v1/sync/status" class="btn btn-outline">Check Sync Status</a>
+                        </div>
+                    {% else %}
+                        <div class="empty-card-icon">✓</div>
+                        <h3>No Conflicts Detected</h3>
+                        <p>All schedule data sources are currently aligned with zero detected discrepancies or timing collisions.</p>
+                        <div class="empty-card-actions">
+                            <a href="/schedule" class="btn btn-primary">View Schedule</a>
+                            <a href="/api/v1/sync/status" class="btn btn-outline">Sync Status Dashboard</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Quick Navigation Actions -->
+        <section class="conflicts-actions">
+            <a href="/" class="btn btn-outline">Home Directory</a>
+            <a href="/schedule" class="btn btn-outline">View Schedule</a>
+            <a href="/health" class="btn btn-outline">System Health</a>
+            <a href="/api/v1/sync/status" class="btn btn-outline">Sync Status</a>
+            <a href="{{ json_url }}"
+               class="btn btn-outline"
+               id="conflicts-view-as-json-btn">View as JSON</a>
+        </section>
+
+        <div class="refresh-indicator">Dashboard auto-refreshes every 30 seconds.</div>
+    </div>
+{% endblock content %}
+
+{% block extra_scripts %}
+    <script>
+    // Automatically refresh conflicts triage dashboard every 30 seconds
+    const REFRESH_INTERVAL_MS = 30000;
+    setTimeout(() => {
+      window.location.reload();
+    }, REFRESH_INTERVAL_MS);
+    </script>
+{% endblock extra_scripts %}
