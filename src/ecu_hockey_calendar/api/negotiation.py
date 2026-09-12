@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import html
 import json
-import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -23,13 +22,6 @@ MIME_HTML = "text/html"
 MIME_XHTML = "application/xhtml+xml"
 MIME_JSON = "application/json"
 MIME_ALL = "*/*"
-
-_JSON_TOKEN_REGEX = re.compile(
-    r'(?P<string>"(?:[^"\\]|\\.)*")(?P<colon>\s*:)?|'
-    r"(?P<number>-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|"
-    r"(?P<boolean>true|false)|"
-    r"(?P<null>null)",
-)
 
 _ENV_CACHE: dict[str, jinja2.Environment] = {}
 
@@ -55,20 +47,65 @@ def get_jinja_env(templates_dir: Path | str | None = None) -> jinja2.Environment
     return _ENV_CACHE[target_dir]
 
 
-def _replace_json_token(match: re.Match[str]) -> str:
-    """Format matching regex token into an HTML span tag."""
-    string_val = match.group("string")
-    if string_val is not None:
-        val = html.escape(string_val)
-        colon = html.escape(match.group("colon") or "")
-        if colon:
-            return f'<span class="json-key">{val}</span>{colon}'
+def _is_number_start(text: str, i: int, n: int) -> bool:
+    """Check if index i starts a JSON number."""
+    char = text[i]
+    if char.isdigit():
+        return True
 
-        return f'<span class="json-string">{val}</span>'
+    return char == "-" and i + 1 < n and text[i + 1].isdigit()
 
-    kind = match.lastgroup
-    val = html.escape(match.group(0))
-    return f'<span class="json-{kind}">{val}</span>'
+
+def _scan_json_string(text: str, start: int, n: int) -> tuple[str, int]:
+    """Scan a quoted JSON string token starting at index start."""
+    i = start + 1
+    while i < n:
+        if text[i] == "\\":
+            i += 2
+        elif text[i] == '"':
+            return text[start : i + 1], i + 1
+        else:
+            i += 1
+
+    return text[start:n], n
+
+
+def _is_object_key(text: str, after_quote: int, n: int) -> bool:
+    """Determine whether a quoted string token is followed by an object colon."""
+    j = after_quote
+    while j < n and text[j] in " \t\r\n":
+        j += 1
+
+    return j < n and text[j] == ":"
+
+
+def _scan_json_number(text: str, start: int, n: int) -> tuple[str, int]:
+    """Scan a numeric JSON token starting at index start."""
+    i = start
+    while i < n and (text[i].isdigit() or text[i] in ".eE+-"):
+        i += 1
+
+    return text[start:i], i
+
+
+def _format_string_token(token: str, *, is_key: bool) -> str:
+    """Format a quoted string token as an HTML span."""
+    css_class = "json-key" if is_key else "json-string"
+    return f'<span class="{css_class}">{html.escape(token)}</span>'
+
+
+def _scan_json_literal(text: str, i: int) -> tuple[str | None, int]:
+    """Scan boolean or null literal tokens."""
+    if text.startswith("true", i):
+        return '<span class="json-boolean">true</span>', 4
+
+    if text.startswith("false", i):
+        return '<span class="json-boolean">false</span>', 5
+
+    if text.startswith("null", i):
+        return '<span class="json-null">null</span>', 4
+
+    return None, 0
 
 
 def highlight_json(data: object) -> str:
@@ -80,8 +117,34 @@ def highlight_json(data: object) -> str:
     Returns:
         HTML snippet containing color-coded syntax spans.
     """
-    formatted = json.dumps(data, indent=2)
-    return _JSON_TOKEN_REGEX.sub(_replace_json_token, formatted)
+    text = json.dumps(data, indent=2)
+    n = len(text)
+    out: list[str] = []
+    i = 0
+    while i < n:
+        char = text[i]
+        if char == '"':
+            token, i = _scan_json_string(text, i, n)
+            out.append(
+                _format_string_token(token, is_key=_is_object_key(text, i, n)),
+            )
+            continue
+
+        if _is_number_start(text, i, n):
+            num_token, i = _scan_json_number(text, i, n)
+            out.append(f'<span class="json-number">{html.escape(num_token)}</span>')
+            continue
+
+        lit, adv = _scan_json_literal(text, i)
+        if lit is not None:
+            out.append(lit)
+            i += adv
+            continue
+
+        out.append(html.escape(char))
+        i += 1
+
+    return "".join(out)
 
 
 def _parse_q_value(params: list[str]) -> float:
