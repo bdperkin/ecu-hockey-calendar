@@ -8,6 +8,60 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.7.1 (2026-09-12)
+
+### Bug Fixes
+
+- **security**: Resolve CodeQL polynomial ReDoS and unused global variables (#156)
+  ([#157](https://github.com/bdperkin/ecu-hockey-calendar/pull/157),
+  [`9adae77`](https://github.com/bdperkin/ecu-hockey-calendar/commit/9adae77485847f7e1e3bafb700c8173d940c3b8d))
+
+### Chores
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`fc61b40`](https://github.com/bdperkin/ecu-hockey-calendar/commit/fc61b4060393ec34dc522a12316d9ff4257b6bc3))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`823aa8a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/823aa8a86bbfb00b868276b3777782e018ff78cf))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`36f1ec0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/36f1ec0e3efdb06aa71a96665aa036b42eac729a))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`a099be1`](https://github.com/bdperkin/ecu-hockey-calendar/commit/a099be10a513e04b0c94fff802b8954e97277d2b))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`028357c`](https://github.com/bdperkin/ecu-hockey-calendar/commit/028357c4eae83a0ed36da192647aee19f6cbd2b5))
+
+### Documentation
+
+- **roadmap**: Integrate favicon and web touch icons issue (#144)
+  ([#145](https://github.com/bdperkin/ecu-hockey-calendar/pull/145),
+  [`eb768dd`](https://github.com/bdperkin/ecu-hockey-calendar/commit/eb768dd59274ffebf1150a1d6adb94d5d62359cd))
+
+- **roadmap**: Integrate project logo and visual branding issue (#142)
+  ([#143](https://github.com/bdperkin/ecu-hockey-calendar/pull/143),
+  [`fb4136b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/fb4136bcac9bda698652439229394e0ea549e10c))
+
+### Features
+
+- **api**: Content-negotiated HTML and JSON responses for conflicts endpoint (/api/v1/conflicts)
+  (#100) ([#148](https://github.com/bdperkin/ecu-hockey-calendar/pull/148),
+  [`f498882`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f49888235070fe98ccd7c1ff23f0a108ff1c6c58))
+
+- **api**: Content-negotiated HTML and JSON responses for health probe endpoint (/health)
+  ([#141](https://github.com/bdperkin/ecu-hockey-calendar/pull/141),
+  [`fac7d55`](https://github.com/bdperkin/ecu-hockey-calendar/commit/fac7d55d4647c753d6f147ae16e3ea6309ab698a))
+
+- **api**: Content-negotiated HTML and JSON responses for sync status endpoint (/api/v1/sync/status)
+  ([#147](https://github.com/bdperkin/ecu-hockey-calendar/pull/147),
+  [`98e1ee3`](https://github.com/bdperkin/ecu-hockey-calendar/commit/98e1ee3e95add9e3c3e254b5029294e12082325b))
+
+- **api**: Implement in-process background synchronization trigger with concurrency and cooldown
+  safeguards (#117) ([#146](https://github.com/bdperkin/ecu-hockey-calendar/pull/146),
+  [`91f1fa5`](https://github.com/bdperkin/ecu-hockey-calendar/commit/91f1fa5cfab087ac2b62cfac5d0b423d4d81a22e))
+
+
 ## v0.7.0 (2026-09-11)
 
 ### Chores
