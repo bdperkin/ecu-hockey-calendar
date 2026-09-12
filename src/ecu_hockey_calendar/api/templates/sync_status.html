@@ -1,0 +1,864 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Synchronization Status &amp; Telemetry - ECU Men's Ice Hockey
+{% endblock title %}
+
+{% block meta %}
+{% endblock meta %}
+
+{% block extra_styles %}
+    <style>
+  .sync-container {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+
+  /* Overall Sync Status Banner */
+  .sync-banner {
+    border-radius: 8px;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .banner-idle {
+    background-color: #e8f5e9;
+    border: 2px solid #2e7d32;
+    color: #1b5e20;
+  }
+
+  .banner-syncing, .banner-running {
+    background-color: #e3f2fd;
+    border: 2px solid #1976d2;
+    color: #0d47a1;
+  }
+
+  .banner-failed {
+    background-color: #ffebee;
+    border: 2px solid #c62828;
+    color: #b71c1c;
+  }
+
+  .banner-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .banner-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .banner-idle .banner-icon {
+    background-color: #2e7d32;
+    color: #ffffff;
+  }
+
+  .banner-syncing .banner-icon, .banner-running .banner-icon {
+    background-color: #1976d2;
+    color: #ffffff;
+  }
+
+  .banner-failed .banner-icon {
+    background-color: #c62828;
+    color: #ffffff;
+  }
+
+  .banner-title-group h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  .banner-desc {
+    font-size: 0.95rem;
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .banner-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .banner-right {
+      align-items: flex-start;
+      width: 100%;
+    }
+  }
+
+  .banner-badge {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .banner-idle .banner-badge {
+    background-color: #2e7d32;
+    color: #ffffff;
+  }
+
+  .banner-syncing .banner-badge, .banner-running .banner-badge {
+    background-color: #1976d2;
+    color: #ffffff;
+  }
+
+  .banner-failed .banner-badge {
+    background-color: #c62828;
+    color: #ffffff;
+  }
+
+  .banner-refresh-indicator {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: currentColor;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+  }
+
+  /* Cadence Notice Callout */
+  .cadence-callout {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--ecu-purple);
+    border-radius: 6px;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+
+  .cadence-icon {
+    font-size: 1.25rem;
+    color: var(--ecu-purple);
+    flex-shrink: 0;
+  }
+
+  .code-pill {
+    background-color: var(--border-light);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+    color: var(--ecu-purple-dark);
+  }
+
+  /* Metric Highlights Strip */
+  .metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .metric-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .metric-card-link {
+    cursor: pointer;
+    border-left: 4px solid var(--ecu-gold);
+  }
+
+  .metric-card-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(89, 42, 138, 0.12);
+    border-color: var(--ecu-purple);
+  }
+
+  .metric-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+  }
+
+  .metric-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .metric-link-arrow {
+    font-size: 1rem;
+    color: var(--ecu-purple);
+    font-weight: 700;
+  }
+
+  .metric-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--ecu-purple);
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+  }
+
+  .metric-value-warning {
+    color: #e65100;
+  }
+
+  .metric-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Error Panel */
+  .error-panel {
+    background-color: #fff5f5;
+    border: 2px solid #c62828;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(198, 40, 40, 0.08);
+  }
+
+  .error-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .error-panel-icon {
+    font-size: 1.75rem;
+    color: #c62828;
+    flex-shrink: 0;
+  }
+
+  .error-panel-title-group h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #b71c1c;
+    margin: 0 0 0.25rem;
+  }
+
+  .error-panel-subtitle {
+    font-size: 0.9rem;
+    color: #7f1d1d;
+    margin: 0;
+  }
+
+  .error-message-text {
+    background-color: #ffffff;
+    border: 1px solid #fca5a5;
+    border-radius: 6px;
+    padding: 1rem;
+    color: #991b1b;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0;
+  }
+
+  /* Empty State Card */
+  .empty-state-card {
+    background: #ffffff;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .empty-state-icon {
+    font-size: 2.5rem;
+    color: var(--ecu-purple);
+    margin-bottom: 1rem;
+  }
+
+  .empty-state-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* Component Cards Grid */
+  .section-heading {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ecu-purple);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .component-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-header h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+  }
+
+  .status-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .tag-operational, .tag-connected, .tag-healthy, .tag-success, .tag-completed {
+    background-color: var(--badge-win-bg);
+    color: var(--badge-win-text);
+  }
+
+  .tag-degraded, .tag-running, .tag-syncing {
+    background-color: var(--badge-otl-bg);
+    color: var(--badge-otl-text);
+  }
+
+  .tag-unhealthy, .tag-failed {
+    background-color: var(--badge-loss-bg);
+    color: var(--badge-loss-text);
+  }
+
+  .tag-neutral, .tag-never_run, .tag-idle {
+    background-color: var(--badge-neutral-bg);
+    color: var(--badge-neutral-text);
+  }
+
+  .key-val-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .key-val-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .key-val-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .key-name {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .key-value {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+    text-align: right;
+  }
+
+  /* Scraper Table Section */
+  .table-section {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scrapers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .scrapers-table th {
+    background-color: var(--bg-page);
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .scrapers-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+  }
+
+  .scrapers-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .scrapers-table tr:hover td {
+    background-color: #fafbfc;
+  }
+
+  .source-code-cell {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 700;
+    color: var(--ecu-purple);
+    font-size: 0.85rem;
+  }
+
+  .type-badge {
+    background-color: var(--border-light);
+    color: var(--text-dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    text-transform: uppercase;
+  }
+
+  .active-badge-yes {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .active-badge-no {
+    color: #6c757d;
+    background-color: #e2e3e5;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .timestamp-primary {
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .timestamp-relative {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .empty-cell {
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  /* Quick Navigation Actions */
+  .sync-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+    </style>
+{% endblock extra_styles %}
+
+{% block content %}
+    <div class="sync-container">
+        <!-- Overall Sync Status Banner -->
+        <section class="sync-banner banner-{{ current_status }}"
+                 role="status"
+                 aria-label="Synchronization Status: {{ current_status | upper }}">
+            <div class="banner-left">
+                <div class="banner-icon" aria-hidden="true">
+                    {% if current_status == "idle" %}
+                        ✓
+                    {% elif current_status in ["syncing", "running"] %}
+                        ↻
+                    {% else %}
+                        ✖
+                    {% endif %}
+                </div>
+                <div class="banner-title-group">
+                    <h2>
+                        {% if current_status == "idle" %}
+                            Synchronization Engine Idle
+                        {% elif current_status in ["syncing", "running"] %}
+                            Synchronization In Progress
+                        {% else %}
+                            Synchronization Cycle Failed
+                        {% endif %}
+                    </h2>
+                    <p class="banner-desc">
+                        {% if current_status == "idle" %}
+                            Schedule synchronization engine is idle and awaiting next scheduled cycle.
+                        {% elif current_status in ["syncing", "running"] %}
+                            A schedule ingestion and reconciliation cycle is currently executing in the background.
+                        {% else %}
+                            The last synchronization cycle encountered an error and requires operational review.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="banner-right">
+                <span class="banner-badge">{{ current_status }}</span>
+                <span class="banner-refresh-indicator">
+                    <span class="pulse-dot"></span> Live updates every 30s
+                </span>
+            </div>
+        </section>
+
+        <!-- Cadence Notice Callout -->
+        <aside class="cadence-callout" role="note">
+            <span class="cadence-icon" aria-hidden="true">ⓘ</span>
+            <div class="cadence-text">
+                <strong>Scheduled Cadence:</strong> Automated synchronization runs every 6 hours via the background worker (<code class="code-pill">0 */6 * * *</code> in <code class="code-pill">render.yaml</code>). Stale-looking timestamps between cycles indicate normal scheduled operation.
+            </div>
+        </aside>
+
+        <!-- Error Panel (Surface error_message prominently when non-null) -->
+        {% if data.last_sync and data.last_sync.error_message %}
+            <section class="error-panel"
+                     role="alert"
+                     aria-label="Synchronization Failure Alert">
+                <div class="error-panel-header">
+                    <span class="error-panel-icon" aria-hidden="true">⚠</span>
+                    <div class="error-panel-title-group">
+                        <h3>Synchronization Failure Detected</h3>
+                        <p class="error-panel-subtitle">The latest synchronization cycle encountered an unhandled error during execution.</p>
+                    </div>
+                </div>
+                <div class="error-panel-body">
+                    <pre class="error-message-text"><code>{{ data.last_sync.error_message }}</code></pre>
+                </div>
+            </section>
+        {% endif %}
+
+        {% if not last_sync_meta.has_run %}
+            <!-- Friendly Empty State Card -->
+            <section class="empty-state-card" aria-label="Empty synchronization history">
+                <div class="empty-state-icon" aria-hidden="true">☕</div>
+                <h3 class="empty-state-title">No Synchronization Cycles Recorded Yet</h3>
+                <p class="empty-state-desc">
+                    No synchronization has run yet. Scheduled sync runs every 6 hours via the automated cron worker. Telemetry and change metrics will be recorded once the initial cycle completes.
+                </p>
+            </section>
+        {% else %}
+            <!-- Metric Highlights Strip for Last Sync Cycle -->
+            <section class="metrics-strip" aria-label="Latest synchronization statistics">
+                <div class="metric-card">
+                    <div class="metric-header-row">
+                        <span class="metric-label">Games Created</span>
+                    </div>
+                    <div class="metric-value">{{ data.last_sync.games_created }}</div>
+                    <div class="metric-sub">Added to schedule</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header-row">
+                        <span class="metric-label">Games Updated</span>
+                    </div>
+                    <div class="metric-value">{{ data.last_sync.games_updated }}</div>
+                    <div class="metric-sub">Attributes modified</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header-row">
+                        <span class="metric-label">Games Deleted</span>
+                    </div>
+                    <div class="metric-value">{{ data.last_sync.games_deleted }}</div>
+                    <div class="metric-sub">Cancelled or removed</div>
+                </div>
+                <!-- Conflicts Detected Stat Tile (links to /api/v1/conflicts per Issue #100) -->
+                <a href="/api/v1/conflicts"
+                   class="metric-card metric-card-link"
+                   aria-label="Conflicts detected: {{ data.last_sync.conflicts_detected }}. Click to open conflict triage.">
+                    <div class="metric-header-row">
+                        <span class="metric-label">Conflicts Detected</span>
+                        <span class="metric-link-arrow" aria-hidden="true">→</span>
+                    </div>
+                    <div class="metric-value {% if data.last_sync.conflicts_detected > 0 %}metric-value-warning{% endif %}">
+                        {{ data.last_sync.conflicts_detected }}
+                    </div>
+                    <div class="metric-sub">Review cross-source triage →</div>
+                </a>
+                <div class="metric-card">
+                    <div class="metric-header-row">
+                        <span class="metric-label">Total Sync Cycles</span>
+                    </div>
+                    <div class="metric-value">{{ data.total_sync_cycles }}</div>
+                    <div class="metric-sub">All-time executions</div>
+                </div>
+            </section>
+        {% endif %}
+
+        <!-- Telemetry & Trigger Diagnostics Grid -->
+        <h3 class="section-heading">Cycle Timing &amp; Trigger Diagnostics</h3>
+        <section class="components-grid">
+            <!-- Execution Timing Card -->
+            <div class="component-card">
+                <div>
+                    <div class="card-header">
+                        <h3>Cycle Execution Timing</h3>
+                        <span class="status-tag tag-{{ data.last_sync.status | lower if data.last_sync else 'neutral' }}">
+                            {{ data.last_sync.status if data.last_sync else 'NEVER RUN' }}
+                        </span>
+                    </div>
+                    <ul class="key-val-list">
+                        <li class="key-val-item">
+                            <span class="key-name">Sync Cycle ID</span>
+                            <span class="key-value">{{ data.last_sync.sync_cycle_id if (data.last_sync and data.last_sync.sync_cycle_id) else 'None' }}</span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Started At</span>
+                            <span class="key-value">
+                                {% if last_sync_meta.has_run and data.last_sync.started_at %}
+                                    <span class="timestamp-primary">{{ last_sync_meta.started_at_formatted }}</span>
+                                    <span class="timestamp-relative">({{ last_sync_meta.started_at_relative }})</span>
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Completed At</span>
+                            <span class="key-value">
+                                {% if last_sync_meta.has_run and data.last_sync.completed_at %}
+                                    <span class="timestamp-primary">{{ last_sync_meta.completed_at_formatted }}</span>
+                                    <span class="timestamp-relative">({{ last_sync_meta.completed_at_relative }})</span>
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Duration</span>
+                            <span class="key-value">{{ last_sync_meta.duration_formatted }}</span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Last Successful Sync</span>
+                            <span class="key-value">
+                                {% if data.last_success_at %}
+                                    <span class="timestamp-primary">{{ last_success_formatted }}</span>
+                                    <span class="timestamp-relative">({{ last_success_relative }})</span>
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- On-Demand Trigger Telemetry Card -->
+            <div class="component-card">
+                <div>
+                    <div class="card-header">
+                        <h3>On-Demand Trigger Telemetry</h3>
+                        <span class="status-tag {% if data.sync_trigger_enabled %}tag-operational{% else %}tag-neutral{% endif %}">
+                            {% if data.sync_trigger_enabled %}
+                                Enabled
+                            {% else %}
+                                Disabled
+                            {% endif %}
+                        </span>
+                    </div>
+                    <ul class="key-val-list">
+                        <li class="key-val-item">
+                            <span class="key-name">Trigger Readiness</span>
+                            <span class="key-value">
+                                {% if data.can_trigger %}
+                                    <span class="active-badge-yes">✓ Ready</span>
+                                {% else %}
+                                    <span class="active-badge-no">✕ Cooldown / Busy</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Active Cooldown</span>
+                            <span class="key-value">
+                                {% if data.cooldown_remaining_seconds > 0 %}
+                                    {{ data.cooldown_remaining_seconds }}s remaining
+                                {% else %}
+                                    None (Ready)
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Cooldown Threshold</span>
+                            <span class="key-value">{{ data.cooldown_total_seconds }}s</span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Trigger Endpoint</span>
+                            <span class="key-value">POST /api/v1/sync/trigger</span>
+                        </li>
+                        <li class="key-val-item">
+                            <span class="key-name">Access Control</span>
+                            <span class="key-value">Admin Bearer Token</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ingestion Scrapers Status Table -->
+        <section class="table-section">
+            <h3 class="section-heading">Schedule Ingestion Scrapers</h3>
+            <div class="table-wrapper">
+                <table class="scrapers-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Source Code</th>
+                            <th scope="col">Source Name</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Last Scraped At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if sources %}
+                            {% for source in sources %}
+                                <tr>
+                                    <td class="source-code-cell">{{ source.source_code }}</td>
+                                    <td>{{ source.name }}</td>
+                                    <td>
+                                        <span class="type-badge">{{ source.source_type }}</span>
+                                    </td>
+                                    <td>
+                                        {% if source.is_active %}
+                                            <span class="active-badge-yes">✓ Active</span>
+                                        {% else %}
+                                            <span class="active-badge-no">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if source.last_scraped_at %}
+                                            <div class="timestamp-primary">{{ source.last_scraped_formatted }}</div>
+                                            <div class="timestamp-relative">({{ source.last_scraped_relative }})</div>
+                                        {% else %}
+                                            <span class="text-muted">Never</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="empty-cell">No scraper sources registered.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Quick Navigation Actions -->
+        <section class="sync-actions">
+            <a href="/" class="btn btn-outline">Home Directory</a>
+            <a href="/schedule" class="btn btn-outline">View Schedule</a>
+            <a href="/health" class="btn btn-outline">System Health</a>
+            <a href="/api/v1/conflicts" class="btn btn-outline">View Conflicts</a>
+            <a href="{{ json_url }}"
+               class="btn btn-outline"
+               id="sync-view-as-json-btn">View as JSON</a>
+        </section>
+    </div>
+{% endblock content %}
+
+{% block extra_scripts %}
+    <script>
+    // Automatically refresh sync status dashboard every 30 seconds
+    const REFRESH_INTERVAL_MS = 30000;
+    setTimeout(() => {
+      window.location.reload();
+    }, REFRESH_INTERVAL_MS);
+    </script>
+{% endblock extra_scripts %}

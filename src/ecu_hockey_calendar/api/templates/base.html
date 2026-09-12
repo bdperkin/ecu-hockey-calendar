@@ -830,6 +830,8 @@
                         <li><a href="/docs">API Docs</a></li>
                         <li><a href="/health"
    class="{% if active_tab == 'health' %}active{% endif %}">Health</a></li>
+                        <li><a href="/api/v1/sync/status"
+   class="{% if active_tab == 'sync' %}active{% endif %}">Sync</a></li>
                     </ul>
                     <div class="nav-actions">
                         <a href="{{ embed_url or '/schedule/embed' }}" class="btn btn-secondary">Embed Widget</a>
@@ -880,6 +882,7 @@
                         <h4>Widget &amp; System</h4>
                         <p><a href="{{ embed_url or '/schedule/embed' }}">Get Responsive Embed iFrame</a></p>
                         <p><a href="/health">Health &amp; Diagnostics</a></p>
+                        <p><a href="/api/v1/sync/status">Sync Telemetry</a></p>
                         <p><a href="https://ecuhockey.com"
    target="_blank"
    rel="noopener noreferrer">Official ECU Hockey Website</a></p>
