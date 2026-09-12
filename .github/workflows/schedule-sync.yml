@@ -132,7 +132,7 @@ jobs:
       - name: Validate exported static calendar feeds
         run: uv run python tools/validate_feeds.py static
       - name: Upload static calendar artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: calendar-feeds
           path: static/
