@@ -441,7 +441,7 @@ ______________________________________________________________________
 
 #### 2.8.2. Phase 8.2: Visual Brand Identity & Project Logo Assets
 
-- [ ] **[#142](https://github.com/bdperkin/ecu-hockey-calendar/issues/142) - docs(branding): establish project logo and visual brand identity across repository, documentation, and web interfaces**
+- [x] **[#142](https://github.com/bdperkin/ecu-hockey-calendar/issues/142) - docs(branding): establish project logo and visual brand identity across repository, documentation, and web interfaces**
 
   - **Summary:** Author vector SVG logo and visual branding assets for ECU Men's Ice Hockey Calendar, integrating into `README.md`, Sphinx docs, web templates, and repository social preview.
   - **Description:** Design a crisp SVG vector logo and high-resolution transparent PNG tailored to ECU pirate athletics palette (`--ecu-purple` `#592A8A`, `--ecu-gold` `#FFC72C`, with light/dark contrast), center a 100-200px responsive logo at the top of `README.md`, configure Sphinx `html_logo` and `html_favicon` in `docs/conf.py`, embed the visual identity in `base.html` web application headers, and supply a 1280x640 Open Graph social preview asset for GitHub link cards. Sequenced prior to the final documentation audit ([#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103)) so all asset links and rendered docs are verified.

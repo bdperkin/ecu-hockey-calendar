@@ -5,11 +5,13 @@ from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from ecu_hockey_calendar.api.errors import register_exception_handlers
 from ecu_hockey_calendar.api.negotiation import negotiate_response
@@ -41,6 +43,7 @@ DEFAULT_API_DESCRIPTION = (
     "Men's Ice Hockey. Conforms to RFC 5545 iCalendar specification with "
     "webcal:// support."
 )
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
 def _resolve_enable_sync(*, enable_sync_trigger: bool | None) -> bool:
@@ -150,22 +153,18 @@ def create_app(
 
     # Initialize application state dependencies
     app.state.start_time = datetime.now(UTC)
-    resolved_admin_token = (
+    app.state.admin_token = (
         admin_token if admin_token is not None else os.environ.get("ADMIN_API_TOKEN")
     )
-    app.state.admin_token = resolved_admin_token
     app.state.calendar_service = CalendarFeedService()
     app.state.schedule_service = ScheduleDataService()
     app.state.syndication_service = SyndicationFeedService()
     app.state.default_calendar = ECUHockeyCalendar()
 
-    resolved_db_url = (
-        database_url if database_url is not None else os.environ.get("DATABASE_URL")
+    resolved_db_url = database_url or os.environ.get("DATABASE_URL")
+    app.state.db_engine = (
+        create_sync_engine(resolved_db_url) if resolved_db_url else None
     )
-    if resolved_db_url:
-        app.state.db_engine = create_sync_engine(resolved_db_url)
-    else:
-        app.state.db_engine = None
 
     (
         app.state.sync_manager,
@@ -184,6 +183,9 @@ def create_app(
     app.include_router(syndication_router)
     app.include_router(sync_router)
     app.include_router(conflicts_router)
+
+    # Mount static assets
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
     @app.get(
         "/",
@@ -227,9 +229,11 @@ def create_app(
                 "calendar_ics": "/calendar.ics",
                 "conflicts": "/api/v1/conflicts",
                 "docs": "/docs",
+                "favicon": "/favicon.ico",
                 "feed_atom": "/feed.atom",
                 "feed_rss": "/feed.rss",
                 "health": "/health",
+                "logo_svg": "/static/ecu_hockey_logo.svg",
                 "openapi": "/openapi.json",
                 "redoc": "/redoc",
                 "schedule_atom": "/api/schedule.atom",
