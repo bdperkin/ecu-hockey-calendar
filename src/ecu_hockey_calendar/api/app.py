@@ -19,6 +19,7 @@ from ecu_hockey_calendar.api.routes import (
     health_router,
     schedule_router,
     sync_router,
+    syndication_router,
     web_router,
 )
 from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
@@ -26,6 +27,7 @@ from ecu_hockey_calendar.api.service import CalendarFeedService
 from ecu_hockey_calendar.calendar import ECUHockeyCalendar
 from ecu_hockey_calendar.storage.engine import create_sync_engine
 from ecu_hockey_calendar.sync_service import SyncManager
+from ecu_hockey_calendar.syndication import SyndicationFeedService
 from ecu_hockey_calendar.version import get_version
 
 if TYPE_CHECKING:
@@ -154,6 +156,7 @@ def create_app(
     app.state.admin_token = resolved_admin_token
     app.state.calendar_service = CalendarFeedService()
     app.state.schedule_service = ScheduleDataService()
+    app.state.syndication_service = SyndicationFeedService()
     app.state.default_calendar = ECUHockeyCalendar()
 
     resolved_db_url = (
@@ -178,6 +181,7 @@ def create_app(
     app.include_router(health_router)
     app.include_router(calendar_router)
     app.include_router(schedule_router)
+    app.include_router(syndication_router)
     app.include_router(sync_router)
     app.include_router(conflicts_router)
 
@@ -223,14 +227,18 @@ def create_app(
                 "calendar_ics": "/calendar.ics",
                 "conflicts": "/api/v1/conflicts",
                 "docs": "/docs",
+                "feed_atom": "/feed.atom",
+                "feed_rss": "/feed.rss",
                 "health": "/health",
                 "openapi": "/openapi.json",
                 "redoc": "/redoc",
+                "schedule_atom": "/api/schedule.atom",
                 "schedule_csv": "/api/schedule.csv",
                 "schedule_embed": "/schedule/embed",
                 "schedule_html": "/schedule",
                 "schedule_json": "/api/schedule.json",
                 "schedule_pdf": "/schedule.pdf",
+                "schedule_rss": "/api/schedule.rss",
                 "sync_status": "/api/v1/sync/status",
             },
         }

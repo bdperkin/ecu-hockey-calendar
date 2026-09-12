@@ -433,13 +433,33 @@ class TestExportCommand:
         assert _detect_format("json", None) == "json"
         assert _detect_format("html", None) == "html"
         assert _detect_format("pdf", None) == "pdf"
+        assert _detect_format("rss", None) == "rss"
+        assert _detect_format("atom", None) == "atom"
         assert _detect_format(None, "sched.csv") == "csv"
         assert _detect_format(None, "sched.json") == "json"
         assert _detect_format(None, "sched.ics") == "ics"
         assert _detect_format(None, "sched.html") == "html"
         assert _detect_format(None, "sched.pdf") == "pdf"
+        assert _detect_format(None, "sched.rss") == "rss"
+        assert _detect_format(None, "sched.atom") == "atom"
         assert _detect_format(None, None, embed=True) == "html"
         assert _detect_format(None, "sched.txt") == "ics"
+
+    def test_export_rss_stdout(self, runner: CliRunner, db_url: str) -> None:
+        """Verify export command outputs RSS 2.0 XML to stdout."""
+        result = runner.invoke(export_command, ["-f", "rss", "--db-url", db_url])
+        assert result.exit_code == 0
+        assert "<rss" in result.output
+        assert 'version="2.0"' in result.output
+        assert "ECU Men's Ice Hockey Schedule" in result.output
+
+    def test_export_atom_stdout(self, runner: CliRunner, db_url: str) -> None:
+        """Verify export command outputs Atom 1.0 XML to stdout."""
+        result = runner.invoke(export_command, ["-f", "atom", "--db-url", db_url])
+        assert result.exit_code == 0
+        assert "<feed" in result.output
+        assert "http://www.w3.org/2005/Atom" in result.output
+        assert "ECU Men's Ice Hockey Schedule" in result.output
 
     def test_export_pdf_stdout(self, runner: CliRunner, db_url: str) -> None:
         """Verify export command outputs binary PDF to stdout."""
@@ -533,6 +553,42 @@ class TestExportCommand:
         assert "Export Successful" in result.output
         assert out_file.is_file()
         assert '"primary_team"' in out_file.read_text(encoding="utf-8")
+
+    def test_export_rss_to_file(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify export command writes RSS XML to specified output file."""
+        out_file = tmp_path / "schedule.rss"
+        result = runner.invoke(
+            export_command,
+            ["-o", str(out_file), "--db-url", db_url],
+        )
+        assert result.exit_code == 0
+        assert "Export Successful" in result.output
+        assert "RSS" in result.output
+        assert out_file.is_file()
+        assert "<rss" in out_file.read_text(encoding="utf-8")
+
+    def test_export_atom_to_file(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify export command writes Atom XML to specified output file."""
+        out_file = tmp_path / "schedule.atom"
+        result = runner.invoke(
+            export_command,
+            ["-o", str(out_file), "--db-url", db_url],
+        )
+        assert result.exit_code == 0
+        assert "Export Successful" in result.output
+        assert "ATOM" in result.output
+        assert out_file.is_file()
+        assert "<feed" in out_file.read_text(encoding="utf-8")
 
     def test_export_filters(
         self,

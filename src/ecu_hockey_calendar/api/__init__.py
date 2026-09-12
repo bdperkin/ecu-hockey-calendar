@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from ecu_hockey_calendar.api.app import create_app
+from typing import TYPE_CHECKING
+
 from ecu_hockey_calendar.api.auth import resolve_admin_token, verify_admin_token
 from ecu_hockey_calendar.api.errors import register_exception_handlers
 from ecu_hockey_calendar.api.negotiation import (
@@ -33,6 +34,52 @@ from ecu_hockey_calendar.api.service import (
     generate_game_uid,
     resolve_venue_details,
 )
+
+if TYPE_CHECKING:
+    from fastapi import FastAPI
+
+
+def create_app(
+    database_url: str | None = None,
+    *,
+    admin_token: str | None = None,
+    title: str = "ECU Men's Ice Hockey Calendar & Data API",
+    description: str = (
+        "Official calendar subscription feeds and schedule data endpoints "
+        "for ECU Ice Hockey."
+    ),
+    enable_cors: bool = True,
+    enable_sync_trigger: bool | None = None,
+    sync_cooldown_seconds: int | None = None,
+) -> FastAPI:
+    """Create and configure the FastAPI application instance.
+
+    Args:
+        database_url: Optional database connection URL for persistence storage.
+        admin_token: Optional administrative authentication Bearer token.
+        title: API documentation title.
+        description: API documentation description.
+        enable_cors: Whether to mount CORSMiddleware for cross-origin access.
+        enable_sync_trigger: Whether to enable background sync trigger API endpoint.
+        sync_cooldown_seconds: Optional minimum cooldown between sync cycles.
+
+    Returns:
+        Configured FastAPI application instance.
+    """
+    from ecu_hockey_calendar.api.app import (  # noqa: PLC0415 # pylint: disable=import-outside-toplevel
+        create_app as _create_app,
+    )
+
+    return _create_app(
+        database_url=database_url,
+        admin_token=admin_token,
+        title=title,
+        description=description,
+        enable_cors=enable_cors,
+        enable_sync_trigger=enable_sync_trigger,
+        sync_cooldown_seconds=sync_cooldown_seconds,
+    )
+
 
 __all__ = [
     "DEFAULT_ALARM_MINUTES",

@@ -876,6 +876,8 @@
                     <div class="footer-section">
                         <h4>Subscriptions &amp; Feeds</h4>
                         <p><a href="{{ ics_url or '/calendar.ics' }}">Apple / Google / Outlook iCal Feed</a></p>
+                        <p><a href="{{ rss_url or '/feed.rss' }}">RSS 2.0 Syndication Feed</a></p>
+                        <p><a href="{{ atom_url or '/feed.atom' }}">Atom 1.0 Syndication Feed</a></p>
                         <p><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF Grid</a></p>
                         <p><a href="{{ csv_url or '/api/schedule.csv' }}">Spreadsheet CSV Export</a></p>
                         <p><a href="{{ json_url or '/api/schedule.json' }}">Developer JSON Endpoint</a></p>

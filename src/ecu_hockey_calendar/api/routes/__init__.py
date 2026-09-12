@@ -7,6 +7,7 @@ from ecu_hockey_calendar.api.routes.conflicts import conflicts_router
 from ecu_hockey_calendar.api.routes.health import health_router
 from ecu_hockey_calendar.api.routes.schedule import schedule_router
 from ecu_hockey_calendar.api.routes.sync import sync_router
+from ecu_hockey_calendar.api.routes.syndication import router as syndication_router
 from ecu_hockey_calendar.api.routes.web import web_router
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "health_router",
     "schedule_router",
     "sync_router",
+    "syndication_router",
     "web_router",
 ]
