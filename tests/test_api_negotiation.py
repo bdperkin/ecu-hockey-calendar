@@ -197,19 +197,32 @@ def test_highlight_json_tokens() -> None:
     payload = {
         "name": "Pirates",
         "active": True,
+        "disabled": False,
         "count": 42,
+        "negative": -100,
+        "exp": 2.5e3,
         "ratio": 3.14,
         "empty": None,
         "sub": {"nested": "value with true and 123 in string"},
+        "html_content": "<span>&amp;</span>",
+        "items": ["plain string", "string with : colon"],
     }
     html_out = highlight_json(payload)
-    assert '<span class="json-key">&quot;name&quot;</span>' in html_out
+    assert '<span class="json-key">&quot;name&quot;</span>:' in html_out
     assert '<span class="json-string">&quot;Pirates&quot;</span>' in html_out
     assert '<span class="json-boolean">true</span>' in html_out
+    assert '<span class="json-boolean">false</span>' in html_out
     assert '<span class="json-number">42</span>' in html_out
+    assert '<span class="json-number">-100</span>' in html_out
+    assert '<span class="json-number">2500.0</span>' in html_out
     assert '<span class="json-number">3.14</span>' in html_out
     assert '<span class="json-null">null</span>' in html_out
     assert "value with true and 123 in string" in html_out
+    assert "&lt;span&gt;&amp;amp;&lt;/span&gt;" in html_out
+    assert '<span class="json-string">&quot;plain string&quot;</span>' in html_out
+    assert (
+        '<span class="json-string">&quot;string with : colon&quot;</span>' in html_out
+    )
 
 
 def test_build_negotiated_headers() -> None:

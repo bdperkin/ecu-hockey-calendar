@@ -25,8 +25,7 @@ MIME_JSON = "application/json"
 MIME_ALL = "*/*"
 
 _JSON_TOKEN_REGEX = re.compile(
-    r"(?P<key>&quot;.*?&quot;)(?=\s*:)|"
-    r"(?P<string>&quot;.*?&quot;)|"
+    r'(?P<string>"(?:[^"\\]|\\.)*")(?P<colon>\s*:)?|'
     r"(?P<number>-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|"
     r"(?P<boolean>true|false)|"
     r"(?P<null>null)",
@@ -58,8 +57,17 @@ def get_jinja_env(templates_dir: Path | str | None = None) -> jinja2.Environment
 
 def _replace_json_token(match: re.Match[str]) -> str:
     """Format matching regex token into an HTML span tag."""
+    string_val = match.group("string")
+    if string_val is not None:
+        val = html.escape(string_val)
+        colon = html.escape(match.group("colon") or "")
+        if colon:
+            return f'<span class="json-key">{val}</span>{colon}'
+
+        return f'<span class="json-string">{val}</span>'
+
     kind = match.lastgroup
-    val = match.group(0)
+    val = html.escape(match.group(0))
     return f'<span class="json-{kind}">{val}</span>'
 
 
@@ -73,8 +81,7 @@ def highlight_json(data: object) -> str:
         HTML snippet containing color-coded syntax spans.
     """
     formatted = json.dumps(data, indent=2)
-    escaped = html.escape(formatted)
-    return _JSON_TOKEN_REGEX.sub(_replace_json_token, escaped)
+    return _JSON_TOKEN_REGEX.sub(_replace_json_token, formatted)
 
 
 def _parse_q_value(params: list[str]) -> float:
