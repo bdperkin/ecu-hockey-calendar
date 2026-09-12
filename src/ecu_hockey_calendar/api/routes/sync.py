@@ -13,12 +13,18 @@ from fastapi import (
     HTTPException,
     Query,
     Request,
+    Response,
     status,
 )
 from sqlalchemy import func, select
 
 from ecu_hockey_calendar.api.auth import verify_admin_token
-from ecu_hockey_calendar.api.routes.health import DEFAULT_SCRAPERS
+from ecu_hockey_calendar.api.negotiation import negotiate_response
+from ecu_hockey_calendar.api.routes.health import (
+    DEFAULT_SCRAPERS,
+    enrich_source_records,
+    format_relative_time,
+)
 from ecu_hockey_calendar.storage.engine import get_sync_session
 from ecu_hockey_calendar.storage.models import (
     DataSourceModel,
@@ -109,17 +115,27 @@ def _get_last_success_timestamp(session: Session) -> str | None:
     return last_success_dt.isoformat()
 
 
+def _is_failed_audit(audit: SyncAuditModel | None) -> bool:
+    """Check if audit record represents a failed execution."""
+    if audit is None:
+        return False
+
+    return audit.status in (SyncStatus.FAILURE.value, "FAILURE", "FAILED") or bool(
+        audit.error_message,
+    )
+
+
 def _determine_sync_status(
     audit: SyncAuditModel | None,
     *,
     is_running: bool = False,
 ) -> str:
-    """Determine whether the sync engine is actively running."""
-    if is_running:
+    """Determine whether the sync engine is actively running, failed, or idle."""
+    if is_running or (audit and audit.status == SyncStatus.RUNNING.value):
         return "syncing"
 
-    if audit is not None and audit.status == SyncStatus.RUNNING.value:
-        return "syncing"
+    if _is_failed_audit(audit):
+        return "failed"
 
     return "idle"
 
@@ -187,24 +203,96 @@ def _extract_db_sync_telemetry(
         }
 
 
-@sync_router.get(
-    "/status",
-    summary="Synchronization Status and Telemetry",
-    description=(
-        "Retrieve telemetry for the latest sync cycle, elapsed duration, "
-        "individual source status, and detected change counts."
-    ),
-    response_model=None,
-)
-def get_sync_status(request: Request) -> dict[str, Any]:
-    """Retrieve synchronization telemetry, metrics, and source health.
+MS_PER_SECOND = 1000
+SECONDS_PER_MINUTE = 60
+
+
+def _format_duration_ms(duration_ms: float | None) -> str:
+    """Format duration in milliseconds to a human-readable string.
 
     Args:
-        request: Incoming HTTP request.
+        duration_ms: Duration in milliseconds or None.
 
     Returns:
-        Structured sync telemetry payload.
+        Formatted human-readable string (e.g. '485 ms', '1.2 s', or 'N/A').
     """
+    if duration_ms is None:
+        return "N/A"
+
+    ms = max(0, int(duration_ms))
+    if ms < MS_PER_SECOND:
+        return f"{ms} ms"
+
+    seconds = ms / MS_PER_SECOND
+    if seconds < SECONDS_PER_MINUTE:
+        return f"{seconds:.1f} s"
+
+    mins, remaining_sec = divmod(int(seconds), SECONDS_PER_MINUTE)
+    return f"{mins}m {remaining_sec}s"
+
+
+def _is_empty_sync(last_sync: dict[str, Any] | None) -> bool:
+    """Check whether a sync audit record represents an unrun empty state."""
+    if not last_sync:
+        return True
+
+    return bool(
+        last_sync.get("status") == "never_run" or not last_sync.get("sync_cycle_id"),
+    )
+
+
+def _build_last_sync_context(
+    last_sync: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Compile formatted timing and state fields for the latest sync cycle."""
+    if last_sync is None or _is_empty_sync(last_sync):
+        return {
+            "has_run": False,
+            "started_at_formatted": "Never",
+            "started_at_relative": "Never",
+            "completed_at_formatted": "Never",
+            "completed_at_relative": "Never",
+            "duration_formatted": "N/A",
+        }
+
+    started_fmt, started_rel = format_relative_time(last_sync.get("started_at"))
+    completed_fmt, completed_rel = format_relative_time(last_sync.get("completed_at"))
+    return {
+        "has_run": True,
+        "started_at_formatted": started_fmt,
+        "started_at_relative": started_rel,
+        "completed_at_formatted": completed_fmt,
+        "completed_at_relative": completed_rel,
+        "duration_formatted": _format_duration_ms(last_sync.get("duration_ms")),
+    }
+
+
+def _build_sync_template_context(payload: dict[str, Any]) -> dict[str, Any]:
+    """Construct template context dictionary for sync_status.html rendering."""
+    raw_sync = payload.get("last_sync")
+    last_sync = raw_sync if isinstance(raw_sync, dict) else None
+    sync_meta = _build_last_sync_context(last_sync)
+
+    last_succ_fmt, last_succ_rel = format_relative_time(payload.get("last_success_at"))
+    sources = payload.get("sources")
+    enriched_sources = (
+        enrich_source_records(sources) if isinstance(sources, list) else []
+    )
+
+    return {
+        "active_tab": "sync",
+        "current_status": payload.get("current_status", "idle"),
+        "last_sync_meta": sync_meta,
+        "last_success_formatted": last_succ_fmt,
+        "last_success_relative": last_succ_rel,
+        "sources": enriched_sources,
+        "active_sources_count": sum(1 for s in enriched_sources if s.get("is_active")),
+        "total_sources_count": len(enriched_sources),
+    }
+
+
+def _resolve_sync_payload(request: Request) -> dict[str, Any]:
+    """Extract or build sync status payload from app state or database."""
     override = getattr(request.app.state, "sync_status_override", None)
     if override is not None:
         return dict(override)
@@ -215,6 +303,60 @@ def get_sync_status(request: Request) -> dict[str, Any]:
         return _build_empty_db_telemetry(_build_manager_telemetry(sync_manager))
 
     return _extract_db_sync_telemetry(engine, sync_manager=sync_manager)
+
+
+@sync_router.get(
+    "/status",
+    summary="Synchronization Status and Telemetry",
+    description=(
+        "Retrieve telemetry for the latest sync cycle, elapsed duration, "
+        "individual source status, and detected change counts."
+    ),
+    response_model=None,
+    responses={
+        200: {
+            "description": "Synchronization status and telemetry.",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "current_status": {"type": "string"},
+                            "last_sync": {"type": "object"},
+                            "last_success_at": {"type": "string"},
+                            "total_sync_cycles": {"type": "integer"},
+                            "sources": {"type": "array"},
+                            "sync_trigger_enabled": {"type": "boolean"},
+                            "can_trigger": {"type": "boolean"},
+                            "cooldown_remaining_seconds": {"type": "integer"},
+                            "cooldown_total_seconds": {"type": "integer"},
+                        },
+                    },
+                },
+                "text/html": {
+                    "schema": {"type": "string"},
+                },
+            },
+        },
+    },
+)
+def get_sync_status(request: Request) -> Response:
+    """Retrieve synchronization telemetry, metrics, and source health.
+
+    Args:
+        request: Incoming HTTP request.
+
+    Returns:
+        Content-negotiated HTML dashboard or JSON response.
+    """
+    payload = _resolve_sync_payload(request)
+    context = _build_sync_template_context(payload)
+    return negotiate_response(
+        request,
+        payload,
+        "sync_status.html",
+        context=context,
+    )
 
 
 def _build_accepted_sync_response(cycle_id: str, source: str | None) -> dict[str, Any]:

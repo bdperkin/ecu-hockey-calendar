@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "DEFAULT_SCRAPERS",
+    "enrich_source_records",
+    "format_relative_time",
     "format_uptime",
     "get_health_probe",
     "head_health_probe",
@@ -207,7 +209,7 @@ def _calculate_relative_age(delta_sec: float) -> str:
     return _pluralize(int(delta_sec // SECONDS_PER_DAY), "day")
 
 
-def _format_relative_time(
+def format_relative_time(
     dt_str: str | None,
     now: datetime | None = None,
 ) -> tuple[str, str]:
@@ -238,7 +240,10 @@ def _format_relative_time(
     return formatted_ts, relative_age
 
 
-def _enrich_source_records(
+_format_relative_time = format_relative_time
+
+
+def enrich_source_records(
     sources: list[dict[str, Any]],
     now: datetime | None = None,
 ) -> list[dict[str, Any]]:
@@ -254,7 +259,7 @@ def _enrich_source_records(
     enriched: list[dict[str, Any]] = []
     for src in sources:
         item = dict(src)
-        formatted_ts, relative_age = _format_relative_time(
+        formatted_ts, relative_age = format_relative_time(
             src.get("last_scraped_at"),
             now=now,
         )
@@ -263,6 +268,9 @@ def _enrich_source_records(
         enriched.append(item)
 
     return enriched
+
+
+_enrich_source_records = enrich_source_records
 
 
 def _determine_display_status(
@@ -405,7 +413,7 @@ def get_health_probe(
 
     scrapers_comp = payload["components"]["scrapers"]
     sources = scrapers_comp.get("sources", [])
-    enriched_sources = _enrich_source_records(sources)
+    enriched_sources = enrich_source_records(sources)
 
     display_status = _determine_display_status(
         payload["status"],
