@@ -484,6 +484,7 @@ The repository strictly enforces CodeQL security and code scanning analysis acro
 | #17     | `py/unused-global-variable` | Quality        | `src/ecu_hockey_calendar/api/routes/health.py`            | Removed unused `_format_relative_time` alias                               | Issue [#156](https://github.com/bdperkin/ecu-hockey-calendar/issues/156)                                                                       |
 | #18     | `py/unused-global-variable` | Quality        | `src/ecu_hockey_calendar/api/routes/health.py`            | Removed unused `_enrich_source_records` alias                              | Issue [#156](https://github.com/bdperkin/ecu-hockey-calendar/issues/156)                                                                       |
 | #19     | `py/polynomial-redos`       | Security       | `src/ecu_hockey_calendar/api/negotiation.py`              | Replaced polynomial regex with RFC 8259 linear JSON tokenizer              | Issue [#156](https://github.com/bdperkin/ecu-hockey-calendar/issues/156)                                                                       |
+| #21     | `py/unused-global-variable` | Quality        | `src/ecu_hockey_calendar/api/routes/calendar.py`          | Removed unused `calendar_router` alias                                     | Issue [#162](https://github.com/bdperkin/ecu-hockey-calendar/issues/162)                                                                       |
 
 ______________________________________________________________________
 

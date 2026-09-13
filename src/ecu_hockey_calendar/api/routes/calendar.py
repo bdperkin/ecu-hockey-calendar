@@ -20,7 +20,6 @@ from ecu_hockey_calendar.api.service import (
 )
 
 router = APIRouter(tags=["Calendar"])
-calendar_router = router
 
 
 def _build_webcal_url(request: Request) -> str:
