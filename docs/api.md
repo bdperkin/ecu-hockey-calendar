@@ -374,7 +374,7 @@ Complete API documentation for `ecu-hockey-calendar`.
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.calendar
    :members:
-   :exclude-members: router, calendar_router
+   :exclude-members: router
    :show-inheritance:
 ```
 
