@@ -1,0 +1,284 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Shadow -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="6" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.4"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="shieldBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#592A8A"/>
+      <stop offset="55%" stop-color="#471F70"/>
+      <stop offset="100%" stop-color="#2D1149"/>
+    </linearGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3A8"/>
+      <stop offset="35%" stop-color="#FFC72C"/>
+      <stop offset="70%" stop-color="#E5A710"/>
+      <stop offset="100%" stop-color="#B87D00"/>
+    </linearGradient>
+
+    <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFE875"/>
+      <stop offset="50%" stop-color="#FFC72C"/>
+      <stop offset="100%" stop-color="#B37700"/>
+    </linearGradient>
+
+    <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF6BA"/>
+      <stop offset="25%" stop-color="#FFC72C"/>
+      <stop offset="80%" stop-color="#EAA60A"/>
+      <stop offset="100%" stop-color="#C28200"/>
+    </linearGradient>
+
+    <linearGradient id="stickWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2D3748"/>
+      <stop offset="50%" stop-color="#1A202C"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+
+    <linearGradient id="stickHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3F4F6"/>
+      <stop offset="100%" stop-color="#9CA3AF"/>
+    </linearGradient>
+
+    <linearGradient id="puckFace" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#374151"/>
+      <stop offset="60%" stop-color="#1F2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+
+    <linearGradient id="sheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.04"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Group with Drop Shadow -->
+  <g filter="url(#dropShadow)">
+    <!-- ==================== CROSSED HOCKEY STICKS ==================== -->
+    <!-- Stick 1: Top-Left to Bottom-Right -->
+    <g id="stick-left-to-right">
+      <!-- Shadow under stick -->
+      <line x1="62" y1="52" x2="432" y2="422" stroke="#000000" stroke-width="20" stroke-linecap="round" opacity="0.4"/>
+      <!-- Main Shaft -->
+      <line x1="60" y1="50" x2="430" y2="420" stroke="#111827" stroke-width="17" stroke-linecap="round"/>
+      <line x1="60" y1="50" x2="430" y2="420" stroke="url(#stickWood)" stroke-width="13" stroke-linecap="round"/>
+      <!-- Gold accent stripe along shaft -->
+      <line x1="85" y1="75" x2="410" y2="400" stroke="#FFC72C" stroke-width="2.5" opacity="0.8"/>
+      <!-- Top Handle Tape (White) -->
+      <line x1="60" y1="50" x2="105" y2="95" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+      <line x1="68" y1="58" x2="72" y2="62" stroke="#D1D5DB" stroke-width="14"/>
+      <line x1="82" y1="72" x2="86" y2="76" stroke="#D1D5DB" stroke-width="14"/>
+      <line x1="96" y1="86" x2="100" y2="90" stroke="#D1D5DB" stroke-width="14"/>
+      <!-- Bottom Blade -->
+      <path d="M 422 412 L 460 450 Q 476 462 485 450 Q 492 436 470 422 L 434 400 Z" fill="#111827" stroke="#FFC72C" stroke-width="2"/>
+      <path d="M 432 422 L 462 452 Q 474 460 480 448 Q 484 438 468 428 L 440 412 Z" fill="#F9FAFB"/>
+      <!-- Tape lines on blade -->
+      <line x1="442" y1="422" x2="452" y2="432" stroke="#4B5563" stroke-width="2.5"/>
+      <line x1="452" y1="432" x2="462" y2="442" stroke="#4B5563" stroke-width="2.5"/>
+      <line x1="462" y1="440" x2="472" y2="450" stroke="#4B5563" stroke-width="2.5"/>
+    </g>
+
+    <!-- Stick 2: Top-Right to Bottom-Left -->
+    <g id="stick-right-to-left">
+      <!-- Shadow under stick -->
+      <line x1="450" y1="52" x2="80" y2="422" stroke="#000000" stroke-width="20" stroke-linecap="round" opacity="0.4"/>
+      <!-- Main Shaft -->
+      <line x1="452" y1="50" x2="82" y2="420" stroke="#111827" stroke-width="17" stroke-linecap="round"/>
+      <line x1="452" y1="50" x2="82" y2="420" stroke="url(#stickWood)" stroke-width="13" stroke-linecap="round"/>
+      <!-- Gold accent stripe along shaft -->
+      <line x1="427" y1="75" x2="102" y2="400" stroke="#FFC72C" stroke-width="2.5" opacity="0.8"/>
+      <!-- Top Handle Tape (White) -->
+      <line x1="452" y1="50" x2="407" y2="95" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+      <line x1="444" y1="58" x2="440" y2="62" stroke="#D1D5DB" stroke-width="14"/>
+      <line x1="430" y1="72" x2="426" y2="76" stroke="#D1D5DB" stroke-width="14"/>
+      <line x1="416" y1="86" x2="412" y2="90" stroke="#D1D5DB" stroke-width="14"/>
+      <!-- Bottom Blade -->
+      <path d="M 90 412 L 52 450 Q 36 462 27 450 Q 20 436 42 422 L 78 400 Z" fill="#111827" stroke="#FFC72C" stroke-width="2"/>
+      <path d="M 80 422 L 50 452 Q 38 460 32 448 Q 28 438 44 428 L 72 412 Z" fill="#F9FAFB"/>
+      <!-- Tape lines on blade -->
+      <line x1="70" y1="422" x2="60" y2="432" stroke="#4B5563" stroke-width="2.5"/>
+      <line x1="60" y1="432" x2="50" y2="442" stroke="#4B5563" stroke-width="2.5"/>
+      <line x1="50" y1="440" x2="40" y2="450" stroke="#4B5563" stroke-width="2.5"/>
+    </g>
+
+    <!-- ==================== MAIN CREST / SHIELD ==================== -->
+    <!-- Outer Shield Contour (High Contrast Outer Ring) -->
+    <path d="M 256 56
+             C 342 56, 412 72, 416 88
+             C 418 170, 428 290, 256 462
+             C 84 290, 94 170, 96 88
+             C 100 72, 170 56, 256 56 Z"
+          fill="#1B0A30" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"/>
+
+    <!-- Gold Shield Outer Border -->
+    <path d="M 256 62
+             C 338 62, 404 77, 408 92
+             C 410 170, 420 284, 256 450
+             C 92 284, 102 170, 104 92
+             C 108 77, 174 62, 256 62 Z"
+          fill="url(#shieldBg)" stroke="url(#goldStroke)" stroke-width="8" stroke-linejoin="round"/>
+
+    <!-- Inner Gold Pinstripe Border -->
+    <path d="M 256 75
+             C 328 75, 386 89, 390 102
+             C 392 168, 401 268, 256 425
+             C 111 268, 120 168, 122 102
+             C 126 89, 184 75, 256 75 Z"
+          fill="none" stroke="#FFC72C" stroke-width="2.5" stroke-opacity="0.85" stroke-dasharray="none"/>
+
+    <!-- Subtle Diagonal Gloss / Sheen across shield -->
+    <path d="M 256 62
+             C 338 62, 404 77, 408 92
+             C 409 130, 411 185, 385 245
+             L 155 95
+             C 185 80, 222 62, 256 62 Z"
+          fill="url(#sheen)"/>
+
+    <!-- ==================== HEADER TEXT: EAST CAROLINA ==================== -->
+    <path id="archPath" d="M 136 128 Q 256 102 376 128" fill="none" stroke="none"/>
+    <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Impact, Arial Black, sans-serif"
+          font-size="20" font-weight="900" fill="#FFC72C" letter-spacing="4" text-anchor="middle">
+      <textPath href="#archPath" startOffset="50%" text-anchor="middle">EAST CAROLINA</textPath>
+    </text>
+
+    <!-- Two small gold accent stars flanking header -->
+    <polygon points="142,122 145,129 152,130 147,135 148,142 142,138 136,142 137,135 132,130 139,129" fill="#FFC72C"/>
+    <polygon points="370,122 373,129 380,130 375,135 376,142 370,138 364,142 365,135 360,130 367,129" fill="#FFC72C"/>
+
+    <!-- ==================== VARSITY BLOCK "ECU" ==================== -->
+    <g id="ecu-typography" transform="translate(0, 0)">
+      <!-- Drop shadow outline -->
+      <text x="256" y="240"
+            font-family="-apple-system, BlinkMacSystemFont, 'Arial Black', Impact, sans-serif"
+            font-size="108" font-weight="900"
+            fill="#150724" text-anchor="middle"
+            letter-spacing="2"
+            dx="4" dy="6">ECU</text>
+
+      <!-- White Outer Outline -->
+      <text x="256" y="240"
+            font-family="-apple-system, BlinkMacSystemFont, 'Arial Black', Impact, sans-serif"
+            font-size="108" font-weight="900"
+            fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="miter" stroke-miterlimit="3"
+            text-anchor="middle" letter-spacing="2">ECU</text>
+
+      <!-- Purple Accent Stroke -->
+      <text x="256" y="240"
+            font-family="-apple-system, BlinkMacSystemFont, 'Arial Black', Impact, sans-serif"
+            font-size="108" font-weight="900"
+            fill="none" stroke="#37155A" stroke-width="7" stroke-linejoin="miter" stroke-miterlimit="3"
+            text-anchor="middle" letter-spacing="2">ECU</text>
+
+      <!-- Gold Front Face -->
+      <text x="256" y="240"
+            font-family="-apple-system, BlinkMacSystemFont, 'Arial Black', Impact, sans-serif"
+            font-size="108" font-weight="900"
+            fill="url(#goldGrad)" text-anchor="middle"
+            letter-spacing="2">ECU</text>
+
+      <!-- Inner inline highlight -->
+      <text x="256" y="238"
+            font-family="-apple-system, BlinkMacSystemFont, 'Arial Black', Impact, sans-serif"
+            font-size="104" font-weight="900"
+            fill="none" stroke="#FFF7C2" stroke-width="1.5"
+            text-anchor="middle" letter-spacing="2" opacity="0.65">ECU</text>
+    </g>
+
+    <!-- ==================== HOCKEY PUCK & ACCENTS ==================== -->
+    <g id="puck-and-stars" transform="translate(0, 2)">
+      <!-- Left Star -->
+      <polygon points="172,274 176,284 186,285 178,292 180,302 172,296 164,302 166,292 158,285 168,284"
+               fill="url(#goldGrad)" stroke="#37155A" stroke-width="1.5"/>
+      <!-- Right Star -->
+      <polygon points="340,274 344,284 354,285 346,292 348,302 340,296 332,302 334,292 326,285 336,284"
+               fill="url(#goldGrad)" stroke="#37155A" stroke-width="1.5"/>
+
+      <!-- Hockey Puck -->
+      <g id="hockey-puck">
+        <!-- Puck Cast Shadow -->
+        <ellipse cx="256" cy="304" rx="44" ry="14" fill="#000000" opacity="0.6"/>
+
+        <!-- Puck Body (Cylinder depth) -->
+        <path d="M 214 286
+                 C 214 296, 298 296, 298 286
+                 L 298 297
+                 C 298 307, 214 307, 214 297 Z"
+              fill="url(#puckSide)"/>
+
+        <!-- Puck Grip Diamond Knurling Texture -->
+        <path d="M 220 291 L 226 299 M 232 291 L 238 299 M 244 291 L 250 299
+                 M 256 291 L 262 299 M 268 291 L 274 299 M 280 291 L 286 299
+                 M 292 291 L 296 296"
+              stroke="#4B5563" stroke-width="1.2" opacity="0.65"/>
+
+        <!-- Puck Top Face -->
+        <ellipse cx="256" cy="286" rx="42" ry="13"
+                 fill="url(#puckFace)" stroke="#6B7280" stroke-width="1"/>
+
+        <!-- Puck Top Specular Reflection Highlight -->
+        <path d="M 222 284 C 230 277, 276 277, 288 283"
+              fill="none" stroke="#E5E7EB" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+
+        <!-- Tiny Gold Hockey Crossed Sticks Motif on Puck Face -->
+        <circle cx="256" cy="286" r="6" fill="#FFC72C" opacity="0.9"/>
+      </g>
+    </g>
+
+    <!-- ==================== BANNER: ICE HOCKEY ==================== -->
+    <g id="banner" transform="translate(0, 5)">
+      <!-- Left Ribbon Fold / Tail -->
+      <path d="M 112 366 L 76 346 L 76 384 L 112 396 Z" fill="#8C5E00" stroke="#FFC72C" stroke-width="1.5"/>
+      <polygon points="76,346 60,365 76,384" fill="#664400"/>
+      <!-- Shadow triangle under fold -->
+      <polygon points="112,366 112,396 130,378" fill="#402600"/>
+
+      <!-- Right Ribbon Fold / Tail -->
+      <path d="M 400 366 L 436 346 L 436 384 L 400 396 Z" fill="#8C5E00" stroke="#FFC72C" stroke-width="1.5"/>
+      <polygon points="436,346 452,365 436,384" fill="#664400"/>
+      <!-- Shadow triangle under fold -->
+      <polygon points="400,366 400,396 382,378" fill="#402600"/>
+
+      <!-- Main Ribbon Body -->
+      <path d="M 112 352
+               C 180 340, 332 340, 400 352
+               C 406 374, 404 386, 398 398
+               C 332 384, 180 384, 114 398
+               C 108 386, 106 374, 112 352 Z"
+            fill="url(#ribbonGrad)"
+            stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+
+      <!-- Inner Ribbon Gold Accent Border -->
+      <path d="M 116 356
+               C 182 345, 330 345, 396 356"
+            fill="none" stroke="#FFF7C2" stroke-width="1.5"/>
+      <path d="M 118 393
+               C 182 380, 330 380, 394 393"
+            fill="none" stroke="#B87D00" stroke-width="1.5"/>
+
+      <!-- Text: ICE HOCKEY -->
+      <text x="256" y="380"
+            font-family="-apple-system, BlinkMacSystemFont, 'Arial Black', Impact, sans-serif"
+            font-size="29" font-weight="900"
+            fill="#2D1149" text-anchor="middle"
+            letter-spacing="5">ICE HOCKEY</text>
+    </g>
+
+    <!-- ==================== BASE SUBTITLE: EST. 2026 ==================== -->
+    <text x="256" y="428"
+          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+          font-size="12" font-weight="800"
+          fill="#FFF0A0" text-anchor="middle"
+          letter-spacing="3" opacity="0.95">ACHA M2  •  EST. 2026</text>
+  </g>
+</svg>

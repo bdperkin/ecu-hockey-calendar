@@ -234,6 +234,7 @@ def create_app(
                 "feed_rss": "/feed.rss",
                 "health": "/health",
                 "logo_svg": "/static/ecu_hockey_logo.svg",
+                "manifest": "/site.webmanifest",
                 "openapi": "/openapi.json",
                 "redoc": "/redoc",
                 "schedule_atom": "/api/schedule.atom",
