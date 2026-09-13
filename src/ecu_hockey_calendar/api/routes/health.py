@@ -25,7 +25,6 @@ __all__ = [
     "format_uptime",
     "get_health_probe",
     "head_health_probe",
-    "health_router",
 ]
 
 health_router = APIRouter(tags=["Health"])

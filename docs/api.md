@@ -255,6 +255,7 @@ Complete API documentation for `ecu-hockey-calendar`.
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.web
    :members:
+   :exclude-members: web_router
    :show-inheritance:
 ```
 
@@ -363,6 +364,77 @@ Complete API documentation for `ecu-hockey-calendar`.
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.syndication
+   :members:
+   :exclude-members: router
+   :show-inheritance:
+```
+
+## 46. Calendar Route Handlers
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.routes.calendar
+   :members:
+   :exclude-members: router, calendar_router
+   :show-inheritance:
+```
+
+## 47. Public Schedule Feed Route Handlers
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.routes.schedule
+   :members:
+   :exclude-members: schedule_router
+   :show-inheritance:
+```
+
+## 48. Service Health & Diagnostic Route Handlers
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.routes.health
+   :members:
+   :exclude-members: health_router
+   :show-inheritance:
+```
+
+## 49. Synchronization Telemetry & Trigger Route Handlers
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.routes.sync
+   :members:
+   :exclude-members: sync_router
+   :show-inheritance:
+```
+
+## 50. Conflict Resolution Route Handlers
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.routes.conflicts
+   :members:
+   :exclude-members: conflicts_router
+   :show-inheritance:
+```
+
+## 51. Shared Route Utilities & Extraction Helpers
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.routes.common
+   :members:
+   :show-inheritance:
+```
+
+## 52. Storage Declarative Base & Metadata
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.storage.base
+   :members:
+   :exclude-members: metadata
+   :show-inheritance:
+```
+
+## 53. Package Version Management
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.version
    :members:
    :show-inheritance:
 ```

@@ -130,3 +130,12 @@ def check_conditional_headers(
         request.headers.get("if-modified-since"),
         last_modified_str,
     )
+
+
+__all__ = [
+    "check_conditional_headers",
+    "extract_games_from_database",
+    "get_active_games",
+    "is_etag_fresh",
+    "is_modified_since_fresh",
+]

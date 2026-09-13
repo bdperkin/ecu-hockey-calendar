@@ -564,3 +564,15 @@ def head_schedule_pdf(
         home_only=home_only,
         status_filter=status_filter,
     )
+
+
+__all__ = [
+    "get_schedule_csv",
+    "get_schedule_json",
+    "get_schedule_pdf",
+    "head_schedule_csv",
+    "head_schedule_json",
+    "head_schedule_pdf",
+    "serve_head_schedule_pdf",
+    "serve_schedule_pdf",
+]

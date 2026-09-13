@@ -44,11 +44,15 @@ changelog
 - **Schedule Reconciliation Engine**: Multi-tier source precedence, opponent and venue fuzzy matching, and timezone-aware date alignment.
 - **Change Detection & Audit Trail**: Real-time diffing of game schedule changes, cancellations, and conflict flags with full cycle telemetry.
 - **Multi-Platform Webhook Alerts**: Rich formatted alerts dispatched to Discord, Slack, and Telegram channels.
-- **FastAPI Calendar & Data Service**: Live production deployment at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/) providing RFC 5545 iCalendar (`/calendar.ics`) and webcal subscription feeds, public JSON and CSV master schedule feeds, and interactive OpenAPI documentation.
+- **FastAPI Calendar & Data Service**: Live production deployment at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/) providing RFC 5545 iCalendar (`/calendar.ics`) and webcal subscription feeds, public JSON and CSV master schedule feeds, responsive HTML views (`/schedule`), and interactive OpenAPI documentation.
+- **Syndication Feeds (RSS & Atom)**: Standards-compliant RSS 2.0 (`/feed.rss`, `/api/schedule.rss`) and Atom 1.0 (`/feed.atom`, `/api/schedule.atom`) feeds for sports media and fan automation.
+- **Printable Schedule PDF**: High-contrast, letter-size printable schedule grid (`/schedule.pdf`, `/api/schedule.pdf`) engineered for refrigerators, bulletin boards, and bench clipboards.
+- **Dual-Format Content Negotiation**: Automated HTML and JSON responses across landing portal (`/`), health diagnostics (`/health`), sync telemetry (`/api/v1/sync/status`), and conflict review (`/api/v1/conflicts`) with query parameter (`?format=html|json`) override and `Vary: Accept` caching.
+- **Progressive Web App & Brand Identity**: PWA Web App Manifest (`/site.webmanifest`), multi-resolution favicons (`/favicon.ico`), Apple touch icons, and official vector branding assets.
 - **Static High-Availability Feeds**: Pre-compiled calendar feeds (`calendar.ics`, `schedule.json`, `schedule.csv`) deployed to GitHub Pages via automated 6-hour GitHub Actions workflows.
 - **Containerization & Continuous Deployment**: Multi-stage Docker container publication to GitHub Container Registry (`ghcr.io/bdperkin/ecu-hockey-calendar`) and automated Render deployments.
 - **Diagnostics & Conflict Administration**: Service health checks, synchronization telemetry, on-demand sync triggering, and administrative conflict review.
-- **Interoperability**: Export schedules to CSV, JSON, and dictionary representations.
+- **Interoperability**: Export schedules to CSV, JSON, HTML, PDF, RSS, Atom, and dictionary representations.
 - **Strict Quality**: 100% line and branch test coverage, strict type annotations checked by `ty`, and formatting via `ruff`.
 
 ## 2. Indices and tables

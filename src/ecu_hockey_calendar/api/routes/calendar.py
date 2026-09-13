@@ -20,6 +20,7 @@ from ecu_hockey_calendar.api.service import (
 )
 
 router = APIRouter(tags=["Calendar"])
+calendar_router = router
 
 
 def _build_webcal_url(request: Request) -> str:
@@ -207,3 +208,9 @@ def head_calendar_feed(
         status_code=res.status_code,
         headers=dict(res.headers),
     )
+
+
+__all__ = [
+    "get_calendar_feed",
+    "head_calendar_feed",
+]

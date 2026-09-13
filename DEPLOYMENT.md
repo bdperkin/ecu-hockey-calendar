@@ -473,30 +473,43 @@ The production architecture is deployed declaratively using [`render.yaml`](rend
 
 All endpoints below are verified against the running production service:
 
-| Method        | Path                   | Description                                              | Content-Type                   | Auth       | Query Parameters                                                     |
-| :------------ | :--------------------- | :------------------------------------------------------- | :----------------------------- | :--------- | :------------------------------------------------------------------- |
-| `GET`         | `/`                    | API service status, name, version, and endpoints map     | `application/json`             | Public     | —                                                                    |
-| `GET`, `HEAD` | `/health`              | Liveness and readiness diagnostics probe                 | `application/json`             | Public     | —                                                                    |
-| `GET`, `HEAD` | `/calendar.ics`        | RFC 5545 iCalendar calendar subscription feed            | `text/calendar; charset=utf-8` | Public     | `season`, `include_past`, `alarm_minutes`, `webcal`                  |
-| `GET`, `HEAD` | `/api/schedule.json`   | Master schedule feed formatted as structured JSON        | `application/json`             | Public     | `season`, `opponent`, `home_only`, `status`                          |
-| `GET`, `HEAD` | `/api/schedule.csv`    | Master schedule export formatted as tabular CSV          | `text/csv; charset=utf-8`      | Public     | `season`, `opponent`, `home_only`, `status`                          |
-| `GET`         | `/api/v1/sync/status`  | Synchronization history, telemetry, and scraper status   | `application/json`             | Public     | —                                                                    |
-| `POST`        | `/api/v1/sync/trigger` | Trigger an on-demand synchronization and ingestion cycle | `application/json`             | **Bearer** | `source`                                                             |
-| `GET`         | `/api/v1/conflicts`    | List schedule discrepancies and cross-source conflicts   | `application/json`             | **Bearer** | `severity`, `game_id`, `field`, `requires_review`, `limit`, `offset` |
-| `GET`         | `/docs`                | Interactive Swagger UI API documentation                 | `text/html`                    | Public     | —                                                                    |
-| `GET`         | `/redoc`               | ReDoc API documentation viewer                           | `text/html`                    | Public     | —                                                                    |
-| `GET`         | `/openapi.json`        | Machine-readable OpenAPI 3.1 schema specification        | `application/json`             | Public     | —                                                                    |
+| Method        | Path                                 | Description                                              | Content-Type                          | Auth       | Query Parameters                                                               |
+| :------------ | :----------------------------------- | :------------------------------------------------------- | :------------------------------------ | :--------- | :----------------------------------------------------------------------------- |
+| `GET`         | `/`                                  | API service status portal & endpoints map (negotiated)   | `text/html` or `application/json`     | Public     | `format` (`html`, `json`)                                                      |
+| `GET`, `HEAD` | `/health`                            | Liveness and readiness diagnostics probe (negotiated)    | `text/html` or `application/json`     | Public     | `format` (`html`, `json`)                                                      |
+| `GET`, `HEAD` | `/schedule`                          | Responsive mobile-first HTML schedule view               | `text/html; charset=utf-8`            | Public     | `season`, `opponent`, `home_only`, `status`                                    |
+| `GET`, `HEAD` | `/schedule/embed`                    | Lightweight embeddable schedule widget iframe            | `text/html; charset=utf-8`            | Public     | `season`, `opponent`, `home_only`, `status`                                    |
+| `GET`, `HEAD` | `/schedule.pdf`, `/api/schedule.pdf` | High-contrast printable schedule PDF grid (Letter size)  | `application/pdf`                     | Public     | `season`, `opponent`, `home_only`, `status`                                    |
+| `GET`, `HEAD` | `/calendar.ics`                      | RFC 5545 iCalendar calendar subscription feed            | `text/calendar; charset=utf-8`        | Public     | `season`, `include_past`, `alarm_minutes`, `webcal`                            |
+| `GET`, `HEAD` | `/api/schedule.json`                 | Master schedule feed formatted as structured JSON        | `application/json`                    | Public     | `season`, `opponent`, `home_only`, `status`                                    |
+| `GET`, `HEAD` | `/api/schedule.csv`                  | Master schedule export formatted as tabular CSV          | `text/csv; charset=utf-8`             | Public     | `season`, `opponent`, `home_only`, `status`                                    |
+| `GET`, `HEAD` | `/feed.rss`, `/api/schedule.rss`     | RSS 2.0 XML schedule syndication feed for media          | `application/rss+xml; charset=utf-8`  | Public     | `season`, `opponent`, `home_only`, `future_only`, `status`                     |
+| `GET`, `HEAD` | `/feed.atom`, `/api/schedule.atom`   | Atom 1.0 XML schedule syndication feed for aggregators   | `application/atom+xml; charset=utf-8` | Public     | `season`, `opponent`, `home_only`, `future_only`, `status`                     |
+| `GET`         | `/site.webmanifest`                  | Progressive Web App (PWA) manifest specification         | `application/manifest+json`           | Public     | —                                                                              |
+| `GET`, `HEAD` | `/favicon.ico`                       | Multi-resolution favicon icon asset                      | `image/x-icon`                        | Public     | —                                                                              |
+| `GET`         | `/api/v1/sync/status`                | Synchronization history and telemetry (negotiated)       | `text/html` or `application/json`     | Public     | `format` (`html`, `json`)                                                      |
+| `POST`        | `/api/v1/sync/trigger`               | Trigger an on-demand synchronization and ingestion cycle | `application/json`                    | **Bearer** | `source`                                                                       |
+| `GET`         | `/api/v1/conflicts`                  | Schedule discrepancies & conflict review (negotiated)    | `text/html` or `application/json`     | **Bearer** | `severity`, `game_id`, `field`, `requires_review`, `limit`, `offset`, `format` |
+| `GET`         | `/docs`                              | Interactive Swagger UI API documentation                 | `text/html`                           | Public     | —                                                                              |
+| `GET`         | `/redoc`                             | ReDoc API documentation viewer                           | `text/html`                           | Public     | —                                                                              |
+| `GET`         | `/openapi.json`                      | Machine-readable OpenAPI 3.1 schema specification        | `application/json`                    | Public     | —                                                                              |
 
 #### 6.8.3. Executable `curl` Examples
 
 ##### 6.8.3.1. Public Endpoints
 
 ```bash
-# Query root service metadata & version
+# Query root service metadata & version (JSON)
 curl -fsSL -H "Accept: application/json" https://ecu-hockey-api.onrender.com/ | jq .
 
-# Check health diagnostics & database connectivity
+# Render root service portal in HTML
+curl -fsSL "https://ecu-hockey-api.onrender.com/?format=html"
+
+# Check health diagnostics & database connectivity (JSON)
 curl -fsSL https://ecu-hockey-api.onrender.com/health | jq .
+
+# Render health diagnostics dashboard in HTML
+curl -fsSL "https://ecu-hockey-api.onrender.com/health?format=html"
 
 # HTTP HEAD probe for lightweight uptime monitors
 curl -I https://ecu-hockey-api.onrender.com/health
@@ -510,7 +523,19 @@ curl -fsSL "https://ecu-hockey-api.onrender.com/api/schedule.json?home_only=true
 # Download master schedule CSV for spreadsheets
 curl -fsSL "https://ecu-hockey-api.onrender.com/api/schedule.csv?status=SCHEDULED" -o schedule.csv
 
-# Inspect synchronization telemetry & crawler audit status
+# Download printable letter-size schedule grid PDF
+curl -fsSL -o schedule.pdf "https://ecu-hockey-api.onrender.com/schedule.pdf?season=2026-2027"
+
+# Retrieve RSS 2.0 syndication feed for home games
+curl -fsSL "https://ecu-hockey-api.onrender.com/feed.rss?home_only=true"
+
+# Retrieve Atom 1.0 syndication feed for upcoming matches
+curl -fsSL "https://ecu-hockey-api.onrender.com/feed.atom?future_only=true"
+
+# Inspect web application manifest
+curl -fsSL https://ecu-hockey-api.onrender.com/site.webmanifest | jq .
+
+# Inspect synchronization telemetry & crawler audit status (JSON)
 curl -fsSL https://ecu-hockey-api.onrender.com/api/v1/sync/status | jq .
 
 # View OpenAPI 3.1 specification schema
@@ -527,9 +552,13 @@ curl -fsSL -X POST "https://ecu-hockey-api.onrender.com/api/v1/sync/trigger?sour
   -H "Authorization: Bearer $ADMIN_API_TOKEN" \
   -H "Content-Type: application/json" | jq .
 
-# Inspect active schedule conflicts and discrepancies
+# Inspect active schedule conflicts and discrepancies (JSON)
 curl -fsSL "https://ecu-hockey-api.onrender.com/api/v1/conflicts?severity=high" \
   -H "Authorization: Bearer $ADMIN_API_TOKEN" | jq .
+
+# Review schedule discrepancies in administrative HTML dashboard
+curl -fsSL "https://ecu-hockey-api.onrender.com/api/v1/conflicts?format=html" \
+  -H "Authorization: Bearer $ADMIN_API_TOKEN"
 ```
 
 > [!NOTE]

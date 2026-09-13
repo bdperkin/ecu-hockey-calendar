@@ -247,19 +247,46 @@ curl -s "http://127.0.0.1:8000/api/schedule.json?home_only=true&season=2026-2027
 curl -s "http://127.0.0.1:8000/api/schedule.csv?status=SCHEDULED"
 ```
 
-### 6.4. Health Probes & Operational Telemetry
+### 6.4. Web Schedule & Printable PDF
 
-Monitor application health and inspect data synchronization metrics:
+The service provides both mobile-first responsive web pages and printable PDF grids:
 
 ```bash
-# Check service health and database connectivity
+# Open interactive responsive HTML schedule in your browser
+open "http://127.0.0.1:8000/schedule"
+
+# Download printable letter-size schedule grid PDF
+curl -fsSL -o schedule.pdf "http://127.0.0.1:8000/schedule.pdf?season=2026-2027"
+```
+
+### 6.5. Media & Automation Syndication Feeds (RSS & Atom)
+
+Subscribe to automated XML feeds for sports media, student newspapers, or feed aggregators:
+
+```bash
+# Retrieve RSS 2.0 syndication feed
+curl -fsSL "http://127.0.0.1:8000/feed.rss?home_only=true"
+
+# Retrieve Atom 1.0 syndication feed for upcoming matches
+curl -fsSL "http://127.0.0.1:8000/feed.atom?future_only=true"
+```
+
+### 6.6. Health Probes & Operational Telemetry
+
+Monitor application health and inspect data synchronization metrics. These endpoints support content negotiation—providing rich HTML dashboards for web browsers and clean JSON for API monitors:
+
+```bash
+# Check service health and database connectivity (JSON by default for curl)
 curl -s http://127.0.0.1:8000/health | jq .
+
+# Inspect health dashboard as HTML via ?format= override
+curl -s "http://127.0.0.1:8000/health?format=html"
 
 # Inspect sync telemetry and individual scraper status
 curl -s http://127.0.0.1:8000/api/v1/sync/status | jq .
 ```
 
-### 6.5. Administrative Actions & Conflict Inspection
+### 6.7. Administrative Actions & Conflict Inspection
 
 Authorized operators can trigger on-demand sync cycles and review cross-source discrepancies:
 
@@ -268,12 +295,15 @@ Authorized operators can trigger on-demand sync cycles and review cross-source d
 curl -X POST "http://127.0.0.1:8000/api/v1/sync/trigger" \
   -H "Authorization: Bearer secret-admin-token-12345"
 
-# Review flagged schedule conflicts
+# Review flagged schedule conflicts (JSON)
 curl -s "http://127.0.0.1:8000/api/v1/conflicts?severity=high" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
+
+# Review schedule conflicts in browser UI
+open "http://127.0.0.1:8000/api/v1/conflicts?format=html"
 ```
 
-### 6.6. Static GitHub Pages Calendar Feeds
+### 6.8. Static GitHub Pages Calendar Feeds
 
 In addition to the dynamic production API, static calendar feeds are continuously compiled and hosted on GitHub Pages:
 

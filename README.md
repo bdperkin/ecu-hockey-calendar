@@ -22,8 +22,10 @@ ______________________________________________________________________
   - [5.5. Detecting Schedule Changes & Alerting](#55-detecting-schedule-changes--alerting)
   - [5.6. Calendar Feeds & REST API Service](#56-calendar-feeds--rest-api-service)
     - [5.6.1. Calendar Subscription (Apple, Google, Outlook)](#561-calendar-subscription-apple-google-outlook)
-    - [5.6.2. Querying Public Schedule Feeds](#562-querying-public-schedule-feeds)
-    - [5.6.3. Health Probes & Administration](#563-health-probes--administration)
+    - [5.6.2. Querying Public Schedule Feeds (JSON & CSV)](#562-querying-public-schedule-feeds-json--csv)
+    - [5.6.3. Web Schedule View & Printable PDF Grid](#563-web-schedule-view--printable-pdf-grid)
+    - [5.6.4. RSS 2.0 & Atom 1.0 Syndication Feeds](#564-rss-20--atom-10-syndication-feeds)
+    - [5.6.5. Health Probes, Diagnostics & Administration (Content-Negotiated)](#565-health-probes-diagnostics--administration-content-negotiated)
   - [5.7. Command-Line Interface (`ecu-hockey`)](#57-command-line-interface--ecu-hockey)
     - [5.7.1. Subcommand Reference Table](#571-subcommand-reference-table)
 - [6. Database Schema Migrations](#6-database-schema-migrations)
@@ -118,18 +120,20 @@ flowchart TD
 
     subgraph API["FastAPI Calendar & Data Service"]
         P1["RFC 5545 iCalendar & webcal (/calendar.ics)"]
-        P2["Master Schedule Feeds (/api/schedule.json & .csv)"]
-        P3["OpenAPI Docs (/docs & /redoc)"]
-        P4["Health & Telemetry (/health & /api/v1/sync/status)"]
-        P5["Admin Sync & Conflicts (/api/v1/conflicts)"]
+        P2["Master Schedule Feeds (/api/schedule.json, .csv, .pdf)"]
+        P3["Responsive HTML & Widget (/schedule, /schedule/embed)"]
+        P4["Syndication Feeds (/feed.rss & /feed.atom)"]
+        P5["Diagnostics & Conflicts (/health, /sync/status, /conflicts)"]
+        P6["Interactive OpenAPI Docs (/docs & /redoc)"]
     end
 
     subgraph CLI["Command-Line Interface (ecu-hockey)"]
         C1["sync (Ingestion & Reconciliation)"]
         C2["status (Health & Telemetry Tables)"]
-        C3["export (ICS, JSON, CSV)"]
+        C3["export (ICS, JSON, CSV, HTML, PDF, RSS, Atom)"]
         C4["conflicts (Cross-Source Review)"]
         C5["serve (Uvicorn Web Server)"]
+        C6["notify (Multi-Channel Webhook Alerts)"]
     end
 
     subgraph OUT["Alert Dispatch"]
@@ -148,7 +152,7 @@ flowchart TD
 
 ## 3. Features
 
-- **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for running sync workflows, inspecting health/telemetry tables, reviewing discrepancies, exporting multi-format schedules, and hosting Uvicorn servers.
+- **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for running sync workflows, inspecting health/telemetry tables, reviewing discrepancies, exporting multi-format schedules (ICS, JSON, CSV, HTML, PDF, RSS, Atom), dispatching webhook notifications, and hosting Uvicorn servers.
 - **Production Containerization & Deployment**: Multi-stage `Dockerfile`, `docker-compose.yml` service orchestration (API, scheduled scraper worker, PostgreSQL), and comprehensive hosting analysis in [`DEPLOYMENT.md`](DEPLOYMENT.md).
 - **Multi-Source Ingestion**: Robust web crawlers for primary schedule documents, ACCHL conference portals, ticketing tiers, social media announcements, and opponent feeds.
 - **Resilient HTTP Client**: Connection pooling, exponential backoff, retry handling for transient errors (429/5xx), and SHA-256 payload caching.
@@ -158,7 +162,11 @@ flowchart TD
 - **Change Detection & Audit Trail**: Real-time diffing of game schedule modifications, cancellations, and conflict flags with full sync cycle telemetry.
 - **Multi-Channel Webhook Notifications**: Rich formatted alert dispatches to Discord, Slack, and Telegram.
 - **RFC 5545 iCalendar & webcal Feeds**: Live calendar subscription feeds (`/calendar.ics`, `webcal://`) with deterministic UIDs, Eastern Time `VTIMEZONE`, and configurable reminder alarms.
-- **Public Master Schedule Feeds**: Machine-readable JSON (`/api/schedule.json`) and downloadable CSV (`/api/schedule.csv`) feeds with query parameter filtering.
+- **Public Master Schedule Feeds**: Machine-readable JSON (`/api/schedule.json`), downloadable CSV (`/api/schedule.csv`), and printable PDF grid (`/schedule.pdf`, `/api/schedule.pdf`) with query parameter filtering.
+- **Syndication Feeds (RSS 2.0 & Atom 1.0)**: Standards-compliant XML feeds (`/feed.rss`, `/feed.atom`, `/api/schedule.rss`, `/api/schedule.atom`) for media outlets and automation workflows.
+- **Responsive Web Views & Embeddable Widget**: Mobile-friendly HTML schedule (`/schedule`) and stripped-down iframe widget (`/schedule/embed`) with copyable snippet.
+- **Dual-Format Content Negotiation**: Automatic HTML and JSON responses across landing portal (`/`), health diagnostics (`/health`), sync telemetry (`/api/v1/sync/status`), and conflict review (`/api/v1/conflicts`) with query parameter (`?format=html|json`) override and `Vary: Accept` caching.
+- **Brand Identity & PWA Manifest**: Vector brand assets, Web App Manifest (`/site.webmanifest`), multi-resolution favicons (`/favicon.ico`), and Apple touch icons.
 - **Operational Health & Conflict Administration**: Liveness and database connectivity probes (`/health`), sync cycle telemetry (`/api/v1/sync/status`), on-demand sync triggering (`POST /api/v1/sync/trigger`), and token-authenticated cross-source discrepancy review (`/api/v1/conflicts`).
 - **Interactive Documentation**: Auto-generated interactive Swagger UI (`/docs`), ReDoc (`/redoc`), and OpenAPI 3.1 JSON specifications.
 - **Strict Quality Standards**: 100% test coverage, strict `ty` static typing, and formatting via `ruff`.
@@ -374,7 +382,7 @@ open "webcal://localhost:8000/calendar.ics"
 
 For **Google Calendar** and **Outlook**, add by URL: `https://ecu-hockey-api.onrender.com/calendar.ics` (or `http://localhost:8000/calendar.ics` when self-hosting). For comprehensive, client-specific instructions with step-by-step guidance for desktop and mobile, see the [ECU Hockey Calendar Sync Guide](docs/calendar_sync.md).
 
-#### 5.6.2. Querying Public Schedule Feeds
+#### 5.6.2. Querying Public Schedule Feeds (JSON & CSV)
 
 Retrieve structured JSON or CSV data feeds with filtering:
 
@@ -386,19 +394,54 @@ curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
 curl -s "http://localhost:8000/api/schedule.csv?status=SCHEDULED" -o schedule.csv
 ```
 
-#### 5.6.3. Health Probes & Administration
+#### 5.6.3. Web Schedule View & Printable PDF Grid
+
+Access the responsive web interface or download a print-optimized PDF schedule grid:
 
 ```bash
-# Probe system health and database connectivity
+# View interactive mobile-friendly web schedule in browser
+open "http://localhost:8000/schedule"
+
+# Download letter-size printable schedule grid PDF (for refrigerators & clipboards)
+curl -fsSL -o schedule.pdf "http://localhost:8000/schedule.pdf?season=2026-2027"
+```
+
+#### 5.6.4. RSS 2.0 & Atom 1.0 Syndication Feeds
+
+Subscribe to automated XML feeds for sports media, student journalists, and feed aggregators:
+
+```bash
+# Fetch RSS 2.0 syndication feed
+curl -fsSL "http://localhost:8000/feed.rss?home_only=true"
+
+# Fetch Atom 1.0 syndication feed for upcoming matches
+curl -fsSL "http://localhost:8000/feed.atom?future_only=true"
+```
+
+#### 5.6.5. Health Probes, Diagnostics & Administration (Content-Negotiated)
+
+Monitor service health, sync metrics, and cross-source discrepancies. Dual-format endpoints automatically return HTML dashboards for web browsers and JSON for programmatic HTTP clients, with `?format=html` and `?format=json` query parameter overrides:
+
+```bash
+# Probe system health (returns JSON by default for curl)
 curl -s http://localhost:8000/health | jq .
+
+# Render health dashboard in browser
+open "http://localhost:8000/health?format=html"
+
+# Inspect synchronization telemetry
+curl -s http://localhost:8000/api/v1/sync/status | jq .
 
 # Trigger on-demand sync cycle (requires administrative token)
 curl -X POST "http://localhost:8000/api/v1/sync/trigger" \
   -H "Authorization: Bearer secret-admin-token-12345"
 
-# Inspect cross-source schedule discrepancies
+# Inspect cross-source schedule discrepancies (JSON)
 curl -s "http://localhost:8000/api/v1/conflicts" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
+
+# Review schedule discrepancies in administrative browser view
+open "http://localhost:8000/api/v1/conflicts?format=html"
 ```
 
 ### 5.7. Command-Line Interface (`ecu-hockey`)
