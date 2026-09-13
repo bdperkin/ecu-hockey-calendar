@@ -190,12 +190,13 @@ ecu-hockey serve [OPTIONS]
 
 **Options:**
 
-| Option                   | Environment Variable | Default       | Description                                                  |
-| :----------------------- | :------------------- | :------------ | :----------------------------------------------------------- |
-| `-h, --host`             | —                    | `127.0.0.1`   | Network interface host to bind the server.                   |
-| `-p, --port`             | —                    | `8000`        | TCP port number to listen on.                                |
-| `--reload / --no-reload` | —                    | `--no-reload` | Enable auto-reload on filesystem changes (development mode). |
-| `--db-url`               | `DATABASE_URL`       | `None`        | Database connection URL override.                            |
+| Option                     | Environment Variable | Default        | Description                                                    |
+| :------------------------- | :------------------- | :------------- | :------------------------------------------------------------- |
+| `-h, --host`               | —                    | `127.0.0.1`    | Network interface host to bind the server.                     |
+| `-p, --port`               | —                    | `8000`         | TCP port number to listen on.                                  |
+| `--reload / --no-reload`   | —                    | `--no-reload`  | Enable auto-reload on filesystem changes (development mode).   |
+| `--db-url`                 | `DATABASE_URL`       | `None`         | Database connection URL override.                              |
+| `--migrate / --no-migrate` | —                    | `--no-migrate` | Run database schema migrations to head before starting server. |
 
 **Examples:**
 

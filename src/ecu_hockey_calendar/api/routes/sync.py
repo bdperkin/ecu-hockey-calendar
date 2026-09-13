@@ -514,3 +514,9 @@ def trigger_sync_cycle(
             "synchronization runs via external cron."
         ),
     )
+
+
+__all__ = [
+    "get_sync_status",
+    "trigger_sync_cycle",
+]

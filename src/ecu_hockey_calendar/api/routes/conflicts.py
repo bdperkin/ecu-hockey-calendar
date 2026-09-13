@@ -584,3 +584,9 @@ def list_schedule_conflicts(
         "conflicts.html",
         context=context,
     )
+
+
+__all__ = [
+    "ConflictDictConvertible",
+    "list_schedule_conflicts",
+]

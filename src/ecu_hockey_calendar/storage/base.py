@@ -26,3 +26,10 @@ class Base(DeclarativeBase):
     """Declarative base class for all persistent SQLAlchemy ORM models."""
 
     metadata = METADATA
+
+
+__all__ = [
+    "METADATA",
+    "NAMING_CONVENTION",
+    "Base",
+]

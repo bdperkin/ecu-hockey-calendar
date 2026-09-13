@@ -15,11 +15,13 @@ The API service integrates the calendar generation, data normalization, database
 │ • GET /                      │ • POST /api/v1/sync/trigger  │
 │ • GET /schedule (HTML View)  │ • GET  /api/v1/conflicts     │
 │ • GET /schedule/embed        │                              │
-│ • GET /calendar.ics (webcal) │ Auth: Bearer / X-API-Key     │
+│ • GET /schedule.pdf          │ Auth: Bearer / X-API-Key     │
+│ • GET /calendar.ics (webcal) │                              │
 │ • GET /api/schedule.json     │                              │
 │ • GET /api/schedule.csv      │                              │
-│ • GET /schedule.pdf          │                              │
 │ • GET /feed.rss & .atom      │                              │
+│ • GET /site.webmanifest      │                              │
+│ • GET /favicon.ico           │                              │
 │ • GET /health                │                              │
 │ • GET /api/v1/sync/status    │                              │
 │ • GET /docs & /redoc         │                              │
@@ -143,20 +145,27 @@ curl -s "http://localhost:8000/" | jq .
 ```json
 {
   "name": "ECU Men's Ice Hockey Calendar & Data API",
-  "version": "0.5.0",
+  "version": "0.7.2",
   "status": "online",
   "endpoints": {
     "calendar_ics": "/calendar.ics",
     "conflicts": "/api/v1/conflicts",
     "docs": "/docs",
+    "favicon": "/favicon.ico",
+    "feed_atom": "/feed.atom",
+    "feed_rss": "/feed.rss",
     "health": "/health",
+    "logo_svg": "/static/ecu_hockey_logo.svg",
+    "manifest": "/site.webmanifest",
     "openapi": "/openapi.json",
     "redoc": "/redoc",
+    "schedule_atom": "/api/schedule.atom",
     "schedule_csv": "/api/schedule.csv",
     "schedule_embed": "/schedule/embed",
     "schedule_html": "/schedule",
     "schedule_json": "/api/schedule.json",
     "schedule_pdf": "/schedule.pdf",
+    "schedule_rss": "/api/schedule.rss",
     "sync_status": "/api/v1/sync/status"
   }
 }
@@ -449,6 +458,38 @@ curl -fsSL "http://localhost:8000/feed.atom?future_only=true"
 curl -I -H 'If-None-Match: "3277839352210134707"' "http://localhost:8000/feed.atom"
 ```
 
+### 5.8. Progressive Web App Manifest (`/site.webmanifest`)
+
+- **Method**: `GET`, `HEAD`
+- **Path**: `/site.webmanifest`
+- **Content-Type**: `application/manifest+json`
+
+Provides a standard W3C Web App Manifest enabling browsers and mobile operating systems to install the ECU Hockey web interface as a Progressive Web App (PWA).
+
+Features:
+
+- Application name: "ECU Men's Ice Hockey Calendar" (short name: "ECU Hockey").
+- Theme color (`#592a8a`) and background color (`#ffffff`).
+- Multi-resolution icon declarations (`192x192` and `512x512` PNGs, plus SVG any-resolution source).
+- Standalone display mode with portrait-primary orientation.
+
+```bash
+curl -fsSL http://localhost:8000/site.webmanifest | jq .
+```
+
+### 5.9. Multi-Resolution Favicons (`/favicon.ico`)
+
+- **Method**: `GET`, `HEAD`
+- **Path**: `/favicon.ico`
+- **Content-Type**: `image/x-icon`
+
+Serves an embedded, multi-resolution binary ICO icon file containing standard 16x16, 32x32, and 48x48 icon payloads. Web browsers automatically request `/favicon.ico` by default for bookmarks, browser tabs, and history lists. Additional static PNG favicons (`favicon-16x16.png`, `favicon-32x32.png`) and touch icons (`apple-touch-icon.png`) are hosted under `/static/`.
+
+```bash
+# Verify favicon headers
+curl -I http://localhost:8000/favicon.ico
+```
+
 ## 6. Interactive API Documentation
 
 The service exposes self-documenting OpenAPI specifications:
@@ -464,11 +505,24 @@ The service exposes self-documenting OpenAPI specifications:
 
 - **Method**: `GET`, `HEAD`
 - **Path**: `/health`
+- **Content-Type**: `text/html; charset=utf-8` or `application/json` (negotiated)
+- **Header**: `Vary: Accept`
+- **Query Parameters**: `format` (`html` or `json`, optional override)
 
 Verifies database connectivity (`SELECT 1`) and data source scraper operational status.
 
+#### 7.1.1. Dual-Format Content Negotiation
+
+- **Browser View (`text/html`)**: Renders a styled, responsive health dashboard with service status pills, uptime metrics, database dialect connectivity cards, scraper heartbeat timestamps, and a collapsible developer JSON drawer.
+- **Machine Client View (`application/json`)**: Default format for `curl`, deployment readiness probes, and uptime monitoring tools (`Accept: */*` or `Accept: application/json`).
+- **Format Override**: Appending `?format=html` or `?format=json` forces the respective serialization format.
+
 ```bash
+# Query JSON telemetry directly
 curl -s http://localhost:8000/health | jq .
+
+# Render HTML dashboard
+curl -s "http://localhost:8000/health?format=html"
 ```
 
 Response (HTTP 200 OK):
@@ -477,7 +531,7 @@ Response (HTTP 200 OK):
 {
   "status": "ok",
   "service": "ecu-hockey-calendar",
-  "version": "0.4.0",
+  "version": "0.7.2",
   "timestamp": "2026-09-08T18:00:00Z",
   "uptime_seconds": 124.5,
   "database": {
@@ -500,17 +554,29 @@ Response (HTTP 200 OK):
 }
 ```
 
-If database connectivity fails, `/health` returns HTTP 503 Service Unavailable with sanitized diagnostic output.
+If database connectivity fails, `/health` returns HTTP 503 Service Unavailable with sanitized diagnostic output in both HTML and JSON.
 
 ### 7.2. Synchronization Telemetry (`/api/v1/sync/status`)
 
 - **Method**: `GET`
 - **Path**: `/api/v1/sync/status`
+- **Content-Type**: `text/html; charset=utf-8` or `application/json` (negotiated)
+- **Header**: `Vary: Accept`
+- **Query Parameters**: `format` (`html` or `json`, optional override)
 
 Reports metrics from recent sync cycles including elapsed execution duration, games created/updated/deleted, and conflict counters:
 
+#### 7.2.1. Dual-Format Content Negotiation
+
+- **Browser View (`text/html`)**: Displays an interactive telemetry dashboard with sync cycle metrics, execution duration badges, records created/updated/deleted counters, scraper status cards, and raw JSON inspection.
+- **Machine Client View (`application/json`)**: Default format for CLI and automated monitoring pipelines.
+
 ```bash
+# Query sync status JSON
 curl -s http://localhost:8000/api/v1/sync/status | jq .
+
+# View sync status HTML portal
+open "http://localhost:8000/api/v1/sync/status?format=html"
 ```
 
 ```json
@@ -591,14 +657,30 @@ Response when unconfigured (HTTP 501 Not Implemented):
 
 ### 8.3. Cross-Source Conflict Review (`GET /api/v1/conflicts`)
 
-Inspects unresolved multi-source schedule discrepancies and change history:
+- **Method**: `GET`, `HEAD`
+- **Path**: `/api/v1/conflicts`
+- **Content-Type**: `text/html; charset=utf-8` or `application/json` (negotiated)
+- **Header**: `Vary: Accept`
+- **Authentication**: HTTP Bearer token or `X-API-Key` header
+
+Inspects unresolved multi-source schedule discrepancies and change history.
+
+#### 8.3.1. Dual-Format Content Negotiation
+
+- **Browser View (`text/html`)**: Renders an administrative conflict resolution dashboard featuring interactive filter controls (`severity`, `game_id`, `field`, `requires_review`), paginated table rows with severity badges (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`), visual diff badges, and a developer JSON inspection modal.
+- **Machine Client View (`application/json`)**: Standard JSON format for administrative automation scripts and auditing CLI commands.
 
 ```bash
+# Query conflicts JSON
 curl -s "http://localhost:8000/api/v1/conflicts?severity=high&requires_review=true" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
+
+# Render administrative conflict review dashboard in HTML
+curl -s "http://localhost:8000/api/v1/conflicts?format=html" \
+  -H "Authorization: Bearer secret-admin-token-12345"
 ```
 
-#### 8.3.1. Query Parameters
+#### 8.3.2. Query Parameters
 
 | Parameter         | Type      | Default | Description                                                     |
 | :---------------- | :-------- | :------ | :-------------------------------------------------------------- |
@@ -608,8 +690,9 @@ curl -s "http://localhost:8000/api/v1/conflicts?severity=high&requires_review=tr
 | `requires_review` | `boolean` | `None`  | Filter by whether human review is needed.                       |
 | `limit`           | `integer` | `50`    | Maximum number of records to return (1-500).                    |
 | `offset`          | `integer` | `0`     | Number of records to skip for pagination.                       |
+| `format`          | `string`  | `None`  | Explicit format override (`html` or `json`).                    |
 
-#### 8.3.2. Example Response
+#### 8.3.3. Example Response
 
 ```json
 {

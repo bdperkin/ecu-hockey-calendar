@@ -180,7 +180,7 @@ def create_sync_engine(
     Args:
         url: Optional database connection URL.
         echo: Whether to log generated SQL statements.
-        **kwargs: Additional keyword arguments forwarded to create_engine.
+        kwargs: Additional keyword arguments forwarded to create_engine.
 
     Returns:
         Configured SQLAlchemy Engine.
@@ -211,7 +211,7 @@ def create_async_engine(
     Args:
         url: Optional database connection URL.
         echo: Whether to log generated SQL statements.
-        **kwargs: Additional keyword arguments forwarded to create_async_engine.
+        kwargs: Additional keyword arguments forwarded to create_async_engine.
 
     Returns:
         Configured SQLAlchemy AsyncEngine.
