@@ -448,7 +448,7 @@ ______________________________________________________________________
 
 #### 2.8.3. Phase 8.3: Browser Favicons & Web Application Touch Icons
 
-- [ ] **[#144](https://github.com/bdperkin/ecu-hockey-calendar/issues/144) - feat(web): implement multi-resolution favicons, web app touch icons, and /favicon.ico route**
+- [x] **[#144](https://github.com/bdperkin/ecu-hockey-calendar/issues/144) - feat(web): implement multi-resolution favicons, web app touch icons, and /favicon.ico route**
 
   - **Summary:** Multi-resolution browser favicons, apple-touch icons, web app manifest, and dedicated `GET /favicon.ico` route.
   - **Description:** Generate multi-resolution `favicon.ico` (16x16, 32x32, 48x48), PNGs, and scalable SVG from the project logo, add an explicit cached `GET /favicon.ico` route in FastAPI to prevent 404 crawler noise, update `base.html` `<head>` metadata, configure Sphinx `html_favicon` in `docs/conf.py`, and deliver `site.webmanifest` for mobile home screen bookmarking.

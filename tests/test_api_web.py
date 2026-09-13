@@ -411,7 +411,7 @@ def test_schedule_data_service_html_unit(diverse_games: list[Game]) -> None:
 
 
 def test_favicon_and_static_branding_assets() -> None:
-    """Verify favicon endpoint and static branding assets are served correctly."""
+    """Verify favicon endpoint, webmanifest, and static branding assets are served."""
     app = create_app()
     client = TestClient(app)
 
@@ -423,10 +423,33 @@ def test_favicon_and_static_branding_assets() -> None:
     assert len(fav_res.content) > 0
 
     # HEAD /favicon.ico
-    head_res = client.head("/favicon.ico")
-    assert head_res.status_code == 200
-    assert "image/x-icon" in head_res.headers["Content-Type"]
-    assert head_res.text == ""
+    head_fav = client.head("/favicon.ico")
+    assert head_fav.status_code == 200
+    assert "image/x-icon" in head_fav.headers["Content-Type"]
+    assert head_fav.text == ""
+
+    # GET /site.webmanifest
+    manifest_res = client.get("/site.webmanifest")
+    assert manifest_res.status_code == 200
+    assert "application/manifest+json" in manifest_res.headers["Content-Type"]
+    assert "public, max-age=86400" in manifest_res.headers["Cache-Control"]
+    manifest_data = manifest_res.json()
+    assert manifest_data["name"] == "East Carolina University Men's Ice Hockey Calendar"
+    assert manifest_data["short_name"] == "ECU Hockey"
+    assert manifest_data["theme_color"] == "#592a8a"
+    assert len(manifest_data["icons"]) >= 2
+
+    # HEAD /site.webmanifest
+    head_manifest = client.head("/site.webmanifest")
+    assert head_manifest.status_code == 200
+    assert "application/manifest+json" in head_manifest.headers["Content-Type"]
+    assert head_manifest.text == ""
+
+    # GET /static/favicon.svg
+    svg_fav = client.get("/static/favicon.svg")
+    assert svg_fav.status_code == 200
+    assert "image/svg+xml" in svg_fav.headers["Content-Type"]
+    assert "<svg" in svg_fav.text
 
     # GET /static/ecu_hockey_logo.svg
     svg_res = client.get("/static/ecu_hockey_logo.svg")
@@ -439,6 +462,19 @@ def test_favicon_and_static_branding_assets() -> None:
     assert png_res.status_code == 200
     assert "image/png" in png_res.headers["Content-Type"]
     assert png_res.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+    # Multi-resolution icon PNGs
+    for icon_name in [
+        "favicon-16x16.png",
+        "favicon-32x32.png",
+        "apple-touch-icon.png",
+        "android-chrome-192x192.png",
+        "android-chrome-512x512.png",
+    ]:
+        res = client.get(f"/static/{icon_name}")
+        assert res.status_code == 200
+        assert "image/png" in res.headers["Content-Type"]
+        assert res.content[:8] == b"\x89PNG\r\n\x1a\n"
 
     # GET /static/favicon.ico
     static_fav_res = client.get("/static/favicon.ico")
@@ -453,10 +489,15 @@ def test_schedule_html_includes_branding(diverse_games: list[Game]) -> None:
     html = service.generate_html_schedule(diverse_games)
 
     assert '<link rel="icon" type="image/x-icon" href="/favicon.ico">' in html
-    assert (
-        '<link rel="icon" type="image/svg+xml" href="/static/ecu_hockey_logo.svg">'
-        in html
-    )
+    assert '<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">' in html
+    assert 'sizes="32x32"' in html
+    assert 'href="/static/favicon-32x32.png"' in html
+    assert 'sizes="16x16"' in html
+    assert 'href="/static/favicon-16x16.png"' in html
+    assert 'sizes="180x180"' in html
+    assert 'href="/static/apple-touch-icon.png"' in html
+    assert '<link rel="manifest" href="/site.webmanifest">' in html
+    assert '<meta name="theme-color" content="#592a8a">' in html
     assert '<img src="/static/ecu_hockey_logo.svg"' in html
     assert 'alt="East Carolina University Men\'s Ice Hockey Logo"' in html
     assert 'class="header-logo"' in html

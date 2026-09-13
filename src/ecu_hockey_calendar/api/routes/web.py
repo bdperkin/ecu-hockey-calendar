@@ -501,3 +501,34 @@ def head_favicon() -> Response:
         Empty FastAPI Response with favicon headers.
     """
     return get_favicon()
+
+
+@web_router.get(
+    "/site.webmanifest",
+    summary="Web Application Manifest",
+    description=(
+        "Progressive Web Application manifest providing application metadata and icons."
+    ),
+    include_in_schema=False,
+)
+def get_site_manifest() -> Response:
+    """Serve web application manifest.
+
+    Returns:
+        FastAPI Response streaming the site.webmanifest JSON metadata.
+    """
+    return FileResponse(
+        STATIC_DIR / "site.webmanifest",
+        media_type="application/manifest+json",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@web_router.head("/site.webmanifest", include_in_schema=False)
+def head_site_manifest() -> Response:
+    """Serve HEAD response for web application manifest.
+
+    Returns:
+        Empty FastAPI Response with manifest headers.
+    """
+    return get_site_manifest()
