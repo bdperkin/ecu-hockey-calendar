@@ -16,7 +16,10 @@ from ecu_hockey_calendar.api.client import (
     RemoteApiClient,
     RemoteApiError,
 )
-from ecu_hockey_calendar.api.routes.conflicts import _change_model_to_conflict
+from ecu_hockey_calendar.api.routes.conflicts import (
+    CONFLICT_CHANGE_TYPES,
+    _change_model_to_conflict,
+)
 from ecu_hockey_calendar.cli.console import (
     create_table,
     format_severity_badge,
@@ -98,7 +101,7 @@ def _query_conflicts(
     """Query and filter conflict records from storage."""
     stmt = (
         select(GameChangeModel)
-        .where(GameChangeModel.change_type.in_(["CONFLICT", "DISCREPANCY"]))
+        .where(GameChangeModel.change_type.in_(CONFLICT_CHANGE_TYPES))
         .order_by(GameChangeModel.recorded_at.desc())
     )
     changes = session.scalars(stmt).all()
@@ -289,6 +292,8 @@ def conflicts_command(  # pylint: disable=too-many-locals
 
     api_url, token = _resolve_remote_credentials(ctx, api_url, token)
     if api_url:
+        console = get_console()
+        console.print(f"Target: [bold cyan]Remote API ({api_url})[/bold cyan]\n")
         conflicts = _fetch_remote_conflicts(
             api_url,
             token,

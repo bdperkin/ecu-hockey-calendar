@@ -56,6 +56,7 @@ ______________________________________________________________________
     - [2.8.4. Phase 8.4: Comprehensive Documentation Audit & Reconciliation](#284-phase-84-comprehensive-documentation-audit--reconciliation)
   - [2.9. Milestone 9: v0.9.0 - Remote CLI & Operational Tooling](#29-milestone-9-v090---remote-cli--operational-tooling)
     - [2.9.1. Phase 9.1: Remote HTTP API Client Integration](#291-phase-91-remote-http-api-client-integration)
+    - [2.9.2. Phase 9.2: Conflict Detection Transition Query Reconciliation](#292-phase-92-conflict-detection-transition-query-reconciliation)
 - [3. CodeQL Security & Quality Audit Trail](#3-codeql-security--quality-audit-trail)
 - [4. Implementation Sequencing & Dependency Graph](#4-implementation-sequencing--dependency-graph)
   - [4.1. Sequencing Rationale](#41-sequencing-rationale)
@@ -469,6 +470,12 @@ ______________________________________________________________________
   - **Summary:** Remote HTTP API client integration in `ecu-hockey` CLI for operational subcommands (`status`, `conflicts`, `export`, `sync`).
   - **Description:** Implement `RemoteApiClient` in `ecu_hockey_calendar.api.client` using `httpx`, add `--api-url` (`ECU_HOCKEY_API_URL`) and `--token` (`ECU_HOCKEY_ADMIN_TOKEN`) to the root CLI group and subcommands, and support remote telemetry querying, conflict inspection, schedule exports, and on-demand synchronization triggers without requiring direct database networking access.
 
+#### 2.9.2. Phase 9.2: Conflict Detection Transition Query Reconciliation
+
+- [ ] **[#166](https://github.com/bdperkin/ecu-hockey-calendar/issues/166) - fix(conflicts): reconcile CONFLICT_DETECTED change type query filter in API and CLI**
+  - **Summary:** Fix discrepancy filtering in API `/api/v1/conflicts` and `ecu-hockey conflicts` to query for `CONFLICT_DETECTED` state transitions.
+  - **Description:** Update conflict queries in `ecu_hockey_calendar.api.routes.conflicts` and `ecu_hockey_calendar.cli.conflicts` to include `"CONFLICT_DETECTED"` alongside `"CONFLICT"` and `"DISCREPANCY"`, add `Target: Remote API (<url>)` banner output in CLI remote mode, and add unit test coverage.
+
 ______________________________________________________________________
 
 ## 3. CodeQL Security & Quality Audit Trail
@@ -575,6 +582,7 @@ flowchart TD
 
     subgraph M9["Stage 8: Milestone 9 (Remote CLI & Operational Tooling)"]
         T164["#164: Remote HTTP API Client Integration"]
+        T166["#166: Reconcile CONFLICT_DETECTED Query Filter"]
     end
 
     T47 --> T44
@@ -621,6 +629,7 @@ flowchart TD
     T142 --> T144
     T144 --> T103
     T103 --> T164
+    T164 --> T166
     T102 -.informs.-> T116
     T102 -.informs.-> T117
     T117 -.powers.-> T99
@@ -677,3 +686,4 @@ flowchart TD
    - Issue **[#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103)** closes the roadmap with a full documentation audit. It is sequenced last by necessity: it verifies the documentation against the completed system rather than against intent. It also covers three structural gaps — Issues **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** through **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102)** change public API behavior without carrying documentation requirements, Milestones 6, 7, and 8 have no documentation alignment phase of their own, and several surfaces (`docs/api.md`, `docs/cli.md`, `docs/index.md`, repository topics) are owned by no issue at all.
 8. **Milestone 9 (Remote CLI & Operational Tooling)**:
    - Issue **[#164](https://github.com/bdperkin/ecu-hockey-calendar/issues/164)** enables operational commands (`status`, `conflicts`, `export`, `sync`) to communicate directly with remote HTTP API deployments (such as `https://ecu-hockey-api.onrender.com`) via `--api-url` and `--token`, without requiring direct PostgreSQL/SQLite network access.
+   - Issue **[#166](https://github.com/bdperkin/ecu-hockey-calendar/issues/166)** reconciles the discrepancy query filter in `/api/v1/conflicts` and `ecu-hockey conflicts` to match `CONFLICT_DETECTED` transition records written by the schedule reconciliation pipeline.

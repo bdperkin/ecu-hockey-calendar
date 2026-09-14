@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 
 from ecu_hockey_calendar.api.app import create_app
 from ecu_hockey_calendar.api.routes.conflicts import (
+    CONFLICT_CHANGE_TYPES,
     _build_conflicts_context,
     _build_pagination_context,
     _change_model_to_conflict,
@@ -468,7 +469,7 @@ def test_conflicts_retrieved_from_database(tmp_path: Path) -> None:
         change = GameChangeModel(
             sync_cycle_id="cycle-test-1",
             canonical_game_id="ecu-vt-20241101",
-            change_type="CONFLICT",
+            change_type="CONFLICT_DETECTED",
             summary="Venue disagreement between team site and opponent schedule",
             field_diffs=[
                 {
@@ -826,3 +827,53 @@ def test_extract_snapshot_or_fallback_direct() -> None:
     res = _extract_snapshot_or_fallback_comparisons(item_empty)
     assert len(res) == 1
     assert res[0]["source_a"] == "Source A"
+
+
+def test_conflict_change_types_includes_conflict_detected() -> None:
+    """Verify CONFLICT_CHANGE_TYPES contains required conflict type entries."""
+    assert "CONFLICT_DETECTED" in CONFLICT_CHANGE_TYPES
+    assert "CONFLICT" in CONFLICT_CHANGE_TYPES
+    assert "DISCREPANCY" in CONFLICT_CHANGE_TYPES
+
+
+def test_extract_conflicts_all_supported_change_types(tmp_path: Path) -> None:
+    """Verify _extract_conflicts queries all configured conflict change types."""
+    db_file = tmp_path / "all_conflict_types.db"
+    db_url = f"sqlite:///{db_file}"
+
+    app = create_app(database_url=db_url, admin_token=TEST_ADMIN_TOKEN)
+    init_db(app.state.db_engine)
+
+    with get_sync_session(app.state.db_engine) as session:
+        c1 = GameChangeModel(
+            sync_cycle_id="cycle-c1",
+            canonical_game_id="game-detected",
+            change_type="CONFLICT_DETECTED",
+            summary="Conflict detected in ingestion",
+        )
+        c2 = GameChangeModel(
+            sync_cycle_id="cycle-c2",
+            canonical_game_id="game-conflict",
+            change_type="CONFLICT",
+            summary="Conflict type",
+        )
+        c3 = GameChangeModel(
+            sync_cycle_id="cycle-c3",
+            canonical_game_id="game-discrepancy",
+            change_type="DISCREPANCY",
+            summary="Discrepancy type",
+        )
+        c4 = GameChangeModel(
+            sync_cycle_id="cycle-c4",
+            canonical_game_id="game-other",
+            change_type="SCHEDULED_GAME_ADDED",
+            summary="Normal addition should not be returned",
+        )
+        session.add_all([c1, c2, c3, c4])
+
+    req = MagicMock()
+    req.app = app
+    results = _extract_conflicts(req)
+    result_game_ids = {r["game_id"] for r in results}
+    assert result_game_ids == {"game-detected", "game-conflict", "game-discrepancy"}
+    assert "game-other" not in result_game_ids

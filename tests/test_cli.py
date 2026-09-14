@@ -715,7 +715,7 @@ class TestConflictsCommand:
                 sync_cycle_id="sync-test",
                 sync_audit_id=audit.id,
                 canonical_game_id="game-101",
-                change_type="CONFLICT",
+                change_type="CONFLICT_DETECTED",
                 summary="Conflicting venue: factory vs wcc",
                 field_diffs=[
                     {
