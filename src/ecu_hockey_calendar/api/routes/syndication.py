@@ -14,6 +14,7 @@ from fastapi import status as fastapi_status
 from ecu_hockey_calendar.api.routes.common import (
     check_conditional_headers,
     get_active_games,
+    resolve_past_and_future_filters,
 )
 from ecu_hockey_calendar.syndication import (
     ATOM_MEDIA_TYPE,
@@ -119,9 +120,19 @@ def _handle_head(response: Response) -> Response:
 
 
 @router.get(
-    "/feed.rss",
+    "/schedule.rss",
     summary="RSS 2.0 Master Schedule Feed",
     description="Syndicated RSS 2.0 XML feed of ECU Hockey schedule and results.",
+    response_class=Response,
+    responses={
+        200: {"content": {"application/rss+xml": {}}, "description": "RSS 2.0 feed."},
+        304: {"description": "Feed not modified since last poll."},
+    },
+)
+@router.get(
+    "/feed.rss",
+    summary="RSS 2.0 Master Schedule Feed (Legacy Alias)",
+    description="Legacy alias for /schedule.rss syndication feed.",
     response_class=Response,
     responses={
         200: {"content": {"application/rss+xml": {}}, "description": "RSS 2.0 feed."},
@@ -144,30 +155,45 @@ def get_feed_rss(
         Query(description="Filter games to only home fixtures hosted by ECU."),
     ] = False,
     future_only: Annotated[
-        bool,
+        bool | None,
         Query(description="Filter games to only upcoming matches."),
-    ] = False,
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status: Annotated[
         str | None,
         Query(description="Filter games by match status (e.g., 'scheduled', 'final')."),
     ] = None,
 ) -> Response:
     """Serve master schedule as RSS 2.0 XML syndication feed."""
+    _, fut_only = resolve_past_and_future_filters(
+        include_past=include_past,
+        future_only=future_only,
+        default_include_past=True,
+    )
     return _handle_syndication_feed(
         request,
         is_atom=False,
         season=season,
         opponent=opponent,
         home_only=home_only,
-        future_only=future_only,
+        future_only=fut_only,
         status_query=status,
     )
 
 
 @router.head(
-    "/feed.rss",
+    "/schedule.rss",
     summary="RSS 2.0 Master Schedule Feed Headers",
     description="Inspect caching and syndication headers for RSS 2.0 feed.",
+    response_class=Response,
+)
+@router.head(
+    "/feed.rss",
+    summary="RSS 2.0 Master Schedule Feed Headers (Legacy Alias)",
+    description="Inspect caching and syndication headers for /feed.rss alias.",
     response_class=Response,
 )
 def head_feed_rss(
@@ -176,7 +202,14 @@ def head_feed_rss(
     season: Annotated[str | None, Query(description="Filter games by season.")] = None,
     opponent: Annotated[str | None, Query(description="Opponent filter.")] = None,
     home_only: Annotated[bool, Query(description="Home only filter.")] = False,
-    future_only: Annotated[bool, Query(description="Upcoming only filter.")] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Upcoming only filter."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Include past filter."),
+    ] = None,
     status: Annotated[str | None, Query(description="Match status filter.")] = None,
 ) -> Response:
     """Serve HEAD response for RSS 2.0 syndication feed."""
@@ -187,6 +220,7 @@ def head_feed_rss(
             opponent=opponent,
             home_only=home_only,
             future_only=future_only,
+            include_past=include_past,
             status=status,
         ),
     )
@@ -218,9 +252,13 @@ def get_api_schedule_rss(
         Query(description="Filter games to only home fixtures hosted by ECU."),
     ] = False,
     future_only: Annotated[
-        bool,
+        bool | None,
         Query(description="Filter games to only upcoming matches."),
-    ] = False,
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status: Annotated[
         str | None,
         Query(description="Filter games by match status (e.g., 'scheduled', 'final')."),
@@ -233,6 +271,7 @@ def get_api_schedule_rss(
         opponent=opponent,
         home_only=home_only,
         future_only=future_only,
+        include_past=include_past,
         status=status,
     )
 
@@ -249,7 +288,14 @@ def head_api_schedule_rss(
     season: Annotated[str | None, Query(description="Filter games by season.")] = None,
     opponent: Annotated[str | None, Query(description="Opponent filter.")] = None,
     home_only: Annotated[bool, Query(description="Home only filter.")] = False,
-    future_only: Annotated[bool, Query(description="Upcoming only filter.")] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Upcoming only filter."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Include past filter."),
+    ] = None,
     status: Annotated[str | None, Query(description="Match status filter.")] = None,
 ) -> Response:
     """Serve HEAD response for /api/schedule.rss."""
@@ -260,15 +306,29 @@ def head_api_schedule_rss(
             opponent=opponent,
             home_only=home_only,
             future_only=future_only,
+            include_past=include_past,
             status=status,
         ),
     )
 
 
 @router.get(
-    "/feed.atom",
+    "/schedule.atom",
     summary="Atom 1.0 Master Schedule Feed",
     description="Syndicated Atom 1.0 XML feed of ECU Hockey schedule and results.",
+    response_class=Response,
+    responses={
+        200: {
+            "content": {"application/atom+xml": {}},
+            "description": "Atom 1.0 feed.",
+        },
+        304: {"description": "Feed not modified since last poll."},
+    },
+)
+@router.get(
+    "/feed.atom",
+    summary="Atom 1.0 Master Schedule Feed (Legacy Alias)",
+    description="Legacy alias for /schedule.atom syndication feed.",
     response_class=Response,
     responses={
         200: {
@@ -294,30 +354,45 @@ def get_feed_atom(
         Query(description="Filter games to only home fixtures hosted by ECU."),
     ] = False,
     future_only: Annotated[
-        bool,
+        bool | None,
         Query(description="Filter games to only upcoming matches."),
-    ] = False,
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status: Annotated[
         str | None,
         Query(description="Filter games by match status (e.g., 'scheduled', 'final')."),
     ] = None,
 ) -> Response:
     """Serve master schedule as Atom 1.0 XML syndication feed."""
+    _, fut_only = resolve_past_and_future_filters(
+        include_past=include_past,
+        future_only=future_only,
+        default_include_past=True,
+    )
     return _handle_syndication_feed(
         request,
         is_atom=True,
         season=season,
         opponent=opponent,
         home_only=home_only,
-        future_only=future_only,
+        future_only=fut_only,
         status_query=status,
     )
 
 
 @router.head(
-    "/feed.atom",
+    "/schedule.atom",
     summary="Atom 1.0 Master Schedule Feed Headers",
     description="Inspect caching and syndication headers for Atom 1.0 feed.",
+    response_class=Response,
+)
+@router.head(
+    "/feed.atom",
+    summary="Atom 1.0 Master Schedule Feed Headers (Legacy Alias)",
+    description="Inspect caching and syndication headers for /feed.atom alias.",
     response_class=Response,
 )
 def head_feed_atom(
@@ -326,7 +401,14 @@ def head_feed_atom(
     season: Annotated[str | None, Query(description="Filter games by season.")] = None,
     opponent: Annotated[str | None, Query(description="Opponent filter.")] = None,
     home_only: Annotated[bool, Query(description="Home only filter.")] = False,
-    future_only: Annotated[bool, Query(description="Upcoming only filter.")] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Upcoming only filter."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Include past filter."),
+    ] = None,
     status: Annotated[str | None, Query(description="Match status filter.")] = None,
 ) -> Response:
     """Serve HEAD response for Atom 1.0 syndication feed."""
@@ -337,6 +419,7 @@ def head_feed_atom(
             opponent=opponent,
             home_only=home_only,
             future_only=future_only,
+            include_past=include_past,
             status=status,
         ),
     )
@@ -371,9 +454,13 @@ def get_api_schedule_atom(
         Query(description="Filter games to only home fixtures hosted by ECU."),
     ] = False,
     future_only: Annotated[
-        bool,
+        bool | None,
         Query(description="Filter games to only upcoming matches."),
-    ] = False,
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status: Annotated[
         str | None,
         Query(description="Filter games by match status (e.g., 'scheduled', 'final')."),
@@ -386,6 +473,7 @@ def get_api_schedule_atom(
         opponent=opponent,
         home_only=home_only,
         future_only=future_only,
+        include_past=include_past,
         status=status,
     )
 
@@ -402,7 +490,14 @@ def head_api_schedule_atom(
     season: Annotated[str | None, Query(description="Filter games by season.")] = None,
     opponent: Annotated[str | None, Query(description="Opponent filter.")] = None,
     home_only: Annotated[bool, Query(description="Home only filter.")] = False,
-    future_only: Annotated[bool, Query(description="Upcoming only filter.")] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Upcoming only filter."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Include past filter."),
+    ] = None,
     status: Annotated[str | None, Query(description="Match status filter.")] = None,
 ) -> Response:
     """Serve HEAD response for /api/schedule.atom."""
@@ -413,6 +508,7 @@ def head_api_schedule_atom(
             opponent=opponent,
             home_only=home_only,
             future_only=future_only,
+            include_past=include_past,
             status=status,
         ),
     )

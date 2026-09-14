@@ -482,7 +482,7 @@ ______________________________________________________________________
 
 #### 2.9.3. Phase 9.3: Canonical Schedule Routes, Legacy Aliasing & Parameter Normalization
 
-- [ ] **[#168](https://github.com/bdperkin/ecu-hockey-calendar/issues/168) - feat(api): canonical /schedule.* routes, legacy aliases, and query parameter normalization*\*
+- [x] **[#168](https://github.com/bdperkin/ecu-hockey-calendar/issues/168) - feat(api): canonical /schedule.* routes, legacy aliases, and query parameter normalization*\*
   - **Summary:** Mount uniform `/schedule.<ext>` public data routes, retain backward-compatible aliases, normalize query parameters (`include_past` / `future_only`), and fix `RemoteApiClient` route lookup.
   - **Description:** Establish `/schedule.ics`, `/schedule.json`, `/schedule.csv`, `/schedule.rss`, and `/schedule.atom` as canonical schedule feed endpoints while preserving existing paths (`/calendar.ics`, `/api/schedule.*`, `/feed.*`) as active aliases. Normalize schedule query parameters across all endpoints and update `RemoteApiClient` to use canonical paths.
 

@@ -295,6 +295,13 @@ def test_schedule_filtering(populated_db_url: str) -> None:
     assert res_empty.status_code == 200
     assert "No Games Found" in res_empty.text
 
+    # Future only and include_past normalization
+    res_fut = client.get("/schedule?future_only=true")
+    assert res_fut.status_code == 200
+    res_past = client.get("/schedule?include_past=false")
+    assert res_past.status_code == 200
+    assert res_fut.text == res_past.text
+
 
 def test_schedule_embed_filtering(populated_db_url: str) -> None:
     """Verify query filtering on /schedule/embed route."""
@@ -305,6 +312,13 @@ def test_schedule_embed_filtering(populated_db_url: str) -> None:
     assert res.status_code == 200
     assert "Home Only" in res.text
     assert "The Factory Ice House" in res.text
+
+    # Future only and include_past in embed mode
+    res_fut_embed = client.get("/schedule/embed?future_only=true")
+    assert res_fut_embed.status_code == 200
+    res_past_embed = client.get("/schedule/embed?include_past=false")
+    assert res_past_embed.status_code == 200
+    assert res_fut_embed.text == res_past_embed.text
 
 
 def test_schedule_html_game_details_rendering(populated_db_url: str) -> None:
@@ -396,9 +410,9 @@ def test_schedule_data_service_html_unit(diverse_games: list[Game]) -> None:
         base_url="https://hockey.ecu.edu",
     )
     assert "https://hockey.ecu.edu/schedule" in html_base
-    assert "https://hockey.ecu.edu/calendar.ics" in html_base
-    assert "https://hockey.ecu.edu/api/schedule.csv" in html_base
-    assert "https://hockey.ecu.edu/api/schedule.json" in html_base
+    assert "https://hockey.ecu.edu/schedule.ics" in html_base
+    assert "https://hockey.ecu.edu/schedule.csv" in html_base
+    assert "https://hockey.ecu.edu/schedule.json" in html_base
 
     # Embed HTML generation
     html_embed = service.generate_html_schedule(

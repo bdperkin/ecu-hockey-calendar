@@ -132,10 +132,37 @@ def check_conditional_headers(
     )
 
 
+def resolve_past_and_future_filters(
+    *,
+    include_past: bool | None = None,
+    future_only: bool | None = None,
+    default_include_past: bool = True,
+) -> tuple[bool, bool]:
+    """Resolve normalized (include_past, future_only) boolean flags.
+
+    Args:
+        include_past: Optional include_past query parameter.
+        future_only: Optional future_only query parameter.
+        default_include_past: Default value if neither flag is passed.
+
+    Returns:
+        Tuple of (include_past, future_only) where future_only == not include_past.
+    """
+    if include_past is not None:
+        inc = include_past
+    elif future_only is not None:
+        inc = not future_only
+    else:
+        inc = default_include_past
+
+    return inc, not inc
+
+
 __all__ = [
     "check_conditional_headers",
     "extract_games_from_database",
     "get_active_games",
     "is_etag_fresh",
     "is_modified_since_fresh",
+    "resolve_past_and_future_filters",
 ]

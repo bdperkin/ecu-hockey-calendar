@@ -63,12 +63,14 @@ def _build_web_caching_headers(
     }
 
 
-def _render_schedule_view(
+def _render_schedule_view(  # noqa: PLR0913 # pylint: disable=too-many-arguments
     request: Request,
     *,
     season: str | None,
     opponent: str | None,
     home_only: bool,
+    future_only: bool = False,
+    include_past: bool | None = None,
     status_filter: str | None,
     embed: bool,
     filename: str,
@@ -80,6 +82,8 @@ def _render_schedule_view(
         season: Optional season filter string.
         opponent: Optional opponent substring query.
         home_only: Whether to filter to home matches only.
+        future_only: Whether to filter to future matches only.
+        include_past: Whether to include past matches.
         status_filter: Optional match status filter.
         embed: Whether to render the embeddable widget view.
         filename: Output filename for disposition header.
@@ -99,6 +103,8 @@ def _render_schedule_view(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=future_only,
+        include_past=include_past,
         status=status_filter,
         embed=embed,
         base_url=base_url,
@@ -163,6 +169,14 @@ def get_schedule_html(
         bool,
         Query(description="If True, only home matches are included in the view."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -180,6 +194,8 @@ def get_schedule_html(
         season: Optional season filter string.
         opponent: Optional opponent query substring.
         home_only: If True, include only home games.
+        future_only: If True, include only upcoming games.
+        include_past: If False, include only upcoming games.
         status_filter: Optional status filter.
 
     Returns:
@@ -190,6 +206,8 @@ def get_schedule_html(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=bool(future_only),
+        include_past=include_past,
         status_filter=status_filter,
         embed=False,
         filename="ecu-hockey-schedule.html",
@@ -217,6 +235,14 @@ def head_schedule_html(
         bool,
         Query(description="If True, only home matches are included."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(alias="status", description="Filter games by match status."),
@@ -229,6 +255,8 @@ def head_schedule_html(
         season: Optional season filter.
         opponent: Optional opponent query.
         home_only: Home games only flag.
+        future_only: Upcoming games only flag.
+        include_past: Include past games flag.
         status_filter: Optional status filter.
 
     Returns:
@@ -239,6 +267,8 @@ def head_schedule_html(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=future_only,
+        include_past=include_past,
         status_filter=status_filter,
     )
     return Response(status_code=res.status_code, headers=dict(res.headers))
@@ -283,6 +313,14 @@ def get_schedule_embed(
         bool,
         Query(description="If True, only home matches are included in the widget."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -300,6 +338,8 @@ def get_schedule_embed(
         season: Optional season filter string.
         opponent: Optional opponent query substring.
         home_only: If True, include only home games.
+        future_only: If True, include only upcoming games.
+        include_past: If False, include only upcoming games.
         status_filter: Optional status filter.
 
     Returns:
@@ -310,6 +350,8 @@ def get_schedule_embed(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=bool(future_only),
+        include_past=include_past,
         status_filter=status_filter,
         embed=True,
         filename="ecu-hockey-schedule-embed.html",
@@ -337,6 +379,14 @@ def head_schedule_embed(
         bool,
         Query(description="If True, only home matches are included."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(alias="status", description="Filter games by match status."),
@@ -349,6 +399,8 @@ def head_schedule_embed(
         season: Optional season filter.
         opponent: Optional opponent query.
         home_only: Home games only flag.
+        future_only: Upcoming games only flag.
+        include_past: Include past games flag.
         status_filter: Optional status filter.
 
     Returns:
@@ -359,6 +411,8 @@ def head_schedule_embed(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=future_only,
+        include_past=include_past,
         status_filter=status_filter,
     )
     return Response(status_code=res.status_code, headers=dict(res.headers))
@@ -403,6 +457,14 @@ def get_web_schedule_pdf(
         bool,
         Query(description="If True, only home matches are included in the PDF."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -419,6 +481,8 @@ def get_web_schedule_pdf(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=bool(future_only),
+        include_past=include_past,
         status_filter=status_filter,
     )
 
@@ -454,6 +518,14 @@ def head_web_schedule_pdf(
         bool,
         Query(description="If True, only home matches are included in the PDF."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -470,6 +542,8 @@ def head_web_schedule_pdf(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=bool(future_only),
+        include_past=include_past,
         status_filter=status_filter,
     )
 

@@ -375,6 +375,7 @@ def test_root_endpoint_content_negotiation_html() -> None:
 
     # Calendar subscription showcase and sync guide link
     assert "Live Calendar Subscription" in html_content
+    assert "/schedule.ics" in html_content
     assert "/calendar.ics" in html_content
     assert "webcal://" in html_content
     assert "docs/calendar_sync.md" in html_content
@@ -382,8 +383,8 @@ def test_root_endpoint_content_negotiation_html() -> None:
     # Endpoints directory links
     assert "/schedule" in html_content
     assert "/schedule/embed" in html_content
-    assert "/api/schedule.csv" in html_content
-    assert "/api/schedule.json" in html_content
+    assert "/schedule.csv" in html_content
+    assert "/schedule.json" in html_content
     assert "/health" in html_content
     assert "/docs" in html_content
 

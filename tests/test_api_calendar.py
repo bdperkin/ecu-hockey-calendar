@@ -107,6 +107,7 @@ def test_root_endpoint() -> None:
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "online"
+    assert "/schedule.ics" in data["endpoints"]["schedule_ics"]
     assert "/calendar.ics" in data["endpoints"]["calendar_ics"]
     assert "/docs" in data["endpoints"]["docs"]
 
@@ -139,6 +140,13 @@ def test_calendar_feed_with_games(sample_games: list[Game]) -> None:
 
     response = client.get("/calendar.ics")
     assert response.status_code == 200
+
+    canonical_response = client.get("/schedule.ics")
+    assert canonical_response.status_code == 200
+    assert canonical_response.text == response.text
+    assert (
+        canonical_response.headers["content-type"] == response.headers["content-type"]
+    )
 
     content = response.text
     assert content.startswith("BEGIN:VCALENDAR\r\n")
@@ -265,13 +273,14 @@ def test_calendar_feed_caching_and_conditional_get(sample_games: list[Game]) -> 
 
 
 def test_calendar_feed_head_request(sample_games: list[Game]) -> None:
-    """Test HEAD /calendar.ics returns identical headers with no body."""
+    """Test HEAD on /calendar.ics and /schedule.ics return empty body."""
     app = create_app()
     app.state.games_override = sample_games
     client = TestClient(app)
 
-    res_get = client.get("/calendar.ics")
-    res_head = client.head("/calendar.ics")
+    res_get = client.get("/schedule.ics")
+    res_head = client.head("/schedule.ics")
+    alias_head = client.head("/calendar.ics")
 
     assert res_head.status_code == 200
     assert res_head.text == ""
@@ -279,9 +288,13 @@ def test_calendar_feed_head_request(sample_games: list[Game]) -> None:
     assert res_head.headers["etag"] == res_get.headers["etag"]
     assert res_head.headers["x-webcal-location"] == res_get.headers["x-webcal-location"]
 
+    assert alias_head.status_code == 200
+    assert alias_head.text == ""
+    assert alias_head.headers["etag"] == res_get.headers["etag"]
+
 
 def test_calendar_feed_include_past_filter() -> None:
-    """Test include_past query parameter filtering."""
+    """Test include_past and future_only query parameter filtering."""
     now = datetime.now(UTC)
     ecu = Team(name="East Carolina University", city="Greenville", state="NC")
     unc = Team(name="UNC Chapel Hill", city="Chapel Hill", state="NC")
@@ -308,14 +321,22 @@ def test_calendar_feed_include_past_filter() -> None:
     client = TestClient(app)
 
     # 1. include_past=true (default) includes both
-    res_all = client.get("/calendar.ics")
+    res_all = client.get("/schedule.ics")
     assert "game-past-01@ecuhockey.com" in res_all.text
     assert "game-future-01@ecuhockey.com" in res_all.text
 
     # 2. include_past=false excludes past games
-    res_future_only = client.get("/calendar.ics?include_past=false")
+    res_future_only = client.get("/schedule.ics?include_past=false")
     assert "game-past-01@ecuhockey.com" not in res_future_only.text
     assert "game-future-01@ecuhockey.com" in res_future_only.text
+
+    # 3. future_only=true behaves identically to include_past=false
+    res_fut = client.get("/schedule.ics?future_only=true")
+    assert res_fut.text == res_future_only.text
+
+    # 4. legacy route /calendar.ics parity with future_only=true
+    res_fut_alias = client.get("/calendar.ics?future_only=true")
+    assert res_fut_alias.text == res_future_only.text
 
 
 def test_calendar_feed_database_integration() -> None:
@@ -450,6 +471,7 @@ def test_openapi_schema_and_docs_endpoints() -> None:
     res_json = client.get("/openapi.json")
     assert res_json.status_code == 200
     schema = res_json.json()
+    assert "/schedule.ics" in schema["paths"]
     assert "/calendar.ics" in schema["paths"]
 
     # Swagger docs
