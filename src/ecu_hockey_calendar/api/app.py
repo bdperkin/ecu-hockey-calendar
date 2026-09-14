@@ -227,12 +227,14 @@ def create_app(
             "status": "online",
             "endpoints": {
                 "calendar_ics": "/calendar.ics",
-                "conflicts": "/api/v1/conflicts",
+                "conflicts": "/conflicts",
+                "conflicts_api": "/api/v1/conflicts",
                 "docs": "/docs",
                 "favicon": "/favicon.ico",
                 "feed_atom": "/feed.atom",
                 "feed_rss": "/feed.rss",
                 "health": "/health",
+                "health_api": "/api/v1/health",
                 "logo_svg": "/static/ecu_hockey_logo.svg",
                 "manifest": "/site.webmanifest",
                 "openapi": "/openapi.json",
@@ -245,7 +247,9 @@ def create_app(
                 "schedule_json": "/schedule.json",
                 "schedule_pdf": "/schedule.pdf",
                 "schedule_rss": "/schedule.rss",
-                "sync_status": "/api/v1/sync/status",
+                "sync": "/sync",
+                "sync_status": "/sync/status",
+                "sync_status_api": "/api/v1/sync/status",
             },
         }
         return negotiate_response(

@@ -658,8 +658,8 @@
                     <div class="metric-value">{{ data.last_sync.games_deleted }}</div>
                     <div class="metric-sub">Cancelled or removed</div>
                 </div>
-                <!-- Conflicts Detected Stat Tile (links to /api/v1/conflicts per Issue #100) -->
-                <a href="/api/v1/conflicts"
+                <!-- Conflicts Detected Stat Tile (links to /conflicts per Issues #100, #169) -->
+                <a href="/conflicts"
                    class="metric-card metric-card-link"
                    aria-label="Conflicts detected: {{ data.last_sync.conflicts_detected }}. Click to open conflict triage.">
                     <div class="metric-header-row">
@@ -845,7 +845,7 @@
             <a href="/" class="btn btn-outline">Home Directory</a>
             <a href="/schedule" class="btn btn-outline">View Schedule</a>
             <a href="/health" class="btn btn-outline">System Health</a>
-            <a href="/api/v1/conflicts" class="btn btn-outline">View Conflicts</a>
+            <a href="/conflicts" class="btn btn-outline">View Conflicts</a>
             <a href="{{ json_url }}"
                class="btn btn-outline"
                id="sync-view-as-json-btn">View as JSON</a>

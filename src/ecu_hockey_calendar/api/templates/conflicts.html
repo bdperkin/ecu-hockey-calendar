@@ -544,7 +544,7 @@
                 <p>Multi-source discrepancy auditing, side-by-side reconciliation, and data integrity verification</p>
             </div>
             <div class="banner-actions">
-                <a href="/api/v1/sync/status"
+                <a href="/sync"
                    class="btn btn-outline banner-cross-link"
                    id="btn-nav-sync-status">← Back to Sync Dashboard</a>
                 <a href="{{ json_url }}"
@@ -582,11 +582,11 @@
             <div class="filter-panel-heading">
                 <span>Filter Discrepancies</span>
                 {% if has_active_filters %}
-                    <a href="/api/v1/conflicts" class="btn btn-outline btn-sm">Reset All</a>
+                    <a href="/conflicts" class="btn btn-outline btn-sm">Reset All</a>
                 {% endif %}
             </div>
             <form method="get"
-                  action="/api/v1/conflicts"
+                  action="/conflicts"
                   class="filter-form"
                   id="conflicts-filter-form">
                 <div class="filter-grid">
@@ -646,7 +646,7 @@
                     <div class="filter-actions-group">
                         <button type="submit" class="btn btn-primary" id="btn-submit-filter">Apply Filters</button>
                         {% if has_active_filters %}
-                            <a href="/api/v1/conflicts"
+                            <a href="/conflicts"
                                class="btn btn-outline"
                                id="btn-clear-active-filters">Clear</a>
                         {% endif %}
@@ -807,8 +807,8 @@
                         <h3>No Conflicts Match Filters</h3>
                         <p>No discrepancy records match your applied filter parameters. Try broadening your filter criteria.</p>
                         <div class="empty-card-actions">
-                            <a href="/api/v1/conflicts" class="btn btn-primary">Clear Active Filters</a>
-                            <a href="/api/v1/sync/status" class="btn btn-outline">Check Sync Status</a>
+                            <a href="/conflicts" class="btn btn-primary">Clear Active Filters</a>
+                            <a href="/sync" class="btn btn-outline">Check Sync Status</a>
                         </div>
                     {% else %}
                         <div class="empty-card-icon">✓</div>
@@ -816,7 +816,7 @@
                         <p>All schedule data sources are currently aligned with zero detected discrepancies or timing collisions.</p>
                         <div class="empty-card-actions">
                             <a href="/schedule" class="btn btn-primary">View Schedule</a>
-                            <a href="/api/v1/sync/status" class="btn btn-outline">Sync Status Dashboard</a>
+                            <a href="/sync" class="btn btn-outline">Sync Status Dashboard</a>
                         </div>
                     {% endif %}
                 </div>
@@ -828,7 +828,7 @@
             <a href="/" class="btn btn-outline">Home Directory</a>
             <a href="/schedule" class="btn btn-outline">View Schedule</a>
             <a href="/health" class="btn btn-outline">System Health</a>
-            <a href="/api/v1/sync/status" class="btn btn-outline">Sync Status</a>
+            <a href="/sync" class="btn btn-outline">Sync Status</a>
             <a href="{{ json_url }}"
                class="btn btn-outline"
                id="conflicts-view-as-json-btn">View as JSON</a>

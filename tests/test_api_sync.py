@@ -379,7 +379,7 @@ def test_sync_status_html_with_populated_audit_and_conflicts(tmp_path: Path) -> 
     assert "1" in html_text
     assert "Conflicts Detected" in html_text
     assert "28" in html_text
-    assert 'href="/api/v1/conflicts"' in html_text
+    assert 'href="/conflicts"' in html_text
     assert "485 ms" in html_text
     assert "cycle-485" in html_text
     assert "ECU Official" in html_text
@@ -482,3 +482,55 @@ def test_sync_status_helpers_unit() -> None:
     ctx = _build_sync_template_context({"last_sync": None, "sources": None})
     assert ctx["last_sync_meta"]["has_run"] is False
     assert not ctx["sources"]
+
+
+def test_sync_clean_route_aliases_parity(tmp_path: Path) -> None:
+    """Verify /sync, /sync/status, and /sync/trigger route aliases have full parity."""
+    db_file = tmp_path / "sync_parity.db"
+    app = create_app(
+        database_url=f"sqlite:///{db_file}",
+        admin_token=TEST_SECRET,
+        enable_sync_trigger=True,
+    )
+    init_db(app.state.db_engine)
+    client = TestClient(app)
+
+    # 1. GET /sync and /sync/status JSON parity with /api/v1/sync/status
+    res_api = client.get("/api/v1/sync/status")
+    res_sync = client.get("/sync")
+    res_status = client.get("/sync/status")
+
+    assert res_sync.status_code == 200
+    assert res_status.status_code == 200
+    assert res_api.status_code == 200
+    assert res_sync.json() == res_api.json()
+    assert res_status.json() == res_api.json()
+
+    # 2. GET /sync and /sync/status HTML content negotiation parity
+    browser_headers = {"Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"}
+    res_sync_html = client.get("/sync", headers=browser_headers)
+    res_status_html = client.get("/sync/status", headers=browser_headers)
+    res_api_html = client.get("/api/v1/sync/status", headers=browser_headers)
+
+    assert res_sync_html.status_code == 200
+    assert res_status_html.status_code == 200
+    assert res_api_html.status_code == 200
+    assert "text/html" in res_sync_html.headers["content-type"]
+    assert "text/html" in res_status_html.headers["content-type"]
+    assert "text/html" in res_api_html.headers["content-type"]
+    assert "Synchronization Status &amp; Telemetry" in res_sync_html.text
+    assert "Synchronization Status &amp; Telemetry" in res_status_html.text
+
+    # 3. POST /sync/trigger auth requirement (401 without token)
+    res_unauth = client.post("/sync/trigger")
+    assert res_unauth.status_code == 401
+
+    # 4. POST /sync/trigger with valid admin token triggers cycle
+    res_trig = client.post(
+        "/sync/trigger",
+        headers={"Authorization": f"Bearer {TEST_SECRET}"},
+    )
+    assert res_trig.status_code == 202
+    data = res_trig.json()
+    assert data["status"] == "accepted"
+    assert "sync_cycle_id" in data
