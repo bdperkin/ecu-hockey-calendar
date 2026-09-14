@@ -12,7 +12,7 @@ import os
 import runpy
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import click
 import pytest
@@ -20,7 +20,12 @@ from click.testing import CliRunner
 from rich.console import Console
 from sqlalchemy import select
 
-from ecu_hockey_calendar.cli.conflicts import _matches_filter, conflicts_command
+from ecu_hockey_calendar.cli.conflicts import (
+    _matches_filter,
+    _matches_review_filter,
+    _slice_conflicts,
+    conflicts_command,
+)
 from ecu_hockey_calendar.cli.console import (
     create_table,
     format_severity_badge,
@@ -33,6 +38,14 @@ from ecu_hockey_calendar.cli.console import (
     print_warning,
 )
 from ecu_hockey_calendar.cli.export import _detect_format, export_command
+from ecu_hockey_calendar.cli.health import (
+    _format_db_badge,
+    _format_health_badge,
+    _format_scrapers_badge,
+    _probe_local_health,
+    _render_health_panel,
+    health_command,
+)
 from ecu_hockey_calendar.cli.main import cli, main
 from ecu_hockey_calendar.cli.serve import serve_command
 from ecu_hockey_calendar.cli.status import (
@@ -43,7 +56,11 @@ from ecu_hockey_calendar.cli.status import (
 from ecu_hockey_calendar.cli.sync import (
     _convert_parsed_to_source_record,
     _ensure_data_source,
+    _populate_ctx_params,
+    _resolve_remote_credentials,
     sync_command,
+    sync_status_command,
+    sync_trigger_command,
 )
 from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
 from ecu_hockey_calendar.models import Game, GameResult, Team
@@ -423,6 +440,123 @@ class TestStatusCommand:
 
         panel_none = _render_next_game_panel(None)
         assert "No future games" in str(panel_none.renderable)
+
+
+class TestCliHealth:
+    """Tests for 'ecu-hockey health' CLI command in local database mode."""
+
+    def test_health_local_empty_db(self, runner: CliRunner, db_url: str) -> None:
+        """Verify health inspects database and renders panel with default scrapers."""
+        result = runner.invoke(health_command, ["--db-url", db_url])
+        assert result.exit_code == 0
+        assert "SERVICE HEALTH & DIAGNOSTIC READINESS" in result.output
+        assert "HEALTHY" in result.output
+        assert "Connected" in result.output
+        assert "Operational" in result.output
+        assert "ecuhockey" in result.output
+
+    def test_health_local_json(self, runner: CliRunner, db_url: str) -> None:
+        """Verify health --json outputs structured JSON document."""
+        result = runner.invoke(health_command, ["--db-url", db_url, "--json"])
+        assert result.exit_code == 0
+        assert '"status": "healthy"' in result.output
+        assert '"components"' in result.output
+
+    def test_health_local_populated_sources(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify health lists persisted sources when populated in database."""
+        engine = create_sync_engine(db_url)
+        Base.metadata.create_all(engine)
+        with get_sync_session(engine) as session:
+            src = DataSourceModel(
+                source_code="test_src",
+                name="Test Source",
+                source_url="https://test.com",
+                source_type="primary",
+                priority_order=1,
+                is_active=True,
+                last_scraped_at=datetime.now(UTC),
+            )
+            session.add(src)
+            session.commit()
+
+        result = runner.invoke(health_command, ["--db-url", db_url])
+        assert result.exit_code == 0
+        assert "test_src" in result.output
+
+    def test_health_local_db_error(self, runner: CliRunner) -> None:
+        """Verify health handles database probe exceptions."""
+        result = runner.invoke(
+            health_command,
+            ["--db-url", "sqlite:////invalid/nonexistent/db.sqlite"],
+        )
+        assert result.exit_code != 0
+        assert "Failed to query health from database" in result.output
+
+    def test_health_badges_and_render_helpers(self) -> None:
+        """Verify badge formatting helpers and panel rendering edge cases."""
+        # _format_health_badge
+        assert "HEALTHY" in _format_health_badge("HEALTHY").plain
+        assert "DEGRADED" in _format_health_badge("DEGRADED").plain
+        assert "UNHEALTHY" in _format_health_badge("OTHER").plain
+
+        # _format_db_badge
+        assert "Connected" in _format_db_badge(connected=True, dialect="sqlite").plain
+        assert (
+            "Disconnected"
+            in _format_db_badge(connected=False, dialect="postgresql").plain
+        )
+
+        # _format_scrapers_badge
+        assert "Operational" in _format_scrapers_badge("OPERATIONAL").plain
+        assert "Degraded" in _format_scrapers_badge("degraded").plain
+
+        # _render_health_panel with and without uptime
+        panel_with = _render_health_panel(
+            {
+                "status": "healthy",
+                "version": "0.9.0",
+                "uptime_seconds": 7200.0,
+                "components": {
+                    "database": {"connected": True, "dialect": "sqlite"},
+                    "scrapers": {"status": "operational", "sources": []},
+                },
+            },
+            "sqlite:///:memory:",
+        )
+        assert "2h 0m 0s" in str(panel_with.renderable)
+
+        panel_without = _render_health_panel(
+            {
+                "status": "unhealthy",
+                "version": "0.9.0",
+                "uptime_seconds": None,
+                "components": {},
+            },
+            "sqlite:///:memory:",
+        )
+        assert "UNHEALTHY" in str(panel_without.renderable)
+
+    def test_probe_local_health_unconnected(self) -> None:
+        """Verify _probe_local_health returns unhealthy when database probe fails."""
+        mock_engine = MagicMock()
+        with (
+            patch(
+                "ecu_hockey_calendar.cli.health._probe_database",
+                return_value={"connected": False, "dialect": "sqlite"},
+            ),
+            patch(
+                "ecu_hockey_calendar.cli.health.get_sync_session",
+            ) as mock_sess,
+        ):
+            session_mock = mock_sess.return_value.__enter__.return_value
+            session_mock.scalars.return_value.all.return_value = []
+            res = _probe_local_health(mock_engine)
+            assert res["status"] == "unhealthy"
+            assert res["components"]["scrapers"]["status"] == "degraded"
 
 
 class TestExportCommand:
@@ -853,6 +987,141 @@ class TestConflictsCommand:
         )
         assert result.exit_code != 0
 
+    def test_conflicts_requires_review_and_aliases(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify --requires-review, --all, and --show-all option handling."""
+        engine = create_sync_engine(db_url)
+        with get_sync_session(engine) as session:
+            c1 = GameChangeModel(
+                sync_cycle_id="cycle-rev-1",
+                canonical_game_id="game-rev-1",
+                change_type="CONFLICT_DETECTED",
+                summary="Venue conflict between sources",
+                field_diffs=[
+                    {
+                        "field": "venue",
+                        "severity": "HIGH",
+                        "requires_review": True,
+                        "human_description": "Venue conflict",
+                    },
+                ],
+            )
+            c2 = GameChangeModel(
+                sync_cycle_id="cycle-rev-2",
+                canonical_game_id="game-rev-2",
+                change_type="DISCREPANCY",
+                summary="Time discrepancy between sources",
+                field_diffs=[
+                    {
+                        "field": "start_time",
+                        "severity": "LOW",
+                        "requires_review": False,
+                        "human_description": "Time discrepancy",
+                    },
+                ],
+            )
+            session.add_all([c1, c2])
+            session.commit()
+
+        # Test --requires-review
+        res_req = runner.invoke(
+            conflicts_command,
+            ["--db-url", db_url, "--requires-review"],
+        )
+        assert res_req.exit_code == 0
+        assert "game-rev-1" in res_req.output
+        assert "game-rev-2" not in res_req.output
+
+        # Test --all
+        res_all = runner.invoke(
+            conflicts_command,
+            ["--db-url", db_url, "--all"],
+        )
+        assert res_all.exit_code == 0
+        assert "game-rev-1" in res_all.output
+        assert "game-rev-2" in res_all.output
+
+        # Test --show-all
+        res_show_all = runner.invoke(
+            conflicts_command,
+            ["--db-url", db_url, "--show-all"],
+        )
+        assert res_show_all.exit_code == 0
+        assert "game-rev-1" in res_show_all.output
+        assert "game-rev-2" in res_show_all.output
+
+    def test_conflicts_field_name_and_pagination(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify --field-name and pagination options (--limit, --offset)."""
+        engine = create_sync_engine(db_url)
+        with get_sync_session(engine) as session:
+            for i in range(3):
+                session.add(
+                    GameChangeModel(
+                        sync_cycle_id=f"cycle-page-{i}",
+                        canonical_game_id=f"game-page-{i}",
+                        change_type="CONFLICT",
+                        summary=f"Conflict summary {i}",
+                        field_diffs=[
+                            {
+                                "field": "start_time",
+                                "severity": "MEDIUM",
+                                "requires_review": True,
+                            },
+                        ],
+                    ),
+                )
+
+            session.commit()
+
+        # Filter by field-name
+        res_field = runner.invoke(
+            conflicts_command,
+            ["--db-url", db_url, "--field-name", "start_time"],
+        )
+        assert res_field.exit_code == 0
+        assert "game-page-0" in res_field.output
+
+        # Test pagination slice
+        res_page = runner.invoke(
+            conflicts_command,
+            ["--db-url", db_url, "--limit", "1", "--offset", "1"],
+        )
+        assert res_page.exit_code == 0
+        assert "1 of 3 (offset: 1)" in res_page.output
+
+        # Test empty page range
+        res_empty_page = runner.invoke(
+            conflicts_command,
+            ["--db-url", db_url, "--limit", "1", "--offset", "10"],
+        )
+        assert res_empty_page.exit_code == 0
+        assert "0 of 3 (offset: 10)" in res_empty_page.output
+
+        # Test JSON export
+        res_json = runner.invoke(
+            conflicts_command,
+            ["--db-url", db_url, "--json"],
+        )
+        assert res_json.exit_code == 0
+        assert '"total_conflicts": 3' in res_json.output
+
+    def test_conflicts_helpers_direct(self) -> None:
+        """Verify _matches_review_filter and _slice_conflicts helpers directly."""
+        assert _matches_review_filter({"requires_review": True}, is_review=True)
+        assert not _matches_review_filter({"requires_review": False}, is_review=True)
+        assert _matches_review_filter({"requires_review": False}, is_review=False)
+
+        items = [{"id": 1}, {"id": 2}, {"id": 3}]
+        assert len(_slice_conflicts(items, offset=1, limit=1)) == 1
+        assert len(_slice_conflicts(items, offset=0, limit=None)) == 3
+
 
 class TestServeCommand:
     """Tests for 'ecu-hockey serve' command."""
@@ -1221,3 +1490,98 @@ class TestSyncCommand:
                 source_url="https://custom.com",
             )
             assert src.source_url == "https://custom.com"
+
+    def test_sync_status_local_empty_db(self, runner: CliRunner, db_url: str) -> None:
+        """Verify sync status displays telemetry and Never Run when unrun."""
+        result = runner.invoke(sync_status_command, ["--db-url", db_url])
+        assert result.exit_code == 0
+        assert "SYNCHRONIZATION TELEMETRY & AUDIT STATUS" in result.output
+        assert "Never Run" in result.output
+        assert "Total Sync Cycles Recorded: 0" in result.output
+
+    def test_sync_status_local_json(self, runner: CliRunner, db_url: str) -> None:
+        """Verify sync status --json returns structured JSON telemetry."""
+        result = runner.invoke(sync_status_command, ["--db-url", db_url, "--json"])
+        assert result.exit_code == 0
+        assert '"current_status"' in result.output
+        assert '"total_sync_cycles"' in result.output
+
+    def test_sync_status_local_populated_audit(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify sync status renders latest audit cycle details."""
+        engine = create_sync_engine(db_url)
+        Base.metadata.create_all(engine)
+        with get_sync_session(engine) as session:
+            audit = SyncAuditModel(
+                sync_cycle_id="audit-cycle-123",
+                status="SUCCESS",
+                started_at=datetime.now(UTC),
+                completed_at=datetime.now(UTC),
+                duration_ms=450,
+                games_created=3,
+                games_updated=2,
+                games_deleted=1,
+                conflicts_detected=0,
+            )
+            session.add(audit)
+            session.commit()
+
+        result = runner.invoke(sync_status_command, ["--db-url", db_url])
+        assert result.exit_code == 0
+        assert "audit-cycle-123" in result.output
+        assert "+3 created, ~2 updated, -1 deleted" in result.output
+
+    def test_sync_status_local_db_error(self, runner: CliRunner) -> None:
+        """Verify sync status handles database errors with click exception."""
+        result = runner.invoke(
+            sync_status_command,
+            ["--db-url", "sqlite:////invalid/path/db.sqlite"],
+        )
+        assert result.exit_code != 0
+        assert "Failed to query sync status from database" in result.output
+
+    def test_sync_trigger_subcommand_invocation(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify explicit 'sync trigger' subcommand triggers sync pipeline."""
+        with patch("ecu_hockey_calendar.cli.sync._run_sync_trigger") as mock_trigger:
+            result = runner.invoke(
+                sync_trigger_command,
+                ["--db-url", db_url, "--dry-run", "--source", "ecuhockey"],
+            )
+            assert result.exit_code == 0
+            mock_trigger.assert_called_once()
+
+    def test_sync_group_invokes_status_subcommand(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify 'sync status' invoked via group dispatches to status command."""
+        result = runner.invoke(
+            sync_command,
+            ["--db-url", db_url, "status", "--json"],
+        )
+        assert result.exit_code == 0
+        assert '"current_status"' in result.output
+
+    def test_populate_ctx_params_direct(self) -> None:
+        """Verify _populate_ctx_params handles None context and attaches values."""
+        _populate_ctx_params(None, "https://api", "token", "sqlite:///:memory:")
+        ctx = MagicMock()
+        ctx.obj = {}
+        _populate_ctx_params(ctx, "https://api", "token", "sqlite:///:memory:")
+        assert ctx.obj["api_url"] == "https://api"
+        assert ctx.obj["token"] == "token"
+        assert ctx.obj["db_url"] == "sqlite:///:memory:"
+
+    def test_resolve_remote_credentials_none_context(self) -> None:
+        """Verify _resolve_remote_credentials works with None context."""
+        url, tok = _resolve_remote_credentials(None, "https://api", "tok")
+        assert url == "https://api"
+        assert tok == "tok"
