@@ -97,6 +97,8 @@ linkcheck_allowed_redirects = {
     r"https://rich\.readthedocs\.io/": r"https://rich\.readthedocs\.io/.*",
     r"https://calendar\.google\.com/": r"https://workspace\.google\.com/.*",
     r"https://developers\.cloudflare\.com/.*": r"https://developers\.cloudflare\.com/.*",
+    r"https://docs\.python\.org/3/.*": r"https://docs\.python\.org/3/.*",
+    r"https://support\.apple\.com/.*": r"https://support\.apple\.com/.*",
 }
 linkcheck_timeout = 15
 linkcheck_rate_limit_timeout = 5.0

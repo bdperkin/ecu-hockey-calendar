@@ -107,7 +107,7 @@ For more details, see [Apple Support: Use iCloud calendar subscriptions](https:/
 
 6. Click **OK**.
 
-For more details, see [Apple Support: Subscribe to calendars on Mac](https://support.apple.com/guide/calendar/subscribe-to-calendars-icl1022/mac).
+For more details, see [Apple Support: Subscribe to calendars on Mac](https://support.apple.com/guide/calendar/welcome/mac).
 
 ### 3.3. Google Calendar (Web & Mobile)
 
