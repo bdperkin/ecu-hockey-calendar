@@ -8,6 +8,72 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.8.0 (2026-09-14)
+
+### Bug Fixes
+
+- **security**: Resolve CodeQL alert 21 for unused global variable in calendar routes (#162)
+  ([#163](https://github.com/bdperkin/ecu-hockey-calendar/pull/163),
+  [`caad54e`](https://github.com/bdperkin/ecu-hockey-calendar/commit/caad54e1e00067d03567ebb4fd8eee08887b4d4b))
+
+### Chores
+
+- **deps**: Bump actions/upload-artifact from 4 to 7
+  ([#155](https://github.com/bdperkin/ecu-hockey-calendar/pull/155),
+  [`4172b6b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/4172b6bf904469c6ea151740629b2f6181278ad1))
+
+- **deps**: Bump docker/build-push-action from 6 to 7
+  ([#152](https://github.com/bdperkin/ecu-hockey-calendar/pull/152),
+  [`d6dc60e`](https://github.com/bdperkin/ecu-hockey-calendar/commit/d6dc60e86b92c8c0c05291d550ac778708568fec))
+
+- **deps**: Bump docker/login-action from 3 to 4
+  ([#150](https://github.com/bdperkin/ecu-hockey-calendar/pull/150),
+  [`5329602`](https://github.com/bdperkin/ecu-hockey-calendar/commit/53296028a14c57541f446814a2bc7dd0acd2b7a8))
+
+- **deps**: Bump docker/setup-buildx-action from 3 to 4
+  ([#149](https://github.com/bdperkin/ecu-hockey-calendar/pull/149),
+  [`cad5824`](https://github.com/bdperkin/ecu-hockey-calendar/commit/cad58249e9e68fbc44cc689ede02b2529f41edd6))
+
+- **deps**: Bump docker/setup-qemu-action from 3 to 4
+  ([#153](https://github.com/bdperkin/ecu-hockey-calendar/pull/153),
+  [`cbbc961`](https://github.com/bdperkin/ecu-hockey-calendar/commit/cbbc9618e818d8625a2425763fbfafd2d9f9bca5))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`182fefe`](https://github.com/bdperkin/ecu-hockey-calendar/commit/182fefe4b96ea77838484ad39a6e0124da4e0662))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`fe38919`](https://github.com/bdperkin/ecu-hockey-calendar/commit/fe38919a12a6ad65479e1c2e0a45023e2e173553))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`4887c4b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/4887c4bf48995a0b729c4eb3ec3561ac0bf65856))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`56cc0d8`](https://github.com/bdperkin/ecu-hockey-calendar/commit/56cc0d88f067a9e4db150a4d37ca033e5562b4d0))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`42d8785`](https://github.com/bdperkin/ecu-hockey-calendar/commit/42d87856331220ba0982c2bc63ecbf4ec67fae70))
+
+### Documentation
+
+- Comprehensive internal and external documentation audit and reconciliation (#103)
+  ([#161](https://github.com/bdperkin/ecu-hockey-calendar/pull/161),
+  [`b4248ff`](https://github.com/bdperkin/ecu-hockey-calendar/commit/b4248ff11ba9cdd15d378ca06853ec9ab9690bcc))
+
+- **branding**: Establish project logo and visual brand identity across repository, documentation,
+  and web interfaces (#142) ([#159](https://github.com/bdperkin/ecu-hockey-calendar/pull/159),
+  [`9918e0c`](https://github.com/bdperkin/ecu-hockey-calendar/commit/9918e0c1bcbfe72b0dd900a2db9a032da30e0316))
+
+### Features
+
+- **syndication**: RSS and Atom XML schedule syndication feeds for media and automation
+  ([#158](https://github.com/bdperkin/ecu-hockey-calendar/pull/158),
+  [`04fb725`](https://github.com/bdperkin/ecu-hockey-calendar/commit/04fb725f2aed8143206b1af620da0143e0d12bd4))
+
+- **web**: Implement multi-resolution favicons, web app touch icons, and /favicon.ico route (#144)
+  ([#160](https://github.com/bdperkin/ecu-hockey-calendar/pull/160),
+  [`181b3ee`](https://github.com/bdperkin/ecu-hockey-calendar/commit/181b3ee881c359a332070f2a0f79ad35bad0d97f))
+
+
 ## v0.7.1 (2026-09-12)
 
 ### Bug Fixes
