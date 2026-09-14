@@ -6,7 +6,9 @@
     "season": null,
     "opponent": null,
     "home_only": false,
-    "status": null
+    "status": null,
+    "future_only": false,
+    "include_past": true
   },
   "games": [
     {
