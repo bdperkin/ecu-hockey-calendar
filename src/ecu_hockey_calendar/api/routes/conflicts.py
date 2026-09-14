@@ -21,6 +21,12 @@ conflicts_router = APIRouter(
     dependencies=[Depends(verify_admin_token)],
 )
 
+CONFLICT_CHANGE_TYPES: tuple[str, ...] = (
+    "CONFLICT_DETECTED",
+    "CONFLICT",
+    "DISCREPANCY",
+)
+
 
 @runtime_checkable
 class ConflictDictConvertible(Protocol):
@@ -95,7 +101,7 @@ def _extract_conflicts(request: Request) -> list[dict[str, Any]]:
     with get_sync_session(engine) as session:
         stmt = (
             select(GameChangeModel)
-            .where(GameChangeModel.change_type.in_(["CONFLICT", "DISCREPANCY"]))
+            .where(GameChangeModel.change_type.in_(CONFLICT_CHANGE_TYPES))
             .order_by(GameChangeModel.recorded_at.desc())
         )
         changes = session.scalars(stmt).all()
@@ -587,6 +593,7 @@ def list_schedule_conflicts(
 
 
 __all__ = [
+    "CONFLICT_CHANGE_TYPES",
     "ConflictDictConvertible",
     "list_schedule_conflicts",
 ]

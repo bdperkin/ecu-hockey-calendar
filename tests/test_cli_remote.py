@@ -185,6 +185,7 @@ class TestCliRemoteConflicts:
             )
             assert result.exit_code == 0
             mock_cls.assert_called_once_with("https://remote.api", token=MOCK_TOKEN)
+            assert "Target: Remote API (https://remote.api)" in result.output
             assert "Conflict Status Clean" in result.output
             assert (
                 "No active schedule conflicts or discrepancies found" in result.output
@@ -236,6 +237,7 @@ class TestCliRemoteConflicts:
                 field_name="start_time",
                 review_only=True,
             )
+            assert "Target: Remote API (https://remote.api)" in result.output
             assert "start_time" in result.output
             assert "CRITICAL" in result.output
             assert "Start time" in result.output
@@ -254,6 +256,7 @@ class TestCliRemoteConflicts:
                 ["conflicts", "--api-url", "https://remote.api"],
             )
             assert result.exit_code != 0
+            assert "Target: Remote API (https://remote.api)" in result.output
             assert "Authentication required" in result.output
             assert "ECU_HOCKEY_ADMIN_TOKEN" in result.output
 
@@ -271,6 +274,7 @@ class TestCliRemoteConflicts:
                 ["conflicts", "--api-url", "https://remote.api"],
             )
             assert result.exit_code != 0
+            assert "Target: Remote API (https://remote.api)" in result.output
             assert "Failed to query conflicts from remote API" in result.output
 
 
