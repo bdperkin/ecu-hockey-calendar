@@ -681,16 +681,36 @@ class TestRemoteApiClientMethods:
         )
         formats = [
             ("ics", "/schedule.ics"),
-            ("json", "/api/schedule.json"),
-            ("csv", "/api/schedule.csv"),
+            ("json", "/schedule.json"),
+            ("csv", "/schedule.csv"),
             ("html", "/schedule"),
-            ("rss", "/feed.rss"),
-            ("atom", "/feed.atom"),
+            ("rss", "/schedule.rss"),
+            ("atom", "/schedule.atom"),
         ]
         for fmt, path in formats:
             result = client.fetch_export(fmt)
             assert isinstance(result, str)
             assert f"content-for-{path}" in result
+
+    def test_fetch_export_include_past_param(self) -> None:
+        """Verify fetch_export correctly passes include_past query parameter."""
+        captured_params: list[dict[str, str]] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            captured_params.append(dict(request.url.params))
+            return httpx.Response(200, text="content")
+
+        client = RemoteApiClient(
+            "https://remote.api",
+            transport=httpx.MockTransport(handler),
+        )
+        client.fetch_export("json", include_past=False)
+        assert captured_params[-1]["future_only"] == "true"
+        assert captured_params[-1]["include_past"] == "false"
+
+        client.fetch_export("json", include_past=True)
+        assert "future_only" not in captured_params[-1]
+        assert captured_params[-1]["include_past"] == "true"
 
     def test_fetch_export_embed_widget(self) -> None:
         """Verify html embed format targets /schedule/embed."""

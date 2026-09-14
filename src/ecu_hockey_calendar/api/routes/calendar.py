@@ -11,6 +11,7 @@ from fastapi.responses import RedirectResponse
 from ecu_hockey_calendar.api.routes.common import (
     check_conditional_headers,
     get_active_games,
+    resolve_past_and_future_filters,
 )
 from ecu_hockey_calendar.api.service import (
     DEFAULT_ALARM_MINUTES,
@@ -36,13 +37,26 @@ def _build_webcal_url(request: Request) -> str:
 
 
 @router.get(
-    "/calendar.ics",
+    "/schedule.ics",
     summary="RFC 5545 iCalendar (.ics) Subscription Feed",
     description=(
         "Public calendar subscription endpoint conforming strictly to RFC 5545. "
         "Supports webcal:// scheme subscription headers, Apple Calendar, "
         "Google Calendar, and Microsoft Outlook."
     ),
+    response_class=Response,
+    responses={
+        200: {
+            "content": {"text/calendar": {}},
+            "description": "Valid RFC 5545 iCalendar stream.",
+        },
+        304: {"description": "Calendar feed not modified since last poll."},
+    },
+)
+@router.get(
+    "/calendar.ics",
+    summary="RFC 5545 iCalendar (.ics) Subscription Feed (Legacy Alias)",
+    description=("Legacy alias for /schedule.ics conforming strictly to RFC 5545."),
     response_class=Response,
     responses={
         200: {
@@ -64,9 +78,17 @@ def get_calendar_feed(
         ),
     ] = None,
     include_past: Annotated[
-        bool,
+        bool | None,
         Query(description="Whether to include past fixtures or only upcoming matches."),
-    ] = True,
+    ] = None,
+    future_only: Annotated[
+        bool | None,
+        Query(
+            description=(
+                "Filter games to only upcoming matches (negation of include_past)."
+            ),
+        ),
+    ] = None,
     alarm_minutes: Annotated[
         int,
         Query(
@@ -87,6 +109,7 @@ def get_calendar_feed(
         request: Incoming HTTP request.
         season: Optional season filter.
         include_past: Include past fixtures flag.
+        future_only: Include upcoming fixtures only flag.
         alarm_minutes: Reminder alarm offset.
         webcal: Redirect to webcal scheme flag.
 
@@ -112,10 +135,16 @@ def get_calendar_feed(
     last_mod_dt = feed_service.get_last_modified(games)
     last_mod_str = feed_service.format_http_date(last_mod_dt)
 
+    inc_past, _ = resolve_past_and_future_filters(
+        include_past=include_past,
+        future_only=future_only,
+        default_include_past=True,
+    )
+
     ics_content = feed_service.generate_ics_feed(
         games,
         season=season,
-        include_past=include_past,
+        include_past=inc_past,
         alarm_minutes=alarm_minutes,
         dtstamp_override=last_mod_dt,
     )
@@ -152,8 +181,17 @@ def get_calendar_feed(
 
 
 @router.head(
-    "/calendar.ics",
+    "/schedule.ics",
     summary="RFC 5545 iCalendar Feed Headers",
+    description=(
+        "Inspect calendar feed subscription and cache headers without "
+        "retrieving body payload."
+    ),
+    response_class=Response,
+)
+@router.head(
+    "/calendar.ics",
+    summary="RFC 5545 iCalendar Feed Headers (Legacy Alias)",
     description=(
         "Inspect calendar feed subscription and cache headers without "
         "retrieving body payload."
@@ -172,9 +210,17 @@ def head_calendar_feed(
         ),
     ] = None,
     include_past: Annotated[
-        bool,
+        bool | None,
         Query(description="Whether to include past fixtures or only upcoming matches."),
-    ] = True,
+    ] = None,
+    future_only: Annotated[
+        bool | None,
+        Query(
+            description=(
+                "Filter games to only upcoming matches (negation of include_past)."
+            ),
+        ),
+    ] = None,
     alarm_minutes: Annotated[
         int,
         Query(
@@ -191,6 +237,7 @@ def head_calendar_feed(
         request: Incoming HTTP request.
         season: Optional season filter.
         include_past: Include past fixtures flag.
+        future_only: Include upcoming fixtures only flag.
         alarm_minutes: Reminder alarm offset.
 
     Returns:
@@ -200,6 +247,7 @@ def head_calendar_feed(
         request=request,
         season=season,
         include_past=include_past,
+        future_only=future_only,
         alarm_minutes=alarm_minutes,
         webcal=False,
     )

@@ -280,7 +280,7 @@
             </p>
             <div class="hero-actions">
                 <a href="/schedule" class="btn btn-primary">View Schedule</a>
-                <a href="/calendar.ics" class="btn btn-secondary">Subscribe (.ics)</a>
+                <a href="/schedule.ics" class="btn btn-secondary">Subscribe (.ics)</a>
                 <a href="/docs" class="btn btn-outline">API Docs</a>
                 <a href="{{ json_url }}"
                    class="btn btn-outline"
@@ -299,14 +299,15 @@
                     <div class="sub-links-box">
                         <div class="sub-link-row">
                             <span class="sub-link-tag">Standard iCal URL:</span>
-                            <a href="/calendar.ics" class="sub-link-code">/calendar.ics</a>
+                            <a href="/schedule.ics" class="sub-link-code">/schedule.ics</a>
                         </div>
                         <div class="sub-link-row">
                             <span class="sub-link-tag">Webcal Protocol:</span>
-                            <span class="sub-link-code">webcal://{{ request.url.netloc }}/calendar.ics</span>
+                            <span class="sub-link-code">webcal://{{ request.url.netloc }}/schedule.ics</span>
                         </div>
                     </div>
                 </div>
+
                 <div class="sub-guide-box">
                     <a href="https://github.com/bdperkin/ecu-hockey-calendar/blob/main/docs/calendar_sync.md"
                        target="_blank"

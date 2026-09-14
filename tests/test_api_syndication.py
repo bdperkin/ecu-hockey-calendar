@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 import pytest
@@ -91,15 +91,29 @@ def test_get_feed_rss(test_client: TestClient) -> None:
     assert "ECU Hockey at NC State University (Away Match)" in body
     assert "Postponed: ECU Hockey vs UNC Chapel Hill (Home Match)" in body
 
+    # Canonical /schedule.rss route parity
+    can_resp = test_client.get("/schedule.rss")
+    assert can_resp.status_code == 200
+    assert "<rss" in can_resp.text
+    assert "Final: ECU 5, UNC Chapel Hill 2" in can_resp.text
+    assert "http://testserver/schedule.rss" in can_resp.text
+    assert can_resp.headers["content-type"] == RSS_MEDIA_TYPE
+
 
 def test_head_feed_rss(test_client: TestClient) -> None:
-    """Test HEAD /feed.rss returns caching headers with empty body."""
+    """Test HEAD /feed.rss and /schedule.rss return caching headers with empty body."""
     response = test_client.head("/feed.rss")
     assert response.status_code == 200
     assert response.headers["content-type"] == RSS_MEDIA_TYPE
     assert "etag" in response.headers
     assert "last-modified" in response.headers
     assert response.text == ""
+
+    can_get = test_client.get("/schedule.rss")
+    can_head = test_client.head("/schedule.rss")
+    assert can_head.status_code == 200
+    assert can_head.text == ""
+    assert can_head.headers["etag"] == can_get.headers["etag"]
 
 
 def test_get_api_schedule_rss(test_client: TestClient) -> None:
@@ -138,14 +152,28 @@ def test_get_feed_atom(test_client: TestClient) -> None:
     assert "<title>ECU Men's Ice Hockey Schedule</title>" in body
     assert "Final: ECU 5, UNC Chapel Hill 2" in body
 
+    # Canonical /schedule.atom route parity
+    can_atom = test_client.get("/schedule.atom")
+    assert can_atom.status_code == 200
+    assert "<feed" in can_atom.text
+    assert "Final: ECU 5, UNC Chapel Hill 2" in can_atom.text
+    assert "http://testserver/schedule.atom" in can_atom.text
+    assert can_atom.headers["content-type"] == ATOM_MEDIA_TYPE
+
 
 def test_head_feed_atom(test_client: TestClient) -> None:
-    """Test HEAD /feed.atom returns headers without body."""
+    """Test HEAD /feed.atom and /schedule.atom return headers without body."""
     response = test_client.head("/feed.atom")
     assert response.status_code == 200
     assert response.headers["content-type"] == ATOM_MEDIA_TYPE
     assert "etag" in response.headers
     assert response.text == ""
+
+    can_get = test_client.get("/schedule.atom")
+    can_head = test_client.head("/schedule.atom")
+    assert can_head.status_code == 200
+    assert can_head.text == ""
+    assert can_head.headers["etag"] == can_get.headers["etag"]
 
 
 def test_get_api_schedule_atom(test_client: TestClient) -> None:
@@ -205,6 +233,54 @@ def test_feed_filtering_parameters(test_client: TestClient) -> None:
     assert status_res.status_code == 200
     assert "Postponed: ECU Hockey vs UNC Chapel Hill (Home Match)" in status_res.text
     assert "ECU Hockey at NC State University" not in status_res.text
+
+
+def test_feed_future_and_past_filters(
+    sample_syndication_games: list[Game],
+) -> None:
+    """Verify future_only and include_past filtering across syndication formats."""
+    now = datetime.now(UTC)
+    ecu = sample_syndication_games[0].home_team
+    unc = sample_syndication_games[0].away_team
+    past_g = Game(
+        game_id="PAST-FEED-01",
+        home_team=ecu,
+        away_team=unc,
+        start_time=now - timedelta(days=15),
+        venue="The Factory Ice House",
+        result=GameResult.WIN,
+        home_score=4,
+        away_score=1,
+    )
+    fut_g = Game(
+        game_id="FUT-FEED-01",
+        home_team=ecu,
+        away_team=unc,
+        start_time=now + timedelta(days=15),
+        venue="The Factory Ice House",
+        result=GameResult.SCHEDULED,
+    )
+    fut_app = create_app()
+    fut_app.state.games_override = [past_g, fut_g]
+    fut_client = TestClient(fut_app)
+
+    fut_rss = fut_client.get("/schedule.rss?future_only=true")
+    assert fut_rss.status_code == 200
+    past_rss = fut_client.get("/schedule.rss?include_past=false")
+    assert past_rss.status_code == 200
+    assert "PAST-FEED-01" not in fut_rss.text
+    assert "PAST-FEED-01" not in past_rss.text
+    assert "FUT-FEED-01" in fut_rss.text
+    assert "FUT-FEED-01" in past_rss.text
+
+    fut_atom = fut_client.get("/schedule.atom?future_only=true")
+    assert fut_atom.status_code == 200
+    past_atom = fut_client.get("/schedule.atom?include_past=false")
+    assert past_atom.status_code == 200
+    assert "PAST-FEED-01" not in fut_atom.text
+    assert "PAST-FEED-01" not in past_atom.text
+    assert "FUT-FEED-01" in fut_atom.text
+    assert "FUT-FEED-01" in past_atom.text
 
 
 def test_feed_database_storage_integration(tmp_path: Path) -> None:

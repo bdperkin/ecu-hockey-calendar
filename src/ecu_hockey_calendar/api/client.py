@@ -260,12 +260,12 @@ def _resolve_export_endpoint(
     """Resolve endpoint path, MIME accept header, and binary flag for format."""
     endpoint_map: dict[str, tuple[str, str, bool]] = {
         "ics": ("/schedule.ics", "text/calendar", False),
-        "json": ("/api/schedule.json", "application/json", False),
-        "csv": ("/api/schedule.csv", "text/csv", False),
+        "json": ("/schedule.json", "application/json", False),
+        "csv": ("/schedule.csv", "text/csv", False),
         "pdf": ("/schedule.pdf", "application/pdf", True),
         "html": ("/schedule/embed" if embed else "/schedule", "text/html", False),
-        "rss": ("/feed.rss", "application/rss+xml", False),
-        "atom": ("/feed.atom", "application/atom+xml", False),
+        "rss": ("/schedule.rss", "application/rss+xml", False),
+        "atom": ("/schedule.atom", "application/atom+xml", False),
     }
 
     norm_fmt = format_type.lower().strip(".")
@@ -277,12 +277,24 @@ def _resolve_export_endpoint(
     return path, accept, is_binary, norm_fmt
 
 
+def _format_bool_param(*, value: bool | None) -> str | None:
+    """Format boolean query parameter as string or None."""
+    if value is True:
+        return "true"
+
+    if value is False:
+        return "false"
+
+    return None
+
+
 def _build_export_params(
     *,
     season: str | None,
     opponent: str | None,
     home_only: bool,
     future_only: bool,
+    include_past: bool | None = None,
     status: str | None,
 ) -> dict[str, Any]:
     """Construct query parameter dictionary for export endpoint."""
@@ -291,6 +303,7 @@ def _build_export_params(
         ("opponent", opponent),
         ("home_only", "true" if home_only else None),
         ("future_only", "true" if future_only else None),
+        ("include_past", _format_bool_param(value=include_past)),
         ("status", status),
     ]
     return {k: v for k, v in pairs if v is not None}
@@ -585,6 +598,7 @@ class RemoteApiClient:
         opponent: str | None = None,
         home_only: bool = False,
         future_only: bool = False,
+        include_past: bool | None = None,
         status: str | None = None,
         embed: bool = False,
     ) -> str | bytes:
@@ -597,6 +611,7 @@ class RemoteApiClient:
             opponent: Optional opponent substring.
             home_only: If True, home matches only.
             future_only: If True, future matches only.
+            include_past: If False, future matches only (negation of future_only).
             status: Optional status filter.
             embed: If True and format is html, fetch embed widget.
 
@@ -610,11 +625,15 @@ class RemoteApiClient:
             format_type,
             embed=embed,
         )
+        resolved_future_only = (
+            not include_past if include_past is not None else future_only
+        )
         params = _build_export_params(
             season=season,
             opponent=opponent,
             home_only=home_only,
-            future_only=future_only,
+            future_only=resolved_future_only,
+            include_past=include_past,
             status=status,
         )
 

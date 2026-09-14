@@ -17,6 +17,7 @@ from ecu_hockey_calendar.api.routes.common import (
     extract_games_from_database,
     is_etag_fresh,
     is_modified_since_fresh,
+    resolve_past_and_future_filters,
 )
 from ecu_hockey_calendar.api.schedule_service import (
     ScheduleDataService,
@@ -291,25 +292,31 @@ def test_schedule_data_service_csv(sample_games: list[Game]) -> None:
 
 
 def test_root_endpoint_schedule_urls() -> None:
-    """Test root endpoint advertises schedule.json and schedule.csv endpoints."""
+    """Test root endpoint advertises canonical schedule.* and legacy endpoints."""
     app = create_app()
     client = TestClient(app)
     response = client.get("/")
 
     assert response.status_code == 200
     endpoints = response.json()["endpoints"]
-    assert endpoints["schedule_json"] == "/api/schedule.json"
-    assert endpoints["schedule_csv"] == "/api/schedule.csv"
+    assert endpoints["schedule_json"] == "/schedule.json"
+    assert endpoints["schedule_csv"] == "/schedule.csv"
+    assert endpoints["schedule_ics"] == "/schedule.ics"
+    assert endpoints["schedule_rss"] == "/schedule.rss"
+    assert endpoints["schedule_atom"] == "/schedule.atom"
+    assert endpoints["calendar_ics"] == "/calendar.ics"
+    assert endpoints["feed_rss"] == "/feed.rss"
+    assert endpoints["feed_atom"] == "/feed.atom"
 
 
 def test_get_schedule_json_endpoint(sample_games: list[Game]) -> None:
-    """Test GET /api/schedule.json endpoint responses and query filters."""
+    """Test GET /schedule.json and /api/schedule.json route responses."""
     app = create_app()
     app.state.games_override = sample_games
     client = TestClient(app)
 
-    # 1. Base GET request
-    resp = client.get("/api/schedule.json")
+    # 1. Base canonical GET request
+    resp = client.get("/schedule.json")
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "application/json"
     assert resp.headers["content-disposition"] == (
@@ -323,39 +330,58 @@ def test_get_schedule_json_endpoint(sample_games: list[Game]) -> None:
     assert data["total_games"] == len(sample_games)
     assert len(data["games"]) == len(sample_games)
 
-    # 2. Query filters
+    # 2. Legacy alias parity
+    alias_resp = client.get("/api/schedule.json")
+    assert alias_resp.status_code == 200
+    assert alias_resp.json() == data
+
+    # 3. Query filters
     resp_filtered = client.get(
-        "/api/schedule.json?season=2026-2027&opponent=UNC&home_only=true&status=W",
+        "/schedule.json?season=2026-2027&opponent=UNC&home_only=true&status=W",
     )
     assert resp_filtered.status_code == 200
     filtered_data = resp_filtered.json()
     assert filtered_data["total_games"] == 1
     assert filtered_data["games"][0]["game_id"] == "ECU-2026-04"
 
+    # 4. include_past and future_only parameter normalization
+    resp_future = client.get("/schedule.json?future_only=true")
+    assert resp_future.status_code == 200
+    assert resp_future.json()["filters"]["future_only"] is True
+    assert resp_future.json()["filters"]["include_past"] is False
+
+    resp_past = client.get("/schedule.json?include_past=false")
+    assert resp_past.status_code == 200
+    assert resp_past.json()["filters"]["future_only"] is True
+    assert resp_past.json()["filters"]["include_past"] is False
+
 
 def test_head_schedule_json_endpoint(sample_games: list[Game]) -> None:
-    """Test HEAD /api/schedule.json returns identical headers and empty body."""
+    """Test HEAD on /schedule.json and /api/schedule.json return empty body."""
     app = create_app()
     app.state.games_override = sample_games
     client = TestClient(app)
 
-    get_resp = client.get("/api/schedule.json")
-    head_resp = client.head("/api/schedule.json")
+    get_resp = client.get("/schedule.json")
+    head_resp = client.head("/schedule.json")
+    alias_head = client.head("/api/schedule.json")
 
     assert head_resp.status_code == 200
     assert head_resp.content == b""
     assert head_resp.headers["etag"] == get_resp.headers["etag"]
     assert head_resp.headers["last-modified"] == get_resp.headers["last-modified"]
+    assert alias_head.status_code == 200
+    assert alias_head.headers["etag"] == get_resp.headers["etag"]
 
 
 def test_get_schedule_csv_endpoint(sample_games: list[Game]) -> None:
-    """Test GET /api/schedule.csv endpoint download headers and content."""
+    """Test GET /schedule.csv and /api/schedule.csv download headers and content."""
     app = create_app()
     app.state.games_override = sample_games
     client = TestClient(app)
 
     # 1. Base CSV GET request
-    resp = client.get("/api/schedule.csv")
+    resp = client.get("/schedule.csv")
     assert resp.status_code == 200
     assert "text/csv" in resp.headers["content-type"]
     assert resp.headers["content-disposition"] == (
@@ -367,28 +393,84 @@ def test_get_schedule_csv_endpoint(sample_games: list[Game]) -> None:
     rows = list(csv.DictReader(io.StringIO(resp.text)))
     assert len(rows) == len(sample_games)
 
-    # 2. Filtered CSV request
-    resp_filtered = client.get("/api/schedule.csv?season=2026-2027&home_only=true")
+    # 2. Legacy alias parity
+    alias_resp = client.get("/api/schedule.csv")
+    assert alias_resp.status_code == 200
+    assert alias_resp.text == resp.text
+
+    # 3. Filtered CSV request
+    resp_filtered = client.get("/schedule.csv?season=2026-2027&home_only=true")
     assert resp_filtered.status_code == 200
     filtered_rows = list(csv.DictReader(io.StringIO(resp_filtered.text)))
     assert len(filtered_rows) == 5
     for r in filtered_rows:
         assert r["designation"] == "Home"
 
+    # 4. include_past / future_only filtering
+    resp_fut = client.get("/schedule.csv?future_only=true")
+    assert resp_fut.status_code == 200
+    resp_inc_past = client.get("/schedule.csv?include_past=false")
+    assert resp_inc_past.status_code == 200
+    assert resp_fut.text == resp_inc_past.text
+
 
 def test_head_schedule_csv_endpoint(sample_games: list[Game]) -> None:
-    """Test HEAD /api/schedule.csv returns empty body with headers."""
+    """Test HEAD /schedule.csv and /api/schedule.csv return empty body with headers."""
     app = create_app()
     app.state.games_override = sample_games
     client = TestClient(app)
 
-    get_resp = client.get("/api/schedule.csv")
-    head_resp = client.head("/api/schedule.csv")
+    get_resp = client.get("/schedule.csv")
+    head_resp = client.head("/schedule.csv")
+    alias_head = client.head("/api/schedule.csv")
 
     assert head_resp.status_code == 200
     assert head_resp.content == b""
     assert head_resp.headers["etag"] == get_resp.headers["etag"]
     assert head_resp.headers["last-modified"] == get_resp.headers["last-modified"]
+
+    assert alias_head.status_code == 200
+    assert alias_head.content == b""
+    assert alias_head.headers["etag"] == get_resp.headers["etag"]
+
+
+def test_resolve_past_and_future_filters_unit() -> None:
+    """Verify resolve_past_and_future_filters handles all permutations and defaults."""
+    # Defaults
+    assert resolve_past_and_future_filters(default_include_past=True) == (
+        True,
+        False,
+    )
+    assert resolve_past_and_future_filters(default_include_past=False) == (
+        False,
+        True,
+    )
+
+    # include_past provided alone
+    assert resolve_past_and_future_filters(include_past=True) == (True, False)
+    assert resolve_past_and_future_filters(include_past=False) == (False, True)
+
+    # future_only provided alone
+    assert resolve_past_and_future_filters(future_only=True) == (False, True)
+    assert resolve_past_and_future_filters(future_only=False) == (True, False)
+
+    # Both provided: include_past takes precedence
+    assert resolve_past_and_future_filters(
+        include_past=True,
+        future_only=True,
+    ) == (True, False)
+    assert resolve_past_and_future_filters(
+        include_past=False,
+        future_only=False,
+    ) == (False, True)
+    assert resolve_past_and_future_filters(
+        include_past=True,
+        future_only=False,
+    ) == (True, False)
+    assert resolve_past_and_future_filters(
+        include_past=False,
+        future_only=True,
+    ) == (False, True)
 
 
 def test_schedule_conditional_caching(sample_games: list[Game]) -> None:

@@ -86,18 +86,19 @@ def serve_command(
     )
     banner_text.append("Endpoints:\n", style="bold white")
     banner_text.append(
-        f"  • iCalendar (.ics):   {base_url}/calendar.ics\n",
+        f"  • iCalendar (.ics):   {base_url}/schedule.ics\n",
         style="cyan",
     )
     banner_text.append(
-        f"  • Master JSON Feed:   {base_url}/api/schedule.json\n",
+        f"  • Master JSON Feed:   {base_url}/schedule.json\n",
         style="cyan",
     )
     banner_text.append(
-        f"  • Master CSV Feed:    {base_url}/api/schedule.csv\n",
+        f"  • Master CSV Feed:    {base_url}/schedule.csv\n",
         style="cyan",
     )
     banner_text.append(f"  • Interactive Docs:   {base_url}/docs\n", style="cyan")
+
     banner_text.append(
         f"  • Health & Status:    {base_url}/api/v1/sync/status\n\n",
         style="cyan",

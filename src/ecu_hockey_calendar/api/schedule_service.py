@@ -158,7 +158,7 @@ def _game_matches_filters(
     return _match_status(game, status)
 
 
-def filter_games(
+def filter_games(  # noqa: PLR0913 # pylint: disable=too-many-arguments
     games: Sequence[Game],
     *,
     season: str | None = None,
@@ -166,6 +166,7 @@ def filter_games(
     home_only: bool = False,
     status: str | None = None,
     future_only: bool = False,
+    include_past: bool | None = None,
     primary_team: str = DEFAULT_ECU_TEAM_NAME,
     now_utc: datetime | None = None,
 ) -> list[Game]:
@@ -178,12 +179,17 @@ def filter_games(
         home_only: If True, only home matches are included.
         status: Optional match status/result query.
         future_only: If True, only future matches are included.
+        include_past: If False, only future matches are included
+            (negation of future_only).
         primary_team: Canonical team name.
         now_utc: Optional reference timestamp for future_only filtering.
 
     Returns:
         Sorted list of matching Game objects in chronological order.
     """
+    effective_future_only = (
+        not include_past if include_past is not None else future_only
+    )
     matched = [
         g
         for g in games
@@ -193,7 +199,7 @@ def filter_games(
             opponent=opponent,
             home_only=home_only,
             status=status,
-            future_only=future_only,
+            future_only=effective_future_only,
             primary_team=primary_team,
             now_utc=now_utc,
         )
@@ -370,12 +376,12 @@ def _build_feed_urls(base_url: str) -> dict[str, str]:
     return {
         "schedule_url": f"{normalized}/schedule",
         "embed_url": f"{normalized}/schedule/embed",
-        "ics_url": f"{normalized}/calendar.ics",
+        "ics_url": f"{normalized}/schedule.ics",
         "pdf_url": f"{normalized}/schedule.pdf",
-        "csv_url": f"{normalized}/api/schedule.csv",
-        "json_url": f"{normalized}/api/schedule.json",
-        "rss_url": f"{normalized}/feed.rss",
-        "atom_url": f"{normalized}/feed.atom",
+        "csv_url": f"{normalized}/schedule.csv",
+        "json_url": f"{normalized}/schedule.json",
+        "rss_url": f"{normalized}/schedule.rss",
+        "atom_url": f"{normalized}/schedule.atom",
     }
 
 
@@ -486,7 +492,7 @@ class ScheduleDataService:
         """
         return self._jinja_env
 
-    def generate_html_schedule(
+    def generate_html_schedule(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many-locals
         self,
         games: Sequence[Game],
         *,
@@ -494,6 +500,8 @@ class ScheduleDataService:
         opponent: str | None = None,
         home_only: bool = False,
         status: str | None = None,
+        future_only: bool = False,
+        include_past: bool | None = None,
         embed: bool = False,
         base_url: str = "",
     ) -> str:
@@ -505,6 +513,8 @@ class ScheduleDataService:
             opponent: Optional opponent substring query.
             home_only: If True, include only home games.
             status: Optional status query.
+            future_only: If True, include only future games.
+            include_past: If False, include only future games.
             embed: If True, render lightweight iframe widget view.
             base_url: Optional base URL for prefixing links.
 
@@ -517,6 +527,8 @@ class ScheduleDataService:
             opponent=opponent,
             home_only=home_only,
             status=status,
+            future_only=future_only,
+            include_past=include_past,
             primary_team=self.primary_team_name,
         )
         formatted_games = [
@@ -548,6 +560,8 @@ class ScheduleDataService:
         opponent: str | None = None,
         home_only: bool = False,
         status: str | None = None,
+        future_only: bool = False,
+        include_past: bool | None = None,
         generated_date: str | None = None,
     ) -> bytes:
         """Render printable high-contrast PDF schedule grid for parents and coaches.
@@ -558,6 +572,8 @@ class ScheduleDataService:
             opponent: Optional opponent substring query.
             home_only: If True, include only home games.
             status: Optional status query.
+            future_only: If True, include only future games.
+            include_past: If False, include only future games.
             generated_date: Optional explicit date string displayed on document header.
 
         Returns:
@@ -569,6 +585,8 @@ class ScheduleDataService:
             opponent=opponent,
             home_only=home_only,
             status=status,
+            future_only=future_only,
+            include_past=include_past,
             primary_team=self.primary_team_name,
         )
         formatted_games = [
@@ -599,6 +617,8 @@ class ScheduleDataService:
         opponent: str | None = None,
         home_only: bool = False,
         status: str | None = None,
+        future_only: bool = False,
+        include_past: bool | None = None,
     ) -> dict[str, Any]:
         """Generate structured JSON payload for master schedule feed.
 
@@ -608,16 +628,22 @@ class ScheduleDataService:
             opponent: Optional opponent substring query.
             home_only: If True, include only home games.
             status: Optional status query.
+            future_only: If True, include only future games.
+            include_past: If False, include only future games.
 
         Returns:
             Dictionary matching master schedule JSON schema.
         """
+        effective_future_only = (
+            not include_past if include_past is not None else future_only
+        )
         filtered = filter_games(
             games,
             season=season,
             opponent=opponent,
             home_only=home_only,
             status=status,
+            future_only=effective_future_only,
             primary_team=self.primary_team_name,
         )
         formatted_games = [
@@ -632,6 +658,8 @@ class ScheduleDataService:
                 "opponent": opponent,
                 "home_only": home_only,
                 "status": status,
+                "future_only": effective_future_only,
+                "include_past": not effective_future_only,
             },
             "games": formatted_games,
         }
@@ -644,6 +672,8 @@ class ScheduleDataService:
         opponent: str | None = None,
         home_only: bool = False,
         status: str | None = None,
+        future_only: bool = False,
+        include_past: bool | None = None,
         indent: int | None = 2,
     ) -> str:
         """Generate formatted JSON string representation for master schedule feed.
@@ -654,6 +684,8 @@ class ScheduleDataService:
             opponent: Optional opponent substring query.
             home_only: If True, include only home games.
             status: Optional status query.
+            future_only: If True, include only future games.
+            include_past: If False, include only future games.
             indent: JSON indentation spaces.
 
         Returns:
@@ -665,6 +697,8 @@ class ScheduleDataService:
             opponent=opponent,
             home_only=home_only,
             status=status,
+            future_only=future_only,
+            include_past=include_past,
         )
         return json.dumps(feed, indent=indent)
 
@@ -676,6 +710,8 @@ class ScheduleDataService:
         opponent: str | None = None,
         home_only: bool = False,
         status: str | None = None,
+        future_only: bool = False,
+        include_past: bool | None = None,
     ) -> str:
         """Generate formatted CSV string for master schedule feed.
 
@@ -685,6 +721,8 @@ class ScheduleDataService:
             opponent: Optional opponent substring query.
             home_only: If True, include only home games.
             status: Optional status query.
+            future_only: If True, include only future games.
+            include_past: If False, include only future games.
 
         Returns:
             CSV formatted text string.
@@ -695,6 +733,8 @@ class ScheduleDataService:
             opponent=opponent,
             home_only=home_only,
             status=status,
+            future_only=future_only,
+            include_past=include_past,
             primary_team=self.primary_team_name,
         )
         output = io.StringIO()

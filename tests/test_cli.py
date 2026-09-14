@@ -877,7 +877,7 @@ class TestServeCommand:
             )
             assert result.exit_code == 0
             assert "Local Server Running at http://0.0.0.0:9000" in result.output
-            assert "http://0.0.0.0:9000/calendar.ics" in result.output
+            assert "http://0.0.0.0:9000/schedule.ics" in result.output
             mock_run.assert_called_once_with(
                 host="0.0.0.0",
                 port=9000,

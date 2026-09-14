@@ -877,10 +877,10 @@
                         <li><a href="/" class="{% if active_tab == 'home' %}active{% endif %}">Home</a></li>
                         <li><a href="{{ schedule_url or '/schedule' }}"
    class="{% if active_tab == 'schedule' %}active{% endif %}">Schedule</a></li>
-                        <li><a href="{{ ics_url or '/calendar.ics' }}">Calendar Subscription (.ics)</a></li>
+                        <li><a href="{{ ics_url or '/schedule.ics' }}">Calendar Subscription (.ics)</a></li>
                         <li><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF</a></li>
-                        <li><a href="{{ csv_url or '/api/schedule.csv' }}">Download CSV</a></li>
-                        <li><a href="{{ json_url or '/api/schedule.json' }}">JSON Feed</a></li>
+                        <li><a href="{{ csv_url or '/schedule.csv' }}">Download CSV</a></li>
+                        <li><a href="{{ json_url or '/schedule.json' }}">JSON Feed</a></li>
                         <li><a href="/docs">API Docs</a></li>
                         <li><a href="/health"
    class="{% if active_tab == 'health' %}active{% endif %}">Health</a></li>
@@ -929,13 +929,14 @@
                     </div>
                     <div class="footer-section">
                         <h4>Subscriptions &amp; Feeds</h4>
-                        <p><a href="{{ ics_url or '/calendar.ics' }}">Apple / Google / Outlook iCal Feed</a></p>
-                        <p><a href="{{ rss_url or '/feed.rss' }}">RSS 2.0 Syndication Feed</a></p>
-                        <p><a href="{{ atom_url or '/feed.atom' }}">Atom 1.0 Syndication Feed</a></p>
+                        <p><a href="{{ ics_url or '/schedule.ics' }}">Apple / Google / Outlook iCal Feed</a></p>
+                        <p><a href="{{ rss_url or '/schedule.rss' }}">RSS 2.0 Syndication Feed</a></p>
+                        <p><a href="{{ atom_url or '/schedule.atom' }}">Atom 1.0 Syndication Feed</a></p>
                         <p><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF Grid</a></p>
-                        <p><a href="{{ csv_url or '/api/schedule.csv' }}">Spreadsheet CSV Export</a></p>
-                        <p><a href="{{ json_url or '/api/schedule.json' }}">Developer JSON Endpoint</a></p>
+                        <p><a href="{{ csv_url or '/schedule.csv' }}">Spreadsheet CSV Export</a></p>
+                        <p><a href="{{ json_url or '/schedule.json' }}">Developer JSON Endpoint</a></p>
                     </div>
+
                     <div class="footer-section">
                         <h4>Widget &amp; System</h4>
                         <p><a href="{{ embed_url or '/schedule/embed' }}">Get Responsive Embed iFrame</a></p>

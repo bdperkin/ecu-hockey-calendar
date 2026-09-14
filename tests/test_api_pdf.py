@@ -268,6 +268,15 @@ def test_get_api_schedule_pdf(populated_db_app: TestClient) -> None:
     assert "last-modified" in resp.headers
     assert resp.content.startswith(b"%PDF-1.")
 
+    # Test future_only and include_past query parameters
+    resp_future = populated_db_app.get("/api/schedule.pdf?future_only=true")
+    assert resp_future.status_code == 200
+    assert resp_future.content.startswith(b"%PDF-1.")
+
+    resp_inc_past = populated_db_app.get("/api/schedule.pdf?include_past=false")
+    assert resp_inc_past.status_code == 200
+    assert resp_inc_past.content.startswith(b"%PDF-1.")
+
 
 def test_get_web_schedule_pdf(populated_db_app: TestClient) -> None:
     """Verify GET /schedule.pdf returns application/pdf from web root path."""
@@ -279,6 +288,15 @@ def test_get_web_schedule_pdf(populated_db_app: TestClient) -> None:
         in resp.headers["content-disposition"]
     )
     assert resp.content.startswith(b"%PDF-1.")
+
+    # Test future_only and include_past on web endpoint
+    resp_fut = populated_db_app.get("/schedule.pdf?future_only=true")
+    assert resp_fut.status_code == 200
+    assert resp_fut.content.startswith(b"%PDF-1.")
+
+    resp_past = populated_db_app.get("/schedule.pdf?include_past=false")
+    assert resp_past.status_code == 200
+    assert resp_past.content.startswith(b"%PDF-1.")
 
 
 def test_head_schedule_pdf(populated_db_app: TestClient) -> None:

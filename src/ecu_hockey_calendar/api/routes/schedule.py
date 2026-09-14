@@ -9,6 +9,7 @@ from fastapi import APIRouter, Query, Request, Response, status
 from ecu_hockey_calendar.api.routes.common import (
     check_conditional_headers,
     get_active_games,
+    resolve_past_and_future_filters,
 )
 from ecu_hockey_calendar.api.schedule_service import (
     ScheduleDataService,
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 
     from ecu_hockey_calendar.models import Game
 
-schedule_router = APIRouter(prefix="/api", tags=["Schedule"])
+schedule_router = APIRouter(tags=["Schedule"])
 
 
 def _build_schedule_caching_headers(
@@ -68,6 +69,19 @@ def _build_schedule_caching_headers(
         304: {"description": "Schedule data not modified since last poll."},
     },
 )
+@schedule_router.get(
+    "/api/schedule.json",
+    summary="Public Master Schedule JSON Feed (Legacy Alias)",
+    description="Legacy alias endpoint for /schedule.json master schedule feed.",
+    response_class=Response,
+    responses={
+        200: {
+            "content": {"application/json": {}},
+            "description": "Normalized master schedule JSON document.",
+        },
+        304: {"description": "Schedule data not modified since last poll."},
+    },
+)
 def get_schedule_json(
     request: Request,
     *,
@@ -91,6 +105,14 @@ def get_schedule_json(
         bool,
         Query(description="If True, only home matches are included in the feed."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -108,6 +130,8 @@ def get_schedule_json(
         season: Optional season filter string.
         opponent: Optional opponent substring query.
         home_only: If True, include only home matches.
+        future_only: If True, include only upcoming matches.
+        include_past: If False, include only upcoming matches.
         status_filter: Optional match status filter.
 
     Returns:
@@ -120,11 +144,19 @@ def get_schedule_json(
         ScheduleDataService(),
     )
 
+    inc_past, fut_only = resolve_past_and_future_filters(
+        include_past=include_past,
+        future_only=future_only,
+        default_include_past=True,
+    )
+
     json_content = service.generate_json_string(
         games,
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=fut_only,
+        include_past=inc_past,
         status=status_filter,
     )
 
@@ -157,6 +189,14 @@ def get_schedule_json(
     ),
     response_class=Response,
 )
+@schedule_router.head(
+    "/api/schedule.json",
+    summary="Master Schedule JSON Headers (Legacy Alias)",
+    description=(
+        "Inspect master schedule JSON cache headers for /api/schedule.json alias."
+    ),
+    response_class=Response,
+)
 def head_schedule_json(
     request: Request,
     *,
@@ -180,6 +220,14 @@ def head_schedule_json(
         bool,
         Query(description="If True, only home matches are included in the feed."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -197,6 +245,8 @@ def head_schedule_json(
         season: Optional season filter.
         opponent: Optional opponent query.
         home_only: Home games only flag.
+        future_only: Optional future only flag.
+        include_past: Optional include past flag.
         status_filter: Optional status filter.
 
     Returns:
@@ -207,6 +257,8 @@ def head_schedule_json(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=future_only,
+        include_past=include_past,
         status_filter=status_filter,
     )
     return Response(status_code=res.status_code, headers=dict(res.headers))
@@ -219,6 +271,19 @@ def head_schedule_json(
         "Downloadable CSV schedule export with standard column headers for "
         "spreadsheet analysis and external tool ingestion."
     ),
+    response_class=Response,
+    responses={
+        200: {
+            "content": {"text/csv": {}},
+            "description": "Standard CSV formatted master schedule.",
+        },
+        304: {"description": "Schedule data not modified since last poll."},
+    },
+)
+@schedule_router.get(
+    "/api/schedule.csv",
+    summary="Downloadable Master Schedule CSV Export (Legacy Alias)",
+    description="Legacy alias endpoint for /schedule.csv master schedule export.",
     response_class=Response,
     responses={
         200: {
@@ -251,6 +316,14 @@ def get_schedule_csv(
         bool,
         Query(description="If True, only home matches are included in the export."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -268,6 +341,8 @@ def get_schedule_csv(
         season: Optional season filter string.
         opponent: Optional opponent substring query.
         home_only: If True, include only home matches.
+        future_only: If True, include only upcoming matches.
+        include_past: If False, include only upcoming matches.
         status_filter: Optional match status filter.
 
     Returns:
@@ -280,11 +355,19 @@ def get_schedule_csv(
         ScheduleDataService(),
     )
 
+    inc_past, fut_only = resolve_past_and_future_filters(
+        include_past=include_past,
+        future_only=future_only,
+        default_include_past=True,
+    )
+
     csv_content = service.generate_csv_feed(
         games,
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=fut_only,
+        include_past=inc_past,
         status=status_filter,
     )
 
@@ -317,6 +400,14 @@ def get_schedule_csv(
     ),
     response_class=Response,
 )
+@schedule_router.head(
+    "/api/schedule.csv",
+    summary="Master Schedule CSV Headers (Legacy Alias)",
+    description=(
+        "Inspect master schedule CSV cache headers for /api/schedule.csv alias."
+    ),
+    response_class=Response,
+)
 def head_schedule_csv(
     request: Request,
     *,
@@ -340,6 +431,14 @@ def head_schedule_csv(
         bool,
         Query(description="If True, only home matches are included in the export."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -357,6 +456,8 @@ def head_schedule_csv(
         season: Optional season filter.
         opponent: Optional opponent query.
         home_only: Home games only flag.
+        future_only: Upcoming games only flag.
+        include_past: Include past fixtures flag.
         status_filter: Optional status filter.
 
     Returns:
@@ -367,6 +468,8 @@ def head_schedule_csv(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=future_only,
+        include_past=include_past,
         status_filter=status_filter,
     )
     return Response(status_code=res.status_code, headers=dict(res.headers))
@@ -378,6 +481,8 @@ def serve_schedule_pdf(
     season: str | None = None,
     opponent: str | None = None,
     home_only: bool = False,
+    future_only: bool = False,
+    include_past: bool | None = None,
     status_filter: str | None = None,
 ) -> Response:
     """Serve printable high-contrast PDF master schedule grid.
@@ -387,6 +492,8 @@ def serve_schedule_pdf(
         season: Optional season filter string.
         opponent: Optional opponent substring query.
         home_only: If True, include only home matches.
+        future_only: If True, include only future matches.
+        include_past: If False, include only future matches.
         status_filter: Optional match status filter.
 
     Returns:
@@ -398,11 +505,18 @@ def serve_schedule_pdf(
         "schedule_service",
         ScheduleDataService(),
     )
+    inc_past, fut_only = resolve_past_and_future_filters(
+        include_past=include_past,
+        future_only=future_only,
+        default_include_past=True,
+    )
     pdf_bytes = service.generate_pdf_schedule(
         games,
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=fut_only,
+        include_past=inc_past,
         status=status_filter,
     )
     filename = resolve_pdf_filename(season, games)
@@ -432,6 +546,8 @@ def serve_head_schedule_pdf(
     season: str | None = None,
     opponent: str | None = None,
     home_only: bool = False,
+    future_only: bool = False,
+    include_past: bool | None = None,
     status_filter: str | None = None,
 ) -> Response:
     """Serve HEAD response for schedule PDF endpoint.
@@ -441,6 +557,8 @@ def serve_head_schedule_pdf(
         season: Optional season filter.
         opponent: Optional opponent query.
         home_only: Home games only flag.
+        future_only: Upcoming games only flag.
+        include_past: Include past fixtures flag.
         status_filter: Optional status filter.
 
     Returns:
@@ -451,14 +569,16 @@ def serve_head_schedule_pdf(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=future_only,
+        include_past=include_past,
         status_filter=status_filter,
     )
     return Response(status_code=res.status_code, headers=dict(res.headers))
 
 
 @schedule_router.get(
-    "/schedule.pdf",
-    summary="Printable Master Schedule PDF Grid",
+    "/api/schedule.pdf",
+    summary="Printable Master Schedule PDF Grid (API Route)",
     description=(
         "High-contrast printable PDF schedule grid formatted for parents, coaches, "
         "refrigerators, and bench clipboards on standard US Letter paper."
@@ -495,6 +615,14 @@ def get_schedule_pdf(
         bool,
         Query(description="If True, only home matches are included in the PDF."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -511,13 +639,15 @@ def get_schedule_pdf(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=bool(future_only),
+        include_past=include_past,
         status_filter=status_filter,
     )
 
 
 @schedule_router.head(
-    "/schedule.pdf",
-    summary="Master Schedule PDF Headers",
+    "/api/schedule.pdf",
+    summary="Master Schedule PDF Headers (API Route)",
     description=(
         "Inspect master schedule PDF cache headers without retrieving body payload."
     ),
@@ -546,6 +676,14 @@ def head_schedule_pdf(
         bool,
         Query(description="If True, only home matches are included in the PDF."),
     ] = False,
+    future_only: Annotated[
+        bool | None,
+        Query(description="Filter games to only upcoming matches."),
+    ] = None,
+    include_past: Annotated[
+        bool | None,
+        Query(description="Whether to include past fixtures or only upcoming matches."),
+    ] = None,
     status_filter: Annotated[
         str | None,
         Query(
@@ -562,6 +700,8 @@ def head_schedule_pdf(
         season=season,
         opponent=opponent,
         home_only=home_only,
+        future_only=bool(future_only),
+        include_past=include_past,
         status_filter=status_filter,
     )
 
