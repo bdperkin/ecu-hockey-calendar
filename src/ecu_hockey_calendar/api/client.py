@@ -206,13 +206,17 @@ def _build_conflicts_params(
     game_id: str | None,
     field_name: str | None,
     review_only: bool,
+    limit: int | None = None,
+    offset: int | None = None,
 ) -> dict[str, Any]:
     """Construct query parameter dictionary for conflicts endpoint."""
-    pairs = [
+    pairs: list[tuple[str, Any]] = [
         ("severity", severity),
         ("game_id", game_id),
         ("field", field_name),
         ("requires_review", "true" if review_only else None),
+        ("limit", limit),
+        ("offset", offset),
     ]
     return {k: v for k, v in pairs if v is not None}
 
@@ -512,6 +516,8 @@ class RemoteApiClient:
         game_id: str | None = None,
         field_name: str | None = None,
         review_only: bool = False,
+        limit: int | None = None,
+        offset: int | None = None,
     ) -> dict[str, Any]:
         """Fetch detected schedule conflicts from /api/v1/conflicts.
 
@@ -520,6 +526,8 @@ class RemoteApiClient:
             game_id: Optional game ID filter string.
             field_name: Optional mismatched attribute name filter string.
             review_only: If True, returns only items requiring manual review.
+            limit: Optional maximum number of conflict records to return.
+            offset: Optional number of conflict records to skip for pagination.
 
         Returns:
             Structured dictionary containing list of conflict objects.
@@ -533,6 +541,8 @@ class RemoteApiClient:
             game_id=game_id,
             field_name=field_name,
             review_only=review_only,
+            limit=limit,
+            offset=offset,
         )
 
         with self._create_client() as client:
@@ -678,5 +688,7 @@ __all__ = [
     "RemoteApiClient",
     "RemoteApiError",
     "RemoteSyncAudit",
+    "_parse_audit_record",
+    "_parse_optional_datetime",
     "parse_game_dict",
 ]

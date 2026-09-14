@@ -556,6 +556,7 @@ def trigger_sync_cycle(
 
 
 __all__ = [
+    "_extract_db_sync_telemetry",
     "get_sync_status",
     "trigger_sync_cycle",
 ]

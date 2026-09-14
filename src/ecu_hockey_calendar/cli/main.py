@@ -9,6 +9,7 @@ import click
 
 from ecu_hockey_calendar.cli.conflicts import conflicts_command
 from ecu_hockey_calendar.cli.export import export_command
+from ecu_hockey_calendar.cli.health import health_command
 from ecu_hockey_calendar.cli.notify import notify_command
 from ecu_hockey_calendar.cli.serve import serve_command
 from ecu_hockey_calendar.cli.status import status_command
@@ -56,6 +57,7 @@ def cli(
 # Register subcommands
 cli.add_command(sync_command, "sync")
 cli.add_command(status_command, "status")
+cli.add_command(health_command, "health")
 cli.add_command(export_command, "export")
 cli.add_command(conflicts_command, "conflicts")
 cli.add_command(serve_command, "serve")

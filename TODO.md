@@ -494,7 +494,7 @@ ______________________________________________________________________
 
 #### 2.9.5. Phase 9.5: CLI Command Parity & Options Alignment
 
-- [ ] **[#170](https://github.com/bdperkin/ecu-hockey-calendar/issues/170) - feat(cli): command parity for health diagnostics, sync subcommands, and conflict options**
+- [x] **[#170](https://github.com/bdperkin/ecu-hockey-calendar/issues/170) - feat(cli): command parity for health diagnostics, sync subcommands, and conflict options**
   - **Summary:** Add `ecu-hockey health` CLI command, support `ecu-hockey sync status` subcommand, and add `--requires-review` and pagination options to `conflicts`.
   - **Description:** Implement standalone `ecu-hockey health` command for inspecting health diagnostics and scraper telemetry locally or remotely. Extend `ecu-hockey sync` with a `status` subcommand while preserving top-level `ecu-hockey status`. Add `--requires-review` (aliased with `--review-only`) and pagination options (`--limit`, `--offset`) to `ecu-hockey conflicts`.
 

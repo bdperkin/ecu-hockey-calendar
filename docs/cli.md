@@ -48,11 +48,18 @@ ______________________________________________________________________
 
 Executes the automated ingestion and reconciliation pipeline across registered web sources, detects schedule changes, records audit history, dispatches webhook notifications, and updates the database.
 
+By default, invoking `ecu-hockey sync` triggers the ingestion pipeline (equivalent to `ecu-hockey sync trigger`). To inspect recent synchronization history and telemetry without triggering a sync, use `ecu-hockey sync status`.
+
 ```bash
+# Trigger synchronization cycle (default)
 ecu-hockey sync [OPTIONS]
+ecu-hockey sync trigger [OPTIONS]
+
+# Inspect synchronization execution history & telemetry
+ecu-hockey sync status [OPTIONS]
 ```
 
-**Options:**
+**Options (`sync` / `sync trigger`):**
 
 | Option                   | Environment Variable     | Default    | Description                                                                              |
 | :----------------------- | :----------------------- | :--------- | :--------------------------------------------------------------------------------------- |
@@ -65,11 +72,26 @@ ecu-hockey sync [OPTIONS]
 | `--api-url`              | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).             |
 | `--token`                | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.               |
 
+**Options (`sync status`):**
+
+| Option      | Environment Variable     | Default | Description                                                                  |
+| :---------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
+| `--db-url`  | `DATABASE_URL`           | `None`  | Database connection URL override.                                            |
+| `--api-url` | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`). |
+| `--token`   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.   |
+| `--json`    | —                        | `False` | Output raw synchronization telemetry as structured JSON.                     |
+
 **Examples:**
 
 ```bash
 # Run a full sync for the current season
 ecu-hockey sync
+
+# Inspect synchronization execution history
+ecu-hockey sync status
+
+# Inspect remote synchronization status formatted as JSON
+ecu-hockey sync status --api-url https://ecu-hockey-api.onrender.com --json | jq .
 
 # Preview changes with a dry run for the 2026-2027 season
 ecu-hockey sync --season 2026-2027 --dry-run
@@ -113,7 +135,39 @@ ecu-hockey status --api-url https://ecu-hockey-api.onrender.com
 
 ______________________________________________________________________
 
-### 3.3. `ecu-hockey export`
+### 3.3. `ecu-hockey health`
+
+Inspects service health diagnostics, database connectivity, scraper status, API version, and system uptime locally or against a remote API deployment. Returns an exit code of `0` if healthy, or `1` if degraded or unhealthy.
+
+```bash
+ecu-hockey health [OPTIONS]
+```
+
+**Options:**
+
+| Option      | Environment Variable     | Default | Description                                                                  |
+| :---------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
+| `--db-url`  | `DATABASE_URL`           | `None`  | Database connection URL override.                                            |
+| `--api-url` | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`). |
+| `--token`   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.   |
+| `--json`    | —                        | `False` | Render health diagnostics payload as structured JSON to stdout.              |
+
+**Examples:**
+
+```bash
+# Inspect local database health
+ecu-hockey health
+
+# Output health diagnostics as JSON for monitoring/healthcheck scripts
+ecu-hockey health --json | jq .
+
+# Probe remote deployment health
+ecu-hockey health --api-url https://ecu-hockey-api.onrender.com
+```
+
+______________________________________________________________________
+
+### 3.4. `ecu-hockey export`
 
 Exports the schedule into standard RFC 5545 iCalendar (`.ics`), structured JSON, CSV, standalone responsive HTML, high-contrast printable PDF grid, RSS 2.0 XML, or Atom 1.0 XML format. Output can be saved directly to a file or streamed to standard output for piping.
 
@@ -173,7 +227,7 @@ ecu-hockey export --api-url https://ecu-hockey-api.onrender.com -f pdf -o remote
 
 ______________________________________________________________________
 
-### 3.4. `ecu-hockey conflicts`
+### 3.5. `ecu-hockey conflicts`
 
 Lists cross-source schedule discrepancies and potential data conflicts detected during reconciliation cycles. Discrepancies requiring manual review or administrative attention are highlighted.
 
@@ -183,15 +237,18 @@ ecu-hockey conflicts [OPTIONS]
 
 **Options:**
 
-| Option                  | Environment Variable     | Default      | Description                                                                       |
-| :---------------------- | :----------------------- | :----------- | :-------------------------------------------------------------------------------- |
-| `--severity`            | —                        | `None` (all) | Filter discrepancies by severity level (`low`, `medium`, `high`, `critical`).     |
-| `--game-id`             | —                        | `None`       | Filter discrepancies for a specific canonical game identifier.                    |
-| `--field`               | —                        | `None` (all) | Filter discrepancies by conflicting attribute name (e.g., `venue`, `start_time`). |
-| `--review-only / --all` | —                        | `--all`      | Show only discrepancies flagged as requiring administrative review.               |
-| `--db-url`              | `DATABASE_URL`           | `None`       | Database connection URL override.                                                 |
-| `--api-url`             | `ECU_HOCKEY_API_URL`     | `None`       | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).      |
-| `--token`               | `ECU_HOCKEY_ADMIN_TOKEN` | `None`       | Administrative authentication Bearer token for protected remote endpoints.        |
+| Option                      | Environment Variable     | Default      | Description                                                                                 |
+| :-------------------------- | :----------------------- | :----------- | :------------------------------------------------------------------------------------------ |
+| `--severity`                | —                        | `None` (all) | Filter discrepancies by severity level (`low`, `medium`, `high`, `critical`).               |
+| `--game-id`                 | —                        | `None`       | Filter discrepancies for a specific canonical game identifier.                              |
+| `--field, --field-name`     | —                        | `None` (all) | Filter discrepancies by conflicting attribute name (e.g., `venue`, `start_time`).           |
+| `--requires-review / --all` | —                        | `--all`      | Show only discrepancies flagged as requiring administrative review (`--review-only` alias). |
+| `--limit`                   | —                        | `None`       | Maximum number of discrepancy items to return.                                              |
+| `--offset`                  | —                        | `0`          | Zero-indexed offset for paginated discrepancy records.                                      |
+| `--json`                    | —                        | `False`      | Output raw conflict payload as structured JSON.                                             |
+| `--db-url`                  | `DATABASE_URL`           | `None`       | Database connection URL override.                                                           |
+| `--api-url`                 | `ECU_HOCKEY_API_URL`     | `None`       | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                |
+| `--token`                   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`       | Administrative authentication Bearer token for protected remote endpoints.                  |
 
 **Examples:**
 
@@ -200,18 +257,24 @@ ecu-hockey conflicts [OPTIONS]
 ecu-hockey conflicts
 
 # Show only discrepancies requiring manual administrative review
-ecu-hockey conflicts --review-only
+ecu-hockey conflicts --requires-review
 
 # Filter discrepancies affecting game start times with critical severity
-ecu-hockey conflicts --field start_time --severity critical
+ecu-hockey conflicts --field-name start_time --severity critical
+
+# Paginate through conflicts with limit and offset
+ecu-hockey conflicts --limit 10 --offset 20
+
+# Output raw conflicts payload as JSON
+ecu-hockey conflicts --json | jq .
 
 # Inspect discrepancies on remote production deployment (authenticated)
-ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token secret-token-123 --review-only
+ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token secret-token-123 --requires-review
 ```
 
 ______________________________________________________________________
 
-### 3.5. `ecu-hockey serve`
+### 3.6. `ecu-hockey serve`
 
 Starts the Uvicorn ASGI server hosting the FastAPI calendar and schedule service, providing live `/calendar.ics` webcal feeds, `/api/schedule.json`, `/api/schedule.csv`, and interactive OpenAPI docs.
 
@@ -241,7 +304,7 @@ ecu-hockey serve -h 0.0.0.0 -p 8080 --reload
 
 ______________________________________________________________________
 
-### 3.6. `ecu-hockey notify`
+### 3.7. `ecu-hockey notify`
 
 Dispatches custom notification alerts and automated failure reports across configured webhook channels (Discord, Slack, Telegram).
 

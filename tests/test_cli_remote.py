@@ -236,6 +236,8 @@ class TestCliRemoteConflicts:
                 game_id="g-1",
                 field_name="start_time",
                 review_only=True,
+                limit=None,
+                offset=0,
             )
             assert "Target: Remote API (https://remote.api)" in result.output
             assert "start_time" in result.output
@@ -276,6 +278,93 @@ class TestCliRemoteConflicts:
             assert result.exit_code != 0
             assert "Target: Remote API (https://remote.api)" in result.output
             assert "Failed to query conflicts from remote API" in result.output
+
+    def test_conflicts_remote_pagination_and_json(self, runner: CliRunner) -> None:
+        """Verify remote conflicts pagination parameters and JSON output formatting."""
+        mock_client = MagicMock()
+        mock_client.get_conflicts.return_value = {
+            "total_conflicts": 10,
+            "filtered_count": 1,
+            "limit": 2,
+            "offset": 4,
+            "conflicts": [
+                {
+                    "conflict_id": "c-1",
+                    "game_id": "g-1",
+                    "field": "start_time",
+                    "severity": "CRITICAL",
+                    "requires_review": True,
+                    "summary": "Start time mismatch",
+                    "recorded_at": "2026-10-01T12:00:00Z",
+                },
+            ],
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            res_json = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "--api-url",
+                    "https://remote.api",
+                    "--limit",
+                    "2",
+                    "--offset",
+                    "4",
+                    "--json",
+                ],
+            )
+            assert res_json.exit_code == 0
+            assert '"total_conflicts": 10' in res_json.output
+            mock_client.get_conflicts.assert_called_with(
+                severity=None,
+                game_id=None,
+                field_name=None,
+                review_only=False,
+                limit=2,
+                offset=4,
+            )
+
+            res_table = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "--api-url",
+                    "https://remote.api",
+                    "--limit",
+                    "2",
+                    "--offset",
+                    "4",
+                ],
+            )
+            assert res_table.exit_code == 0
+            assert "1 of 10 (offset: 4)" in res_table.output
+
+    def test_conflicts_remote_requires_review(self, runner: CliRunner) -> None:
+        """Verify --requires-review flag passes review_only=True to remote client."""
+        mock_client = MagicMock()
+        mock_client.get_conflicts.return_value = {"conflicts": [], "total_conflicts": 0}
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                ["conflicts", "--api-url", "https://remote.api", "--requires-review"],
+            )
+            assert result.exit_code == 0
+            mock_client.get_conflicts.assert_called_with(
+                severity=None,
+                game_id=None,
+                field_name=None,
+                review_only=True,
+                limit=None,
+                offset=0,
+            )
 
 
 class TestCliRemoteExport:
@@ -538,3 +627,174 @@ class TestCliRemoteSync:
             )
             assert result.exit_code != 0
             assert "Failed to trigger synchronization on remote API" in result.output
+
+
+class TestCliRemoteHealth:
+    """Tests for 'ecu-hockey health --api-url' remote command execution."""
+
+    def test_health_remote_success(self, runner: CliRunner) -> None:
+        """Verify health command fetches remote health data and renders panel."""
+        mock_client = MagicMock()
+        mock_client.get_health.return_value = {
+            "status": "healthy",
+            "version": "0.9.0",
+            "uptime_seconds": 3600.0,
+            "components": {
+                "database": {"connected": True, "dialect": "postgresql"},
+                "scrapers": {
+                    "status": "operational",
+                    "sources": [
+                        {
+                            "source_code": "ecuhockey",
+                            "name": "ECU Hockey",
+                            "source_type": "primary",
+                            "is_active": True,
+                            "last_scraped_at": "2026-10-01T12:00:00Z",
+                        },
+                    ],
+                },
+            },
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.health.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(cli, ["health", "--api-url", "https://remote.api"])
+            assert result.exit_code == 0
+            assert "HEALTHY" in result.output
+            assert "Connected (postgresql)" in result.output
+            assert "ecuhockey" in result.output
+
+    def test_health_remote_json(self, runner: CliRunner) -> None:
+        """Verify health --json outputs pure structured JSON."""
+        mock_client = MagicMock()
+        mock_client.get_health.return_value = {
+            "status": "healthy",
+            "version": "0.9.0",
+            "components": {"database": {"connected": True}},
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.health.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                ["health", "--api-url", "https://remote.api", "--json"],
+            )
+            assert result.exit_code == 0
+            assert '"status": "healthy"' in result.output
+
+    def test_health_remote_unhealthy(self, runner: CliRunner) -> None:
+        """Verify unhealthy remote response exits with status code 1."""
+        mock_client = MagicMock()
+        mock_client.get_health.return_value = {
+            "status": "unhealthy",
+            "version": "0.9.0",
+            "components": {
+                "database": {"connected": False, "dialect": "sqlite"},
+                "scrapers": {"status": "degraded", "sources": []},
+            },
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.health.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(cli, ["health", "--api-url", "https://remote.api"])
+            assert result.exit_code == 1
+            assert "UNHEALTHY" in result.output
+
+    def test_health_remote_error(self, runner: CliRunner) -> None:
+        """Verify RemoteApiError in health command produces click exception."""
+        mock_client = MagicMock()
+        mock_client.get_health.side_effect = RemoteApiError("Connection failed")
+
+        with patch(
+            "ecu_hockey_calendar.cli.health.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(cli, ["health", "--api-url", "https://remote.api"])
+            assert result.exit_code != 0
+            assert "Failed to fetch health diagnostics from remote API" in result.output
+
+
+class TestCliRemoteSyncStatus:
+    """Tests for 'ecu-hockey sync status --api-url' remote command execution."""
+
+    def test_sync_status_remote_success(self, runner: CliRunner) -> None:
+        """Verify sync status fetches remote telemetry and renders display."""
+        mock_client = MagicMock()
+        mock_client.get_sync_status.return_value = {
+            "current_status": "idle",
+            "total_syncs": 5,
+            "last_successful_sync": "2026-10-01T12:00:00Z",
+            "last_sync": {
+                "sync_cycle_id": "cycle-99",
+                "status": "SUCCESS",
+                "started_at": "2026-10-01T11:55:00Z",
+                "duration_ms": 1200,
+                "games_created": 2,
+                "games_updated": 1,
+                "games_deleted": 0,
+                "conflicts_detected": 0,
+            },
+            "sources": [
+                {
+                    "source_code": "ecuhockey",
+                    "name": "ECU Hockey",
+                    "source_type": "primary",
+                    "is_active": True,
+                    "last_scraped_at": "2026-10-01T12:00:00Z",
+                },
+            ],
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.sync.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                ["sync", "status", "--api-url", "https://remote.api"],
+            )
+            assert result.exit_code == 0
+            assert "cycle-99" in result.output
+            assert "Remote API (https://remote.api)" in result.output
+            assert "ecuhockey" in result.output
+
+    def test_sync_status_remote_json(self, runner: CliRunner) -> None:
+        """Verify sync status --json outputs raw remote payload."""
+        mock_client = MagicMock()
+        mock_client.get_sync_status.return_value = {
+            "current_status": "idle",
+            "total_syncs": 5,
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.sync.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                ["sync", "status", "--api-url", "https://remote.api", "--json"],
+            )
+            assert result.exit_code == 0
+            assert '"current_status": "idle"' in result.output
+
+    def test_sync_status_remote_error(self, runner: CliRunner) -> None:
+        """Verify RemoteApiError in sync status produces click exception."""
+        mock_client = MagicMock()
+        mock_client.get_sync_status.side_effect = RemoteApiError("Timeout")
+
+        with patch(
+            "ecu_hockey_calendar.cli.sync.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                ["sync", "status", "--api-url", "https://remote.api"],
+            )
+            assert result.exit_code != 0
+            assert "Failed to query sync status from remote API" in result.output
