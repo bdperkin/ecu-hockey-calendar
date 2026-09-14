@@ -438,3 +438,11 @@ Complete API documentation for `ecu-hockey-calendar`.
    :members:
    :show-inheritance:
 ```
+
+## 54. Remote API Client & Models
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.api.client
+   :members:
+   :show-inheritance:
+```

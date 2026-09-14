@@ -14,6 +14,7 @@ from rich.panel import Panel
 from rich.text import Text
 from sqlalchemy import func, select
 
+from ecu_hockey_calendar.api.client import RemoteApiClient, RemoteApiError
 from ecu_hockey_calendar.api.routes.health import DEFAULT_SCRAPERS
 from ecu_hockey_calendar.calendar import ECUHockeyCalendar
 from ecu_hockey_calendar.cli.console import (
@@ -160,11 +161,16 @@ def _compute_schedule_stats(games: list[Game]) -> dict[str, Any]:
     }
 
 
-def _render_system_panel(telemetry: dict[str, Any], db_url: str) -> Panel:
+def _render_system_panel(
+    telemetry: dict[str, Any],
+    db_url: str,
+    *,
+    target_label: str = "Database URL: ",
+) -> Panel:
     """Render overall system health and sync cycle summary panel."""
-    audit: SyncAuditModel | None = telemetry["latest_audit"]
+    audit = telemetry.get("latest_audit")
     panel_text = Text()
-    panel_text.append("Database URL: ", style="bold")
+    panel_text.append(target_label, style="bold")
     panel_text.append(f"{db_url}\n", style="dim")
     panel_text.append("Total Sync Cycles Recorded: ", style="bold")
     panel_text.append(f"{telemetry['total_cycles']}\n", style="cyan")
@@ -297,6 +303,65 @@ def _render_schedule_table(stats: dict[str, Any], season: str | None) -> Table:
     return table
 
 
+def _extract_ctx_str(obj: object, key: str) -> str | None:
+    """Extract string value from context dictionary."""
+    if isinstance(obj, dict):
+        val = obj.get(key)
+        if val is not None:
+            return str(val)
+
+    return None
+
+
+def _resolve_remote_credentials(
+    ctx: click.Context | None,
+    api_url: str | None,
+    token: str | None,
+) -> tuple[str | None, str | None]:
+    """Extract and resolve remote API URL and admin token from CLI context."""
+    obj = ctx.obj if ctx else None
+    url = api_url if api_url is not None else _extract_ctx_str(obj, "api_url")
+    tok = token if token is not None else _extract_ctx_str(obj, "token")
+    return url, tok
+
+
+def _fetch_remote_status_data(
+    api_url: str,
+    token: str | None,
+    season: str | None,
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[Game]]:
+    """Fetch status dataset from remote API."""
+    client = RemoteApiClient(api_url, token=token)
+    try:
+        return client.get_status_data(season=season)
+    except RemoteApiError as exc:
+        print_error(f"Failed to query status from remote API: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+
+def _render_status_diagnostics(
+    telemetry: dict[str, Any],
+    sources: list[dict[str, Any]],
+    games: list[Game],
+    target_display: str,
+    season: str | None,
+    *,
+    target_label: str = "Database URL: ",
+) -> None:
+    """Render system panel, sources table, and schedule diagnostics."""
+    console = get_console()
+    stats = _compute_schedule_stats(games)
+    console.print(
+        _render_system_panel(telemetry, target_display, target_label=target_label),
+    )
+    console.print()
+    console.print(_render_sources_table(sources))
+    console.print()
+    console.print(_render_schedule_table(stats, season))
+    console.print()
+    console.print(_render_next_game_panel(stats["next_game"]))
+
+
 @click.command("status")
 @click.option(
     "--db-url",
@@ -309,14 +374,47 @@ def _render_schedule_table(stats: dict[str, Any], season: str | None) -> Table:
     default=None,
     help="Optional season filter (e.g., '2026-2027').",
 )
+@click.option(
+    "--api-url",
+    envvar="ECU_HOCKEY_API_URL",
+    default=None,
+    help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
+)
+@click.option(
+    "--token",
+    envvar="ECU_HOCKEY_ADMIN_TOKEN",
+    default=None,
+    help="Administrative authentication Bearer token for protected remote endpoints.",
+)
+@click.pass_context
 def status_command(
+    ctx: click.Context | None,
     *,
     db_url: str | None,
     season: str | None,
+    api_url: str | None = None,
+    token: str | None = None,
 ) -> None:
     """Display system status, sync telemetry, and schedule summary."""
-    console = get_console()
     print_banner("SYSTEM STATUS & SCHEDULE DIAGNOSTICS")
+
+    api_url, token = _resolve_remote_credentials(ctx, api_url, token)
+    if api_url:
+        telemetry, sources, games = _fetch_remote_status_data(
+            api_url,
+            token,
+            season,
+        )
+        target_display = f"Remote API ({api_url})"
+        _render_status_diagnostics(
+            telemetry,
+            sources,
+            games,
+            target_display,
+            season,
+            target_label="Remote API: ",
+        )
+        return
 
     db_url_resolved = get_sync_database_url(db_url)
     engine: Engine = create_sync_engine(db_url_resolved)
@@ -330,12 +428,10 @@ def status_command(
         print_error(f"Failed to query status from database: {exc}")
         raise click.ClickException(str(exc)) from exc
 
-    stats = _compute_schedule_stats(games)
-
-    console.print(_render_system_panel(telemetry, db_url_resolved))
-    console.print()
-    console.print(_render_sources_table(sources))
-    console.print()
-    console.print(_render_schedule_table(stats, season))
-    console.print()
-    console.print(_render_next_game_panel(stats["next_game"]))
+    _render_status_diagnostics(
+        telemetry,
+        sources,
+        games,
+        db_url_resolved,
+        season,
+    )

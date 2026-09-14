@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 import click
 from sqlalchemy import select
 
+from ecu_hockey_calendar.api.client import RemoteApiClient, RemoteApiError
 from ecu_hockey_calendar.api.schedule_service import ScheduleDataService
 from ecu_hockey_calendar.api.service import CalendarFeedService
 from ecu_hockey_calendar.calendar import ECUHockeyCalendar
@@ -267,6 +268,72 @@ def _write_export_output(
     print_panel(panel_msg, title="[bold #fec923]Export Successful[/bold #fec923]")
 
 
+def _extract_ctx_str(obj: object, key: str) -> str | None:
+    """Extract string value from context dictionary."""
+    if isinstance(obj, dict):
+        val = obj.get(key)
+        if val is not None:
+            return str(val)
+
+    return None
+
+
+def _resolve_remote_credentials(
+    ctx: click.Context | None,
+    api_url: str | None,
+    token: str | None,
+) -> tuple[str | None, str | None]:
+    """Extract and resolve remote API URL and admin token from CLI context."""
+    obj = ctx.obj if ctx else None
+    url = api_url if api_url is not None else _extract_ctx_str(obj, "api_url")
+    tok = token if token is not None else _extract_ctx_str(obj, "token")
+    return url, tok
+
+
+def _execute_remote_export(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many-locals
+    api_url: str,
+    token: str | None,
+    resolved_format: str,
+    *,
+    output_path: Path | None,
+    season: str | None,
+    opponent: str | None,
+    home_only: bool,
+    include_past: bool,
+    status_query: str | None,
+    embed: bool,
+) -> None:
+    """Execute export against a remote ECU Hockey HTTP API instance."""
+    format_label = (
+        "HTML (Embed)"
+        if (resolved_format == "html" and embed)
+        else resolved_format.upper()
+    )
+    client = RemoteApiClient(api_url, token=token)
+    try:
+        content = client.fetch_export(
+            resolved_format,
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            future_only=not include_past,
+            status=status_query,
+            embed=embed,
+        )
+        games = client.get_games(
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            status=status_query,
+        )
+        games_count = len(games)
+    except RemoteApiError as exc:
+        print_error(f"Failed to export schedule from remote API: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+    _write_export_output(output_path, content, format_label, games_count)
+
+
 @click.command("export")
 @click.option(
     "--format",
@@ -329,7 +396,21 @@ def _write_export_output(
     default=None,
     help="Database connection URL override (defaults to local SQLite or DATABASE_URL).",
 )
+@click.option(
+    "--api-url",
+    envvar="ECU_HOCKEY_API_URL",
+    default=None,
+    help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
+)
+@click.option(
+    "--token",
+    envvar="ECU_HOCKEY_ADMIN_TOKEN",
+    default=None,
+    help="Administrative authentication Bearer token for protected remote endpoints.",
+)
+@click.pass_context
 def export_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many-locals
+    ctx: click.Context | None,
     *,
     export_format: str | None,
     output_path: Path | None,
@@ -340,9 +421,27 @@ def export_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-ma
     embed: bool,
     include_past: bool,
     db_url: str | None,
+    api_url: str | None = None,
+    token: str | None = None,
 ) -> None:
     """Export schedule to RFC 5545 (.ics), JSON, CSV, HTML, PDF, RSS, or Atom file."""
     resolved_format = _detect_format(export_format, output_path, embed=embed)
+
+    api_url, token = _resolve_remote_credentials(ctx, api_url, token)
+    if api_url:
+        _execute_remote_export(
+            api_url,
+            token,
+            resolved_format,
+            output_path=output_path,
+            season=season,
+            opponent=opponent,
+            home_only=home_only,
+            include_past=include_past,
+            status_query=status_query,
+            embed=embed,
+        )
+        return
 
     db_url_resolved = get_sync_database_url(db_url)
     engine = create_sync_engine(db_url_resolved)

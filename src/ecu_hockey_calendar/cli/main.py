@@ -28,8 +28,29 @@ if TYPE_CHECKING:
     package_name="ecu-hockey-calendar",
     prog_name="ecu-hockey",
 )
-def cli() -> None:
+@click.option(
+    "--api-url",
+    envvar="ECU_HOCKEY_API_URL",
+    default=None,
+    help="Remote ECU Hockey API base URL (e.g. 'https://ecu-hockey-api.onrender.com').",
+)
+@click.option(
+    "--token",
+    envvar="ECU_HOCKEY_ADMIN_TOKEN",
+    default=None,
+    help="Administrative authentication Bearer token for protected remote endpoints.",
+)
+@click.pass_context
+def cli(
+    ctx: click.Context,
+    *,
+    api_url: str | None = None,
+    token: str | None = None,
+) -> None:
     """ECU Men's Ice Hockey calendar synchronization and export CLI."""
+    ctx.ensure_object(dict)
+    ctx.obj["api_url"] = api_url
+    ctx.obj["token"] = token
 
 
 # Register subcommands

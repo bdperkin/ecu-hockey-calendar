@@ -721,15 +721,19 @@ Expected Response:
 
 ### 8.2. Operational Commands Quick Reference
 
-| Operational Task                    | Command                                                                                      |
-| :---------------------------------- | :------------------------------------------------------------------------------------------- |
-| **Run On-Demand Synchronization**   | `ecu-hockey sync --notify`                                                                   |
-| **Inspect System & Sync Telemetry** | `ecu-hockey status`                                                                          |
-| **List Unresolved Data Conflicts**  | `ecu-hockey conflicts --review-only`                                                         |
-| **Trigger Remote Sync via API**     | `curl -X POST https://api.domain.com/api/v1/sync/trigger -H "Authorization: Bearer <TOKEN>"` |
-| **Export Master ICS Schedule**      | `ecu-hockey export schedule.ics`                                                             |
-| **Apply Database Migrations**       | `uv run alembic upgrade head`                                                                |
-| **Rollback Previous Migration**     | `uv run alembic downgrade -1`                                                                |
+| Operational Task                    | Command                                                                                                   |
+| :---------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **Run On-Demand Synchronization**   | `ecu-hockey sync --notify`                                                                                |
+| **Trigger Remote Sync via CLI**     | `ecu-hockey sync --api-url https://ecu-hockey-api.onrender.com --token <TOKEN>`                           |
+| **Inspect System & Sync Telemetry** | `ecu-hockey status`                                                                                       |
+| **Query Remote Production Status**  | `ecu-hockey status --api-url https://ecu-hockey-api.onrender.com`                                         |
+| **List Unresolved Data Conflicts**  | `ecu-hockey conflicts --review-only`                                                                      |
+| **Inspect Remote Discrepancies**    | `ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token <TOKEN> --review-only`        |
+| **Export Master ICS Schedule**      | `ecu-hockey export schedule.ics`                                                                          |
+| **Export Remote Production PDF**    | `ecu-hockey export --api-url https://ecu-hockey-api.onrender.com -f pdf -o schedule.pdf`                  |
+| **Trigger Remote Sync via HTTP**    | `curl -X POST https://ecu-hockey-api.onrender.com/api/v1/sync/trigger -H "Authorization: Bearer <TOKEN>"` |
+| **Apply Database Migrations**       | `uv run alembic upgrade head`                                                                             |
+| **Rollback Previous Migration**     | `uv run alembic downgrade -1`                                                                             |
 
 ### 8.3. Runbook: Investigating & Mitigating Deployment Failures
 

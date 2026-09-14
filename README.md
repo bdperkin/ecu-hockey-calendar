@@ -461,13 +461,22 @@ ecu-hockey sync --season 2026-2027 --dry-run
 # Display operational health, database connectivity, and team record overview
 ecu-hockey status
 
+# Query remote production deployment status directly via HTTP API
+ecu-hockey status --api-url https://ecu-hockey-api.onrender.com
+
 # Export schedule to RFC 5545 iCalendar (.ics), JSON, or CSV
 ecu-hockey export schedule.ics
 ecu-hockey export --home-only -f csv home_games.csv
 ecu-hockey export -f json | jq '.[0]'
 
+# Export printable PDF schedule directly from remote production API
+ecu-hockey export --api-url https://ecu-hockey-api.onrender.com -f pdf -o schedule.pdf
+
 # Inspect active cross-source discrepancies and conflicting fixtures
 ecu-hockey conflicts --review-only
+
+# Review discrepancies on remote production deployment
+ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token secret-token-123 --review-only
 
 # Launch local Uvicorn ASGI server hosting the calendar feeds
 ecu-hockey serve --port 8000
@@ -478,14 +487,14 @@ ecu-hockey notify -m "ECU vs NC State rescheduled to 8:00 PM" -s warning
 
 #### 5.7.1. Subcommand Reference Table
 
-| Subcommand  | Purpose                                                     | Key Options & Flags                                                                                         |
-| :---------- | :---------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
-| `sync`      | Crawl sources, reconcile matches, diff state, and update DB | `--source [all\|ecuhockey\|acchockey]`, `--dry-run`, `--notify / --no-notify`, `--season`, `--db-url`       |
-| `status`    | Display operational health, DB status, and season record    | `--season`, `--db-url`                                                                                      |
-| `export`    | Export canonical schedule to `.ics`, `.json`, or `.csv`     | `-f, --format [ics\|json\|csv]`, `-o, --output <file>`, `--season`, `--opponent`, `--home-only`, `--status` |
-| `conflicts` | Review multi-source discrepancies and flagged matches       | `--severity [low\|medium\|high\|critical]`, `--review-only`, `--field <name>`, `--db-url`                   |
-| `serve`     | Run the FastAPI ASGI server with Uvicorn                    | `-h, --host`, `-p, --port`, `--reload / --no-reload`, `--db-url`                                            |
-| `notify`    | Dispatch custom alerts across webhook channels              | `-m, --message`, `-t, --title`, `-s, --severity [info\|warning\|alert]`, `-c, --channel`                    |
+| Subcommand  | Purpose                                                     | Key Options & Flags                                                                                                             |
+| :---------- | :---------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| `sync`      | Crawl sources, reconcile matches, diff state, and update DB | `--source [all\|ecuhockey\|acchockey]`, `--dry-run`, `--notify / --no-notify`, `--api-url`, `--token`, `--season`, `--db-url`   |
+| `status`    | Display operational health, DB status, and season record    | `--api-url`, `--token`, `--season`, `--db-url`                                                                                  |
+| `export`    | Export canonical schedule to `.ics`, `.json`, or `.csv`     | `-f, --format [ics\|json\|csv\|pdf\|html\|rss\|atom]`, `-o, --output <file>`, `--api-url`, `--token`, `--season`, `--home-only` |
+| `conflicts` | Review multi-source discrepancies and flagged matches       | `--severity [low\|medium\|high\|critical]`, `--review-only`, `--field <name>`, `--api-url`, `--token`, `--db-url`               |
+| `serve`     | Run the FastAPI ASGI server with Uvicorn                    | `-h, --host`, `-p, --port`, `--reload / --no-reload`, `--db-url`                                                                |
+| `notify`    | Dispatch custom alerts across webhook channels              | `-m, --message`, `-t, --title`, `-s, --severity [info\|warning\|alert]`, `-c, --channel`                                        |
 
 For advanced usage details and exhaustive flag options, see the [CLI Documentation](docs/cli.md).
 

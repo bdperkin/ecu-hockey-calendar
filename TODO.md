@@ -54,6 +54,8 @@ ______________________________________________________________________
     - [2.8.2. Phase 8.2: Visual Brand Identity & Project Logo Assets](#282-phase-82-visual-brand-identity--project-logo-assets)
     - [2.8.3. Phase 8.3: Browser Favicons & Web Application Touch Icons](#283-phase-83-browser-favicons--web-application-touch-icons)
     - [2.8.4. Phase 8.4: Comprehensive Documentation Audit & Reconciliation](#284-phase-84-comprehensive-documentation-audit--reconciliation)
+  - [2.9. Milestone 9: v0.9.0 - Remote CLI & Operational Tooling](#29-milestone-9-v090---remote-cli--operational-tooling)
+    - [2.9.1. Phase 9.1: Remote HTTP API Client Integration](#291-phase-91-remote-http-api-client-integration)
 - [3. CodeQL Security & Quality Audit Trail](#3-codeql-security--quality-audit-trail)
 - [4. Implementation Sequencing & Dependency Graph](#4-implementation-sequencing--dependency-graph)
   - [4.1. Sequencing Rationale](#41-sequencing-rationale)
@@ -459,6 +461,14 @@ ______________________________________________________________________
   - **Summary:** Final verification pass proving every internal and external documentation surface matches the shipped system once all preceding roadmap issues are complete.
   - **Description:** Audit `README.md`, `DEPLOYMENT.md`, the full Sphinx site, `CONTRIBUTING.md`, `SUPPORT.md`, and repository metadata against the running service, verifying that every documented endpoint, CLI subcommand, flag, query parameter, code example, and URL is accurate. Reconcile the content negotiation and `?format=` behavior that Issues #97 through #102 introduce without carrying documentation requirements of their own, close the missing documentation alignment phases for Milestones 6, 7, and 8, cover surfaces no issue owns (`docs/api.md`, `docs/cli.md`, `docs/index.md`, repository topics), and confirm docstring coverage, `TODO.md` cross-references, and the CodeQL audit trail remain current. Publish a written audit report and split out follow-up issues for anything not fixed inline.
 
+### 2.9. Milestone 9: v0.9.0 - Remote CLI & Operational Tooling
+
+#### 2.9.1. Phase 9.1: Remote HTTP API Client Integration
+
+- [x] **[#164](https://github.com/bdperkin/ecu-hockey-calendar/issues/164) - feat(cli): remote HTTP API client integration for operational subcommands (--api-url)**
+  - **Summary:** Remote HTTP API client integration in `ecu-hockey` CLI for operational subcommands (`status`, `conflicts`, `export`, `sync`).
+  - **Description:** Implement `RemoteApiClient` in `ecu_hockey_calendar.api.client` using `httpx`, add `--api-url` (`ECU_HOCKEY_API_URL`) and `--token` (`ECU_HOCKEY_ADMIN_TOKEN`) to the root CLI group and subcommands, and support remote telemetry querying, conflict inspection, schedule exports, and on-demand synchronization triggers without requiring direct database networking access.
+
 ______________________________________________________________________
 
 ## 3. CodeQL Security & Quality Audit Trail
@@ -563,6 +573,10 @@ flowchart TD
         T103["#103: Full Documentation Audit"]
     end
 
+    subgraph M9["Stage 8: Milestone 9 (Remote CLI & Operational Tooling)"]
+        T164["#164: Remote HTTP API Client Integration"]
+    end
+
     T47 --> T44
     T44 --> T45
     T45 --> T48
@@ -606,6 +620,7 @@ flowchart TD
     T78 --> T142
     T142 --> T144
     T144 --> T103
+    T103 --> T164
     T102 -.informs.-> T116
     T102 -.informs.-> T117
     T117 -.powers.-> T99
@@ -660,3 +675,5 @@ flowchart TD
    - Issue **[#142](https://github.com/bdperkin/ecu-hockey-calendar/issues/142)** establishes the visual brand identity, SVG vector logo, and Open Graph social preview assets across `README.md`, Sphinx docs, and web application templates. Sequenced prior to Issue **[#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103)** so the final comprehensive documentation audit validates logo placement, Sphinx asset rendering, and image links across all surfaces.
    - Issue **[#144](https://github.com/bdperkin/ecu-hockey-calendar/issues/144)** derives multi-resolution favicon and touch icon assets from the logo, provides the cached `GET /favicon.ico` endpoint, and configures web manifest and Sphinx browser tab branding before the final documentation audit.
    - Issue **[#103](https://github.com/bdperkin/ecu-hockey-calendar/issues/103)** closes the roadmap with a full documentation audit. It is sequenced last by necessity: it verifies the documentation against the completed system rather than against intent. It also covers three structural gaps — Issues **[#97](https://github.com/bdperkin/ecu-hockey-calendar/issues/97)** through **[#102](https://github.com/bdperkin/ecu-hockey-calendar/issues/102)** change public API behavior without carrying documentation requirements, Milestones 6, 7, and 8 have no documentation alignment phase of their own, and several surfaces (`docs/api.md`, `docs/cli.md`, `docs/index.md`, repository topics) are owned by no issue at all.
+8. **Milestone 9 (Remote CLI & Operational Tooling)**:
+   - Issue **[#164](https://github.com/bdperkin/ecu-hockey-calendar/issues/164)** enables operational commands (`status`, `conflicts`, `export`, `sync`) to communicate directly with remote HTTP API deployments (such as `https://ecu-hockey-api.onrender.com`) via `--api-url` and `--token`, without requiring direct PostgreSQL/SQLite network access.
