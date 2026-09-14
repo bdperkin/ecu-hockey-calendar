@@ -57,6 +57,10 @@ ______________________________________________________________________
   - [2.9. Milestone 9: v0.9.0 - Remote CLI & Operational Tooling](#29-milestone-9-v090---remote-cli--operational-tooling)
     - [2.9.1. Phase 9.1: Remote HTTP API Client Integration](#291-phase-91-remote-http-api-client-integration)
     - [2.9.2. Phase 9.2: Conflict Detection Transition Query Reconciliation](#292-phase-92-conflict-detection-transition-query-reconciliation)
+    - [2.9.3. Phase 9.3: Canonical Schedule Routes, Legacy Aliasing & Parameter Normalization](#293-phase-93-canonical-schedule-routes-legacy-aliasing--parameter-normalization)
+    - [2.9.4. Phase 9.4: Clean WebUI Dashboard Routes & Health REST Parity](#294-phase-94-clean-webui-dashboard-routes--health-rest-parity)
+    - [2.9.5. Phase 9.5: CLI Command Parity & Options Alignment](#295-phase-95-cli-command-parity--options-alignment)
+    - [2.9.6. Phase 9.6: Interface Consistency Documentation & Test Suite Reconciliation](#296-phase-96-interface-consistency-documentation--test-suite-reconciliation)
 - [3. CodeQL Security & Quality Audit Trail](#3-codeql-security--quality-audit-trail)
 - [4. Implementation Sequencing & Dependency Graph](#4-implementation-sequencing--dependency-graph)
   - [4.1. Sequencing Rationale](#41-sequencing-rationale)
@@ -472,9 +476,33 @@ ______________________________________________________________________
 
 #### 2.9.2. Phase 9.2: Conflict Detection Transition Query Reconciliation
 
-- [ ] **[#166](https://github.com/bdperkin/ecu-hockey-calendar/issues/166) - fix(conflicts): reconcile CONFLICT_DETECTED change type query filter in API and CLI**
+- [x] **[#166](https://github.com/bdperkin/ecu-hockey-calendar/issues/166) - fix(conflicts): reconcile CONFLICT_DETECTED change type query filter in API and CLI**
   - **Summary:** Fix discrepancy filtering in API `/api/v1/conflicts` and `ecu-hockey conflicts` to query for `CONFLICT_DETECTED` state transitions.
   - **Description:** Update conflict queries in `ecu_hockey_calendar.api.routes.conflicts` and `ecu_hockey_calendar.cli.conflicts` to include `"CONFLICT_DETECTED"` alongside `"CONFLICT"` and `"DISCREPANCY"`, add `Target: Remote API (<url>)` banner output in CLI remote mode, and add unit test coverage.
+
+#### 2.9.3. Phase 9.3: Canonical Schedule Routes, Legacy Aliasing & Parameter Normalization
+
+- [ ] **[#168](https://github.com/bdperkin/ecu-hockey-calendar/issues/168) - feat(api): canonical /schedule.* routes, legacy aliases, and query parameter normalization*\*
+  - **Summary:** Mount uniform `/schedule.<ext>` public data routes, retain backward-compatible aliases, normalize query parameters (`include_past` / `future_only`), and fix `RemoteApiClient` route lookup.
+  - **Description:** Establish `/schedule.ics`, `/schedule.json`, `/schedule.csv`, `/schedule.rss`, and `/schedule.atom` as canonical schedule feed endpoints while preserving existing paths (`/calendar.ics`, `/api/schedule.*`, `/feed.*`) as active aliases. Normalize schedule query parameters across all endpoints and update `RemoteApiClient` to use canonical paths.
+
+#### 2.9.4. Phase 9.4: Clean WebUI Dashboard Routes & Health REST Parity
+
+- [ ] **[#169](https://github.com/bdperkin/ecu-hockey-calendar/issues/169) - feat(web): clean WebUI dashboard routes (/sync, /conflicts) and /api/v1/health REST parity**
+  - **Summary:** Provide clean, un-versioned WebUI routes for `/sync` and `/conflicts`, update navigation bar links, and add `/api/v1/health` REST endpoint.
+  - **Description:** Mount `/sync` (and `/sync/status`) and `/conflicts` as content-negotiated route aliases pointing to the synchronization telemetry and discrepancy triage dashboards without leaking `/api/v1/` into browser address bars. Mount `/api/v1/health` as an alias of `/health` for uniform `/api/v1/` REST service access.
+
+#### 2.9.5. Phase 9.5: CLI Command Parity & Options Alignment
+
+- [ ] **[#170](https://github.com/bdperkin/ecu-hockey-calendar/issues/170) - feat(cli): command parity for health diagnostics, sync subcommands, and conflict options**
+  - **Summary:** Add `ecu-hockey health` CLI command, support `ecu-hockey sync status` subcommand, and add `--requires-review` and pagination options to `conflicts`.
+  - **Description:** Implement standalone `ecu-hockey health` command for inspecting health diagnostics and scraper telemetry locally or remotely. Extend `ecu-hockey sync` with a `status` subcommand while preserving top-level `ecu-hockey status`. Add `--requires-review` (aliased with `--review-only`) and pagination options (`--limit`, `--offset`) to `ecu-hockey conflicts`.
+
+#### 2.9.6. Phase 9.6: Interface Consistency Documentation & Test Suite Reconciliation
+
+- [ ] **[#171](https://github.com/bdperkin/ecu-hockey-calendar/issues/171) - docs(interfaces): comprehensive interface consistency documentation and test suite reconciliation**
+  - **Summary:** Audit and reconcile internal and external documentation (`README.md`, `DEPLOYMENT.md`, `docs/`) and expand test matrix for all canonical routes and aliases.
+  - **Description:** Update documentation and executable examples across `README.md`, `DEPLOYMENT.md`, and Sphinx docs to reflect uniform `/schedule.*` routes, clean web dashboard URLs, and new CLI capabilities. Expand test suites across all route and CLI modules to guarantee 100% statement and branch test coverage.
 
 ______________________________________________________________________
 
@@ -583,6 +611,10 @@ flowchart TD
     subgraph M9["Stage 8: Milestone 9 (Remote CLI & Operational Tooling)"]
         T164["#164: Remote HTTP API Client Integration"]
         T166["#166: Reconcile CONFLICT_DETECTED Query Filter"]
+        T168["#168: Canonical /schedule.* Routes & Aliases"]
+        T169["#169: Clean WebUI Routes & Health Parity"]
+        T170["#170: CLI Command Parity & Options"]
+        T171["#171: Consistency Docs & Tests Reconciliation"]
     end
 
     T47 --> T44
@@ -630,6 +662,10 @@ flowchart TD
     T144 --> T103
     T103 --> T164
     T164 --> T166
+    T166 --> T168
+    T168 --> T169
+    T169 --> T170
+    T170 --> T171
     T102 -.informs.-> T116
     T102 -.informs.-> T117
     T117 -.powers.-> T99
@@ -687,3 +723,7 @@ flowchart TD
 8. **Milestone 9 (Remote CLI & Operational Tooling)**:
    - Issue **[#164](https://github.com/bdperkin/ecu-hockey-calendar/issues/164)** enables operational commands (`status`, `conflicts`, `export`, `sync`) to communicate directly with remote HTTP API deployments (such as `https://ecu-hockey-api.onrender.com`) via `--api-url` and `--token`, without requiring direct PostgreSQL/SQLite network access.
    - Issue **[#166](https://github.com/bdperkin/ecu-hockey-calendar/issues/166)** reconciles the discrepancy query filter in `/api/v1/conflicts` and `ecu-hockey conflicts` to match `CONFLICT_DETECTED` transition records written by the schedule reconciliation pipeline.
+   - Issue **[#168](https://github.com/bdperkin/ecu-hockey-calendar/issues/168)** establishes uniform `/schedule.<ext>` public data routes, retains backward-compatible aliases, normalizes query parameters (`include_past` / `future_only`), and fixes `RemoteApiClient` route lookup.
+   - Issue **[#169](https://github.com/bdperkin/ecu-hockey-calendar/issues/169)** delivers clean WebUI dashboard routes (`/sync`, `/conflicts`) and `/api/v1/health` parity.
+   - Issue **[#170](https://github.com/bdperkin/ecu-hockey-calendar/issues/170)** delivers CLI command parity for health diagnostics, sync subcommands, and conflict options.
+   - Issue **[#171](https://github.com/bdperkin/ecu-hockey-calendar/issues/171)** updates documentation across all surfaces and expands the test matrix for complete verification.
