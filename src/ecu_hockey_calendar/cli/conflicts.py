@@ -11,6 +11,11 @@ from typing import TYPE_CHECKING, Any
 import click
 from sqlalchemy import select
 
+from ecu_hockey_calendar.api.client import (
+    RemoteApiAuthError,
+    RemoteApiClient,
+    RemoteApiError,
+)
 from ecu_hockey_calendar.api.routes.conflicts import _change_model_to_conflict
 from ecu_hockey_calendar.cli.console import (
     create_table,
@@ -145,6 +150,84 @@ def _render_conflicts_table(conflicts: list[dict[str, Any]]) -> Table:
     return table
 
 
+def _extract_ctx_str(obj: object, key: str) -> str | None:
+    """Extract string value from context dictionary."""
+    if isinstance(obj, dict):
+        val = obj.get(key)
+        if val is not None:
+            return str(val)
+
+    return None
+
+
+def _resolve_remote_credentials(
+    ctx: click.Context | None,
+    api_url: str | None,
+    token: str | None,
+) -> tuple[str | None, str | None]:
+    """Extract and resolve remote API URL and admin token from CLI context."""
+    obj = ctx.obj if ctx else None
+    url = api_url if api_url is not None else _extract_ctx_str(obj, "api_url")
+    tok = token if token is not None else _extract_ctx_str(obj, "token")
+    return url, tok
+
+
+def _fetch_remote_conflicts(
+    api_url: str,
+    token: str | None,
+    *,
+    severity: str | None,
+    game_id: str | None,
+    field_name: str | None,
+    review_only: bool,
+) -> list[dict[str, Any]]:
+    """Fetch conflict items from a remote ECU Hockey HTTP API instance."""
+    client = RemoteApiClient(api_url, token=token)
+    try:
+        payload = client.get_conflicts(
+            severity=severity,
+            game_id=game_id,
+            field_name=field_name,
+            review_only=review_only,
+        )
+    except RemoteApiAuthError as exc:
+        auth_msg = (
+            f"Authentication required: {exc}\n"
+            "Provide --token <TOKEN> or set ECU_HOCKEY_ADMIN_TOKEN."
+        )
+        print_error(auth_msg)
+        err_msg = "Authentication failed for remote conflicts."
+        raise click.ClickException(err_msg) from exc
+    except RemoteApiError as exc:
+        print_error(f"Failed to query conflicts from remote API: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+    return payload.get("conflicts", [])
+
+
+def _render_conflicts_display(conflicts: list[dict[str, Any]]) -> None:
+    """Render conflicts table or clean-state panel."""
+    console = get_console()
+    if not conflicts:
+        clean_msg = (
+            "[bold green]No active schedule conflicts or discrepancies found."
+            "[/bold green]\n"
+            "All crawled fixtures are aligned across upstream sources."
+        )
+        print_panel(
+            clean_msg,
+            title="[bold green]Conflict Status Clean[/bold green]",
+            border_style="green",
+        )
+        return
+
+    console.print(_render_conflicts_table(conflicts))
+    console.print(
+        "[bold]Total Discrepancies Displayed:[/] "
+        f"[bold cyan]{len(conflicts)}[/bold cyan]",
+    )
+
+
 @click.command("conflicts")
 @click.option(
     "--severity",
@@ -177,17 +260,45 @@ def _render_conflicts_table(conflicts: list[dict[str, Any]]) -> Table:
     default=None,
     help="Database connection URL override (defaults to local SQLite or DATABASE_URL).",
 )
+@click.option(
+    "--api-url",
+    envvar="ECU_HOCKEY_API_URL",
+    default=None,
+    help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
+)
+@click.option(
+    "--token",
+    envvar="ECU_HOCKEY_ADMIN_TOKEN",
+    default=None,
+    help="Administrative authentication Bearer token for protected remote endpoints.",
+)
+@click.pass_context
 def conflicts_command(  # pylint: disable=too-many-locals
+    ctx: click.Context | None,
     *,
     severity: str | None,
     game_id: str | None,
     field_name: str | None,
     review_only: bool,
     db_url: str | None,
+    api_url: str | None = None,
+    token: str | None = None,
 ) -> None:
     """Display active cross-source discrepancies in a formatted table."""
-    console = get_console()
     print_banner("CROSS-SOURCE SCHEDULE CONFLICTS & DISCREPANCIES")
+
+    api_url, token = _resolve_remote_credentials(ctx, api_url, token)
+    if api_url:
+        conflicts = _fetch_remote_conflicts(
+            api_url,
+            token,
+            severity=severity,
+            game_id=game_id,
+            field_name=field_name,
+            review_only=review_only,
+        )
+        _render_conflicts_display(conflicts)
+        return
 
     db_url_resolved = get_sync_database_url(db_url)
     engine = create_sync_engine(db_url_resolved)
@@ -205,19 +316,4 @@ def conflicts_command(  # pylint: disable=too-many-locals
         print_error(f"Failed to query conflicts from database: {exc}")
         raise click.ClickException(str(exc)) from exc
 
-    if not conflicts:
-        print_panel(
-            "[bold green]No active schedule conflicts or discrepancies found."
-            "[/bold green]\n"
-            "All crawled fixtures are aligned across upstream sources.",
-            title="[bold green]Conflict Status Clean[/bold green]",
-            border_style="green",
-        )
-        return
-
-    console.print(_render_conflicts_table(conflicts))
-    console.print()
-    console.print(
-        "[bold]Total Discrepancies Displayed:[/] "
-        f"[bold cyan]{len(conflicts)}[/bold cyan]",
-    )
+    _render_conflicts_display(conflicts)

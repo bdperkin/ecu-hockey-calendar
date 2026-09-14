@@ -20,15 +20,25 @@ python -m ecu_hockey_calendar.cli --help
 
 ______________________________________________________________________
 
-## 2. Global Database Configuration
+## 2. Database & Remote API Configuration
 
-All commands querying or updating relational state support the `--db-url` option or the `DATABASE_URL` environment variable. If omitted, the CLI defaults to a local SQLite database at `sqlite:///ecu_hockey.db`.
+The CLI supports two primary operational topologies:
+
+1. **Direct Database Persistence Mode (Default)**: Commands connect directly to SQLite or PostgreSQL storage using the `--db-url` option or the `DATABASE_URL` environment variable. If omitted, the CLI defaults to local SQLite storage at `sqlite:///ecu_hockey.db`.
+2. **Remote API Integration Mode**: Commands (`status`, `conflicts`, `export`, `sync`) can interact directly with remote HTTP API deployments (e.g., `https://ecu-hockey-api.onrender.com`) using `--api-url` (or `ECU_HOCKEY_API_URL`) and `--token` (or `ECU_HOCKEY_ADMIN_TOKEN`). This eliminates the requirement for direct database port exposure, VPNs, or network ingress into production databases.
 
 ```bash
-# Example using PostgreSQL environment variable
+# Direct database access via PostgreSQL
 export DATABASE_URL="postgresql://localhost:5432/ecu_hockey"
 ecu-hockey status
+
+# Remote API access against production deployment
+export ECU_HOCKEY_API_URL="https://ecu-hockey-api.onrender.com"
+export ECU_HOCKEY_ADMIN_TOKEN="your-admin-secret-token"
+ecu-hockey status
 ```
+
+Options `--api-url` and `--token` can be supplied globally before subcommands (e.g. `ecu-hockey --api-url ... status`) or directly on individual subcommands (e.g. `ecu-hockey status --api-url ...`).
 
 ______________________________________________________________________
 
@@ -44,14 +54,16 @@ ecu-hockey sync [OPTIONS]
 
 **Options:**
 
-| Option                   | Environment Variable | Default    | Description                                                                              |
-| :----------------------- | :------------------- | :--------- | :--------------------------------------------------------------------------------------- |
-| `-s, --source`           | —                    | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`).               |
-| `--dry-run`              | —                    | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.   |
-| `--notify / --no-notify` | —                    | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes. |
-| `--notify-individual`    | —                    | `False`    | Dispatch individual alert messages for each detected schedule change.                    |
-| `--db-url`               | `DATABASE_URL`       | `None`     | Database connection URL override.                                                        |
-| `--season`               | —                    | `None`     | Optional season filter (e.g., `2026-2027`).                                              |
+| Option                   | Environment Variable     | Default    | Description                                                                              |
+| :----------------------- | :----------------------- | :--------- | :--------------------------------------------------------------------------------------- |
+| `-s, --source`           | —                        | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`).               |
+| `--dry-run`              | —                        | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.   |
+| `--notify / --no-notify` | —                        | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes. |
+| `--notify-individual`    | —                        | `False`    | Dispatch individual alert messages for each detected schedule change.                    |
+| `--db-url`               | `DATABASE_URL`           | `None`     | Database connection URL override.                                                        |
+| `--season`               | —                        | `None`     | Optional season filter (e.g., `2026-2027`).                                              |
+| `--api-url`              | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).             |
+| `--token`                | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.               |
 
 **Examples:**
 
@@ -64,6 +76,9 @@ ecu-hockey sync --season 2026-2027 --dry-run
 
 # Ingest exclusively from the official team site without sending notifications
 ecu-hockey sync --source ecuhockey --no-notify
+
+# Trigger on-demand sync cycle on a remote deployment
+ecu-hockey sync --api-url https://ecu-hockey-api.onrender.com --token secret-token-123
 ```
 
 ______________________________________________________________________
@@ -78,16 +93,22 @@ ecu-hockey status [OPTIONS]
 
 **Options:**
 
-| Option     | Environment Variable | Default | Description                                 |
-| :--------- | :------------------- | :------ | :------------------------------------------ |
-| `--db-url` | `DATABASE_URL`       | `None`  | Database connection URL override.           |
-| `--season` | —                    | `None`  | Optional season filter (e.g., `2026-2027`). |
+| Option      | Environment Variable     | Default | Description                                                                  |
+| :---------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
+| `--db-url`  | `DATABASE_URL`           | `None`  | Database connection URL override.                                            |
+| `--season`  | —                        | `None`  | Optional season filter (e.g., `2026-2027`).                                  |
+| `--api-url` | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`). |
+| `--token`   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.   |
 
-**Example:**
+**Examples:**
 
 ```bash
+# Inspect local database status
 ecu-hockey status
 ecu-hockey status --season 2026-2027
+
+# Inspect remote production deployment status
+ecu-hockey status --api-url https://ecu-hockey-api.onrender.com
 ```
 
 ______________________________________________________________________
@@ -102,22 +123,24 @@ ecu-hockey export [OPTIONS] [OUTPUT_FILE]
 
 **Options:**
 
-| Option                           | Environment Variable | Default               | Description                                                                                                                |
-| :------------------------------- | :------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------- |
-| `-f, --format`                   | —                    | Auto-detected / `ics` | Output serialization format (`ics`, `json`, `csv`, `html`, `pdf`, `rss`, `atom`). Auto-detected from `--output` extension. |
-| `-o, --output`                   | —                    | `None` (stdout)       | Destination file path (if omitted, writes to stdout).                                                                      |
-| `--season`                       | —                    | `None`                | Optional season filter (e.g., `2026-2027`).                                                                                |
-| `--opponent`                     | —                    | `None`                | Filter games by opponent team name substring.                                                                              |
-| `--home-only`                    | —                    | `False`               | Filter games to only home matchups hosted by ECU.                                                                          |
-| `--status`                       | —                    | `None`                | Filter by fixture status (e.g., `scheduled`, `final`, `cancelled`).                                                        |
-| `--embed`                        | —                    | `False`               | Export lightweight embeddable widget HTML view instead of full schedule page.                                              |
-| `--include-past / --future-only` | —                    | `--include-past`      | Include completed and historical fixtures in export.                                                                       |
-| `--db-url`                       | `DATABASE_URL`       | `None`                | Database connection URL override.                                                                                          |
+| Option                           | Environment Variable     | Default               | Description                                                                                                                |
+| :------------------------------- | :----------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------- |
+| `-f, --format`                   | —                        | Auto-detected / `ics` | Output serialization format (`ics`, `json`, `csv`, `html`, `pdf`, `rss`, `atom`). Auto-detected from `--output` extension. |
+| `-o, --output`                   | —                        | `None` (stdout)       | Destination file path (if omitted, writes to stdout).                                                                      |
+| `--season`                       | —                        | `None`                | Optional season filter (e.g., `2026-2027`).                                                                                |
+| `--opponent`                     | —                        | `None`                | Filter games by opponent team name substring.                                                                              |
+| `--home-only`                    | —                        | `False`               | Filter games to only home matchups hosted by ECU.                                                                          |
+| `--status`                       | —                        | `None`                | Filter by fixture status (e.g., `scheduled`, `final`, `cancelled`).                                                        |
+| `--embed`                        | —                        | `False`               | Export lightweight embeddable widget HTML view instead of full schedule page.                                              |
+| `--include-past / --future-only` | —                        | `--include-past`      | Include completed and historical fixtures in export.                                                                       |
+| `--db-url`                       | `DATABASE_URL`           | `None`                | Database connection URL override.                                                                                          |
+| `--api-url`                      | `ECU_HOCKEY_API_URL`     | `None`                | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                               |
+| `--token`                        | `ECU_HOCKEY_ADMIN_TOKEN` | `None`                | Administrative authentication Bearer token for protected remote endpoints.                                                 |
 
 **Examples:**
 
 ```bash
-# Export iCalendar file
+# Export iCalendar file from local database
 ecu-hockey export schedule.ics
 
 # Export RSS 2.0 syndication feed
@@ -143,6 +166,9 @@ ecu-hockey export --home-only -f pdf home_schedule.pdf
 
 # Stream JSON schedule to stdout and pipe to jq
 ecu-hockey export -f json | jq '.[0]'
+
+# Export printable PDF directly from remote production API without local database access
+ecu-hockey export --api-url https://ecu-hockey-api.onrender.com -f pdf -o remote_schedule.pdf
 ```
 
 ______________________________________________________________________
@@ -157,18 +183,20 @@ ecu-hockey conflicts [OPTIONS]
 
 **Options:**
 
-| Option                  | Environment Variable | Default      | Description                                                                       |
-| :---------------------- | :------------------- | :----------- | :-------------------------------------------------------------------------------- |
-| `--severity`            | —                    | `None` (all) | Filter discrepancies by severity level (`low`, `medium`, `high`, `critical`).     |
-| `--game-id`             | —                    | `None`       | Filter discrepancies for a specific canonical game identifier.                    |
-| `--field`               | —                    | `None` (all) | Filter discrepancies by conflicting attribute name (e.g., `venue`, `start_time`). |
-| `--review-only / --all` | —                    | `--all`      | Show only discrepancies flagged as requiring administrative review.               |
-| `--db-url`              | `DATABASE_URL`       | `None`       | Database connection URL override.                                                 |
+| Option                  | Environment Variable     | Default      | Description                                                                       |
+| :---------------------- | :----------------------- | :----------- | :-------------------------------------------------------------------------------- |
+| `--severity`            | —                        | `None` (all) | Filter discrepancies by severity level (`low`, `medium`, `high`, `critical`).     |
+| `--game-id`             | —                        | `None`       | Filter discrepancies for a specific canonical game identifier.                    |
+| `--field`               | —                        | `None` (all) | Filter discrepancies by conflicting attribute name (e.g., `venue`, `start_time`). |
+| `--review-only / --all` | —                        | `--all`      | Show only discrepancies flagged as requiring administrative review.               |
+| `--db-url`              | `DATABASE_URL`           | `None`       | Database connection URL override.                                                 |
+| `--api-url`             | `ECU_HOCKEY_API_URL`     | `None`       | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).      |
+| `--token`               | `ECU_HOCKEY_ADMIN_TOKEN` | `None`       | Administrative authentication Bearer token for protected remote endpoints.        |
 
 **Examples:**
 
 ```bash
-# List all active schedule discrepancies
+# List all active schedule discrepancies from local database
 ecu-hockey conflicts
 
 # Show only discrepancies requiring manual administrative review
@@ -176,6 +204,9 @@ ecu-hockey conflicts --review-only
 
 # Filter discrepancies affecting game start times with critical severity
 ecu-hockey conflicts --field start_time --severity critical
+
+# Inspect discrepancies on remote production deployment (authenticated)
+ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token secret-token-123 --review-only
 ```
 
 ______________________________________________________________________
