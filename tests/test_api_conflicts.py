@@ -125,7 +125,7 @@ def test_conflicts_content_negotiation_html() -> None:
     assert "2024-10-11T19:00:00" in html
     assert "2024-10-11T20:00:00" in html
     assert "View as JSON" in html
-    assert "/api/v1/sync/status" in html
+    assert "/sync" in html
 
 
 def test_conflicts_content_negotiation_json_defaults() -> None:
@@ -433,7 +433,7 @@ def test_conflicts_empty_state_zero_conflicts() -> None:
     assert "No Conflicts Detected" in html
     assert "All schedule data sources are currently aligned" in html
     assert "/schedule" in html
-    assert "/api/v1/sync/status" in html
+    assert "/sync" in html
 
 
 def test_conflicts_empty_state_filtered_no_matches() -> None:
@@ -877,3 +877,43 @@ def test_extract_conflicts_all_supported_change_types(tmp_path: Path) -> None:
     result_game_ids = {r["game_id"] for r in results}
     assert result_game_ids == {"game-detected", "game-conflict", "game-discrepancy"}
     assert "game-other" not in result_game_ids
+
+
+def test_conflicts_clean_route_alias_parity() -> None:
+    """Verify /conflicts clean WebUI route alias parity with /api/v1/conflicts."""
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    conflict = _build_sample_detected_conflict()
+    app.state.conflicts_override = [conflict]
+    client = TestClient(app)
+
+    # 1. Unauthenticated request returns 401
+    unauth_resp = client.get("/conflicts")
+    assert unauth_resp.status_code == 401
+
+    # 2. JSON parity
+    resp_clean = client.get("/conflicts", headers=AUTH_HEADERS)
+    resp_api = client.get("/api/v1/conflicts", headers=AUTH_HEADERS)
+    assert resp_clean.status_code == 200
+    assert resp_api.status_code == 200
+    assert resp_clean.json() == resp_api.json()
+
+    # 3. HTML content negotiation parity
+    browser_headers = {
+        **AUTH_HEADERS,
+        "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+    }
+    resp_clean_html = client.get("/conflicts", headers=browser_headers)
+    resp_api_html = client.get("/api/v1/conflicts", headers=browser_headers)
+    assert resp_clean_html.status_code == 200
+    assert resp_api_html.status_code == 200
+    assert "text/html" in resp_clean_html.headers["content-type"]
+    assert "Administrative Conflict Triage" in resp_clean_html.text
+
+    # 4. Query parameter filtering parity
+    resp_filtered_clean = client.get("/conflicts?severity=high", headers=AUTH_HEADERS)
+    resp_filtered_api = client.get(
+        "/api/v1/conflicts?severity=high",
+        headers=AUTH_HEADERS,
+    )
+    assert resp_filtered_clean.status_code == 200
+    assert resp_filtered_clean.json() == resp_filtered_api.json()

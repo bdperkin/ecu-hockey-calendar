@@ -317,6 +317,68 @@ def _build_health_data(request: Request) -> tuple[dict[str, Any], int]:
     return payload, status_code
 
 
+HEALTH_RESPONSES: dict[int | str, dict[str, Any]] = {
+    200: {
+        "description": "Service is healthy and ready to process traffic.",
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "status": {"type": "string"},
+                        "service": {"type": "string"},
+                        "version": {"type": "string"},
+                        "timestamp": {"type": "string"},
+                        "uptime_seconds": {"type": "number"},
+                        "components": {"type": "object"},
+                    },
+                    "required": [
+                        "status",
+                        "service",
+                        "version",
+                        "timestamp",
+                        "uptime_seconds",
+                        "components",
+                    ],
+                },
+            },
+            "text/html": {
+                "schema": {"type": "string"},
+            },
+        },
+    },
+    503: {
+        "description": "Service is unhealthy or dependencies are unreachable.",
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "status": {"type": "string"},
+                        "service": {"type": "string"},
+                        "version": {"type": "string"},
+                        "timestamp": {"type": "string"},
+                        "uptime_seconds": {"type": "number"},
+                        "components": {"type": "object"},
+                    },
+                    "required": [
+                        "status",
+                        "service",
+                        "version",
+                        "timestamp",
+                        "uptime_seconds",
+                        "components",
+                    ],
+                },
+            },
+            "text/html": {
+                "schema": {"type": "string"},
+            },
+        },
+    },
+}
+
+
 @health_router.get(
     "/health",
     summary="Service Liveness and Readiness Probe",
@@ -324,66 +386,17 @@ def _build_health_data(request: Request) -> tuple[dict[str, Any], int]:
         "Comprehensive health probe reporting overall service status, relational "
         "database connectivity, and ingestion scraper telemetry."
     ),
-    responses={
-        200: {
-            "description": "Service is healthy and ready to process traffic.",
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "status": {"type": "string"},
-                            "service": {"type": "string"},
-                            "version": {"type": "string"},
-                            "timestamp": {"type": "string"},
-                            "uptime_seconds": {"type": "number"},
-                            "components": {"type": "object"},
-                        },
-                        "required": [
-                            "status",
-                            "service",
-                            "version",
-                            "timestamp",
-                            "uptime_seconds",
-                            "components",
-                        ],
-                    },
-                },
-                "text/html": {
-                    "schema": {"type": "string"},
-                },
-            },
-        },
-        503: {
-            "description": "Service is unhealthy or dependencies are unreachable.",
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "status": {"type": "string"},
-                            "service": {"type": "string"},
-                            "version": {"type": "string"},
-                            "timestamp": {"type": "string"},
-                            "uptime_seconds": {"type": "number"},
-                            "components": {"type": "object"},
-                        },
-                        "required": [
-                            "status",
-                            "service",
-                            "version",
-                            "timestamp",
-                            "uptime_seconds",
-                            "components",
-                        ],
-                    },
-                },
-                "text/html": {
-                    "schema": {"type": "string"},
-                },
-            },
-        },
-    },
+    responses=HEALTH_RESPONSES,
+)
+@health_router.get(
+    "/api/v1/health",
+    summary="Service Liveness and Readiness Probe (REST API)",
+    description=(
+        "Comprehensive health probe reporting overall service status, relational "
+        "database connectivity, and ingestion scraper telemetry. "
+        "REST API endpoint alias."
+    ),
+    responses=HEALTH_RESPONSES,
 )
 def get_health_probe(
     request: Request,
@@ -434,6 +447,11 @@ def get_health_probe(
 @health_router.head(
     "/health",
     summary="Health Check Headers",
+    description="Inspect health check status code without response payload.",
+)
+@health_router.head(
+    "/api/v1/health",
+    summary="Health Check Headers (REST API)",
     description="Inspect health check status code without response payload.",
 )
 def head_health_probe(

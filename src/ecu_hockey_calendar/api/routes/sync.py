@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from sqlalchemy import Engine
     from sqlalchemy.orm import Session
 
-sync_router = APIRouter(prefix="/api/v1/sync", tags=["Diagnostics", "Sync"])
+sync_router = APIRouter(tags=["Diagnostics", "Sync"])
 
 
 def _format_audit_record(audit: SyncAuditModel | None) -> dict[str, Any]:
@@ -305,40 +305,63 @@ def _resolve_sync_payload(request: Request) -> dict[str, Any]:
     return _extract_db_sync_telemetry(engine, sync_manager=sync_manager)
 
 
+SYNC_STATUS_RESPONSES: dict[int | str, dict[str, Any]] = {
+    200: {
+        "description": "Synchronization status and telemetry.",
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "current_status": {"type": "string"},
+                        "last_sync": {"type": "object"},
+                        "last_success_at": {"type": "string"},
+                        "total_sync_cycles": {"type": "integer"},
+                        "sources": {"type": "array"},
+                        "sync_trigger_enabled": {"type": "boolean"},
+                        "can_trigger": {"type": "boolean"},
+                        "cooldown_remaining_seconds": {"type": "integer"},
+                        "cooldown_total_seconds": {"type": "integer"},
+                    },
+                },
+            },
+            "text/html": {
+                "schema": {"type": "string"},
+            },
+        },
+    },
+}
+
+
 @sync_router.get(
-    "/status",
+    "/sync",
     summary="Synchronization Status and Telemetry",
     description=(
         "Retrieve telemetry for the latest sync cycle, elapsed duration, "
         "individual source status, and detected change counts."
     ),
     response_model=None,
-    responses={
-        200: {
-            "description": "Synchronization status and telemetry.",
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "current_status": {"type": "string"},
-                            "last_sync": {"type": "object"},
-                            "last_success_at": {"type": "string"},
-                            "total_sync_cycles": {"type": "integer"},
-                            "sources": {"type": "array"},
-                            "sync_trigger_enabled": {"type": "boolean"},
-                            "can_trigger": {"type": "boolean"},
-                            "cooldown_remaining_seconds": {"type": "integer"},
-                            "cooldown_total_seconds": {"type": "integer"},
-                        },
-                    },
-                },
-                "text/html": {
-                    "schema": {"type": "string"},
-                },
-            },
-        },
-    },
+    responses=SYNC_STATUS_RESPONSES,
+)
+@sync_router.get(
+    "/sync/status",
+    summary="Synchronization Status and Telemetry (Web Dashboard)",
+    description=(
+        "Retrieve telemetry for the latest sync cycle, elapsed duration, "
+        "individual source status, and detected change counts."
+    ),
+    response_model=None,
+    responses=SYNC_STATUS_RESPONSES,
+)
+@sync_router.get(
+    "/api/v1/sync/status",
+    summary="Synchronization Status and Telemetry (REST API)",
+    description=(
+        "Retrieve telemetry for the latest sync cycle, elapsed duration, "
+        "individual source status, and detected change counts."
+    ),
+    response_model=None,
+    responses=SYNC_STATUS_RESPONSES,
 )
 def get_sync_status(request: Request) -> Response:
     """Retrieve synchronization telemetry, metrics, and source health.
@@ -440,8 +463,27 @@ def _dispatch_custom_handler(
     return _build_accepted_sync_response(cycle_id, source)
 
 
+SYNC_TRIGGER_RESPONSES: dict[int | str, dict[str, Any]] = {
+    status.HTTP_202_ACCEPTED: {
+        "description": "Synchronization cycle triggered successfully.",
+    },
+    status.HTTP_409_CONFLICT: {
+        "description": "A synchronization cycle is already in progress.",
+    },
+    status.HTTP_429_TOO_MANY_REQUESTS: {
+        "description": "Synchronization trigger cooldown is active.",
+    },
+    status.HTTP_501_NOT_IMPLEMENTED: {
+        "description": (
+            "On-demand synchronization trigger is not implemented or "
+            "configured in this deployment environment."
+        ),
+    },
+}
+
+
 @sync_router.post(
-    "/trigger",
+    "/sync/trigger",
     summary="Trigger Synchronization Cycle",
     description=(
         "Administrative endpoint to trigger an on-demand schedule crawl and "
@@ -450,23 +492,20 @@ def _dispatch_custom_handler(
         "or 501 Not Implemented if on-demand execution is not configured."
     ),
     status_code=status.HTTP_202_ACCEPTED,
-    responses={
-        status.HTTP_202_ACCEPTED: {
-            "description": "Synchronization cycle triggered successfully.",
-        },
-        status.HTTP_409_CONFLICT: {
-            "description": "A synchronization cycle is already in progress.",
-        },
-        status.HTTP_429_TOO_MANY_REQUESTS: {
-            "description": "Synchronization trigger cooldown is active.",
-        },
-        status.HTTP_501_NOT_IMPLEMENTED: {
-            "description": (
-                "On-demand synchronization trigger is not implemented or "
-                "configured in this deployment environment."
-            ),
-        },
-    },
+    responses=SYNC_TRIGGER_RESPONSES,
+    dependencies=[Depends(verify_admin_token)],
+)
+@sync_router.post(
+    "/api/v1/sync/trigger",
+    summary="Trigger Synchronization Cycle (REST API)",
+    description=(
+        "Administrative endpoint to trigger an on-demand schedule crawl and "
+        "reconciliation cycle. Requires administrator authentication. Returns "
+        "409 Conflict if already running, 429 Too Many Requests if in cooldown, "
+        "or 501 Not Implemented if on-demand execution is not configured."
+    ),
+    status_code=status.HTTP_202_ACCEPTED,
+    responses=SYNC_TRIGGER_RESPONSES,
     dependencies=[Depends(verify_admin_token)],
 )
 def trigger_sync_cycle(

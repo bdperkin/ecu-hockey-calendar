@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from sqlalchemy import Engine
 
 conflicts_router = APIRouter(
-    prefix="/api/v1/conflicts",
     tags=["Administration", "Conflicts"],
     dependencies=[Depends(verify_admin_token)],
 )
@@ -449,36 +448,49 @@ def _build_conflicts_context(
     }
 
 
+CONFLICTS_RESPONSES: dict[int | str, dict[str, Any]] = {
+    200: {
+        "description": "Filtered and paginated schedule conflict records.",
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "total_conflicts": {"type": "integer"},
+                        "filtered_count": {"type": "integer"},
+                        "limit": {"type": "integer"},
+                        "offset": {"type": "integer"},
+                        "conflicts": {"type": "array"},
+                    },
+                },
+            },
+            "text/html": {
+                "schema": {"type": "string"},
+            },
+        },
+    },
+}
+
+
 @conflicts_router.get(
-    "",
+    "/conflicts",
     summary="List Schedule Conflicts and Discrepancies",
     description=(
         "Administrative endpoint listing multi-source schedule discrepancies with "
         "full field diff payloads. Requires administrator Bearer or API-key token."
     ),
     response_model=None,
-    responses={
-        200: {
-            "description": "Filtered and paginated schedule conflict records.",
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "total_conflicts": {"type": "integer"},
-                            "filtered_count": {"type": "integer"},
-                            "limit": {"type": "integer"},
-                            "offset": {"type": "integer"},
-                            "conflicts": {"type": "array"},
-                        },
-                    },
-                },
-                "text/html": {
-                    "schema": {"type": "string"},
-                },
-            },
-        },
-    },
+    responses=CONFLICTS_RESPONSES,
+)
+@conflicts_router.get(
+    "/api/v1/conflicts",
+    summary="List Schedule Conflicts and Discrepancies (REST API)",
+    description=(
+        "Administrative endpoint listing multi-source schedule discrepancies with "
+        "full field diff payloads. Requires administrator Bearer or API-key token."
+    ),
+    response_model=None,
+    responses=CONFLICTS_RESPONSES,
 )
 def list_schedule_conflicts(
     request: Request,

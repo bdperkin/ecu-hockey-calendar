@@ -488,7 +488,7 @@ ______________________________________________________________________
 
 #### 2.9.4. Phase 9.4: Clean WebUI Dashboard Routes & Health REST Parity
 
-- [ ] **[#169](https://github.com/bdperkin/ecu-hockey-calendar/issues/169) - feat(web): clean WebUI dashboard routes (/sync, /conflicts) and /api/v1/health REST parity**
+- [x] **[#169](https://github.com/bdperkin/ecu-hockey-calendar/issues/169) - feat(web): clean WebUI dashboard routes (/sync, /conflicts) and /api/v1/health REST parity**
   - **Summary:** Provide clean, un-versioned WebUI routes for `/sync` and `/conflicts`, update navigation bar links, and add `/api/v1/health` REST endpoint.
   - **Description:** Mount `/sync` (and `/sync/status`) and `/conflicts` as content-negotiated route aliases pointing to the synchronization telemetry and discrepancy triage dashboards without leaking `/api/v1/` into browser address bars. Mount `/api/v1/health` as an alias of `/health` for uniform `/api/v1/` REST service access.
 

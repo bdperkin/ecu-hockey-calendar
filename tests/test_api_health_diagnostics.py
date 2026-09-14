@@ -74,8 +74,37 @@ def test_root_endpoint_includes_new_routes() -> None:
     assert response.status_code == 200
     endpoints = response.json()["endpoints"]
     assert endpoints["health"] == "/health"
-    assert endpoints["sync_status"] == "/api/v1/sync/status"
-    assert endpoints["conflicts"] == "/api/v1/conflicts"
+    assert endpoints["health_api"] == "/api/v1/health"
+    assert endpoints["sync"] == "/sync"
+    assert endpoints["sync_status"] == "/sync/status"
+    assert endpoints["sync_status_api"] == "/api/v1/sync/status"
+    assert endpoints["conflicts"] == "/conflicts"
+    assert endpoints["conflicts_api"] == "/api/v1/conflicts"
+
+
+def test_health_probe_api_alias_parity() -> None:
+    """Test GET and HEAD /api/v1/health parity with /health."""
+    app = create_app()
+    client = TestClient(app)
+
+    res_health = client.get("/health")
+    res_api = client.get("/api/v1/health")
+
+    assert res_api.status_code == 200
+    assert res_api.headers["content-type"] == res_health.headers["content-type"]
+    json_health = res_health.json()
+    json_api = res_api.json()
+    assert json_api["status"] == json_health["status"]
+    assert json_api["service"] == json_health["service"]
+    assert json_api["version"] == json_health["version"]
+    assert json_api["components"] == json_health["components"]
+
+    # HEAD parity
+    head_health = client.head("/health")
+    head_api = client.head("/api/v1/health")
+    assert head_api.status_code == 200
+    assert head_api.status_code == head_health.status_code
+    assert head_api.content == b""
 
 
 def test_health_probe_in_memory() -> None:
