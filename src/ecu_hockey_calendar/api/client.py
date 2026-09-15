@@ -231,6 +231,8 @@ def _handle_unsupported_sync(resp: httpx.Response) -> dict[str, Any]:
         data = resp.json()
         detail = data.get("detail", detail)
     except (ValueError, KeyError):
+        # Fall back to standard unconfigured sync message if payload is non-JSON
+        # or lacks a custom detail message.
         pass
 
     return {
