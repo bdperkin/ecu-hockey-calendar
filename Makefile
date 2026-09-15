@@ -25,6 +25,10 @@ sync: ## Synchronize dependencies using uv
 lock: ## Update uv lockfile
 	$(UV) lock
 
+.PHONY: assets
+assets: ## Generate and distribute responsive brand assets from source SVG
+	$(UV) run python tools/generate_assets.py
+
 .PHONY: format
 format: format-html format-yaml ## Auto-format code, markdown, toml, yaml, and templates
 	$(UV) run ruff format src tests tools
