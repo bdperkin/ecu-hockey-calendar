@@ -13,16 +13,16 @@ The API service integrates the calendar generation, data normalization, database
 │       Public Endpoints       │   Administrative Endpoints   │
 ├──────────────────────────────┼──────────────────────────────┤
 │ • GET /                      │ • POST /api/v1/sync/trigger  │
-│ • GET /schedule (HTML View)  │ • GET  /api/v1/conflicts     │
-│ • GET /schedule/embed        │                              │
+│ • GET /schedule (HTML View)  │ • POST /sync/trigger (Alias) │
+│ • GET /schedule/embed        │ • GET  /api/v1/conflicts     │
+│ • GET /schedule.ics (webcal) │ • GET  /conflicts (WebUI)    │
+│ • GET /schedule.json & .csv  │                              │
 │ • GET /schedule.pdf          │ Auth: Bearer / X-API-Key     │
-│ • GET /calendar.ics (webcal) │                              │
-│ • GET /api/schedule.json     │                              │
-│ • GET /api/schedule.csv      │                              │
-│ • GET /feed.rss & .atom      │                              │
+│ • GET /schedule.rss & .atom  │                              │
 │ • GET /site.webmanifest      │                              │
 │ • GET /favicon.ico           │                              │
-│ • GET /health                │                              │
+│ • GET /health & /api/v1/health│                             │
+│ • GET /sync & /sync/status   │                              │
 │ • GET /api/v1/sync/status    │                              │
 │ • GET /docs & /redoc         │                              │
 └──────────────┬───────────────┴──────────────┬───────────────┘
@@ -48,11 +48,11 @@ The API service integrates the calendar generation, data normalization, database
 A public, always-on production instance of the API service is hosted on Render at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/). You can query the live service immediately without installing or running a local server:
 
 ```bash
-# Query the live production schedule JSON
-curl -fsSL "https://ecu-hockey-api.onrender.com/api/schedule.json?home_only=true" | jq .
+# Query the live production schedule JSON (canonical route)
+curl -fsSL "https://ecu-hockey-api.onrender.com/schedule.json?home_only=true" | jq .
 
-# Subscribe directly to the live iCalendar feed
-open "webcal://ecu-hockey-api.onrender.com/calendar.ics"
+# Subscribe directly to the live iCalendar feed (canonical route)
+open "webcal://ecu-hockey-api.onrender.com/schedule.ics"
 
 # Check production service diagnostics
 curl -fsSL https://ecu-hockey-api.onrender.com/health | jq .
@@ -145,40 +145,45 @@ curl -s "http://localhost:8000/" | jq .
 ```json
 {
   "name": "ECU Men's Ice Hockey Calendar & Data API",
-  "version": "0.7.2",
+  "version": "0.9.0",
   "status": "online",
   "endpoints": {
     "calendar_ics": "/calendar.ics",
-    "conflicts": "/api/v1/conflicts",
+    "conflicts": "/conflicts",
+    "conflicts_api": "/api/v1/conflicts",
     "docs": "/docs",
     "favicon": "/favicon.ico",
     "feed_atom": "/feed.atom",
     "feed_rss": "/feed.rss",
     "health": "/health",
+    "health_api": "/api/v1/health",
     "logo_svg": "/static/ecu_hockey_logo.svg",
     "manifest": "/site.webmanifest",
     "openapi": "/openapi.json",
     "redoc": "/redoc",
-    "schedule_atom": "/api/schedule.atom",
-    "schedule_csv": "/api/schedule.csv",
+    "schedule_atom": "/schedule.atom",
+    "schedule_csv": "/schedule.csv",
     "schedule_embed": "/schedule/embed",
     "schedule_html": "/schedule",
-    "schedule_json": "/api/schedule.json",
+    "schedule_ics": "/schedule.ics",
+    "schedule_json": "/schedule.json",
     "schedule_pdf": "/schedule.pdf",
-    "schedule_rss": "/api/schedule.rss",
-    "sync_status": "/api/v1/sync/status"
+    "schedule_rss": "/schedule.rss",
+    "sync": "/sync",
+    "sync_status": "/sync/status",
+    "sync_status_api": "/api/v1/sync/status"
   }
 }
 ```
 
-## 4. RFC 5545 iCalendar Feed & webcal Subscriptions
+## 4. RFC 5545 iCalendar Feed & webcal Subscriptions (`/schedule.ics`)
 
-The `/calendar.ics` endpoint provides a standard iCalendar feed compatible with Apple Calendar, Google Calendar, Microsoft Outlook, and Mozilla Thunderbird.
+The `/schedule.ics` endpoint provides a canonical RFC 5545 iCalendar feed compatible with Apple Calendar, Google Calendar, Microsoft Outlook, and Mozilla Thunderbird. For backward compatibility, `/calendar.ics` is maintained as a permanent active alias.
 
 ### 4.1. Endpoint Specification
 
 - **Method**: `GET`, `HEAD`
-- **Path**: `/calendar.ics`
+- **Paths**: `/schedule.ics` (canonical), `/calendar.ics` (legacy alias)
 - **Content-Type**: `text/calendar; charset=utf-8`
 - **Content-Disposition**: `inline; filename="ecu-hockey-schedule.ics"`
 
@@ -188,6 +193,7 @@ The `/calendar.ics` endpoint provides a standard iCalendar feed compatible with 
 | :-------------- | :-------- | :------ | :--------------------------------------------------------------------------------- |
 | `season`        | `string`  | `None`  | Filter games by season (e.g. `2026-2027`). Defaults to current active season.      |
 | `include_past`  | `boolean` | `true`  | When `false`, excludes matches scheduled before the current timestamp.             |
+| `future_only`   | `boolean` | `false` | When `true`, returns only future fixtures (`future_only = not include_past`).      |
 | `alarm_minutes` | `integer` | `60`    | Lead time in minutes for reminder alarms (`VALARM`). Set to `0` to disable alarms. |
 | `webcal`        | `boolean` | `false` | When `true`, returns a `307 Temporary Redirect` to the `webcal://` URL.            |
 
@@ -201,11 +207,13 @@ For non-technical, step-by-step instructions, one-click setup, custom reminders,
 
 2. Select **File > New Calendar Subscription...** (or tap **Calendars > Add Calendar > Add Subscription Calendar** on iOS).
 
-3. Enter the subscription URL:
+3. Enter the canonical subscription URL:
 
    ```text
-   webcal://ecu-hockey-api.onrender.com/calendar.ics
+   webcal://ecu-hockey-api.onrender.com/schedule.ics
    ```
+
+   *(Legacy URL `webcal://ecu-hockey-api.onrender.com/calendar.ics` remains fully supported).*
 
 4. Set the auto-refresh interval (recommended: **Every day** or **Every hour**).
 
@@ -220,7 +228,7 @@ For non-technical, step-by-step instructions, one-click setup, custom reminders,
 4. Enter the public HTTPS subscription URL:
 
    ```text
-   https://ecu-hockey-api.onrender.com/calendar.ics
+   https://ecu-hockey-api.onrender.com/schedule.ics
    ```
 
 5. Click **Add calendar**.
@@ -234,7 +242,7 @@ For non-technical, step-by-step instructions, one-click setup, custom reminders,
 3. Paste the URL:
 
    ```text
-   https://ecu-hockey-api.onrender.com/calendar.ics
+   https://ecu-hockey-api.onrender.com/schedule.ics
    ```
 
 4. Enter a calendar name (e.g., "ECU Ice Hockey") and click **Import**.
@@ -279,25 +287,27 @@ A stripped-down schedule view specifically designed for embedding into external 
 <iframe src="https://ecu-hockey-api.onrender.com/schedule/embed" width="100%" height="600" frameborder="0"></iframe>
 ```
 
-### 5.3. JSON Data Feed (`/api/schedule.json`)
+### 5.3. JSON Data Feed (`/schedule.json`, `/api/schedule.json`)
 
 - **Method**: `GET`, `HEAD`
-- **Path**: `/api/schedule.json`
+- **Paths**: `/schedule.json` (canonical), `/api/schedule.json` (legacy alias)
 - **Content-Type**: `application/json`
 
 #### 5.3.1. Query Parameters
 
-| Parameter   | Type      | Default | Description                                                                 |
-| :---------- | :-------- | :------ | :-------------------------------------------------------------------------- |
-| `season`    | `string`  | `None`  | Filter by season label (e.g. `2026-2027`).                                  |
-| `opponent`  | `string`  | `None`  | Case-insensitive substring match on opponent team name.                     |
-| `home_only` | `boolean` | `false` | When `true`, returns only home games played at home rinks.                  |
-| `status`    | `string`  | `None`  | Filter by game status (`SCHEDULED`, `COMPLETED`, `CANCELLED`, `POSTPONED`). |
+| Parameter      | Type      | Default | Description                                                                       |
+| :------------- | :-------- | :------ | :-------------------------------------------------------------------------------- |
+| `season`       | `string`  | `None`  | Filter by season label (e.g. `2026-2027`). Defaults to all seasons.               |
+| `opponent`     | `string`  | `None`  | Case-insensitive substring match on opponent team name.                           |
+| `home_only`    | `boolean` | `false` | When `true`, returns only home games played at home rinks.                        |
+| `future_only`  | `boolean` | `false` | When `true`, filters to only upcoming matches (`future_only = not include_past`). |
+| `include_past` | `boolean` | `true`  | When `false`, excludes matches scheduled before the current timestamp.            |
+| `status`       | `string`  | `None`  | Filter by game status (`SCHEDULED`, `COMPLETED`, `CANCELLED`, `POSTPONED`).       |
 
 #### 5.3.2. Example Request & Response
 
 ```bash
-curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
+curl -s "http://localhost:8000/schedule.json?home_only=true" | jq .
 ```
 
 ```json
@@ -336,19 +346,19 @@ curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
 }
 ```
 
-### 5.4. CSV Data Feed (`/api/schedule.csv`)
+### 5.4. CSV Data Feed (`/schedule.csv`, `/api/schedule.csv`)
 
 - **Method**: `GET`, `HEAD`
-- **Path**: `/api/schedule.csv`
+- **Paths**: `/schedule.csv` (canonical), `/api/schedule.csv` (legacy alias)
 - **Content-Type**: `text/csv; charset=utf-8`
 - **Content-Disposition**: `attachment; filename="ecu-hockey-schedule.csv"`
 
-Supports identical query filters (`season`, `opponent`, `home_only`, `status`).
+Supports identical query filters (`season`, `opponent`, `home_only`, `future_only`, `include_past`, `status`).
 
 #### 5.4.1. Example Request
 
 ```bash
-curl -s "http://localhost:8000/api/schedule.csv?status=SCHEDULED"
+curl -s "http://localhost:8000/schedule.csv?status=SCHEDULED"
 ```
 
 Output:
@@ -385,12 +395,14 @@ Generates a high-contrast, ECU-branded printable schedule grid formatted specifi
 
 Supports the standard schedule query filters:
 
-| Parameter   | Type      | Default | Description                                                                 |
-| :---------- | :-------- | :------ | :-------------------------------------------------------------------------- |
-| `season`    | `string`  | `None`  | Filter by season label (e.g. `2026-2027`). Defaults to all seasons.         |
-| `opponent`  | `string`  | `None`  | Case-insensitive substring match on opponent team name.                     |
-| `home_only` | `boolean` | `false` | When `true`, includes only home matches.                                    |
-| `status`    | `string`  | `None`  | Filter by game status (`SCHEDULED`, `COMPLETED`, `CANCELLED`, `POSTPONED`). |
+| Parameter      | Type      | Default | Description                                                                               |
+| :------------- | :-------- | :------ | :---------------------------------------------------------------------------------------- |
+| `season`       | `string`  | `None`  | Filter by season label (e.g. `2026-2027`). Defaults to all seasons.                       |
+| `opponent`     | `string`  | `None`  | Case-insensitive substring match on opponent team name.                                   |
+| `home_only`    | `boolean` | `false` | When `true`, includes only home matches.                                                  |
+| `future_only`  | `boolean` | `false` | When `true`, filters to only future upcoming fixtures (`future_only = not include_past`). |
+| `include_past` | `boolean` | `true`  | When `false`, excludes past fixtures.                                                     |
+| `status`       | `string`  | `None`  | Filter by game status (`SCHEDULED`, `COMPLETED`, `CANCELLED`, `POSTPONED`).               |
 
 #### 5.5.3. Example Request
 
@@ -402,10 +414,10 @@ curl -fsSL -o schedule.pdf "http://localhost:8000/schedule.pdf?season=2026-2027"
 curl -I "http://localhost:8000/schedule.pdf"
 ```
 
-### 5.6. RSS 2.0 Syndication Feed (`/feed.rss`, `/api/schedule.rss`)
+### 5.6. RSS 2.0 Syndication Feed (`/schedule.rss`, `/feed.rss`, `/api/schedule.rss`)
 
 - **Method**: `GET`, `HEAD`
-- **Paths**: `/feed.rss`, `/api/schedule.rss`
+- **Paths**: `/schedule.rss` (canonical), `/feed.rss` (legacy alias), `/api/schedule.rss` (alias)
 - **Content-Type**: `application/rss+xml; charset=utf-8`
 - **Content-Disposition**: `inline; filename="ecu-hockey-schedule.rss"`
 
@@ -421,28 +433,29 @@ Generates a standardized RSS 2.0 XML schedule syndication feed for sports media,
 
 #### 5.6.2. Query Parameters
 
-| Parameter     | Type      | Default | Description                                                             |
-| :------------ | :-------- | :------ | :---------------------------------------------------------------------- |
-| `season`      | `string`  | `None`  | Filter by season label (e.g. `2026-2027`). Defaults to all seasons.     |
-| `opponent`    | `string`  | `None`  | Case-insensitive substring match on opponent team name.                 |
-| `home_only`   | `boolean` | `false` | When `true`, returns only home fixtures hosted by ECU.                  |
-| `future_only` | `boolean` | `false` | When `true`, filters to only future upcoming fixtures.                  |
-| `status`      | `string`  | `None`  | Filter by game status (`scheduled`, `final`, `cancelled`, `postponed`). |
+| Parameter      | Type      | Default | Description                                                                               |
+| :------------- | :-------- | :------ | :---------------------------------------------------------------------------------------- |
+| `season`       | `string`  | `None`  | Filter by season label (e.g. `2026-2027`). Defaults to all seasons.                       |
+| `opponent`     | `string`  | `None`  | Case-insensitive substring match on opponent team name.                                   |
+| `home_only`    | `boolean` | `false` | When `true`, returns only home fixtures hosted by ECU.                                    |
+| `future_only`  | `boolean` | `false` | When `true`, filters to only future upcoming fixtures (`future_only = not include_past`). |
+| `include_past` | `boolean` | `true`  | When `false`, excludes past fixtures.                                                     |
+| `status`       | `string`  | `None`  | Filter by game status (`scheduled`, `final`, `cancelled`, `postponed`).                   |
 
 #### 5.6.3. Example Request
 
 ```bash
 # Retrieve RSS 2.0 schedule feed
-curl -fsSL "http://localhost:8000/feed.rss?home_only=true"
+curl -fsSL "http://localhost:8000/schedule.rss?home_only=true"
 
 # Inspect RSS caching headers
-curl -I "http://localhost:8000/feed.rss"
+curl -I "http://localhost:8000/schedule.rss"
 ```
 
-### 5.7. Atom 1.0 Syndication Feed (`/feed.atom`, `/api/schedule.atom`)
+### 5.7. Atom 1.0 Syndication Feed (`/schedule.atom`, `/feed.atom`, `/api/schedule.atom`)
 
 - **Method**: `GET`, `HEAD`
-- **Paths**: `/feed.atom`, `/api/schedule.atom`
+- **Paths**: `/schedule.atom` (canonical), `/feed.atom` (legacy alias), `/api/schedule.atom` (alias)
 - **Content-Type**: `application/atom+xml; charset=utf-8`
 - **Content-Disposition**: `inline; filename="ecu-hockey-schedule.atom"`
 
@@ -452,10 +465,10 @@ Provides an Atom 1.0 XML schedule syndication feed conforming strictly to RFC 42
 
 ```bash
 # Retrieve Atom 1.0 schedule feed
-curl -fsSL "http://localhost:8000/feed.atom?future_only=true"
+curl -fsSL "http://localhost:8000/schedule.atom?future_only=true"
 
 # Conditional request with ETag
-curl -I -H 'If-None-Match: "3277839352210134707"' "http://localhost:8000/feed.atom"
+curl -I -H 'If-None-Match: "3277839352210134707"' "http://localhost:8000/schedule.atom"
 ```
 
 ### 5.8. Progressive Web App Manifest (`/site.webmanifest`)
@@ -501,10 +514,10 @@ The service exposes self-documenting OpenAPI specifications:
 
 ## 7. Health & Diagnostics Telemetry
 
-### 7.1. System Health Check (`/health`)
+### 7.1. System Health Check (`/health`, `/api/v1/health`)
 
 - **Method**: `GET`, `HEAD`
-- **Path**: `/health`
+- **Paths**: `/health` (canonical WebUI & probe), `/api/v1/health` (REST API alias)
 - **Content-Type**: `text/html; charset=utf-8` or `application/json` (negotiated)
 - **Header**: `Vary: Accept`
 - **Query Parameters**: `format` (`html` or `json`, optional override)
@@ -520,6 +533,9 @@ Verifies database connectivity (`SELECT 1`) and data source scraper operational 
 ```bash
 # Query JSON telemetry directly
 curl -s http://localhost:8000/health | jq .
+
+# Query via REST API alias
+curl -s http://localhost:8000/api/v1/health | jq .
 
 # Render HTML dashboard
 curl -s "http://localhost:8000/health?format=html"
@@ -554,12 +570,12 @@ Response (HTTP 200 OK):
 }
 ```
 
-If database connectivity fails, `/health` returns HTTP 503 Service Unavailable with sanitized diagnostic output in both HTML and JSON.
+If database connectivity fails, `/health` and `/api/v1/health` return HTTP 503 Service Unavailable with sanitized diagnostic output in both HTML and JSON.
 
-### 7.2. Synchronization Telemetry (`/api/v1/sync/status`)
+### 7.2. Synchronization Telemetry (`/sync`, `/sync/status`, `/api/v1/sync/status`)
 
 - **Method**: `GET`
-- **Path**: `/api/v1/sync/status`
+- **Paths**: `/sync` (canonical clean WebUI route), `/sync/status` (WebUI alias), `/api/v1/sync/status` (REST API)
 - **Content-Type**: `text/html; charset=utf-8` or `application/json` (negotiated)
 - **Header**: `Vary: Accept`
 - **Query Parameters**: `format` (`html` or `json`, optional override)
@@ -576,7 +592,7 @@ Reports metrics from recent sync cycles including elapsed execution duration, ga
 curl -s http://localhost:8000/api/v1/sync/status | jq .
 
 # View sync status HTML portal
-open "http://localhost:8000/api/v1/sync/status?format=html"
+open "http://localhost:8000/sync"
 ```
 
 ```json
@@ -626,11 +642,20 @@ curl -H "X-API-Key: secret-admin-token-12345" ...
 
 Requests without credentials or with invalid tokens receive HTTP 401 Unauthorized.
 
-### 8.2. Trigger On-Demand Synchronization (`POST /api/v1/sync/trigger`)
+### 8.2. Trigger On-Demand Synchronization (`POST /sync/trigger`, `POST /api/v1/sync/trigger`)
+
+- **Method**: `POST`
+- **Paths**: `/sync/trigger` (canonical), `/api/v1/sync/trigger` (REST API alias)
+- **Authentication**: HTTP Bearer token or `X-API-Key` header
 
 Initiates an immediate crawl and reconciliation cycle across all or specified data sources when an execution handler is configured:
 
 ```bash
+# Trigger sync cycle via canonical endpoint
+curl -X POST "http://localhost:8000/sync/trigger?source=ecuhockey" \
+  -H "Authorization: Bearer secret-admin-token-12345"
+
+# Trigger sync cycle via REST API alias
 curl -X POST "http://localhost:8000/api/v1/sync/trigger?source=ecuhockey" \
   -H "Authorization: Bearer secret-admin-token-12345"
 ```
@@ -655,10 +680,10 @@ Response when unconfigured (HTTP 501 Not Implemented):
 }
 ```
 
-### 8.3. Cross-Source Conflict Review (`GET /api/v1/conflicts`)
+### 8.3. Cross-Source Conflict Review (`/conflicts`, `/api/v1/conflicts`)
 
 - **Method**: `GET`, `HEAD`
-- **Path**: `/api/v1/conflicts`
+- **Paths**: `/conflicts` (canonical clean WebUI & API route), `/api/v1/conflicts` (REST API alias)
 - **Content-Type**: `text/html; charset=utf-8` or `application/json` (negotiated)
 - **Header**: `Vary: Accept`
 - **Authentication**: HTTP Bearer token or `X-API-Key` header
@@ -671,12 +696,16 @@ Inspects unresolved multi-source schedule discrepancies and change history.
 - **Machine Client View (`application/json`)**: Standard JSON format for administrative automation scripts and auditing CLI commands.
 
 ```bash
-# Query conflicts JSON
+# Query conflicts JSON via canonical route
+curl -s "http://localhost:8000/conflicts?severity=high&requires_review=true" \
+  -H "Authorization: Bearer secret-admin-token-12345" | jq .
+
+# Query conflicts JSON via REST API alias
 curl -s "http://localhost:8000/api/v1/conflicts?severity=high&requires_review=true" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
 
 # Render administrative conflict review dashboard in HTML
-curl -s "http://localhost:8000/api/v1/conflicts?format=html" \
+curl -s "http://localhost:8000/conflicts" \
   -H "Authorization: Bearer secret-admin-token-12345"
 ```
 

@@ -202,6 +202,14 @@ def test_feed_conditional_etag_caching(test_client: TestClient) -> None:
     assert res2.status_code == 304
     assert res2.text == ""
 
+    # Canonical /schedule.rss parity
+    can_get = test_client.get("/schedule.rss")
+    assert can_get.status_code == 200
+    can_etag = can_get.headers["etag"]
+    can_res = test_client.get("/schedule.rss", headers={"If-None-Match": can_etag})
+    assert can_res.status_code == 304
+    assert can_res.text == ""
+
 
 def test_feed_conditional_last_modified_caching(test_client: TestClient) -> None:
     """Test 304 Not Modified when client sends fresh If-Modified-Since header."""
@@ -212,6 +220,14 @@ def test_feed_conditional_last_modified_caching(test_client: TestClient) -> None
     res2 = test_client.get("/feed.atom", headers={"If-Modified-Since": last_mod})
     assert res2.status_code == 304
     assert res2.text == ""
+
+    # Canonical /schedule.atom parity
+    can_atom = test_client.get(
+        "/schedule.atom",
+        headers={"If-Modified-Since": last_mod},
+    )
+    assert can_atom.status_code == 304
+    assert can_atom.text == ""
 
 
 def test_feed_filtering_parameters(test_client: TestClient) -> None:

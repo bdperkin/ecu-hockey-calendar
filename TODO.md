@@ -500,7 +500,7 @@ ______________________________________________________________________
 
 #### 2.9.6. Phase 9.6: Interface Consistency Documentation & Test Suite Reconciliation
 
-- [ ] **[#171](https://github.com/bdperkin/ecu-hockey-calendar/issues/171) - docs(interfaces): comprehensive interface consistency documentation and test suite reconciliation**
+- [x] **[#171](https://github.com/bdperkin/ecu-hockey-calendar/issues/171) - docs(interfaces): comprehensive interface consistency documentation and test suite reconciliation**
   - **Summary:** Audit and reconcile internal and external documentation (`README.md`, `DEPLOYMENT.md`, `docs/`) and expand test matrix for all canonical routes and aliases.
   - **Description:** Update documentation and executable examples across `README.md`, `DEPLOYMENT.md`, and Sphinx docs to reflect uniform `/schedule.*` routes, clean web dashboard URLs, and new CLI capabilities. Expand test suites across all route and CLI modules to guarantee 100% statement and branch test coverage.
 
