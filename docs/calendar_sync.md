@@ -17,13 +17,13 @@ Choose the URL that matches your device, calendar client, and preference:
 
 | Calendar Client                                | Feed Type                | Subscription URL                                                                                 |
 | :--------------------------------------------- | :----------------------- | :----------------------------------------------------------------------------------------------- |
-| **Apple Calendar (iOS / iPadOS / macOS)**      | Dynamic Live (One-Click) | [Subscribe to ECU Hockey Schedule](https://ecu-hockey-api.onrender.com/calendar.ics?webcal=true) |
-| **Apple Calendar (macOS manual)**              | Dynamic Webcal           | `webcal://ecu-hockey-api.onrender.com/calendar.ics`                                              |
-| **Google Calendar, Outlook, and others**       | Dynamic Live (HTTPS)     | `https://ecu-hockey-api.onrender.com/calendar.ics`                                               |
+| **Apple Calendar (iOS / iPadOS / macOS)**      | Dynamic Live (One-Click) | [Subscribe to ECU Hockey Schedule](https://ecu-hockey-api.onrender.com/schedule.ics?webcal=true) |
+| **Apple Calendar (macOS manual)**              | Dynamic Webcal           | `webcal://ecu-hockey-api.onrender.com/schedule.ics`                                              |
+| **Google Calendar, Outlook, and others**       | Dynamic Live (HTTPS)     | `https://ecu-hockey-api.onrender.com/schedule.ics`                                               |
 | **All Clients (High-Availability CDN Mirror)** | Static CDN Feed          | `https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics`                                    |
 
 > [!TIP]
-> On iPhone, iPad, and Mac, clicking [Subscribe to ECU Hockey Schedule](https://ecu-hockey-api.onrender.com/calendar.ics?webcal=true) will prompt your device to open Apple Calendar and subscribe immediately.
+> On iPhone, iPad, and Mac, clicking [Subscribe to ECU Hockey Schedule](https://ecu-hockey-api.onrender.com/schedule.ics?webcal=true) will prompt your device to open Apple Calendar and subscribe immediately. Legacy URLs using `/calendar.ics` remain permanently supported across all clients.
 
 ### 2.1. Hosted Feed Options
 
@@ -31,7 +31,7 @@ The project provides two independent, officially maintained subscription endpoin
 
 1. **Dynamic Production API Feed (`ecu-hockey-api.onrender.com`)**:
 
-   - **URL**: `https://ecu-hockey-api.onrender.com/calendar.ics`
+   - **URL**: `https://ecu-hockey-api.onrender.com/schedule.ics` (legacy alias: `/calendar.ics`)
    - **Features**: Generates live feeds dynamically with optional custom alarm offsets (e.g., `?alarm_minutes=120`), supports instant `webcal://` one-click registration, and responds directly from PostgreSQL storage.
    - **Note**: On Render's free hosting tier, an initial request after 15 minutes of inactivity may incur a 30–50 second cold-start delay while the container spins up.
 
@@ -73,8 +73,10 @@ You can subscribe to the calendar on your mobile Apple device using either the i
 6. In the **Server** field, paste:
 
    ```text
-   https://ecu-hockey-api.onrender.com/calendar.ics
+   https://ecu-hockey-api.onrender.com/schedule.ics
    ```
+
+   *(Legacy URL `https://ecu-hockey-api.onrender.com/calendar.ics` remains fully supported).*
 
 7. Tap **Next** in the top right corner. iOS will verify the calendar feed.
 
@@ -91,10 +93,10 @@ For more details, see [Apple Support: Use iCloud calendar subscriptions](https:/
 3. In the **Calendar URL** prompt, enter:
 
    ```text
-   webcal://ecu-hockey-api.onrender.com/calendar.ics
+   webcal://ecu-hockey-api.onrender.com/schedule.ics
    ```
 
-   *(You can also use the HTTPS URL: `https://ecu-hockey-api.onrender.com/calendar.ics`)*
+   *(You can also use the HTTPS URL: `https://ecu-hockey-api.onrender.com/schedule.ics` or legacy `/calendar.ics`)*
 
 4. Click **Subscribe**.
 
@@ -122,7 +124,7 @@ Google Calendar subscriptions are set up through the web interface and automatic
 4. In the **URL of calendar** field, paste:
 
    ```text
-   https://ecu-hockey-api.onrender.com/calendar.ics
+   https://ecu-hockey-api.onrender.com/schedule.ics
    ```
 
 5. *(Optional)* Leave *Make the calendar publicly accessible* unchecked.
@@ -153,7 +155,7 @@ Subscriptions added via Outlook on the web automatically sync across the Outlook
 5. In the input box, paste:
 
    ```text
-   https://ecu-hockey-api.onrender.com/calendar.ics
+   https://ecu-hockey-api.onrender.com/schedule.ics
    ```
 
 6. In the **Calendar name** box, type: `ECU Ice Hockey` (or `ECU Men's Ice Hockey Schedule`).
@@ -175,7 +177,7 @@ For more details, see [Microsoft Support: Outlook Help & Learning](https://suppo
   3. In the dialog box, paste:
 
      ```text
-     https://ecu-hockey-api.onrender.com/calendar.ics
+     https://ecu-hockey-api.onrender.com/schedule.ics
      ```
 
   4. Click **OK**.
@@ -186,8 +188,8 @@ For more details, see [Microsoft Support: Outlook Help & Learning](https://suppo
 
 Any calendar client supporting the RFC 5545 iCalendar standard can subscribe to the feed:
 
-- **Mozilla Thunderbird**: In the Calendar tab, click the plus (**+**) sign next to *Calendars* > select **On the Network** > choose **iCalendar (ICS)** > paste `https://ecu-hockey-api.onrender.com/calendar.ics` > configure name and refresh interval.
-- **Fantastical**: Go to **File** > **New Calendar Subscription…** > paste `webcal://ecu-hockey-api.onrender.com/calendar.ics` > select sync options.
+- **Mozilla Thunderbird**: In the Calendar tab, click the plus (**+**) sign next to *Calendars* > select **On the Network** > choose **iCalendar (ICS)** > paste `https://ecu-hockey-api.onrender.com/schedule.ics` > configure name and refresh interval.
+- **Fantastical**: Go to **File** > **New Calendar Subscription…** > paste `webcal://ecu-hockey-api.onrender.com/schedule.ics` > select sync options.
 
 ## 4. Customizing Your Calendar Feed (Optional Filters)
 
@@ -204,7 +206,7 @@ The calendar service supports optional query parameters that let you customize w
 If you want a clean calendar that only shows upcoming games and hides completed matches from earlier in the season:
 
 ```text
-https://ecu-hockey-api.onrender.com/calendar.ics?include_past=false
+https://ecu-hockey-api.onrender.com/schedule.ics?include_past=false
 ```
 
 ### 4.2. Custom Reminder Alarms (`alarm_minutes=`)
@@ -214,19 +216,19 @@ By default, games include a 60-minute reminder alarm before puck drop. You can c
 - **2-hour advance reminder**:
 
   ```text
-  https://ecu-hockey-api.onrender.com/calendar.ics?alarm_minutes=120
+  https://ecu-hockey-api.onrender.com/schedule.ics?alarm_minutes=120
   ```
 
 - **30-minute reminder**:
 
   ```text
-  https://ecu-hockey-api.onrender.com/calendar.ics?alarm_minutes=30
+  https://ecu-hockey-api.onrender.com/schedule.ics?alarm_minutes=30
   ```
 
 - **Disable reminder alarms completely**:
 
   ```text
-  https://ecu-hockey-api.onrender.com/calendar.ics?alarm_minutes=0
+  https://ecu-hockey-api.onrender.com/schedule.ics?alarm_minutes=0
   ```
 
 ### 4.3. Specific Season Filter (`season=`)
@@ -234,7 +236,7 @@ By default, games include a 60-minute reminder alarm before puck drop. You can c
 Filter fixtures to an explicit season identifier:
 
 ```text
-https://ecu-hockey-api.onrender.com/calendar.ics?season=2026-2027
+https://ecu-hockey-api.onrender.com/schedule.ics?season=2026-2027
 ```
 
 ### 4.4. Combining Filters
@@ -242,13 +244,13 @@ https://ecu-hockey-api.onrender.com/calendar.ics?season=2026-2027
 You can combine multiple filters with `&`. For example, to subscribe to upcoming games only with a 2-hour pre-game reminder:
 
 ```text
-https://ecu-hockey-api.onrender.com/calendar.ics?include_past=false&alarm_minutes=120
+https://ecu-hockey-api.onrender.com/schedule.ics?include_past=false&alarm_minutes=120
 ```
 
 On macOS or iOS, prepend `webcal://` or use the redirect parameter:
 
 ```text
-https://ecu-hockey-api.onrender.com/calendar.ics?include_past=false&alarm_minutes=120&webcal=true
+https://ecu-hockey-api.onrender.com/schedule.ics?include_past=false&alarm_minutes=120&webcal=true
 ```
 
 ## 5. Frequently Asked Questions & Troubleshooting
@@ -304,10 +306,10 @@ ecu-hockey serve --port 8000
 uv run uvicorn ecu_hockey_calendar.api.app:create_app --factory --host 127.0.0.1 --port 8000 --reload
 ```
 
-Once running, the development feed is accessible at:
+Once running, the canonical development feed and legacy alias are accessible at:
 
-- **HTTP**: `http://localhost:8000/calendar.ics`
-- **Webcal**: `webcal://localhost:8000/calendar.ics`
+- **Canonical HTTP**: `http://localhost:8000/schedule.ics` (legacy: `/calendar.ics`)
+- **Canonical Webcal**: `webcal://localhost:8000/schedule.ics` (legacy: `/calendar.ics`)
 
 ### 6.2. Local Subscription Limitations
 
@@ -323,7 +325,7 @@ To test the calendar feed locally without a public production server:
 1. **Static File Import**: Download the `.ics` file directly and import it into your calendar client as a local file:
 
    ```bash
-   curl -s http://127.0.0.1:8000/calendar.ics -o local_schedule.ics
+   curl -s http://127.0.0.1:8000/schedule.ics -o local_schedule.ics
    ```
 
    Then open your calendar app and choose **File** > **Import…**.
@@ -334,4 +336,4 @@ To test the calendar feed locally without a public production server:
    ngrok http 8000
    ```
 
-   Copy the generated HTTPS forwarding URL (e.g. `https://xxxx-xx.ngrok-free.app/calendar.ics`) and paste it into Google Calendar or Apple Calendar.
+   Copy the generated HTTPS forwarding URL (e.g. `https://xxxx-xx.ngrok-free.app/schedule.ics`) and paste it into Google Calendar or Apple Calendar.

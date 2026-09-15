@@ -106,6 +106,12 @@ def test_health_probe_api_alias_parity() -> None:
     assert head_api.status_code == head_health.status_code
     assert head_api.content == b""
 
+    # Format negotiation parity
+    res_html = client.get("/api/v1/health?format=html")
+    assert res_html.status_code == 200
+    assert "text/html" in res_html.headers["content-type"]
+    assert "System Health" in res_html.text
+
 
 def test_health_probe_in_memory() -> None:
     """Test GET /health probe when running without persistent database."""

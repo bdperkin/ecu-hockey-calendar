@@ -485,24 +485,49 @@ def test_schedule_conditional_caching(sample_games: list[Game]) -> None:
     last_mod = json_resp.headers["last-modified"]
 
     # Match strong ETag
-    r304_strong = client.get("/api/schedule.json", headers={"If-None-Match": etag})
-    assert r304_strong.status_code == 304
-    assert r304_strong.content == b""
+    res_strong = client.get("/api/schedule.json", headers={"If-None-Match": etag})
+    assert res_strong.status_code == 304
+    assert res_strong.content == b""
 
     # Match weak ETag
-    r304_weak = client.get("/api/schedule.json", headers={"If-None-Match": f"W/{etag}"})
-    assert r304_weak.status_code == 304
+    assert (
+        client.get(
+            "/api/schedule.json",
+            headers={"If-None-Match": f"W/{etag}"},
+        ).status_code
+        == 304
+    )
 
     # Mismatch ETag
-    r200_etag = client.get(
-        "/api/schedule.json",
-        headers={"If-None-Match": '"mismatch"'},
+    assert (
+        client.get(
+            "/api/schedule.json",
+            headers={"If-None-Match": '"mismatch"'},
+        ).status_code
+        == 200
     )
-    assert r200_etag.status_code == 200
 
     # Match If-Modified-Since
-    r304_mod = client.get("/api/schedule.json", headers={"If-Modified-Since": last_mod})
-    assert r304_mod.status_code == 304
+    assert (
+        client.get(
+            "/api/schedule.json",
+            headers={"If-Modified-Since": last_mod},
+        ).status_code
+        == 304
+    )
+
+    # Canonical /schedule.json conditional requests
+    can_json = client.get("/schedule.json", headers={"If-None-Match": etag})
+    assert can_json.status_code == 304
+    assert can_json.content == b""
+
+    assert (
+        client.get(
+            "/schedule.json",
+            headers={"If-Modified-Since": last_mod},
+        ).status_code
+        == 304
+    )
 
     # 2. CSV conditional requests
     csv_resp = client.get("/api/schedule.csv")
@@ -510,6 +535,11 @@ def test_schedule_conditional_caching(sample_games: list[Game]) -> None:
     csv_304 = client.get("/api/schedule.csv", headers={"If-None-Match": csv_etag})
     assert csv_304.status_code == 304
     assert csv_304.content == b""
+
+    # Canonical /schedule.csv conditional requests
+    can_csv = client.get("/schedule.csv", headers={"If-None-Match": csv_etag})
+    assert can_csv.status_code == 304
+    assert can_csv.content == b""
 
 
 def test_schedule_database_integration(tmp_path: Path) -> None:
@@ -552,19 +582,27 @@ def test_schedule_database_integration(tmp_path: Path) -> None:
 
     client = TestClient(app)
 
-    # Verify JSON feed loaded from DB
+    # Verify JSON feed loaded from DB (canonical and alias)
     json_resp = client.get("/api/schedule.json")
     assert json_resp.status_code == 200
     json_data = json_resp.json()
     assert json_data["total_games"] == 1
     assert json_data["games"][0]["game_id"] == "DB-2026-01"
 
-    # Verify CSV feed loaded from DB
+    can_json_resp = client.get("/schedule.json")
+    assert can_json_resp.status_code == 200
+    assert can_json_resp.json() == json_data
+
+    # Verify CSV feed loaded from DB (canonical and alias)
     csv_resp = client.get("/api/schedule.csv")
     assert csv_resp.status_code == 200
     rows = list(csv.DictReader(io.StringIO(csv_resp.text)))
     assert len(rows) == 1
     assert rows[0]["game_id"] == "DB-2026-01"
+
+    can_csv_resp = client.get("/schedule.csv")
+    assert can_csv_resp.status_code == 200
+    assert can_csv_resp.text == csv_resp.text
 
 
 def test_common_helpers_edge_cases() -> None:

@@ -193,11 +193,11 @@ for game in changes.created:
 A live production instance is available at [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/). You can subscribe to the live calendar or query the public feeds directly without a local installation (see the [ECU Hockey Calendar Sync Guide](calendar_sync.md) for full client setup instructions):
 
 ```bash
-# Instant one-click subscription to the live production feed
-open "webcal://ecu-hockey-api.onrender.com/calendar.ics"
+# Instant one-click subscription to the canonical live production feed
+open "webcal://ecu-hockey-api.onrender.com/schedule.ics"
 
 # Query the live production schedule JSON feed
-curl -s "https://ecu-hockey-api.onrender.com/api/schedule.json?home_only=true" | jq .
+curl -s "https://ecu-hockey-api.onrender.com/schedule.json?home_only=true" | jq .
 ```
 
 To run your own local FastAPI server for development or self-hosting:
@@ -222,29 +222,31 @@ run_server(host="127.0.0.1", port=8000)
 
 For end-user setup instructions for Apple Calendar, Google Calendar, and Microsoft Outlook, see the [ECU Hockey Calendar Sync Guide](calendar_sync.md).
 
-To subscribe to or inspect the RFC 5545 `.ics` feed directly against your local development server:
+To subscribe to or inspect the canonical RFC 5545 `.ics` feed directly against your local development server:
 
 ```bash
-# Direct HTTP download
-curl -s http://127.0.0.1:8000/calendar.ics -o ecu_hockey_schedule.ics
+# Direct HTTP download (canonical endpoint)
+curl -s http://127.0.0.1:8000/schedule.ics -o ecu_hockey_schedule.ics
 
 # Inspect subscription and caching headers
-curl -I http://127.0.0.1:8000/calendar.ics
+curl -I http://127.0.0.1:8000/schedule.ics
 
 # macOS/iOS one-click subscription URL
-open "webcal://127.0.0.1:8000/calendar.ics"
+open "webcal://127.0.0.1:8000/schedule.ics"
 ```
+
+*(Legacy alias `http://127.0.0.1:8000/calendar.ics` remains fully supported).*
 
 ### 6.3. Querying Master Schedule Data Feeds
 
 Query normalized JSON or downloadable CSV feeds with filters for season, opponent, or home games:
 
 ```bash
-# Fetch filtered JSON schedule
-curl -s "http://127.0.0.1:8000/api/schedule.json?home_only=true&season=2026-2027" | jq .
+# Fetch filtered JSON schedule (canonical endpoint)
+curl -s "http://127.0.0.1:8000/schedule.json?home_only=true&season=2026-2027" | jq .
 
-# Fetch schedule formatted as CSV
-curl -s "http://127.0.0.1:8000/api/schedule.csv?status=SCHEDULED"
+# Fetch schedule formatted as CSV (canonical endpoint)
+curl -s "http://127.0.0.1:8000/schedule.csv?status=SCHEDULED"
 ```
 
 ### 6.4. Web Schedule & Printable PDF
@@ -264,11 +266,11 @@ curl -fsSL -o schedule.pdf "http://127.0.0.1:8000/schedule.pdf?season=2026-2027"
 Subscribe to automated XML feeds for sports media, student newspapers, or feed aggregators:
 
 ```bash
-# Retrieve RSS 2.0 syndication feed
-curl -fsSL "http://127.0.0.1:8000/feed.rss?home_only=true"
+# Retrieve RSS 2.0 syndication feed (canonical endpoint)
+curl -fsSL "http://127.0.0.1:8000/schedule.rss?home_only=true"
 
-# Retrieve Atom 1.0 syndication feed for upcoming matches
-curl -fsSL "http://127.0.0.1:8000/feed.atom?future_only=true"
+# Retrieve Atom 1.0 syndication feed for upcoming matches (canonical endpoint)
+curl -fsSL "http://127.0.0.1:8000/schedule.atom?future_only=true"
 ```
 
 ### 6.6. Health Probes & Operational Telemetry
@@ -282,8 +284,9 @@ curl -s http://127.0.0.1:8000/health | jq .
 # Inspect health dashboard as HTML via ?format= override
 curl -s "http://127.0.0.1:8000/health?format=html"
 
-# Inspect sync telemetry and individual scraper status
-curl -s http://127.0.0.1:8000/api/v1/sync/status | jq .
+# Inspect sync telemetry in JSON or open clean WebUI dashboard
+curl -s http://127.0.0.1:8000/sync | jq .
+open "http://127.0.0.1:8000/sync"
 ```
 
 ### 6.7. Administrative Actions & Conflict Inspection
@@ -292,15 +295,15 @@ Authorized operators can trigger on-demand sync cycles and review cross-source d
 
 ```bash
 # Trigger immediate synchronization cycle
-curl -X POST "http://127.0.0.1:8000/api/v1/sync/trigger" \
+curl -X POST "http://127.0.0.1:8000/sync/trigger" \
   -H "Authorization: Bearer secret-admin-token-12345"
 
 # Review flagged schedule conflicts (JSON)
-curl -s "http://127.0.0.1:8000/api/v1/conflicts?severity=high" \
+curl -s "http://127.0.0.1:8000/conflicts?severity=high" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
 
 # Review schedule conflicts in browser UI
-open "http://127.0.0.1:8000/api/v1/conflicts?format=html"
+open "http://127.0.0.1:8000/conflicts"
 ```
 
 ### 6.8. Static GitHub Pages Calendar Feeds
@@ -324,11 +327,17 @@ ecu-hockey --help
 # Synchronize schedule across all sources with database persistence
 ecu-hockey sync
 
+# Inspect synchronization telemetry and scraper status
+ecu-hockey sync status
+
 # Preview synchronization changes without persisting (dry-run)
 ecu-hockey sync --season 2026-2027 --dry-run
 
 # Inspect service health, scraper telemetry, and team record
 ecu-hockey status
+
+# Run dedicated operational health check against database and scrapers
+ecu-hockey health
 
 # Export fixtures to RFC 5545 iCalendar, CSV, or JSON
 ecu-hockey export schedule.ics
@@ -336,7 +345,7 @@ ecu-hockey export --home-only -f csv home_matches.csv
 ecu-hockey export -f json | jq '.[0]'
 
 # Review cross-source discrepancies flagged during reconciliation
-ecu-hockey conflicts --review-only
+ecu-hockey conflicts --requires-review
 
 # Launch the local Uvicorn ASGI server
 ecu-hockey serve --port 8000

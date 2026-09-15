@@ -25,7 +25,7 @@ ______________________________________________________________________
 The CLI supports two primary operational topologies:
 
 1. **Direct Database Persistence Mode (Default)**: Commands connect directly to SQLite or PostgreSQL storage using the `--db-url` option or the `DATABASE_URL` environment variable. If omitted, the CLI defaults to local SQLite storage at `sqlite:///ecu_hockey.db`.
-2. **Remote API Integration Mode**: Commands (`status`, `conflicts`, `export`, `sync`) can interact directly with remote HTTP API deployments (e.g., `https://ecu-hockey-api.onrender.com`) using `--api-url` (or `ECU_HOCKEY_API_URL`) and `--token` (or `ECU_HOCKEY_ADMIN_TOKEN`). This eliminates the requirement for direct database port exposure, VPNs, or network ingress into production databases.
+2. **Remote API Integration Mode**: Commands (`status`, `health`, `conflicts`, `export`, `sync`) can interact directly with remote HTTP API deployments (e.g., `https://ecu-hockey-api.onrender.com`) using `--api-url` (or `ECU_HOCKEY_API_URL`) and `--token` (or `ECU_HOCKEY_ADMIN_TOKEN`). This eliminates the requirement for direct database port exposure, VPNs, or network ingress into production databases.
 
 ```bash
 # Direct database access via PostgreSQL
@@ -276,7 +276,7 @@ ______________________________________________________________________
 
 ### 3.6. `ecu-hockey serve`
 
-Starts the Uvicorn ASGI server hosting the FastAPI calendar and schedule service, providing live `/calendar.ics` webcal feeds, `/api/schedule.json`, `/api/schedule.csv`, and interactive OpenAPI docs.
+Starts the Uvicorn ASGI server hosting the FastAPI calendar and schedule service, providing canonical live feeds (`/schedule.ics`, `/schedule.json`, `/schedule.csv`, `/schedule.pdf`, `/schedule.rss`, `/schedule.atom`), backward-compatible aliases (`/calendar.ics`, `/feed.rss`), responsive HTML dashboards (`/schedule`, `/health`, `/sync`, `/conflicts`), and interactive OpenAPI documentation (`/docs`, `/redoc`).
 
 ```bash
 ecu-hockey serve [OPTIONS]

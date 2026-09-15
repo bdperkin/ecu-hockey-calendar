@@ -74,8 +74,8 @@ A modern, robust Python package for aggregating, reconciling, and distributing c
 
 Never miss an East Carolina University Men's Ice Hockey matchup! Subscribe to the live schedule feed in your calendar application for automated updates, rescheduled match notices, and puck drop reminders:
 
-- **Apple Calendar (iPhone, iPad, Mac)**: [Instant One-Click Subscription](https://ecu-hockey-api.onrender.com/calendar.ics?webcal=true) or use `webcal://ecu-hockey-api.onrender.com/calendar.ics`
-- **Google Calendar, Microsoft Outlook, and others**: Subscribe by URL using `https://ecu-hockey-api.onrender.com/calendar.ics`
+- **Apple Calendar (iPhone, iPad, Mac)**: [Instant One-Click Subscription](https://ecu-hockey-api.onrender.com/schedule.ics?webcal=true) or use `webcal://ecu-hockey-api.onrender.com/schedule.ics` (legacy alias: `/calendar.ics`)
+- **Google Calendar, Microsoft Outlook, and others**: Subscribe by URL using `https://ecu-hockey-api.onrender.com/schedule.ics` (legacy alias: `https://ecu-hockey-api.onrender.com/calendar.ics`)
 - **High-Availability Static CDN Mirror (GitHub Pages)**: Subscribe by URL using `https://bdperkin.github.io/ecu-hockey-calendar/calendar.ics` (zero cold starts, refreshed every 6 hours via GitHub Actions)
 - **Static Master Data Feeds**: [JSON Schedule](https://bdperkin.github.io/ecu-hockey-calendar/schedule.json) | [CSV Schedule](https://bdperkin.github.io/ecu-hockey-calendar/schedule.csv)
 
@@ -119,21 +119,22 @@ flowchart TD
     end
 
     subgraph API["FastAPI Calendar & Data Service"]
-        P1["RFC 5545 iCalendar & webcal (/calendar.ics)"]
-        P2["Master Schedule Feeds (/api/schedule.json, .csv, .pdf)"]
+        P1["RFC 5545 iCalendar & webcal (/schedule.ics, /calendar.ics)"]
+        P2["Master Schedule Feeds (/schedule.json, .csv, .pdf)"]
         P3["Responsive HTML & Widget (/schedule, /schedule/embed)"]
-        P4["Syndication Feeds (/feed.rss & /feed.atom)"]
-        P5["Diagnostics & Conflicts (/health, /sync/status, /conflicts)"]
+        P4["Syndication Feeds (/schedule.rss & /schedule.atom)"]
+        P5["Diagnostics & Conflicts (/health, /sync, /conflicts)"]
         P6["Interactive OpenAPI Docs (/docs & /redoc)"]
     end
 
     subgraph CLI["Command-Line Interface (ecu-hockey)"]
-        C1["sync (Ingestion & Reconciliation)"]
-        C2["status (Health & Telemetry Tables)"]
-        C3["export (ICS, JSON, CSV, HTML, PDF, RSS, Atom)"]
-        C4["conflicts (Cross-Source Review)"]
-        C5["serve (Uvicorn Web Server)"]
-        C6["notify (Multi-Channel Webhook Alerts)"]
+        C1["sync (Ingestion, Reconciliation & Telemetry)"]
+        C2["status (System Overview & Team Record)"]
+        C3["health (Operational Diagnostics Probe)"]
+        C4["export (ICS, JSON, CSV, HTML, PDF, RSS, Atom)"]
+        C5["conflicts (Cross-Source Discrepancy Review)"]
+        C6["serve (Uvicorn Web Server)"]
+        C7["notify (Multi-Channel Webhook Alerts)"]
     end
 
     subgraph OUT["Alert Dispatch"]
@@ -152,7 +153,7 @@ flowchart TD
 
 ## 3. Features
 
-- **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for running sync workflows, inspecting health/telemetry tables, reviewing discrepancies, exporting multi-format schedules (ICS, JSON, CSV, HTML, PDF, RSS, Atom), dispatching webhook notifications, and hosting Uvicorn servers.
+- **Unified Command-Line Interface**: Terminal-first `ecu-hockey` CLI for running sync workflows, probing operational health (`ecu-hockey health`), inspecting telemetry tables, reviewing discrepancies (`--requires-review`, pagination), exporting multi-format schedules (ICS, JSON, CSV, HTML, PDF, RSS, Atom), dispatching webhook notifications, and hosting Uvicorn servers.
 - **Production Containerization & Deployment**: Multi-stage `Dockerfile`, `docker-compose.yml` service orchestration (API, scheduled scraper worker, PostgreSQL), and comprehensive hosting analysis in [`DEPLOYMENT.md`](DEPLOYMENT.md).
 - **Multi-Source Ingestion**: Robust web crawlers for primary schedule documents, ACCHL conference portals, ticketing tiers, social media announcements, and opponent feeds.
 - **Resilient HTTP Client**: Connection pooling, exponential backoff, retry handling for transient errors (429/5xx), and SHA-256 payload caching.
@@ -161,13 +162,13 @@ flowchart TD
 - **Relational Persistence**: SQLAlchemy 2.0 ORM models for SQLite and PostgreSQL with schema migrations managed by Alembic.
 - **Change Detection & Audit Trail**: Real-time diffing of game schedule modifications, cancellations, and conflict flags with full sync cycle telemetry.
 - **Multi-Channel Webhook Notifications**: Rich formatted alert dispatches to Discord, Slack, and Telegram.
-- **RFC 5545 iCalendar & webcal Feeds**: Live calendar subscription feeds (`/calendar.ics`, `webcal://`) with deterministic UIDs, Eastern Time `VTIMEZONE`, and configurable reminder alarms.
-- **Public Master Schedule Feeds**: Machine-readable JSON (`/api/schedule.json`), downloadable CSV (`/api/schedule.csv`), and printable PDF grid (`/schedule.pdf`, `/api/schedule.pdf`) with query parameter filtering.
-- **Syndication Feeds (RSS 2.0 & Atom 1.0)**: Standards-compliant XML feeds (`/feed.rss`, `/feed.atom`, `/api/schedule.rss`, `/api/schedule.atom`) for media outlets and automation workflows.
+- **RFC 5545 iCalendar & webcal Feeds**: Live calendar subscription feeds (`/schedule.ics`, legacy `/calendar.ics`, `webcal://`) with deterministic UIDs, Eastern Time `VTIMEZONE`, and configurable reminder alarms.
+- **Public Master Schedule Feeds**: Canonical machine-readable JSON (`/schedule.json`), downloadable CSV (`/schedule.csv`), and printable PDF grid (`/schedule.pdf`) with symmetric query parameter filtering (`include_past`, `future_only`) and legacy `/api/schedule.*` aliases.
+- **Syndication Feeds (RSS 2.0 & Atom 1.0)**: Standards-compliant XML feeds (`/schedule.rss`, `/schedule.atom`, legacy `/feed.*` and `/api/schedule.*`) for media outlets and automation workflows.
 - **Responsive Web Views & Embeddable Widget**: Mobile-friendly HTML schedule (`/schedule`) and stripped-down iframe widget (`/schedule/embed`) with copyable snippet.
-- **Dual-Format Content Negotiation**: Automatic HTML and JSON responses across landing portal (`/`), health diagnostics (`/health`), sync telemetry (`/api/v1/sync/status`), and conflict review (`/api/v1/conflicts`) with query parameter (`?format=html|json`) override and `Vary: Accept` caching.
+- **Clean WebUI Routes & Content Negotiation**: Responsive HTML dashboards for schedule (`/schedule`), system health (`/health`), synchronization telemetry (`/sync`), and discrepancy triage (`/conflicts`), with query parameter (`?format=html|json`) override and `Vary: Accept` caching.
 - **Brand Identity & PWA Manifest**: Vector brand assets, Web App Manifest (`/site.webmanifest`), multi-resolution favicons (`/favicon.ico`), and Apple touch icons.
-- **Operational Health & Conflict Administration**: Liveness and database connectivity probes (`/health`), sync cycle telemetry (`/api/v1/sync/status`), on-demand sync triggering (`POST /api/v1/sync/trigger`), and token-authenticated cross-source discrepancy review (`/api/v1/conflicts`).
+- **Operational Health & Conflict Administration**: Liveness and database connectivity probes (`/health`, REST `/api/v1/health`), sync cycle telemetry (`/sync`, `/sync/status`, `/api/v1/sync/status`), on-demand sync triggering (`POST /sync/trigger`, `POST /api/v1/sync/trigger`), and token-authenticated cross-source discrepancy review (`/conflicts`, `/api/v1/conflicts`).
 - **Interactive Documentation**: Auto-generated interactive Swagger UI (`/docs`), ReDoc (`/redoc`), and OpenAPI 3.1 JSON specifications.
 - **Strict Quality Standards**: 100% test coverage, strict `ty` static typing, and formatting via `ruff`.
 
@@ -370,28 +371,28 @@ uv run uvicorn ecu_hockey_calendar.api.app:create_app --factory --host 127.0.0.1
 Subscribe to real-time fixture updates using the standard `webcal://` scheme or direct download:
 
 ```bash
-# Apple Calendar / macOS one-click live subscription
-open "webcal://ecu-hockey-api.onrender.com/calendar.ics"
+# Apple Calendar / macOS one-click live subscription (canonical route)
+open "webcal://ecu-hockey-api.onrender.com/schedule.ics"
 
 # Download RFC 5545 .ics file from live service
-curl -s https://ecu-hockey-api.onrender.com/calendar.ics -o ecu_schedule.ics
+curl -s https://ecu-hockey-api.onrender.com/schedule.ics -o ecu_schedule.ics
 
-# Or subscribe locally when self-hosting
-open "webcal://localhost:8000/calendar.ics"
+# Or subscribe locally when self-hosting (legacy alias /calendar.ics also supported)
+open "webcal://localhost:8000/schedule.ics"
 ```
 
-For **Google Calendar** and **Outlook**, add by URL: `https://ecu-hockey-api.onrender.com/calendar.ics` (or `http://localhost:8000/calendar.ics` when self-hosting). For comprehensive, client-specific instructions with step-by-step guidance for desktop and mobile, see the [ECU Hockey Calendar Sync Guide](docs/calendar_sync.md).
+For **Google Calendar** and **Outlook**, add by URL: `https://ecu-hockey-api.onrender.com/schedule.ics` (or `http://localhost:8000/schedule.ics` when self-hosting; legacy alias `/calendar.ics` is permanently supported). For comprehensive, client-specific instructions with step-by-step guidance for desktop and mobile, see the [ECU Hockey Calendar Sync Guide](docs/calendar_sync.md).
 
 #### 5.6.2. Querying Public Schedule Feeds (JSON & CSV)
 
-Retrieve structured JSON or CSV data feeds with filtering:
+Retrieve structured JSON or CSV data feeds with filtering (supporting symmetric `include_past` and `future_only` parameters):
 
 ```bash
-# Query JSON schedule with home match filter
-curl -s "http://localhost:8000/api/schedule.json?home_only=true" | jq .
+# Query canonical JSON schedule with home match filter (or /api/schedule.json)
+curl -s "http://localhost:8000/schedule.json?home_only=true" | jq .
 
-# Download CSV spreadsheet of scheduled matches
-curl -s "http://localhost:8000/api/schedule.csv?status=SCHEDULED" -o schedule.csv
+# Download canonical CSV spreadsheet of scheduled matches (or /api/schedule.csv)
+curl -s "http://localhost:8000/schedule.csv?status=SCHEDULED" -o schedule.csv
 ```
 
 #### 5.6.3. Web Schedule View & Printable PDF Grid
@@ -411,11 +412,11 @@ curl -fsSL -o schedule.pdf "http://localhost:8000/schedule.pdf?season=2026-2027"
 Subscribe to automated XML feeds for sports media, student journalists, and feed aggregators:
 
 ```bash
-# Fetch RSS 2.0 syndication feed
-curl -fsSL "http://localhost:8000/feed.rss?home_only=true"
+# Fetch canonical RSS 2.0 syndication feed (legacy aliases /feed.rss, /api/schedule.rss)
+curl -fsSL "http://localhost:8000/schedule.rss?home_only=true"
 
-# Fetch Atom 1.0 syndication feed for upcoming matches
-curl -fsSL "http://localhost:8000/feed.atom?future_only=true"
+# Fetch canonical Atom 1.0 syndication feed for upcoming matches (legacy aliases /feed.atom, /api/schedule.atom)
+curl -fsSL "http://localhost:8000/schedule.atom?future_only=true"
 ```
 
 #### 5.6.5. Health Probes, Diagnostics & Administration (Content-Negotiated)
@@ -423,14 +424,17 @@ curl -fsSL "http://localhost:8000/feed.atom?future_only=true"
 Monitor service health, sync metrics, and cross-source discrepancies. Dual-format endpoints automatically return HTML dashboards for web browsers and JSON for programmatic HTTP clients, with `?format=html` and `?format=json` query parameter overrides:
 
 ```bash
-# Probe system health (returns JSON by default for curl)
+# Probe system health (returns JSON by default for curl; /api/v1/health also available)
 curl -s http://localhost:8000/health | jq .
 
 # Render health dashboard in browser
 open "http://localhost:8000/health?format=html"
 
-# Inspect synchronization telemetry
+# Inspect synchronization telemetry (JSON via /api/v1/sync/status or /sync/status)
 curl -s http://localhost:8000/api/v1/sync/status | jq .
+
+# Open clean WebUI synchronization dashboard in browser
+open "http://localhost:8000/sync"
 
 # Trigger on-demand sync cycle (requires administrative token)
 curl -X POST "http://localhost:8000/api/v1/sync/trigger" \
@@ -440,8 +444,8 @@ curl -X POST "http://localhost:8000/api/v1/sync/trigger" \
 curl -s "http://localhost:8000/api/v1/conflicts" \
   -H "Authorization: Bearer secret-admin-token-12345" | jq .
 
-# Review schedule discrepancies in administrative browser view
-open "http://localhost:8000/api/v1/conflicts?format=html"
+# Review schedule discrepancies in clean administrative WebUI dashboard
+open "http://localhost:8000/conflicts"
 ```
 
 ### 5.7. Command-Line Interface (`ecu-hockey`)
@@ -458,6 +462,15 @@ ecu-hockey sync
 # Preview synchronization changes in dry-run mode
 ecu-hockey sync --season 2026-2027 --dry-run
 
+# Inspect synchronization execution history & telemetry without triggering a sync
+ecu-hockey sync status
+
+# Inspect service health, database connectivity, and scraper status
+ecu-hockey health
+
+# Render health diagnostics payload as JSON for monitoring
+ecu-hockey health --json | jq .
+
 # Display operational health, database connectivity, and team record overview
 ecu-hockey status
 
@@ -473,10 +486,13 @@ ecu-hockey export -f json | jq '.[0]'
 ecu-hockey export --api-url https://ecu-hockey-api.onrender.com -f pdf -o schedule.pdf
 
 # Inspect active cross-source discrepancies and conflicting fixtures
-ecu-hockey conflicts --review-only
+ecu-hockey conflicts --requires-review
+
+# Paginate discrepancies and export as JSON
+ecu-hockey conflicts --limit 10 --offset 0 --json | jq .
 
 # Review discrepancies on remote production deployment
-ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token secret-token-123 --review-only
+ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token secret-token-123 --requires-review
 
 # Launch local Uvicorn ASGI server hosting the calendar feeds
 ecu-hockey serve --port 8000
@@ -487,14 +503,15 @@ ecu-hockey notify -m "ECU vs NC State rescheduled to 8:00 PM" -s warning
 
 #### 5.7.1. Subcommand Reference Table
 
-| Subcommand  | Purpose                                                     | Key Options & Flags                                                                                                             |
-| :---------- | :---------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
-| `sync`      | Crawl sources, reconcile matches, diff state, and update DB | `--source [all\|ecuhockey\|acchockey]`, `--dry-run`, `--notify / --no-notify`, `--api-url`, `--token`, `--season`, `--db-url`   |
-| `status`    | Display operational health, DB status, and season record    | `--api-url`, `--token`, `--season`, `--db-url`                                                                                  |
-| `export`    | Export canonical schedule to `.ics`, `.json`, or `.csv`     | `-f, --format [ics\|json\|csv\|pdf\|html\|rss\|atom]`, `-o, --output <file>`, `--api-url`, `--token`, `--season`, `--home-only` |
-| `conflicts` | Review multi-source discrepancies and flagged matches       | `--severity [low\|medium\|high\|critical]`, `--review-only`, `--field <name>`, `--api-url`, `--token`, `--db-url`               |
-| `serve`     | Run the FastAPI ASGI server with Uvicorn                    | `-h, --host`, `-p, --port`, `--reload / --no-reload`, `--db-url`                                                                |
-| `notify`    | Dispatch custom alerts across webhook channels              | `-m, --message`, `-t, --title`, `-s, --severity [info\|warning\|alert]`, `-c, --channel`                                        |
+| Subcommand  | Purpose                                                     | Key Options & Flags                                                                                                                                            |
+| :---------- | :---------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sync`      | Crawl sources, reconcile matches, diff state, and update DB | `[trigger\|status]`, `--source [all\|ecuhockey\|acchockey]`, `--dry-run`, `--notify / --no-notify`, `--api-url`, `--token`, `--season`, `--db-url`, `--json`   |
+| `status`    | Display operational health, DB status, and season record    | `--api-url`, `--token`, `--season`, `--db-url`                                                                                                                 |
+| `health`    | Probe operational health, database connectivity, scrapers   | `--api-url`, `--token`, `--db-url`, `--json`                                                                                                                   |
+| `export`    | Export canonical schedule to `.ics`, `.json`, or `.csv`     | `-f, --format [ics\|json\|csv\|pdf\|html\|rss\|atom]`, `-o, --output <file>`, `--api-url`, `--token`, `--season`, `--home-only`, `--future-only`               |
+| `conflicts` | Review multi-source discrepancies and flagged matches       | `--severity [low\|medium\|high\|critical]`, `--requires-review / --all`, `--field <name>`, `--limit`, `--offset`, `--json`, `--api-url`, `--token`, `--db-url` |
+| `serve`     | Run the FastAPI ASGI server with Uvicorn                    | `-h, --host`, `-p, --port`, `--reload / --no-reload`, `--db-url`, `--migrate`                                                                                  |
+| `notify`    | Dispatch custom alerts across webhook channels              | `-m, --message`, `-t, --title`, `-s, --severity [info\|warning\|alert]`, `-c, --channel`                                                                       |
 
 For advanced usage details and exhaustive flag options, see the [CLI Documentation](docs/cli.md).
 
@@ -520,22 +537,27 @@ uv run alembic history
 A public production instance runs continuously on [Render](https://render.com) backed by managed PostgreSQL and an automated 6-hour synchronization worker:
 
 - **Service Base URL**: [`https://ecu-hockey-api.onrender.com/`](https://ecu-hockey-api.onrender.com/)
-- **One-Line Calendar Subscription**: [`webcal://ecu-hockey-api.onrender.com/calendar.ics`](webcal://ecu-hockey-api.onrender.com/calendar.ics)
-- **Direct iCalendar Feed**: [`https://ecu-hockey-api.onrender.com/calendar.ics`](https://ecu-hockey-api.onrender.com/calendar.ics)
+- **One-Line Calendar Subscription**: [`webcal://ecu-hockey-api.onrender.com/schedule.ics`](webcal://ecu-hockey-api.onrender.com/schedule.ics) (legacy: [`webcal://ecu-hockey-api.onrender.com/calendar.ics`](webcal://ecu-hockey-api.onrender.com/calendar.ics))
+- **Direct iCalendar Feed**: [`https://ecu-hockey-api.onrender.com/schedule.ics`](https://ecu-hockey-api.onrender.com/schedule.ics)
 - **Interactive Documentation**: [`/docs`](https://ecu-hockey-api.onrender.com/docs) (Swagger UI) & [`/redoc`](https://ecu-hockey-api.onrender.com/redoc) (ReDoc)
-- **Service Health Probe**: [`/health`](https://ecu-hockey-api.onrender.com/health)
+- **Service Health Probe**: [`/health`](https://ecu-hockey-api.onrender.com/health) (REST parity: [`/api/v1/health`](https://ecu-hockey-api.onrender.com/api/v1/health))
 
-| Method        | Endpoint                                                                        | Description                                          | Content-Type       | Access           |
-| :------------ | :------------------------------------------------------------------------------ | :--------------------------------------------------- | :----------------- | :--------------- |
-| `GET`         | [`/`](https://ecu-hockey-api.onrender.com/)                                     | API metadata, version provenance, and routes         | `application/json` | Public           |
-| `GET`, `HEAD` | [`/health`](https://ecu-hockey-api.onrender.com/health)                         | Diagnostics, uptime, and database connectivity probe | `application/json` | Public           |
-| `GET`, `HEAD` | [`/calendar.ics`](https://ecu-hockey-api.onrender.com/calendar.ics)             | RFC 5545 iCalendar feed (`?alarm_minutes=60`)        | `text/calendar`    | Public           |
-| `GET`, `HEAD` | [`/api/schedule.json`](https://ecu-hockey-api.onrender.com/api/schedule.json)   | Master schedule JSON (`?home_only=true`)             | `application/json` | Public           |
-| `GET`, `HEAD` | [`/api/schedule.csv`](https://ecu-hockey-api.onrender.com/api/schedule.csv)     | Master schedule CSV spreadsheet                      | `text/csv`         | Public           |
-| `GET`         | [`/api/v1/sync/status`](https://ecu-hockey-api.onrender.com/api/v1/sync/status) | Sync telemetry & scraper execution history           | `application/json` | Public           |
-| `POST`        | `/api/v1/sync/trigger`                                                          | Trigger on-demand scraper synchronization cycle      | `application/json` | **Bearer Token** |
-| `GET`         | `/api/v1/conflicts`                                                             | Inspect multi-source schedule discrepancies          | `application/json` | **Bearer Token** |
-| `GET`         | [`/docs`](https://ecu-hockey-api.onrender.com/docs)                             | Interactive Swagger UI API explorer                  | `text/html`        | Public           |
+| Method        | Endpoint                                                                                    | Description                                               | Content-Type                          | Access           |
+| :------------ | :------------------------------------------------------------------------------------------ | :-------------------------------------------------------- | :------------------------------------ | :--------------- |
+| `GET`         | [`/`](https://ecu-hockey-api.onrender.com/)                                                 | API metadata, version provenance, and routes (negotiated) | `text/html` or `application/json`     | Public           |
+| `GET`, `HEAD` | [`/health`](https://ecu-hockey-api.onrender.com/health), `/api/v1/health`                   | Diagnostics, uptime, and database probe (negotiated)      | `text/html` or `application/json`     | Public           |
+| `GET`, `HEAD` | [`/schedule`](https://ecu-hockey-api.onrender.com/schedule)                                 | Responsive HTML schedule view                             | `text/html; charset=utf-8`            | Public           |
+| `GET`, `HEAD` | [`/schedule/embed`](https://ecu-hockey-api.onrender.com/schedule/embed)                     | Lightweight embeddable schedule widget iframe             | `text/html; charset=utf-8`            | Public           |
+| `GET`, `HEAD` | [`/schedule.ics`](https://ecu-hockey-api.onrender.com/schedule.ics), `/calendar.ics`        | RFC 5545 iCalendar feed (`?alarm_minutes=60`)             | `text/calendar; charset=utf-8`        | Public           |
+| `GET`, `HEAD` | [`/schedule.json`](https://ecu-hockey-api.onrender.com/schedule.json), `/api/schedule.json` | Master schedule JSON (`?home_only=true`)                  | `application/json`                    | Public           |
+| `GET`, `HEAD` | [`/schedule.csv`](https://ecu-hockey-api.onrender.com/schedule.csv), `/api/schedule.csv`    | Master schedule CSV spreadsheet                           | `text/csv; charset=utf-8`             | Public           |
+| `GET`, `HEAD` | [`/schedule.pdf`](https://ecu-hockey-api.onrender.com/schedule.pdf), `/api/schedule.pdf`    | High-contrast printable schedule PDF grid (Letter size)   | `application/pdf`                     | Public           |
+| `GET`, `HEAD` | [`/schedule.rss`](https://ecu-hockey-api.onrender.com/schedule.rss), `/feed.rss`            | RSS 2.0 XML schedule syndication feed for media           | `application/rss+xml; charset=utf-8`  | Public           |
+| `GET`, `HEAD` | [`/schedule.atom`](https://ecu-hockey-api.onrender.com/schedule.atom), `/feed.atom`         | Atom 1.0 XML schedule syndication feed for aggregators    | `application/atom+xml; charset=utf-8` | Public           |
+| `GET`         | [`/sync`](https://ecu-hockey-api.onrender.com/sync), `/api/v1/sync/status`                  | Sync telemetry & scraper execution history (negotiated)   | `text/html` or `application/json`     | Public           |
+| `POST`        | `/sync/trigger`, `/api/v1/sync/trigger`                                                     | Trigger on-demand scraper synchronization cycle           | `application/json`                    | **Bearer Token** |
+| `GET`         | [`/conflicts`](https://ecu-hockey-api.onrender.com/conflicts), `/api/v1/conflicts`          | Inspect multi-source schedule discrepancies (negotiated)  | `text/html` or `application/json`     | **Bearer Token** |
+| `GET`         | [`/docs`](https://ecu-hockey-api.onrender.com/docs)                                         | Interactive Swagger UI API explorer                       | `text/html`                           | Public           |
 
 > [!NOTE]
 > **Render Free-Tier Cold Starts**:
