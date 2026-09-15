@@ -354,3 +354,4 @@ plugins.md013.enabled = false
 plugins.md024.siblings_only = true
 plugins.md033.allowed_elements = "!--,![CDATA[,!DOCTYPE,p,img"
 plugins.md036.enabled = false
+plugins.md051.enabled = false
