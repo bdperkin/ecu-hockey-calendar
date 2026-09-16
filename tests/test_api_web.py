@@ -515,3 +515,34 @@ def test_schedule_html_includes_branding(diverse_games: list[Game]) -> None:
     assert '<img src="/static/ecu_hockey_logo.svg"' in html
     assert 'alt="East Carolina University Men\'s Ice Hockey Logo"' in html
     assert 'class="header-logo"' in html
+
+
+def test_schedule_html_includes_formats_dropdown(
+    diverse_games: list[Game],
+) -> None:
+    """Verify rendered HTML schedule includes top navigation formats dropdown."""
+    service = ScheduleDataService()
+    html = service.generate_html_schedule(
+        diverse_games,
+        base_url="https://hockey.ecu.edu",
+    )
+
+    # Formats dropdown trigger and ARIA attributes
+    assert 'id="formats-menu-button"' in html
+    assert 'aria-haspopup="true"' in html
+    assert 'aria-expanded="false"' in html
+    assert "Formats" in html
+
+    # All 6 endpoints in formats dropdown
+    assert 'href="https://hockey.ecu.edu/schedule.atom"' in html
+    assert 'href="https://hockey.ecu.edu/schedule.csv"' in html
+    assert 'href="https://hockey.ecu.edu/schedule.ics"' in html
+    assert 'href="https://hockey.ecu.edu/schedule.json"' in html
+    assert 'href="https://hockey.ecu.edu/schedule.pdf"' in html
+    assert 'href="https://hockey.ecu.edu/schedule.rss"' in html
+    assert "/schedule.atom" in html
+    assert "/schedule.csv" in html
+    assert "/schedule.ics" in html
+    assert "/schedule.json" in html
+    assert "/schedule.pdf" in html
+    assert "/schedule.rss" in html

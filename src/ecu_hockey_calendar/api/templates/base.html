@@ -162,6 +162,132 @@
       color: #ffffff;
     }
 
+    /* Dropdown Navigation */
+    .nav-dropdown {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .nav-dropdown-toggle {
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      padding: 0.35rem 0.65rem;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      line-height: inherit;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .nav-dropdown-toggle:hover,
+    .nav-dropdown-toggle:focus-visible,
+    .nav-dropdown:hover .nav-dropdown-toggle,
+    .nav-dropdown.open .nav-dropdown-toggle {
+      background-color: var(--border-light);
+      color: var(--ecu-purple);
+    }
+
+    .dropdown-caret {
+      font-size: 0.7rem;
+      line-height: 1;
+      transition: transform 0.15s ease;
+      color: var(--text-muted);
+    }
+
+    .nav-dropdown-toggle:hover .dropdown-caret,
+    .nav-dropdown:hover .dropdown-caret,
+    .nav-dropdown.open .dropdown-caret {
+      color: var(--ecu-purple);
+    }
+
+    .nav-dropdown.open .dropdown-caret {
+      transform: rotate(180deg);
+    }
+
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      min-width: 275px;
+      max-width: calc(100vw - 2rem);
+      margin-top: 0.25rem;
+      padding: 0.4rem 0;
+      background-color: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      list-style: none;
+    }
+
+    .nav-dropdown.open .nav-dropdown-menu,
+    .nav-dropdown:hover .nav-dropdown-menu,
+    .nav-dropdown:focus-within .nav-dropdown-menu {
+      display: block;
+    }
+
+    .nav-dropdown-menu li {
+      margin: 0;
+      padding: 0;
+      display: block;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.5rem 0.85rem;
+      color: var(--text-dark);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: background-color 0.12s ease, color 0.12s ease;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+      background-color: var(--border-light);
+      color: var(--ecu-purple);
+      text-decoration: none;
+    }
+
+    .dropdown-item-endpoint {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-weight: 600;
+      color: var(--ecu-purple);
+      background-color: #f1ecf7;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+
+    .dropdown-item:hover .dropdown-item-endpoint,
+    .dropdown-item:focus .dropdown-item-endpoint {
+      background-color: var(--ecu-purple);
+      color: #ffffff;
+    }
+
+    .dropdown-item-desc {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .dropdown-item:hover .dropdown-item-desc,
+    .dropdown-item:focus .dropdown-item-desc {
+      color: var(--text-dark);
+    }
+
     .nav-actions {
       display: flex;
       gap: 0.5rem;
@@ -877,10 +1003,68 @@
                         <li><a href="/" class="{% if active_tab == 'home' %}active{% endif %}">Home</a></li>
                         <li><a href="{{ schedule_url or '/schedule' }}"
    class="{% if active_tab == 'schedule' %}active{% endif %}">Schedule</a></li>
-                        <li><a href="{{ ics_url or '/schedule.ics' }}">Calendar Subscription (.ics)</a></li>
-                        <li><a href="{{ pdf_url or '/schedule.pdf' }}">Printable PDF</a></li>
-                        <li><a href="{{ csv_url or '/schedule.csv' }}">Download CSV</a></li>
-                        <li><a href="{{ json_url or '/schedule.json' }}">JSON Feed</a></li>
+                        <li class="nav-dropdown">
+                            <button type="button"
+                                    class="nav-dropdown-toggle"
+                                    id="formats-menu-button"
+                                    aria-expanded="false"
+                                    aria-haspopup="true">
+                                Formats <span class="dropdown-caret" aria-hidden="true">▾</span>
+                            </button>
+                            <ul class="nav-dropdown-menu"
+                                id="formats-menu"
+                                role="menu"
+                                aria-labelledby="formats-menu-button">
+                                <li role="none">
+                                    <a href="{{ atom_url or '/schedule.atom' }}"
+                                       class="dropdown-item"
+                                       role="menuitem">
+                                        <span class="dropdown-item-endpoint">/schedule.atom</span>
+                                        <span class="dropdown-item-desc">Atom Feed</span>
+                                    </a>
+                                </li>
+                                <li role="none">
+                                    <a href="{{ csv_url or '/schedule.csv' }}"
+                                       class="dropdown-item"
+                                       role="menuitem">
+                                        <span class="dropdown-item-endpoint">/schedule.csv</span>
+                                        <span class="dropdown-item-desc">Download CSV</span>
+                                    </a>
+                                </li>
+                                <li role="none">
+                                    <a href="{{ ics_url or '/schedule.ics' }}"
+                                       class="dropdown-item"
+                                       role="menuitem">
+                                        <span class="dropdown-item-endpoint">/schedule.ics</span>
+                                        <span class="dropdown-item-desc">Calendar (.ics)</span>
+                                    </a>
+                                </li>
+                                <li role="none">
+                                    <a href="{{ json_url or '/schedule.json' }}"
+                                       class="dropdown-item"
+                                       role="menuitem">
+                                        <span class="dropdown-item-endpoint">/schedule.json</span>
+                                        <span class="dropdown-item-desc">JSON Feed</span>
+                                    </a>
+                                </li>
+                                <li role="none">
+                                    <a href="{{ pdf_url or '/schedule.pdf' }}"
+                                       class="dropdown-item"
+                                       role="menuitem">
+                                        <span class="dropdown-item-endpoint">/schedule.pdf</span>
+                                        <span class="dropdown-item-desc">Printable PDF</span>
+                                    </a>
+                                </li>
+                                <li role="none">
+                                    <a href="{{ rss_url or '/schedule.rss' }}"
+                                       class="dropdown-item"
+                                       role="menuitem">
+                                        <span class="dropdown-item-endpoint">/schedule.rss</span>
+                                        <span class="dropdown-item-desc">RSS Feed</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li><a href="/docs">API Docs</a></li>
                         <li><a href="/health"
    class="{% if active_tab == 'health' %}active{% endif %}">Health</a></li>
@@ -973,6 +1157,48 @@
         msg.style.display = "block";
         setTimeout(() => { msg.style.display = "none"; }, 3000);
       }
+    }
+
+    function initDropdowns() {
+      const formatsBtn = document.getElementById("formats-menu-button");
+      if (formatsBtn) {
+        formatsBtn.addEventListener("click", function(event) {
+          event.stopPropagation();
+          const dropdown = formatsBtn.closest(".nav-dropdown");
+          if (!dropdown) return;
+          const isOpen = dropdown.classList.toggle("open");
+          formatsBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        });
+      }
+
+      document.addEventListener("click", function(event) {
+        document.querySelectorAll(".nav-dropdown.open").forEach(function(dropdown) {
+          if (!dropdown.contains(event.target)) {
+            dropdown.classList.remove("open");
+            const btn = dropdown.querySelector(".nav-dropdown-toggle");
+            if (btn) btn.setAttribute("aria-expanded", "false");
+          }
+        });
+      });
+
+      document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+          document.querySelectorAll(".nav-dropdown.open").forEach(function(dropdown) {
+            dropdown.classList.remove("open");
+            const btn = dropdown.querySelector(".nav-dropdown-toggle");
+            if (btn) {
+              btn.setAttribute("aria-expanded", "false");
+              btn.focus();
+            }
+          });
+        }
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initDropdowns);
+    } else {
+      initDropdowns();
     }
             </script>
             {% block extra_scripts %}{% endblock %}
