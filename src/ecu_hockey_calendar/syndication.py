@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 DEFAULT_SYNDICATION_TITLE: str = "ECU Men's Ice Hockey Schedule"
 DEFAULT_SYNDICATION_DESCRIPTION: str = (
-    "Official schedule, fixture updates, and game results for East Carolina "
+    "Aggregated schedule, fixture updates, and game results for East Carolina "
     "University Men's Ice Hockey (ACHA M2 / ACCHL)."
 )
 DEFAULT_SYNDICATION_BASE_URL: str = "https://ecuhockey.com"

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 DEFAULT_PROD_ID = "-//ECU Men's Ice Hockey//ECU Hockey Calendar Service//EN"
 DEFAULT_CALENDAR_NAME = "ECU Men's Ice Hockey Schedule"
 DEFAULT_CALENDAR_DESC = (
-    "Official match fixtures and schedule for East Carolina University "
+    "Aggregated match fixtures and schedule for East Carolina University "
     "Men's Ice Hockey."
 )
 DEFAULT_TIMEZONE = "America/New_York"

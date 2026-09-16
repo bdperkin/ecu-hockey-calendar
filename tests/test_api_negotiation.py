@@ -371,7 +371,7 @@ def test_root_endpoint_content_negotiation_html() -> None:
     # Service heading and branding
     assert "ECU Men&#39;s Ice Hockey Calendar &amp; Data API" in html_content
     assert "ONLINE" in html_content
-    assert "Official real-time calendar subscription feeds" in html_content
+    assert "Unified real-time calendar subscription feeds" in html_content
 
     # Calendar subscription showcase and sync guide link
     assert "Live Calendar Subscription" in html_content

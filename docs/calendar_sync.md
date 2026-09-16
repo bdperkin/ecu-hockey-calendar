@@ -27,7 +27,7 @@ Choose the URL that matches your device, calendar client, and preference:
 
 ### 2.1. Hosted Feed Options
 
-The project provides two independent, officially maintained subscription endpoints:
+The project provides two independent subscription endpoints:
 
 1. **Dynamic Production API Feed (`ecu-hockey-api.onrender.com`)**:
 
@@ -275,7 +275,7 @@ However, each vendor decides its own refresh frequency:
 
 Subscribed calendars are **read-only**. You cannot manually change puck drop times, edit venue notes, or delete individual games within your calendar app because the app continuously syncs with the canonical server feed.
 
-If a game time changes or an opponent changes, the official ingestion worker detects the update and synchronizes it automatically to your subscribed calendar.
+If a game time changes or an opponent changes, the automated ingestion worker detects the update and synchronizes it automatically to your subscribed calendar.
 
 ### 5.4. How do time zones work?
 

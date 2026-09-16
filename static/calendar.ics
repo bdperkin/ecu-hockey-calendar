@@ -4,8 +4,8 @@ PRODID:-//ECU Men's Ice Hockey//ECU Hockey Calendar Service//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:ECU Men's Ice Hockey Schedule
-X-WR-CALDESC:Official match fixtures and schedule for East Carolina Univers
- ity Men's Ice Hockey.
+X-WR-CALDESC:Aggregated match fixtures and schedule for East Carolina Unive
+ rsity Men's Ice Hockey.
 X-WR-TIMEZONE:America/New_York
 REFRESH-INTERVAL;VALUE=DURATION:PT1H
 X-PUBLISHED-TTL:PT1H
