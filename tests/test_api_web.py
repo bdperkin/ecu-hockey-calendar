@@ -546,3 +546,28 @@ def test_schedule_html_includes_formats_dropdown(
     assert "/schedule.json" in html
     assert "/schedule.pdf" in html
     assert "/schedule.rss" in html
+
+
+def test_schedule_html_includes_docs_dropdown(
+    diverse_games: list[Game],
+) -> None:
+    """Verify rendered HTML schedule includes top navigation docs dropdown."""
+    service = ScheduleDataService()
+    html = service.generate_html_schedule(
+        diverse_games,
+        base_url="https://hockey.ecu.edu",
+    )
+
+    # Docs dropdown trigger and ARIA attributes
+    assert 'id="docs-menu-button"' in html
+    assert 'aria-haspopup="true"' in html
+    assert 'aria-expanded="false"' in html
+    assert "Docs" in html
+
+    # All 3 documentation targets in docs dropdown
+    assert 'href="https://bdperkin.github.io/ecu-hockey-calendar/"' in html
+    assert 'href="/docs"' in html
+    assert 'href="/redoc"' in html
+    assert "Project Docs" in html
+    assert "Swagger UI" in html
+    assert "ReDoc" in html
