@@ -288,11 +288,6 @@
       color: var(--text-dark);
     }
 
-    .nav-actions {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
 
     /* Main Content */
     .main-content {
@@ -1101,15 +1096,13 @@
                                 </li>
                             </ul>
                         </li>
+                        <li><a href="{{ embed_url or '/schedule/embed' }}">Embed Widget</a></li>
                         <li><a href="/health"
    class="{% if active_tab == 'health' %}active{% endif %}">Health</a></li>
                         <li><a href="/sync" class="{% if active_tab == 'sync' %}active{% endif %}">Sync</a></li>
                         <li><a href="/conflicts"
    class="{% if active_tab == 'conflicts' %}active{% endif %}">Conflicts</a></li>
                     </ul>
-                    <div class="nav-actions">
-                        <a href="{{ embed_url or '/schedule/embed' }}" class="btn btn-secondary">Embed Widget</a>
-                    </div>
                 </div>
             </nav>
         {% endif %}

@@ -571,3 +571,18 @@ def test_schedule_html_includes_docs_dropdown(
     assert "Project Docs" in html
     assert "Swagger UI" in html
     assert "ReDoc" in html
+
+
+def test_schedule_html_includes_embed_widget_nav_link(
+    diverse_games: list[Game],
+) -> None:
+    """Verify rendered HTML schedule includes Embed Widget top navigation link."""
+    service = ScheduleDataService()
+    html = service.generate_html_schedule(
+        diverse_games,
+        base_url="https://hockey.ecu.edu",
+    )
+
+    assert 'href="https://hockey.ecu.edu/schedule/embed"' in html
+    assert "Embed Widget" in html
+    assert '<div class="nav-actions">' not in html
