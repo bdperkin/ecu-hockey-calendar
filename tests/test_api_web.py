@@ -836,3 +836,56 @@ def test_schedule_embed_multi_season_defaults_and_aliases(
     assert client.head("/schedule?season=all").status_code == 200
     assert client.head("/schedule/embed?season=latest").status_code == 200
     assert client.head("/schedule/embed?season=all").status_code == 200
+
+
+def test_schedule_now_divider_rendered_and_script_included(
+    populated_db_url: str,
+) -> None:
+    """Verify NOW divider row, mobile card, and auto-scroll script in /schedule."""
+    app = create_app(database_url=populated_db_url)
+    client = TestClient(app)
+
+    res = client.get("/schedule")
+    assert res.status_code == 200
+    assert 'id="now-divider"' in res.text
+    assert 'class="now-divider-row"' in res.text
+    assert 'id="now-divider-mobile"' in res.text
+    assert 'class="now-divider-card"' in res.text
+    assert "--- NOW ---" in res.text
+    assert "scrollToNowDivider()" in res.text
+    assert "scrollIntoView" in res.text
+
+
+def test_schedule_embed_now_divider_rendered(populated_db_url: str) -> None:
+    """Verify NOW divider and auto-scroll script in /schedule/embed."""
+    app = create_app(database_url=populated_db_url)
+    client = TestClient(app)
+
+    res = client.get("/schedule/embed")
+    assert res.status_code == 200
+    assert 'id="now-divider"' in res.text
+    assert 'id="now-divider-mobile"' in res.text
+    assert "--- NOW ---" in res.text
+    assert "scrollToNowDivider()" in res.text
+
+
+def test_schedule_now_divider_omitted_when_only_past_or_future(
+    populated_db_url: str,
+) -> None:
+    """Verify NOW divider is omitted when filtered to only past or scheduled games."""
+    app = create_app(database_url=populated_db_url)
+    client = TestClient(app)
+
+    # Filter to final / completed games only (all games in past)
+    res_past = client.get("/schedule?status=final")
+    assert res_past.status_code == 200
+    assert 'id="now-divider"' not in res_past.text
+    assert "--- NOW ---" not in res_past.text
+    assert "scrollToNowDivider" not in res_past.text
+
+    # Filter to scheduled games only (all games in future)
+    res_future = client.get("/schedule?status=scheduled")
+    assert res_future.status_code == 200
+    assert 'id="now-divider"' not in res_future.text
+    assert "--- NOW ---" not in res_future.text
+    assert "scrollToNowDivider" not in res_future.text

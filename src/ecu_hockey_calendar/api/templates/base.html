@@ -597,6 +597,69 @@
       text-decoration: underline;
     }
 
+    /* Schedule NOW Divider */
+    .now-divider-row {
+      background: linear-gradient(90deg, rgba(89, 42, 138, 0.04) 0%, rgba(89, 42, 138, 0.12) 50%, rgba(89, 42, 138, 0.04) 100%);
+      scroll-margin: auto;
+      scroll-initial-target: nearest;
+    }
+
+    .schedule-table tbody tr.now-divider-row:hover {
+      background: rgba(89, 42, 138, 0.12);
+    }
+
+    .now-divider-cell {
+      padding: 0.6rem 1rem !important;
+      text-align: center;
+      vertical-align: middle;
+      border-top: 2px solid var(--ecu-purple) !important;
+      border-bottom: 2px solid var(--ecu-purple) !important;
+    }
+
+    .now-divider-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    .now-divider-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--ecu-purple), transparent);
+    }
+
+    .now-divider-text {
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: var(--ecu-purple);
+      text-transform: uppercase;
+      background: #ffffff;
+      padding: 0.25rem 0.85rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--ecu-purple);
+      box-shadow: 0 1px 4px rgba(89, 42, 138, 0.15);
+      white-space: nowrap;
+    }
+
+    .now-divider-card {
+      width: 100%;
+      margin: 0.75rem 0;
+      padding: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-margin: auto;
+      scroll-initial-target: nearest;
+    }
+
+    .now-divider-row:focus,
+    .now-divider-card:focus {
+      outline: none;
+    }
+
     /* Mobile Cards Layout */
     .schedule-cards-container {
       display: none;

@@ -1,5 +1,7 @@
 """Comprehensive tests for public master schedule JSON and CSV data feeds."""
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
 import csv
@@ -21,8 +23,11 @@ from ecu_hockey_calendar.api.routes.common import (
 )
 from ecu_hockey_calendar.api.schedule_service import (
     ScheduleDataService,
+    _annotate_now_divider,
     _build_render_context,
+    _find_first_future_index,
     _format_coordinates,
+    _is_game_past,
     filter_games,
     resolve_game_season,
     resolve_latest_season,
@@ -884,3 +889,132 @@ def test_extract_games_from_database_empty_db_latest(tmp_path: Path) -> None:
     res = client.get("/schedule.json?season=latest")
     assert res.status_code == 200
     assert res.json()["total_games"] == 0
+
+
+def test_is_game_past(ecu_team: Team, unc_team: Team) -> None:
+    """Test _is_game_past returns True for past start time or completed match result."""
+    ref_time = datetime(2026, 10, 1, 0, 0, tzinfo=UTC)
+
+    past_game = Game(
+        game_id="PAST-1",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=datetime(2026, 9, 20, 20, 0, tzinfo=UTC),
+        venue="The Factory Ice House",
+        result=GameResult.SCHEDULED,
+    )
+    assert _is_game_past(past_game, ref_time) is True
+
+    future_final_game = Game(
+        game_id="FINAL-1",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=datetime(2026, 10, 15, 20, 0, tzinfo=UTC),
+        venue="The Factory Ice House",
+        result=GameResult.WIN,
+    )
+    assert _is_game_past(future_final_game, ref_time) is True
+
+    future_scheduled_game = Game(
+        game_id="FUTURE-1",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=datetime(2026, 10, 15, 20, 0, tzinfo=UTC),
+        venue="The Factory Ice House",
+        result=GameResult.SCHEDULED,
+    )
+    assert _is_game_past(future_scheduled_game, ref_time) is False
+
+
+def test_find_first_future_index(ecu_team: Team, unc_team: Team) -> None:
+    """Test _find_first_future_index identifies first upcoming fixture."""
+    ref_time = datetime(2026, 10, 1, 0, 0, tzinfo=UTC)
+
+    assert _find_first_future_index([], ref_time) is None
+
+    past_g = Game(
+        game_id="P1",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=datetime(2026, 9, 10, 20, 0, tzinfo=UTC),
+        venue="Rink",
+        result=GameResult.WIN,
+    )
+    future_g = Game(
+        game_id="F1",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=datetime(2026, 10, 10, 20, 0, tzinfo=UTC),
+        venue="Rink",
+        result=GameResult.SCHEDULED,
+    )
+
+    assert _find_first_future_index([past_g], ref_time) is None
+    assert _find_first_future_index([future_g], ref_time) == 0
+    assert _find_first_future_index([past_g, future_g], ref_time) == 1
+
+
+def test_annotate_now_divider(ecu_team: Team, unc_team: Team) -> None:
+    """Test _annotate_now_divider sets show_now_divider_before correctly."""
+    ref_time = datetime(2026, 10, 1, 0, 0, tzinfo=UTC)
+
+    past_g = Game(
+        game_id="P1",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=datetime(2026, 9, 10, 20, 0, tzinfo=UTC),
+        venue="Rink",
+        result=GameResult.WIN,
+    )
+    future_g = Game(
+        game_id="F1",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=datetime(2026, 10, 10, 20, 0, tzinfo=UTC),
+        venue="Rink",
+        result=GameResult.SCHEDULED,
+    )
+
+    fmt_games = [{"id": "P1"}, {"id": "F1"}]
+    has_div = _annotate_now_divider(fmt_games, [past_g, future_g], ref_time)
+    assert has_div is True
+    assert fmt_games[0]["show_now_divider_before"] is False
+    assert fmt_games[1]["show_now_divider_before"] is True
+
+    fmt_future = [{"id": "F1"}]
+    has_div_future = _annotate_now_divider(fmt_future, [future_g], ref_time)
+    assert has_div_future is False
+    assert fmt_future[0]["show_now_divider_before"] is False
+
+    fmt_past = [{"id": "P1"}]
+    has_div_past = _annotate_now_divider(fmt_past, [past_g], ref_time)
+    assert has_div_past is False
+    assert fmt_past[0]["show_now_divider_before"] is False
+
+
+def test_generate_html_schedule_now_divider(sample_games: list[Game]) -> None:
+    """Test generate_html_schedule renders NOW divider and scroll centering script."""
+    service = ScheduleDataService()
+    ref_now = datetime(2026, 10, 1, 0, 0, tzinfo=UTC)
+
+    html_with_divider = service.generate_html_schedule(
+        sample_games,
+        season="all",
+        now_utc=ref_now,
+    )
+    assert 'id="now-divider"' in html_with_divider
+    assert 'id="now-divider-mobile"' in html_with_divider
+    assert "--- NOW ---" in html_with_divider
+    assert "scrollToNowDivider()" in html_with_divider
+    assert "scrollIntoView" in html_with_divider
+
+    html_embed = service.generate_html_schedule(
+        sample_games,
+        season="all",
+        embed=True,
+        now_utc=ref_now,
+    )
+    assert 'id="now-divider"' in html_embed
+    assert 'id="now-divider-mobile"' in html_embed
+    assert "--- NOW ---" in html_embed
+    assert "scrollToNowDivider()" in html_embed

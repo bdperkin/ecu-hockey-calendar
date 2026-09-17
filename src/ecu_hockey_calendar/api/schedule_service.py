@@ -418,7 +418,42 @@ def _format_html_game(game: Game, primary_team: str) -> dict[str, Any]:
         "status_badge_class": status_badge_class,
         "score_text": score_text,
         "tickets_url": DEFAULT_TICKETS_URL if is_home else None,
+        "show_now_divider_before": False,
     }
+
+
+def _is_game_past(game: Game, ref_time: datetime) -> bool:
+    """Determine whether a game has completed or occurred in the past."""
+    return game.start_time.astimezone(UTC) < ref_time or game.result in FINAL_RESULTS
+
+
+def _find_first_future_index(games: Sequence[Game], ref_time: datetime) -> int | None:
+    """Find index of the first future game in sorted sequence."""
+    for idx, g in enumerate(games):
+        if not _is_game_past(g, ref_time):
+            return idx
+
+    return None
+
+
+def _annotate_now_divider(
+    formatted_games: list[dict[str, Any]],
+    games: Sequence[Game],
+    ref_time: datetime,
+) -> bool:
+    """Annotate formatted games with show_now_divider_before flag.
+
+    Returns:
+        True if divider row is present between past and future games.
+    """
+    first_future = _find_first_future_index(games, ref_time)
+    has_divider = bool(first_future and first_future > 0)
+    target_idx = first_future if has_divider else None
+
+    for idx, fg in enumerate(formatted_games):
+        fg["show_now_divider_before"] = idx == target_idx
+
+    return has_divider
 
 
 def _build_feed_urls(base_url: str) -> dict[str, str]:
@@ -493,6 +528,8 @@ def _build_render_context(
     formatted_games: list[dict[str, Any]],
     base_url: str,
     filters: dict[str, str | bool | None],
+    *,
+    has_now_divider: bool = False,
 ) -> dict[str, Any]:
     """Build context dictionary for HTML template rendering."""
     raw_opp = filters.get("opponent")
@@ -512,6 +549,7 @@ def _build_render_context(
         "resolved_season": resolved_season,
         "display_season": display_season,
         "is_all_seasons": is_all_seasons,
+        "has_now_divider": has_now_divider,
         "selected_opponent": str(raw_opp or ""),
         "selected_home_only": bool(filters.get("home_only")),
         "selected_status": str(raw_status or "").lower(),
@@ -602,6 +640,7 @@ class ScheduleDataService:
         include_past: bool | None = None,
         embed: bool = False,
         base_url: str = "",
+        now_utc: datetime | None = None,
     ) -> str:
         """Render responsive HTML schedule view or lightweight embed widget.
 
@@ -616,6 +655,7 @@ class ScheduleDataService:
             include_past: If False, include only future games.
             embed: If True, render lightweight iframe widget view.
             base_url: Optional base URL for prefixing links.
+            now_utc: Optional reference timestamp for current time.
 
         Returns:
             Rendered HTML page string.
@@ -630,10 +670,17 @@ class ScheduleDataService:
             future_only=future_only,
             include_past=include_past,
             primary_team=self.primary_team_name,
+            now_utc=now_utc,
         )
         formatted_games = [
             _format_html_game(g, self.primary_team_name) for g in filtered
         ]
+        ref_now = now_utc if now_utc is not None else datetime.now(UTC)
+        has_now_divider = _annotate_now_divider(
+            formatted_games,
+            filtered,
+            ref_now,
+        )
         filters: dict[str, str | bool | None] = {
             "primary_team": self.primary_team_name,
             "season": effective_season,
@@ -647,6 +694,7 @@ class ScheduleDataService:
             formatted_games,
             base_url,
             filters,
+            has_now_divider=has_now_divider,
         )
         template_name = "embed.html" if embed else "schedule.html"
         template = self._jinja_env.get_template(template_name)
