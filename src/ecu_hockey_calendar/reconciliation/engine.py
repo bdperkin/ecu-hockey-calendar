@@ -13,6 +13,7 @@ from itertools import combinations
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
+from ecu_hockey_calendar.models import GameResult
 from ecu_hockey_calendar.reconciliation.date_aligner import (
     DEFAULT_EXACT_TOLERANCE_MINUTES,
     DEFAULT_NEAR_TOLERANCE_MINUTES,
@@ -633,6 +634,17 @@ class ReconciliationEngine:
         venue = self._resolve_venue_field(sorted_records, provenance)
         status = self._resolve_status_field(sorted_records, provenance)
         res, hs, ascore = self._resolve_scores_and_result(sorted_records, provenance)
+        if status in {GameStatus.SCHEDULED, GameStatus.CANCELLED, GameStatus.POSTPONED}:
+            if status == GameStatus.CANCELLED:
+                res = GameResult.CANCELLED
+            elif status == GameStatus.POSTPONED:
+                res = GameResult.POSTPONED
+            else:
+                res = GameResult.SCHEDULED
+
+            hs = None
+            ascore = None
+
         return {
             "start_time": st,
             "end_time": et,

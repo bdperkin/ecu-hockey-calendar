@@ -192,10 +192,15 @@ def test_parse_game_status() -> None:
     # Status missing or unrecognized with score
     assert parse_game_status(None, has_score=True) == GameStatus.FINAL
     assert parse_game_status("", has_score=True) == GameStatus.FINAL
-    assert parse_game_status("upcoming", has_score=True) == GameStatus.FINAL
+    assert parse_game_status("unrecognized_status", has_score=True) == GameStatus.FINAL
+
+    # Scheduled and upcoming explicit statuses always return SCHEDULED
+    assert parse_game_status("scheduled", has_score=True) == GameStatus.SCHEDULED
+    assert parse_game_status("upcoming", has_score=True) == GameStatus.SCHEDULED
+    assert parse_game_status("scheduled", has_score=False) == GameStatus.SCHEDULED
+    assert parse_game_status("upcoming", has_score=False) == GameStatus.SCHEDULED
 
     # Status missing or unrecognized without score
     assert parse_game_status(None, has_score=False) == GameStatus.SCHEDULED
     assert parse_game_status("", has_score=False) == GameStatus.SCHEDULED
-    assert parse_game_status("scheduled", has_score=False) == GameStatus.SCHEDULED
     assert parse_game_status("unknown", has_score=False) == GameStatus.SCHEDULED

@@ -230,7 +230,57 @@ def test_parsed_record_result_calculations() -> None:
         is_home=False,
         start_time=datetime(2026, 1, 1, tzinfo=UTC),
         venue="Arena",
+        status=GameStatus.FINAL,
         home_score=2,
         away_score=2,
     )
     assert r_away_tie.calculate_result() == GameResult.TIE
+
+    # Scheduled with 0-0 placeholder
+    r_sched = ParsedGameRecord(
+        game_id="g4",
+        opponent_name="Opp",
+        is_home=True,
+        start_time=datetime(2026, 10, 1, tzinfo=UTC),
+        venue="Arena",
+        status=GameStatus.SCHEDULED,
+        home_score=0,
+        away_score=0,
+    )
+    assert r_sched.calculate_result() == GameResult.SCHEDULED
+    domain_sched = r_sched.to_domain_game()
+    assert domain_sched.result == GameResult.SCHEDULED
+    assert domain_sched.home_score is None
+    assert domain_sched.away_score is None
+
+    # Cancelled with 0-0 placeholder
+    r_canc = ParsedGameRecord(
+        game_id="g5",
+        opponent_name="Opp",
+        is_home=True,
+        start_time=datetime(2026, 1, 1, tzinfo=UTC),
+        venue="Arena",
+        status=GameStatus.CANCELLED,
+        home_score=0,
+        away_score=0,
+    )
+    assert r_canc.calculate_result() == GameResult.CANCELLED
+    domain_canc = r_canc.to_domain_game()
+    assert domain_canc.result == GameResult.CANCELLED
+    assert domain_canc.home_score is None
+    assert domain_canc.away_score is None
+
+    # Postponed
+    r_post = ParsedGameRecord(
+        game_id="g6",
+        opponent_name="Opp",
+        is_home=True,
+        start_time=datetime(2026, 1, 1, tzinfo=UTC),
+        venue="Arena",
+        status=GameStatus.POSTPONED,
+    )
+    assert r_post.calculate_result() == GameResult.POSTPONED
+    domain_post = r_post.to_domain_game()
+    assert domain_post.result == GameResult.POSTPONED
+    assert domain_post.home_score is None
+    assert domain_post.away_score is None

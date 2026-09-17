@@ -121,6 +121,63 @@ def test_parse_firestore_game_document_defaults_and_away() -> None:
     assert rec.away_score is None
 
 
+def test_parse_firestore_game_document_scheduled_placeholder_scores() -> None:
+    """Verify that scheduled games with 0-0 placeholder scores clear scores."""
+    # Explicit scheduled status with 0-0 placeholder score
+    doc_scheduled = {
+        "fields": {
+            "id": {"stringValue": "game-doc-sched-1"},
+            "timeOfGame": {"stringValue": "2026-10-16T22:00:00Z"},
+            "title": {"stringValue": "Game vs Clemson on Oct 16"},
+            "status": {"stringValue": "scheduled"},
+            "gameScore": {"stringValue": "0-0"},
+            "homeGame": {"booleanValue": False},
+        },
+    }
+    rec = parse_firestore_game_document(doc_scheduled)
+    assert rec is not None
+    assert rec.status == GameStatus.SCHEDULED
+    assert rec.home_score is None
+    assert rec.away_score is None
+    assert rec.calculate_result() == GameResult.SCHEDULED
+    assert rec.to_domain_game().result == GameResult.SCHEDULED
+    assert rec.to_domain_game().home_score is None
+
+    # Future date with 0-0 placeholder and omitted status
+    doc_future_placeholder = {
+        "fields": {
+            "id": {"stringValue": "game-doc-sched-2"},
+            "timeOfGame": {"stringValue": "2028-11-20T22:00:00Z"},
+            "title": {"stringValue": "Game vs Duke"},
+            "gameScore": {"stringValue": "0-0"},
+            "homeGame": {"booleanValue": True},
+        },
+    }
+    rec2 = parse_firestore_game_document(doc_future_placeholder)
+    assert rec2 is not None
+    assert rec2.status == GameStatus.SCHEDULED
+    assert rec2.home_score is None
+    assert rec2.away_score is None
+
+    # Cancelled game with 0-0 score
+    doc_cancelled = {
+        "fields": {
+            "id": {"stringValue": "game-doc-canc-1"},
+            "timeOfGame": {"stringValue": "2026-01-24T22:00:00Z"},
+            "title": {"stringValue": "Game vs Elon"},
+            "status": {"stringValue": "cancelled"},
+            "gameScore": {"stringValue": "0-0"},
+            "homeGame": {"booleanValue": True},
+        },
+    }
+    rec3 = parse_firestore_game_document(doc_cancelled)
+    assert rec3 is not None
+    assert rec3.status == GameStatus.CANCELLED
+    assert rec3.home_score is None
+    assert rec3.away_score is None
+    assert rec3.calculate_result() == GameResult.CANCELLED
+
+
 def test_parse_firestore_game_document_invalid() -> None:
     """Verify None returned for missing fields or malformed dates."""
     # Missing fields dict

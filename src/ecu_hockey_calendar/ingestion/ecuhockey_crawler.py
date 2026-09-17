@@ -25,6 +25,7 @@ from ecu_hockey_calendar.storage.models import (
     DataSourceModel,
     DataSourceType,
     GameModel,
+    GameStatus,
     RawSnapshotModel,
     SyncAuditModel,
     SyncStatus,
@@ -118,7 +119,52 @@ def _compute_team_scores(
     return home_score, away_score, ot_note
 
 
-def _build_firestore_game_record(
+def _is_scheduled_or_placeholder(
+    raw_status: str | None,
+    home_score: int | None,
+    away_score: int | None,
+    start_time: datetime,
+) -> bool:
+    """Check if document represents a scheduled game or 0-0 placeholder."""
+    is_scheduled_raw = raw_status is not None and raw_status.strip().lower() in {
+        "scheduled",
+        "upcoming",
+    }
+    is_future = start_time.astimezone(UTC) > datetime.now(UTC)
+    is_zero = home_score == 0 and away_score == 0
+    return is_scheduled_raw or (is_zero and is_future)
+
+
+def _has_positive_score(s1: int | None, s2: int | None) -> bool:
+    """Check whether either team recorded a score greater than zero."""
+    if s1 is None or s2 is None:
+        return False
+
+    return s1 > 0 or s2 > 0
+
+
+def _resolve_firestore_status_and_scores(
+    raw_status: str | None,
+    home_score: int | None,
+    away_score: int | None,
+    ot_note: str | None,
+    start_time: datetime,
+) -> tuple[GameStatus, int | None, int | None, str | None]:
+    """Determine GameStatus and sanitized scores for Firestore game fixture."""
+    if _is_scheduled_or_placeholder(raw_status, home_score, away_score, start_time):
+        return GameStatus.SCHEDULED, None, None, None
+
+    status = parse_game_status(
+        raw_status,
+        has_score=_has_positive_score(home_score, away_score),
+    )
+    if status in {GameStatus.SCHEDULED, GameStatus.CANCELLED, GameStatus.POSTPONED}:
+        return status, None, None, None
+
+    return status, home_score, away_score, ot_note
+
+
+def _build_firestore_game_record(  # pylint: disable=too-many-locals
     game_id: str,
     opponent_name: str,
     *,
@@ -135,16 +181,25 @@ def _build_firestore_game_record(
     venue = str(venue_val) if venue_val else "Carolina Ice Zone"
     status_val = _extract_firestore_value(fields.get("status"))
     raw_status = str(status_val) if status_val is not None else None
+
+    status, hs, ascore, ot = _resolve_firestore_status_and_scores(
+        raw_status,
+        home_score,
+        away_score,
+        ot_note,
+        start_time,
+    )
+
     return ParsedGameRecord(
         game_id=game_id,
         opponent_name=opponent_name,
         is_home=is_home,
         start_time=start_time,
         venue=venue,
-        status=parse_game_status(raw_status, has_score=home_score is not None),
-        home_score=home_score,
-        away_score=away_score,
-        overtime_note=ot_note,
+        status=status,
+        home_score=hs,
+        away_score=ascore,
+        overtime_note=ot,
         raw_text=json.dumps(dict(doc)),
     )
 

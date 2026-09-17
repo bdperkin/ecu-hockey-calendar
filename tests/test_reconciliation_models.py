@@ -320,6 +320,26 @@ def test_reconciled_game_and_cycle_result() -> None:
     assert domain_game_away.away_team.name == "East Carolina University"
     assert domain_game_away.result == GameResult.SCHEDULED
 
+    rec_cancelled = ReconciledGame(
+        canonical_game_id="2026-10-30-duke",
+        opponent_name="Duke Blue Devils",
+        start_time=st,
+        venue="Orange County Sportsplex",
+        is_home=False,
+        status=GameStatus.CANCELLED,
+    )
+    assert rec_cancelled.to_domain_game().result == GameResult.CANCELLED
+
+    rec_postponed = ReconciledGame(
+        canonical_game_id="2026-11-05-duke",
+        opponent_name="Duke Blue Devils",
+        start_time=st,
+        venue="Orange County Sportsplex",
+        is_home=False,
+        status=GameStatus.POSTPONED,
+    )
+    assert rec_postponed.to_domain_game().result == GameResult.POSTPONED
+
     rd = rec_game.to_dict()
     assert rd["canonical_game_id"] == "2026-10-20-duke"
     assert rd["end_time"] == et.isoformat()

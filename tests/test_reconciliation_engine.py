@@ -518,6 +518,28 @@ def test_engine_status_and_score_resolution() -> None:
     assert h_def is None
     assert a_def is None
 
+    # _extract_cluster_fields ensures unplayed fixtures clear scores
+    prov_cluster: dict[str, str] = {}
+    f_sched = engine._extract_cluster_fields([r_s, r_score], prov_cluster)
+    assert f_sched["status"] == GameStatus.SCHEDULED
+    assert f_sched["result"] == GameResult.SCHEDULED
+    assert f_sched["home_score"] is None
+    assert f_sched["away_score"] is None
+
+    prov_canc: dict[str, str] = {}
+    f_canc = engine._extract_cluster_fields([r_c, r_score], prov_canc)
+    assert f_canc["status"] == GameStatus.CANCELLED
+    assert f_canc["result"] == GameResult.CANCELLED
+    assert f_canc["home_score"] is None
+    assert f_canc["away_score"] is None
+
+    prov_post_cl: dict[str, str] = {}
+    f_post = engine._extract_cluster_fields([r_post, r_score], prov_post_cl)
+    assert f_post["status"] == GameStatus.POSTPONED
+    assert f_post["result"] == GameResult.POSTPONED
+    assert f_post["home_score"] is None
+    assert f_post["away_score"] is None
+
 
 def test_engine_reconcile_games_end_to_end() -> None:
     """Verify end-to-end reconciliation cycle with auto-resolved and flagged games."""
