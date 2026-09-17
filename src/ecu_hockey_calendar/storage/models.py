@@ -170,6 +170,76 @@ class TeamModel(Base):
         }
 
 
+def _resolve_game_status_from_domain(
+    result: GameResult | None,
+    explicit_status: str | None,
+) -> str:
+    """Resolve storage lifecycle status string from domain game properties."""
+    if explicit_status is not None:
+        return explicit_status
+
+    if result in {
+        GameResult.WIN,
+        GameResult.LOSS,
+        GameResult.TIE,
+        GameResult.OVERTIME_LOSS,
+    }:
+        return GameStatus.FINAL.value
+
+    if result == GameResult.CANCELLED:
+        return GameStatus.CANCELLED.value
+
+    if result == GameResult.POSTPONED:
+        return GameStatus.POSTPONED.value
+
+    return GameStatus.SCHEDULED.value
+
+
+def _resolve_game_model_unplayed(
+    status: str,
+    start_time: datetime,
+    home_score: int | None,
+    away_score: int | None,
+) -> bool:
+    """Determine whether a stored GameModel fixture represents an unplayed game."""
+    if status in {
+        GameStatus.SCHEDULED.value,
+        GameStatus.CANCELLED.value,
+        GameStatus.POSTPONED.value,
+    }:
+        return True
+
+    is_future = start_time.astimezone(UTC) > datetime.now(UTC) if start_time else False
+    return is_future and home_score == 0 and away_score == 0
+
+
+def _safe_parse_game_result(raw_result: str | None) -> GameResult:
+    """Safely convert raw string result to GameResult enum."""
+    try:
+        return GameResult(raw_result) if raw_result else GameResult.SCHEDULED
+    except ValueError:
+        return GameResult.SCHEDULED
+
+
+def _resolve_game_model_outcome(
+    status: str,
+    raw_result: str | None,
+    *,
+    is_unplayed: bool,
+) -> GameResult:
+    """Determine domain GameResult outcome from model status and raw result string."""
+    if status == GameStatus.CANCELLED.value:
+        return GameResult.CANCELLED
+
+    if status == GameStatus.POSTPONED.value:
+        return GameResult.POSTPONED
+
+    if is_unplayed or status == GameStatus.SCHEDULED.value:
+        return GameResult.SCHEDULED
+
+    return _safe_parse_game_result(raw_result)
+
+
 class GameModel(Base):
     """Relational model for scheduled or completed hockey games."""
 
@@ -247,11 +317,19 @@ class GameModel(Base):
         Returns:
             The equivalent domain Game instance.
         """
-        outcome: GameResult
-        try:
-            outcome = GameResult(self.result) if self.result else GameResult.SCHEDULED
-        except ValueError:
-            outcome = GameResult.SCHEDULED
+        is_unplayed = _resolve_game_model_unplayed(
+            self.status,
+            self.start_time,
+            self.home_score,
+            self.away_score,
+        )
+        outcome = _resolve_game_model_outcome(
+            self.status,
+            self.result,
+            is_unplayed=is_unplayed,
+        )
+        hs = None if is_unplayed else self.home_score
+        ascore = None if is_unplayed else self.away_score
 
         return Game(
             game_id=self.game_id,
@@ -260,8 +338,8 @@ class GameModel(Base):
             start_time=self.start_time,
             venue=self.venue,
             result=outcome,
-            home_score=self.home_score,
-            away_score=self.away_score,
+            home_score=hs,
+            away_score=ascore,
         )
 
     @classmethod
@@ -272,7 +350,7 @@ class GameModel(Base):
         away_team_id: int,
         *,
         season: str = "2026-2027",
-        status: str = GameStatus.SCHEDULED.value,
+        status: str | None = None,
         end_time: datetime | None = None,
     ) -> GameModel:
         """Construct an ORM instance from a domain Game object.
@@ -282,12 +360,13 @@ class GameModel(Base):
             home_team_id: Database identifier of the home team.
             away_team_id: Database identifier of the away team.
             season: Athletic competition season label.
-            status: Lifecycle status of the game event.
+            status: Optional lifecycle status of the game event.
             end_time: Optional end timestamp.
 
         Returns:
             New GameModel instance.
         """
+        resolved_status = _resolve_game_status_from_domain(game.result, status)
         return cls(
             game_id=game.game_id,
             home_team_id=home_team_id,
@@ -295,7 +374,7 @@ class GameModel(Base):
             start_time=game.start_time,
             end_time=end_time,
             venue=game.venue,
-            status=status,
+            status=resolved_status,
             result=game.result.value if game.result else None,
             home_score=game.home_score,
             away_score=game.away_score,

@@ -390,17 +390,38 @@ class DetectedConflict:
         }
 
 
+def _resolve_reconciled_outcome(
+    status: GameStatus,
+    result: GameResult | None,
+) -> GameResult:
+    """Resolve domain outcome for a reconciled game."""
+    if status == GameStatus.CANCELLED:
+        return GameResult.CANCELLED
+
+    if status == GameStatus.POSTPONED:
+        return GameResult.POSTPONED
+
+    if status == GameStatus.SCHEDULED or result is None:
+        return GameResult.SCHEDULED
+
+    return result
+
+
 @dataclass
 class ReconciledGame:  # pylint: disable=too-many-instance-attributes
-    """Canonical game record produced after multi-source reconciliation."""
+    """Canonical reconciled game record combining multi-source data.
+
+    Represents the unified truth for a single hockey match after clustering
+    and discrepancy resolution across all available feeds.
+    """
 
     canonical_game_id: str
     opponent_name: str
     start_time: datetime
     venue: str
     is_home: bool = True
-    is_time_tbd: bool = False
     end_time: datetime | None = None
+    is_time_tbd: bool = False
     status: GameStatus = GameStatus.SCHEDULED
     result: GameResult | None = None
     home_score: int | None = None
@@ -428,8 +449,16 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
             city="Unknown",
             state="NC",
         )
-        home = ecu_team if self.is_home else opp_team
-        away = opp_team if self.is_home else ecu_team
+        home, away = (ecu_team, opp_team) if self.is_home else (opp_team, ecu_team)
+
+        is_unplayed = self.status in {
+            GameStatus.SCHEDULED,
+            GameStatus.CANCELLED,
+            GameStatus.POSTPONED,
+        }
+        res = _resolve_reconciled_outcome(self.status, self.result)
+        hs = None if is_unplayed else self.home_score
+        ascore = None if is_unplayed else self.away_score
 
         return Game(
             game_id=self.canonical_game_id,
@@ -437,9 +466,9 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
             away_team=away,
             start_time=self.start_time,
             venue=self.venue,
-            result=self.result or GameResult.SCHEDULED,
-            home_score=self.home_score,
-            away_score=self.away_score,
+            result=res,
+            home_score=hs,
+            away_score=ascore,
         )
 
     @classmethod

@@ -482,6 +482,25 @@ def test_parse_acchockey_game_html() -> None:
     assert rec_home.home_score == 5
     assert rec_home.away_score == 2
 
+    # Scheduled game page without scores
+    html_sched = """
+    <div class="game_header_v2">
+        <a class="teamName">NC State</a>
+        <a class="teamName">East Carolina University</a>
+    </div>
+    <ul class="game_details">
+        <li><strong>Date:</strong> Sat Oct 18, 2026</li>
+        <li><strong>Time:</strong> 7:00 PM</li>
+        <li><strong>Game ID:</strong> ME-99</li>
+        <li><strong>Status:</strong> Scheduled</li>
+    </ul>
+    """
+    rec_sched = parse_acchockey_game_html(html_sched)
+    assert rec_sched is not None
+    assert rec_sched.status == GameStatus.SCHEDULED
+    assert rec_sched.home_score is None
+    assert rec_sched.away_score is None
+
 
 def test_url_extraction_helpers() -> None:
     """Verify link extraction for schedules, subseasons, and pagination."""

@@ -172,7 +172,7 @@ def test_game_model_lifecycle(
         assert data["end_time"] is not None
 
 
-def test_game_to_domain_fallback(
+def test_game_to_domain_fallback(  # pylint: disable=too-many-locals
     sync_memory_engine,
     ecu_team: Team,
     unc_team: Team,
@@ -209,6 +209,82 @@ def test_game_to_domain_fallback(
         session.add(g2)
         session.flush()
         assert g2.to_domain().result == GameResult.SCHEDULED
+
+        # Scheduled with 0-0 placeholder scores
+        g3 = GameModel(
+            game_id="G-SCHED-ZERO",
+            home_team_id=home.id,
+            away_team_id=away.id,
+            start_time=datetime(2026, 11, 3, 19, 0, tzinfo=UTC),
+            venue="Ice Arena",
+            status=GameStatus.SCHEDULED.value,
+            result="T",
+            home_score=0,
+            away_score=0,
+        )
+        session.add(g3)
+        session.flush()
+        d3 = g3.to_domain()
+        assert d3.result == GameResult.SCHEDULED
+        assert d3.home_score is None
+        assert d3.away_score is None
+
+        # Cancelled with 0-0 scores
+        g4 = GameModel(
+            game_id="G-CANC-ZERO",
+            home_team_id=home.id,
+            away_team_id=away.id,
+            start_time=datetime(2026, 11, 4, 19, 0, tzinfo=UTC),
+            venue="Ice Arena",
+            status=GameStatus.CANCELLED.value,
+            result="T",
+            home_score=0,
+            away_score=0,
+        )
+        session.add(g4)
+        session.flush()
+        d4 = g4.to_domain()
+        assert d4.result == GameResult.CANCELLED
+        assert d4.home_score is None
+        assert d4.away_score is None
+
+        # Postponed
+        g5 = GameModel(
+            game_id="G-POST-ZERO",
+            home_team_id=home.id,
+            away_team_id=away.id,
+            start_time=datetime(2026, 11, 5, 19, 0, tzinfo=UTC),
+            venue="Ice Arena",
+            status=GameStatus.POSTPONED.value,
+            result="POSTPONED",
+            home_score=0,
+            away_score=0,
+        )
+        session.add(g5)
+        session.flush()
+        d5 = g5.to_domain()
+        assert d5.result == GameResult.POSTPONED
+        assert d5.home_score is None
+        assert d5.away_score is None
+
+        # Stale future game marked as FINAL with 0-0 tie
+        g6 = GameModel(
+            game_id="G-FUTURE-STALE",
+            home_team_id=home.id,
+            away_team_id=away.id,
+            start_time=datetime(2028, 11, 6, 19, 0, tzinfo=UTC),
+            venue="Ice Arena",
+            status=GameStatus.FINAL.value,
+            result="T",
+            home_score=0,
+            away_score=0,
+        )
+        session.add(g6)
+        session.flush()
+        d6 = g6.to_domain()
+        assert d6.result == GameResult.SCHEDULED
+        assert d6.home_score is None
+        assert d6.away_score is None
 
 
 def test_data_source_and_snapshot_lifecycle(sync_memory_engine) -> None:

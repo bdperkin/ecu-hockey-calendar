@@ -82,20 +82,41 @@ class ParsedGameRecord:
 
         return self.away_score, self.home_score
 
-    def calculate_result(self) -> GameResult:
-        """Calculate GameResult relative to ECU."""
-        scores = self._get_ecu_and_opp_scores()
-        if scores is None:
-            return GameResult.SCHEDULED
-
-        ecu_score, opp_score = scores
+    def _evaluate_score_result(self, ecu_score: int, opp_score: int) -> GameResult:
+        """Evaluate outcome between ECU and opponent scores."""
         if ecu_score > opp_score:
             return GameResult.WIN
 
         if ecu_score < opp_score:
             return self._determine_loss_result()
 
-        return GameResult.TIE
+        return (
+            GameResult.SCHEDULED
+            if self.status == GameStatus.SCHEDULED
+            else GameResult.TIE
+        )
+
+    def calculate_result(self) -> GameResult:
+        """Calculate GameResult relative to ECU."""
+        if self.status == GameStatus.CANCELLED:
+            return GameResult.CANCELLED
+
+        if self.status == GameStatus.POSTPONED:
+            return GameResult.POSTPONED
+
+        scores = self._get_ecu_and_opp_scores()
+        if scores is None:
+            return GameResult.SCHEDULED
+
+        return self._evaluate_score_result(scores[0], scores[1])
+
+    def _is_unplayed_status(self) -> bool:
+        """Check whether record status indicates unplayed fixture."""
+        return self.status in {
+            GameStatus.SCHEDULED,
+            GameStatus.CANCELLED,
+            GameStatus.POSTPONED,
+        }
 
     def to_domain_game(
         self,
@@ -116,8 +137,11 @@ class ParsedGameRecord:
             city="Unknown",
             state="NC",
         )
-        home = ecu_team if self.is_home else opp
-        away = opp if self.is_home else ecu_team
+        home, away = (ecu_team, opp) if self.is_home else (opp, ecu_team)
+
+        is_unplayed = self._is_unplayed_status()
+        home_score = None if is_unplayed else self.home_score
+        away_score = None if is_unplayed else self.away_score
 
         return Game(
             game_id=self.game_id,
@@ -126,8 +150,8 @@ class ParsedGameRecord:
             start_time=self.start_time,
             venue=self.venue,
             result=self.calculate_result(),
-            home_score=self.home_score,
-            away_score=self.away_score,
+            home_score=home_score,
+            away_score=away_score,
         )
 
 
@@ -199,13 +223,18 @@ def _build_game_record(
 ) -> ParsedGameRecord:
     """Construct a ParsedGameRecord with computed scores and status."""
     s1, s2, ot_note = parse_game_score(score_str)
+    has_score = s1 is not None and s2 is not None
+    status = parse_game_status(score_str, has_score=has_score)
+    if status in {GameStatus.SCHEDULED, GameStatus.CANCELLED, GameStatus.POSTPONED}:
+        s1, s2, ot_note = None, None, None
+
     return ParsedGameRecord(
         game_id=_generate_game_id(start_time, opponent, is_home=is_home),
         opponent_name=opponent,
         is_home=is_home,
         start_time=start_time,
         venue=venue,
-        status=parse_game_status(score_str, has_score=s1 is not None),
+        status=status,
         home_score=s1 if is_home else s2,
         away_score=s2 if is_home else s1,
         overtime_note=ot_note,

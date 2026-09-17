@@ -280,13 +280,20 @@ def _parse_row_status_and_scores(
     """Parse score values and compute status from table row."""
     _, score_str = _extract_score_and_result(score_cell)
     home_score, away_score, ot = _parse_scores_for_record(score_str, is_home=is_home)
-    has_score = home_score is not None and away_score is not None
+    has_score = (
+        home_score is not None
+        and away_score is not None
+        and (home_score > 0 or away_score > 0)
+    )
     row_classes = _extract_tag_classes(row)
     time_str, status = _extract_time_and_status(
         status_cell,
         has_score=has_score,
         row_classes=row_classes,
     )
+    if status in {GameStatus.SCHEDULED, GameStatus.CANCELLED, GameStatus.POSTPONED}:
+        home_score, away_score, ot = None, None, None
+
     return time_str, status, home_score, away_score, ot
 
 
@@ -492,6 +499,24 @@ def _resolve_game_page_header(
     return _resolve_game_page_teams(t1, t2, s1, s2)
 
 
+def _resolve_game_html_status_and_scores(
+    raw_status: str | None,
+    home_score: int | None,
+    away_score: int | None,
+) -> tuple[GameStatus, int | None, int | None]:
+    """Determine GameStatus and sanitized scores for game detail page."""
+    has_score = (
+        home_score is not None
+        and away_score is not None
+        and (home_score > 0 or away_score > 0)
+    )
+    status = parse_game_status(raw_status, has_score=has_score)
+    if status in {GameStatus.SCHEDULED, GameStatus.CANCELLED, GameStatus.POSTPONED}:
+        return status, None, None
+
+    return status, home_score, away_score
+
+
 def parse_acchockey_game_html(
     html: str,
     *,
@@ -525,18 +550,20 @@ def parse_acchockey_game_html(
     except ValueError:
         return None
 
-    has_score = home_score is not None and away_score is not None
     league_id = details.get("game id")
+    status, home_score, away_score = _resolve_game_html_status_and_scores(
+        details.get("status"),
+        home_score,
+        away_score,
+    )
+
     return ParsedGameRecord(
         game_id=_generate_game_id(start_time, opp, is_home=is_home),
         opponent_name=opp,
         is_home=is_home,
         start_time=start_time,
         venue=details.get("venue", "TBD"),
-        status=parse_game_status(
-            details.get("status", "Scheduled"),
-            has_score=has_score,
-        ),
+        status=status,
         home_score=home_score,
         away_score=away_score,
         league_game_id=league_id,

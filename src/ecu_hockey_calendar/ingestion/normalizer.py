@@ -318,6 +318,8 @@ def parse_game_score(
 
 
 STATUS_MAPPING: dict[str, GameStatus] = {
+    "scheduled": GameStatus.SCHEDULED,
+    "upcoming": GameStatus.SCHEDULED,
     "final": GameStatus.FINAL,
     "finished": GameStatus.FINAL,
     "completed": GameStatus.FINAL,

@@ -46,6 +46,7 @@ STATUS_ALIASES: dict[str, set[str]] = {
     "T": {"TIE", "TIES"},
     "OTL": {"OVERTIME_LOSS", "OT_LOSS"},
     "CANCELLED": {"CANCELED"},
+    "SCHEDULED": {"UPCOMING"},
 }
 
 STATUS_METADATA: dict[GameResult, tuple[str, str, str]] = {
