@@ -8,7 +8,7 @@ If you have questions, need guidance, or run into issues while using `ecu-hockey
 
 1. **Documentation**:
 
-   - Check out our official documentation in the [`docs/`](docs/) folder or in the project README.
+   - Check out the documentation in the [`docs/`](docs/) folder or in the project README.
    - Read the [Quickstart Guide](docs/quickstart.md) for basic examples.
 
 2. **GitHub Issues**:

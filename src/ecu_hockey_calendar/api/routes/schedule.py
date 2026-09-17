@@ -89,7 +89,8 @@ def get_schedule_json(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to all seasons."
             ),
         ),
     ] = None,
@@ -204,7 +205,8 @@ def head_schedule_json(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to all seasons."
             ),
         ),
     ] = None,
@@ -300,7 +302,8 @@ def get_schedule_csv(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to all seasons."
             ),
         ),
     ] = None,
@@ -415,7 +418,8 @@ def head_schedule_csv(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to all seasons."
             ),
         ),
     ] = None,
@@ -599,7 +603,8 @@ def get_schedule_pdf(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to all seasons."
             ),
         ),
     ] = None,
@@ -660,7 +665,8 @@ def head_schedule_pdf(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to all seasons."
             ),
         ),
     ] = None,

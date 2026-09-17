@@ -28,7 +28,7 @@ def test_syndication_config_defaults() -> None:
     """Verify default values in SyndicationConfig dataclass."""
     config = SyndicationConfig()
     assert config.title == "ECU Men's Ice Hockey Schedule"
-    assert "Official schedule" in config.description
+    assert "Aggregated schedule" in config.description
     assert config.base_url == "https://ecuhockey.com"
     assert config.language == "en-US"
     assert config.primary_team_name == DEFAULT_ECU_TEAM_NAME

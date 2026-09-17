@@ -48,7 +48,7 @@ changelog
 - **Syndication Feeds (RSS & Atom)**: Standards-compliant RSS 2.0 (`/feed.rss`, `/api/schedule.rss`) and Atom 1.0 (`/feed.atom`, `/api/schedule.atom`) feeds for sports media and fan automation.
 - **Printable Schedule PDF**: High-contrast, letter-size printable schedule grid (`/schedule.pdf`, `/api/schedule.pdf`) engineered for refrigerators, bulletin boards, and bench clipboards.
 - **Dual-Format Content Negotiation**: Automated HTML and JSON responses across landing portal (`/`), health diagnostics (`/health`), sync telemetry (`/api/v1/sync/status`), and conflict review (`/api/v1/conflicts`) with query parameter (`?format=html|json`) override and `Vary: Accept` caching.
-- **Progressive Web App & Brand Identity**: PWA Web App Manifest (`/site.webmanifest`), multi-resolution favicons (`/favicon.ico`), Apple touch icons, and official vector branding assets.
+- **Progressive Web App & Brand Identity**: PWA Web App Manifest (`/site.webmanifest`), multi-resolution favicons (`/favicon.ico`), Apple touch icons, and vector branding assets.
 - **Static High-Availability Feeds**: Pre-compiled calendar feeds (`calendar.ics`, `schedule.json`, `schedule.csv`) deployed to GitHub Pages via automated 6-hour GitHub Actions workflows.
 - **Containerization & Continuous Deployment**: Multi-stage Docker container publication to GitHub Container Registry (`ghcr.io/bdperkin/ecu-hockey-calendar`) and automated Render deployments.
 - **Diagnostics & Conflict Administration**: Service health checks, synchronization telemetry, on-demand sync triggering, and administrative conflict review.

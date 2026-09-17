@@ -121,6 +121,8 @@ def test_http_404_negotiation_browser_vs_api() -> None:
     assert "404 - Page Not Found" in html_resp.text
     assert "Full Schedule" in html_resp.text
     assert "View as JSON" in html_resp.text
+    assert "Report an Issue" in html_resp.text
+    assert "https://github.com/bdperkin/ecu-hockey-calendar/issues" in html_resp.text
 
     # 2. curl / default */* Accept header -> JSON
     json_resp = client.get("/nonexistent-page", headers={"Accept": "*/*"})

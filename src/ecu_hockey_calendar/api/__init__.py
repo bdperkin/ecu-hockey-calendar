@@ -45,7 +45,7 @@ def create_app(
     admin_token: str | None = None,
     title: str = "ECU Men's Ice Hockey Calendar & Data API",
     description: str = (
-        "Official calendar subscription feeds and schedule data endpoints "
+        "Unified calendar subscription feeds and schedule data endpoints "
         "for ECU Ice Hockey."
     ),
     enable_cors: bool = True,

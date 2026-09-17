@@ -1,7 +1,7 @@
 {
   "name": "East Carolina University Men's Ice Hockey Calendar",
   "short_name": "ECU Hockey",
-  "description": "Official schedule and live calendar subscription for East Carolina University Men's Ice Hockey.",
+  "description": "Aggregated schedule and live calendar subscription for East Carolina University Men's Ice Hockey.",
   "icons": [
     {
       "src": "/static/android-chrome-192x192.png",

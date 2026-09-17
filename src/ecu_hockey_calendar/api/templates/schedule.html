@@ -8,9 +8,17 @@
             <div class="form-group">
                 <label for="season-select">Season</label>
                 <select id="season-select" name="season" class="form-control">
-                    <option value="">All Seasons</option>
+                    <option value="latest"
+                            {% if selected_season == "latest" %}selected{% endif %}>
+                        Latest Season{% if latest_season %} ({{ latest_season }}){% endif %}
+                    </option>
+                    <option value="all"
+                            {% if selected_season in ["all", ""] and is_all_seasons %}selected{% endif %}>
+                        All Seasons
+                    </option>
                     {% for s in available_seasons %}
-                        <option value="{{ s }}" {% if s == selected_season %}selected{% endif %}>{{ s }}</option>
+                        <option value="{{ s }}"
+                                {% if selected_season == s and not is_all_seasons %}selected{% endif %}>{{ s }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -59,7 +67,7 @@
     <div class="schedule-header-summary">
         <div class="schedule-count">
             <strong>{{ total_games }}</strong> game{% if total_games != 1 %}s{% endif %} listed
-            {% if selected_season %}• Season {{ selected_season }}{% endif %}
+            {% if display_season %}• Season {{ display_season }}{% elif is_all_seasons %}• All Seasons{% endif %}
             {% if selected_home_only %}• Home Matches Only{% endif %}
         </div>
         <div class="schedule-actions no-print">
@@ -91,6 +99,17 @@
                 </thead>
                 <tbody>
                     {% for game in games %}
+                        {% if game.show_now_divider_before %}
+                            <tr id="now-divider" class="now-divider-row" tabindex="-1">
+                                <td colspan="6" class="now-divider-cell">
+                                    <div class="now-divider-wrapper">
+                                        <span class="now-divider-line"></span>
+                                        <span class="now-divider-text">--- NOW ---</span>
+                                        <span class="now-divider-line"></span>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
                         <tr>
                             <td>
                                 <strong>{{ game.date_str }}</strong>
@@ -142,6 +161,15 @@
         <!-- Mobile Schedule Cards -->
         <div class="schedule-cards-container">
             {% for game in games %}
+                {% if game.show_now_divider_before %}
+                    <div id="now-divider-mobile" class="now-divider-card" tabindex="-1">
+                        <div class="now-divider-wrapper">
+                            <span class="now-divider-line"></span>
+                            <span class="now-divider-text">--- NOW ---</span>
+                            <span class="now-divider-line"></span>
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="game-card">
                     <div class="card-top-bar">
                         <div class="card-date-time">{{ game.date_str }} • {{ game.time_str }}</div>
@@ -209,4 +237,38 @@
         </div>
         <div id="copy-status" class="copy-status">Embed snippet copied to clipboard!</div>
     </section>
+{% endblock %}
+{% block extra_scripts %}
+    {% if has_now_divider %}
+        <script>
+    function scrollToNowDivider() {
+      if (window.location.hash && window.location.hash !== "#now-divider" && window.location.hash !== "#now") {
+        return;
+      }
+      var isMobile = window.matchMedia("(max-width: 768px)").matches;
+      var target = (isMobile ? document.getElementById("now-divider-mobile") : document.getElementById("now-divider"))
+        || document.getElementById("now-divider")
+        || document.getElementById("now-divider-mobile");
+      if (target) {
+        if (typeof target.focus === "function") {
+          try {
+            target.focus({ preventScroll: true });
+          } catch (_) {
+            target.focus();
+          }
+        }
+        target.scrollIntoView({ behavior: "instant", block: "center" });
+      }
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function() {
+        scrollToNowDivider();
+        requestAnimationFrame(scrollToNowDivider);
+      });
+    } else {
+      scrollToNowDivider();
+      requestAnimationFrame(scrollToNowDivider);
+    }
+        </script>
+    {% endif %}
 {% endblock %}

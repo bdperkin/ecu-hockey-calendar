@@ -12,8 +12,23 @@ from ecu_hockey_calendar.storage.models import GameModel
 
 if TYPE_CHECKING:
     from fastapi import Request
+    from sqlalchemy.orm import Session
 
     from ecu_hockey_calendar.models import Game
+
+
+def _resolve_season_query(session: Session, season: str) -> str | None:
+    """Resolve season filter string to database season value or None for all."""
+    clean = season.strip()
+    if clean.lower() == "all":
+        return None
+
+    if clean.lower() in ("latest", "current"):
+        return session.scalars(
+            select(GameModel.season).order_by(GameModel.season.desc()).limit(1),
+        ).first()
+
+    return clean
 
 
 def extract_games_from_database(
@@ -36,7 +51,9 @@ def extract_games_from_database(
     with get_sync_session(engine) as session:
         stmt = select(GameModel)
         if season:
-            stmt = stmt.where(GameModel.season == season)
+            target_season = _resolve_season_query(session, season)
+            if target_season:
+                stmt = stmt.where(GameModel.season == target_season)
 
         orm_games = session.scalars(stmt).all()
         return [g.to_domain() for g in orm_games]

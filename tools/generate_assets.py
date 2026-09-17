@@ -346,6 +346,149 @@ def _apply_logo_with_shadow(
     background.paste(logo, (lx, ly), mask=logo.split()[3])
 
 
+_UNIFIED_GLYPHS: list[tuple[list[str], int]] = [
+    (
+        [
+            "##      ##",
+            "##      ##",
+            "##      ##",
+            "##      ##",
+            "##      ##",
+            "##      ##",
+            "##      ##",
+            "###     ##",
+            " ##     ##",
+            "  ##   ## ",
+            "    ###   ",
+        ],
+        4,
+    ),
+    (
+        [
+            "##     ##",
+            "###    ##",
+            "####   ##",
+            "####   ##",
+            "## ##  ##",
+            "## ##  ##",
+            "##  ## ##",
+            "##   # ##",
+            "##   ####",
+            "##    ###",
+            "##    ###",
+        ],
+        4,
+    ),
+    (
+        [
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+        ],
+        5,
+    ),
+    (
+        [
+            "#######",
+            "##     ",
+            "##     ",
+            "##     ",
+            "##     ",
+            "###### ",
+            "##     ",
+            "##     ",
+            "##     ",
+            "##     ",
+            "##     ",
+        ],
+        4,
+    ),
+    (
+        [
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+            "##",
+        ],
+        5,
+    ),
+    (
+        [
+            "#######",
+            "##     ",
+            "##     ",
+            "##     ",
+            "##     ",
+            "###### ",
+            "##     ",
+            "##     ",
+            "##     ",
+            "##     ",
+            "#######",
+        ],
+        4,
+    ),
+    (
+        [
+            "#####    ",
+            "##    ## ",
+            "##    ###",
+            "##     ##",
+            "##     ##",
+            "##     ##",
+            "##     ##",
+            "##     ##",
+            "##    ###",
+            "##    ## ",
+            "#####    ",
+        ],
+        0,
+    ),
+]
+
+
+def _update_social_preview_header(sp: Image.Image) -> None:
+    """Update social preview banner text from OFFICIAL to UNIFIED."""
+    pixels = sp.load()
+    if pixels is None:
+        return
+
+    for x in range(536, 621):
+        for y in range(125, 142):
+            pixels[x, y] = (
+                (255, 255, 255, 255)
+                if x % _SP_GRID_INTERVAL == 0
+                else (89, 42, 138, 255)
+            )
+
+    cur_x = 544
+    gold = (255, 199, 44, 255)
+    for glyph, spacing in _UNIFIED_GLYPHS:
+        w = len(glyph[0])
+        for row_idx, line in enumerate(glyph):
+            y = 128 + row_idx
+            for col_idx, ch in enumerate(line):
+                if ch == "#":
+                    pixels[cur_x + col_idx, y] = gold
+
+        cur_x += w + spacing
+
+
 def update_social_preview(
     source_svg: Path,
     social_preview_path: Path = DEFAULT_SOCIAL_PREVIEW_PATH,
@@ -358,7 +501,7 @@ def update_social_preview(
 
     Reconstructs the left panel hockey rink grid background with brand purple,
     accent borders, and white grid lines, pastes the resized logo with a subtle
-    realistic drop shadow, and saves the updated preview.
+    realistic drop shadow, updates banner text to UNIFIED, and saves preview.
 
     Args:
         source_svg: Path to source SVG logo.
@@ -392,6 +535,7 @@ def update_social_preview(
     _apply_logo_with_shadow(left_bg, logo, (270, 320))
 
     sp.paste(left_bg, (0, 0))
+    _update_social_preview_header(sp)
     sp.convert("RGB").save(social_preview_path, format="PNG")
     return True
 

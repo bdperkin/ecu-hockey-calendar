@@ -380,7 +380,7 @@ Generates a high-contrast, ECU-branded printable schedule grid formatted specifi
 #### 5.5.1. Features & Layout
 
 - **Single / Two-Page Budget**: Compact CSS layout engineered to fit a full season cleanly across 1–2 pages without clipped rows or orphaned headers.
-- **Header Banner**: Official ECU Men's Ice Hockey purple and gold banner displaying the active season, generation timestamp, ticket purchase URL, and total game count.
+- **Header Banner**: ECU Men's Ice Hockey purple and gold banner displaying the active season, generation timestamp, ticket purchase URL, and total game count.
 - **Printed Table Columns**:
   - **Date & Day**: Game date with 3-letter day abbreviation (e.g., `Fri, Oct 16, 2026`).
   - **Time (ET)**: Puck drop time in Eastern Time or `TBD`.
