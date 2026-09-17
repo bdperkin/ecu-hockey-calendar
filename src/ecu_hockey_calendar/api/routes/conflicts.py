@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Annotated, Any, Protocol, runtime_checkable
 
 from fastapi import APIRouter, Depends, Query, Request, Response
-from sqlalchemy import select
+from sqlalchemy import Select, func, select
 
 from ecu_hockey_calendar.api.auth import verify_admin_token
 from ecu_hockey_calendar.api.negotiation import negotiate_response
@@ -87,6 +87,26 @@ def _change_model_to_conflict(change: GameChangeModel) -> dict[str, Any]:
     }
 
 
+def _active_conflicts_query(
+    change_types: tuple[str, ...] = CONFLICT_CHANGE_TYPES,
+) -> Select[tuple[GameChangeModel]]:
+    """Construct SQL statement selecting the latest change for active conflicts."""
+    subq = (
+        select(
+            GameChangeModel.canonical_game_id,
+            func.max(GameChangeModel.id).label("max_id"),
+        )
+        .group_by(GameChangeModel.canonical_game_id)
+        .subquery()
+    )
+    return (
+        select(GameChangeModel)
+        .join(subq, GameChangeModel.id == subq.c.max_id)
+        .where(GameChangeModel.change_type.in_(change_types))
+        .order_by(GameChangeModel.recorded_at.desc())
+    )
+
+
 def _extract_conflicts(request: Request) -> list[dict[str, Any]]:
     """Retrieve raw conflicts from application state or relational database."""
     override = getattr(request.app.state, "conflicts_override", None)
@@ -98,11 +118,7 @@ def _extract_conflicts(request: Request) -> list[dict[str, Any]]:
         return []
 
     with get_sync_session(engine) as session:
-        stmt = (
-            select(GameChangeModel)
-            .where(GameChangeModel.change_type.in_(CONFLICT_CHANGE_TYPES))
-            .order_by(GameChangeModel.recorded_at.desc())
-        )
+        stmt = _active_conflicts_query()
         changes = session.scalars(stmt).all()
         return [_change_model_to_conflict(chg) for chg in changes]
 
@@ -607,5 +623,6 @@ def list_schedule_conflicts(
 __all__ = [
     "CONFLICT_CHANGE_TYPES",
     "ConflictDictConvertible",
+    "_active_conflicts_query",
     "list_schedule_conflicts",
 ]

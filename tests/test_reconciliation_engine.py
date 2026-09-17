@@ -24,9 +24,13 @@ from ecu_hockey_calendar.reconciliation.engine import (
     _compute_cluster_confidence,
     _determine_reconciliation_status,
     _generate_canonical_game_id,
+    _has_differing_source_game_ids,
     _has_identical_game_ids,
     _has_review_requirement,
+    _is_adjacent_day_rollover,
     _is_high_tier_source,
+    _is_same_source_distinct,
+    _is_temporal_match,
     _mark_conflicts_resolved,
     _resolve_game_identity,
     _resolve_pairwise_severity,
@@ -108,6 +112,96 @@ def test_match_criteria_and_helpers() -> None:
     assert _has_identical_game_ids(r1, r3) is False
     assert _has_identical_game_ids(r1, r_no_id) is False
 
+    # Helper unit tests
+    assert _has_differing_source_game_ids(r1, r2) is False
+    assert _has_differing_source_game_ids(r1, r3) is True
+    assert _has_differing_source_game_ids(r1, r_no_id) is False
+
+    r_cross = _create_record(
+        "UNC",
+        t1,
+        source_code="acchockey",
+        source_type=DataSourceType.LEAGUE,
+    )
+    assert _is_same_source_distinct(r1, r_cross, days_diff=1) is False
+    assert _is_same_source_distinct(r1, r3, days_diff=0) is True
+    assert _is_same_source_distinct(r1, r_no_id, days_diff=1) is True
+    assert _is_same_source_distinct(r1, r_no_id, days_diff=0) is False
+
+    assert (
+        _is_adjacent_day_rollover(
+            days_diff=0,
+            time_diff_minutes=30,
+            tolerance_minutes=60,
+        )
+        is False
+    )
+    assert (
+        _is_adjacent_day_rollover(
+            days_diff=1,
+            time_diff_minutes=None,
+            tolerance_minutes=60,
+        )
+        is False
+    )
+    assert (
+        _is_adjacent_day_rollover(
+            days_diff=1,
+            time_diff_minutes=30,
+            tolerance_minutes=60,
+        )
+        is True
+    )
+    assert (
+        _is_adjacent_day_rollover(
+            days_diff=1,
+            time_diff_minutes=1440,
+            tolerance_minutes=60,
+        )
+        is False
+    )
+
+    assert (
+        _is_temporal_match(
+            days_diff=0,
+            time_aligned=False,
+            is_cross_source=True,
+            time_diff_minutes=30,
+            near_tolerance_min=60,
+        )
+        is False
+    )
+    assert (
+        _is_temporal_match(
+            days_diff=0,
+            time_aligned=True,
+            is_cross_source=False,
+            time_diff_minutes=0,
+            near_tolerance_min=60,
+        )
+        is True
+    )
+    assert (
+        _is_temporal_match(
+            days_diff=1,
+            time_aligned=True,
+            is_cross_source=True,
+            time_diff_minutes=30,
+            near_tolerance_min=60,
+        )
+        is True
+    )
+    assert (
+        _is_temporal_match(
+            days_diff=1,
+            time_aligned=True,
+            is_cross_source=False,
+            time_diff_minutes=30,
+            near_tolerance_min=60,
+        )
+        is False
+    )
+
     # Match criteria: identical game IDs
     assert (
         _check_record_match_criteria(r1, r2, 0.5, 0.8, time_aligned=False, days_diff=5)
@@ -130,7 +224,7 @@ def test_match_criteria_and_helpers() -> None:
         )
         is False
     )
-    # Adjacent day match with same home/away
+    # Same source on adjacent day (weekend series) -> must NOT match
     assert (
         _check_record_match_criteria(
             r1,
@@ -140,18 +234,66 @@ def test_match_criteria_and_helpers() -> None:
             time_aligned=True,
             days_diff=1,
         )
-        is True
+        is False
     )
-    # Adjacent day match with differing home/away
-    r_away = _create_record("UNC", t1, is_home=False)
+    # Cross source on same day with same home/away -> matches
     assert (
         _check_record_match_criteria(
             r1,
-            r_away,
+            r_cross,
+            0.9,
+            0.8,
+            time_aligned=True,
+            days_diff=0,
+        )
+        is True
+    )
+    # Cross source adjacent day with midnight rollover -> matches
+    assert (
+        _check_record_match_criteria(
+            r1,
+            r_cross,
             0.9,
             0.8,
             time_aligned=True,
             days_diff=1,
+            time_diff_minutes=30,
+            near_tolerance_min=60,
+        )
+        is True
+    )
+    # Cross source adjacent day without midnight rollover
+    # (e.g. weekend series) -> does NOT match
+    assert (
+        _check_record_match_criteria(
+            r1,
+            r_cross,
+            0.9,
+            0.8,
+            time_aligned=True,
+            days_diff=1,
+            time_diff_minutes=1440,
+            near_tolerance_min=60,
+        )
+        is False
+    )
+    # Adjacent day match with differing home/away
+    r_cross_away = _create_record(
+        "UNC",
+        t1,
+        is_home=False,
+        source_code="acchockey",
+        source_type=DataSourceType.LEAGUE,
+    )
+    assert (
+        _check_record_match_criteria(
+            r1,
+            r_cross_away,
+            0.9,
+            0.8,
+            time_aligned=True,
+            days_diff=1,
+            time_diff_minutes=30,
         )
         is False
     )
@@ -518,7 +660,35 @@ def test_engine_status_and_score_resolution() -> None:
     assert h_def is None
     assert a_def is None
 
-    # _extract_cluster_fields ensures unplayed fixtures clear scores
+
+def test_engine_extract_cluster_fields() -> None:
+    """Verify _extract_cluster_fields ensures unplayed fixtures clear scores."""
+    engine = ReconciliationEngine()
+    t_sched = datetime(2026, 10, 15, 19, 0, tzinfo=UTC)
+    r_s = _create_record("UNC", t_sched, status=GameStatus.SCHEDULED, source_code="sot")
+    r_c = _create_record(
+        "UNC",
+        t_sched,
+        status=GameStatus.CANCELLED,
+        source_type=DataSourceType.LEAGUE,
+        source_code="league",
+    )
+    r_post = _create_record(
+        "UNC",
+        t_sched,
+        status=GameStatus.POSTPONED,
+        source_type=DataSourceType.PRIMARY_SOT,
+        source_code="sot",
+    )
+    r_score = _create_record(
+        "UNC",
+        t_sched,
+        home_score=5,
+        away_score=2,
+        result=GameResult.WIN,
+        source_code="sot",
+    )
+
     prov_cluster: dict[str, str] = {}
     f_sched = engine._extract_cluster_fields([r_s, r_score], prov_cluster)
     assert f_sched["status"] == GameStatus.SCHEDULED
@@ -539,6 +709,14 @@ def test_engine_status_and_score_resolution() -> None:
     assert f_post["result"] == GameResult.POSTPONED
     assert f_post["home_score"] is None
     assert f_post["away_score"] is None
+
+    r_fin = _create_record("UNC", t_sched, status=GameStatus.FINAL, source_code="sot")
+    prov_fin: dict[str, str] = {}
+    f_fin = engine._extract_cluster_fields([r_fin, r_score], prov_fin)
+    assert f_fin["status"] == GameStatus.FINAL
+    assert f_fin["result"] == GameResult.WIN
+    assert f_fin["home_score"] == 5
+    assert f_fin["away_score"] == 2
 
 
 def test_engine_reconcile_games_end_to_end() -> None:
@@ -598,3 +776,69 @@ def test_engine_reconcile_games_end_to_end() -> None:
     # Check auto-resolved or clean game
     clean_games = [g for g in result.reconciled_games if not g.requires_admin_review]
     assert len(clean_games) == 1
+
+
+def test_weekend_series_clustering_and_midnight_rollover() -> None:
+    """Verify distinct weekend series games are kept separate and rollovers cluster."""
+    engine = ReconciliationEngine()
+    t_fri = datetime(2026, 10, 16, 23, 0, tzinfo=UTC)  # Friday 7:00 PM EDT
+    t_sat = datetime(
+        2026,
+        10,
+        17,
+        23,
+        0,
+        tzinfo=UTC,
+    )  # Saturday 7:00 PM EDT (24h later)
+
+    # 1. Single source weekend series against same opponent
+    rec_fri_ecu = _create_record(
+        "Old Dominion",
+        t_fri,
+        game_id="game-fri",
+        source_code="ecuhockey",
+    )
+    rec_sat_ecu = _create_record(
+        "Old Dominion",
+        t_sat,
+        game_id="game-sat",
+        source_code="ecuhockey",
+    )
+    clusters_single = engine.cluster_records([rec_fri_ecu, rec_sat_ecu])
+    assert len(clusters_single) == 2
+
+    # 2. Multi-source weekend series (ecuhockey + acchockey)
+    rec_fri_acc = _create_record(
+        "Old Dominion",
+        t_fri,
+        game_id="acc-fri",
+        source_code="acchockey",
+        source_type=DataSourceType.LEAGUE,
+    )
+    rec_sat_acc = _create_record(
+        "Old Dominion",
+        t_sat,
+        game_id="acc-sat",
+        source_code="acchockey",
+        source_type=DataSourceType.LEAGUE,
+    )
+    clusters_multi = engine.cluster_records(
+        [rec_fri_ecu, rec_sat_ecu, rec_fri_acc, rec_sat_acc],
+    )
+    assert len(clusters_multi) == 2
+    assert len(clusters_multi[0]) == 2
+    assert len(clusters_multi[1]) == 2
+
+    # 3. Cross-source midnight rollover (30m difference across midnight)
+    t_late = datetime(2026, 10, 17, 3, 45, tzinfo=UTC)  # Friday 11:45 PM EDT
+    t_early = datetime(2026, 10, 17, 4, 15, tzinfo=UTC)  # Saturday 12:15 AM EDT
+    rec_late = _create_record("UNC", t_late, source_code="ecuhockey")
+    rec_early = _create_record(
+        "UNC",
+        t_early,
+        source_code="acchockey",
+        source_type=DataSourceType.LEAGUE,
+    )
+    clusters_rollover = engine.cluster_records([rec_late, rec_early])
+    assert len(clusters_rollover) == 1
+    assert len(clusters_rollover[0]) == 2

@@ -934,6 +934,44 @@ class TestConflictsCommand:
         assert "game-101" in res_rev.output
         assert "game-102" not in res_rev.output
 
+    def test_conflicts_superseded_change_resolved(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify conflicts command ignores superseded historical conflicts."""
+        engine = create_sync_engine(db_url)
+        with get_sync_session(engine) as session:
+            audit = SyncAuditModel(
+                sync_cycle_id="sync-test-superseded",
+                status="SUCCESS",
+            )
+            session.add(audit)
+            session.flush()
+
+            change_conflict = GameChangeModel(
+                sync_cycle_id="sync-cycle-1",
+                sync_audit_id=audit.id,
+                canonical_game_id="game-superseded",
+                change_type="CONFLICT_DETECTED",
+                summary="Old conflict",
+                recorded_at=datetime(2026, 9, 8, 12, 0, tzinfo=UTC),
+            )
+            change_update = GameChangeModel(
+                sync_cycle_id="sync-cycle-2",
+                sync_audit_id=audit.id,
+                canonical_game_id="game-superseded",
+                change_type="UPDATED",
+                summary="Resolved conflict",
+                recorded_at=datetime(2026, 9, 8, 13, 0, tzinfo=UTC),
+            )
+            session.add_all([change_conflict, change_update])
+
+        result = runner.invoke(conflicts_command, ["--db-url", db_url])
+        assert result.exit_code == 0
+        assert "Conflict Status Clean" in result.output
+        assert "No active schedule conflicts or discrepancies found" in result.output
+
     def test_conflicts_filter_helper(self) -> None:
         """Verify _matches_filter logic directly."""
         item = {

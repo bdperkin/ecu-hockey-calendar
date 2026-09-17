@@ -9,7 +9,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import click
-from sqlalchemy import select
 
 from ecu_hockey_calendar.api.client import (
     RemoteApiAuthError,
@@ -17,7 +16,7 @@ from ecu_hockey_calendar.api.client import (
     RemoteApiError,
 )
 from ecu_hockey_calendar.api.routes.conflicts import (
-    CONFLICT_CHANGE_TYPES,
+    _active_conflicts_query,
     _change_model_to_conflict,
 )
 from ecu_hockey_calendar.cli.console import (
@@ -34,11 +33,12 @@ from ecu_hockey_calendar.storage.engine import (
     get_sync_database_url,
     get_sync_session,
 )
-from ecu_hockey_calendar.storage.models import GameChangeModel
 
 if TYPE_CHECKING:
     from rich.table import Table
     from sqlalchemy.orm import Session
+
+    from ecu_hockey_calendar.storage.models import GameChangeModel
 
 
 __all__ = [
@@ -137,11 +137,7 @@ def _query_conflicts(
 ) -> tuple[list[dict[str, Any]], int]:
     """Query and filter conflict records from storage."""
     is_review = review_only if requires_review is None else requires_review
-    stmt = (
-        select(GameChangeModel)
-        .where(GameChangeModel.change_type.in_(CONFLICT_CHANGE_TYPES))
-        .order_by(GameChangeModel.recorded_at.desc())
-    )
+    stmt = _active_conflicts_query()
     changes = session.scalars(stmt).all()
     all_conflicts = [_normalize_conflict(c) for c in changes]
 
