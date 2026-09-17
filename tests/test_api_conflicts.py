@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 from ecu_hockey_calendar.api.app import create_app
 from ecu_hockey_calendar.api.routes.conflicts import (
     CONFLICT_CHANGE_TYPES,
+    _active_conflicts_query,
     _build_conflicts_context,
     _build_pagination_context,
     _change_model_to_conflict,
@@ -877,6 +878,67 @@ def test_extract_conflicts_all_supported_change_types(tmp_path: Path) -> None:
     result_game_ids = {r["game_id"] for r in results}
     assert result_game_ids == {"game-detected", "game-conflict", "game-discrepancy"}
     assert "game-other" not in result_game_ids
+
+
+def test_extract_conflicts_superseded_conflict_ignored(tmp_path: Path) -> None:
+    """Verify _extract_conflicts omits games whose conflict was resolved."""
+    db_file = tmp_path / "superseded_conflict.db"
+    db_url = f"sqlite:///{db_file}"
+
+    app = create_app(database_url=db_url, admin_token=TEST_ADMIN_TOKEN)
+    init_db(app.state.db_engine)
+
+    with get_sync_session(app.state.db_engine) as session:
+        c1_old = GameChangeModel(
+            sync_cycle_id="cycle-1",
+            canonical_game_id="game-resolved",
+            change_type="CONFLICT_DETECTED",
+            summary="Initial conflict in cycle 1",
+        )
+        c1_new = GameChangeModel(
+            sync_cycle_id="cycle-2",
+            canonical_game_id="game-resolved",
+            change_type="UPDATED",
+            summary="Resolved cleanly in cycle 2",
+        )
+        c2 = GameChangeModel(
+            sync_cycle_id="cycle-2",
+            canonical_game_id="game-active-conflict",
+            change_type="CONFLICT_DETECTED",
+            summary="Active conflict",
+        )
+        session.add_all([c1_old, c1_new, c2])
+
+    req = MagicMock()
+    req.app = app
+    results = _extract_conflicts(req)
+    result_game_ids = {r["game_id"] for r in results}
+    assert result_game_ids == {"game-active-conflict"}
+    assert "game-resolved" not in result_game_ids
+
+
+def test_active_conflicts_query_custom_types(tmp_path: Path) -> None:
+    """Verify _active_conflicts_query supports custom change_types filter."""
+    db_file = tmp_path / "custom_types.db"
+    db_url = f"sqlite:///{db_file}"
+
+    app = create_app(database_url=db_url, admin_token=TEST_ADMIN_TOKEN)
+    init_db(app.state.db_engine)
+
+    with get_sync_session(app.state.db_engine) as session:
+        c1 = GameChangeModel(
+            sync_cycle_id="cycle-1",
+            canonical_game_id="game-custom",
+            change_type="CUSTOM_TYPE",
+            summary="Custom change",
+        )
+        session.add(c1)
+
+    with get_sync_session(app.state.db_engine) as session:
+        stmt = _active_conflicts_query(change_types=("CUSTOM_TYPE",))
+        res = session.scalars(stmt).all()
+        assert len(res) == 1
+        assert res[0].canonical_game_id == "game-custom"
 
 
 def test_conflicts_clean_route_alias_parity() -> None:

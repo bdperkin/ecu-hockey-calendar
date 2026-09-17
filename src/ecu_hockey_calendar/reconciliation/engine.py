@@ -76,6 +76,72 @@ def _has_identical_game_ids(
     return bool(rec_a.game_id and rec_a.game_id == rec_b.game_id)
 
 
+def _has_differing_source_game_ids(
+    rec_a: SourceGameRecord,
+    rec_b: SourceGameRecord,
+) -> bool:
+    """Check if both records have different non-empty source game IDs."""
+    if not (rec_a.game_id and rec_b.game_id):
+        return False
+
+    return rec_a.game_id != rec_b.game_id
+
+
+def _is_same_source_distinct(
+    rec_a: SourceGameRecord,
+    rec_b: SourceGameRecord,
+    days_diff: int,
+) -> bool:
+    """Check if records are distinct fixtures originating from the same source."""
+    if rec_a.source_code != rec_b.source_code:
+        return False
+
+    if _has_differing_source_game_ids(rec_a, rec_b):
+        return True
+
+    return days_diff > 0
+
+
+def _is_adjacent_day_rollover(
+    days_diff: int,
+    time_diff_minutes: int | None,
+    tolerance_minutes: int,
+) -> bool:
+    """Check if adjacent day difference is a valid midnight rollover."""
+    if days_diff != 1:
+        return False
+
+    if time_diff_minutes is None:
+        return False
+
+    return time_diff_minutes <= tolerance_minutes
+
+
+def _is_temporal_match(
+    days_diff: int,
+    *,
+    time_aligned: bool,
+    is_cross_source: bool,
+    time_diff_minutes: int | None = None,
+    near_tolerance_min: int = DEFAULT_NEAR_TOLERANCE_MINUTES,
+) -> bool:
+    """Evaluate temporal alignment between candidate records."""
+    if not time_aligned:
+        return False
+
+    if days_diff == 0:
+        return True
+
+    if is_cross_source:
+        return _is_adjacent_day_rollover(
+            days_diff,
+            time_diff_minutes,
+            near_tolerance_min,
+        )
+
+    return False
+
+
 def _check_record_match_criteria(
     rec_a: SourceGameRecord,
     rec_b: SourceGameRecord,
@@ -84,18 +150,26 @@ def _check_record_match_criteria(
     *,
     time_aligned: bool,
     days_diff: int,
+    time_diff_minutes: int | None = None,
+    near_tolerance_min: int = DEFAULT_NEAR_TOLERANCE_MINUTES,
 ) -> bool:
-    """Evaluate core criteria to determine if two records represent same game."""
+    """Evaluate match criteria between two source records."""
     if _has_identical_game_ids(rec_a, rec_b):
         return True
 
-    if opp_sim < opp_thresh or not time_aligned:
+    if _is_same_source_distinct(rec_a, rec_b, days_diff):
         return False
 
-    if days_diff == 0:
-        return True
+    if opp_sim < opp_thresh or rec_a.is_home != rec_b.is_home:
+        return False
 
-    return rec_a.is_home == rec_b.is_home
+    return _is_temporal_match(
+        days_diff,
+        time_aligned=time_aligned,
+        is_cross_source=rec_a.source_code != rec_b.source_code,
+        time_diff_minutes=time_diff_minutes,
+        near_tolerance_min=near_tolerance_min,
+    )
 
 
 def _resolve_pairwise_severity(
@@ -481,6 +555,8 @@ class ReconciliationEngine:
             self.opponent_similarity_threshold,
             time_aligned=t_res.aligned,
             days_diff=t_res.date_difference_days,
+            time_diff_minutes=t_res.time_difference_minutes,
+            near_tolerance_min=self.near_tolerance_min,
         )
         if not is_match:
             return False, 0.0, []
