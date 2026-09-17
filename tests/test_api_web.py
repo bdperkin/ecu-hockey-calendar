@@ -564,11 +564,13 @@ def test_schedule_html_includes_docs_dropdown(
     assert 'aria-expanded="false"' in html
     assert "Docs" in html
 
-    # All 3 documentation targets in docs dropdown
+    # All documentation targets in docs dropdown
     assert 'href="https://bdperkin.github.io/ecu-hockey-calendar/"' in html
+    assert 'href="https://github.com/bdperkin/ecu-hockey-calendar"' in html
     assert 'href="/docs"' in html
     assert 'href="/redoc"' in html
     assert "Project Docs" in html
+    assert "GitHub Repo" in html
     assert "Swagger UI" in html
     assert "ReDoc" in html
 
@@ -586,3 +588,115 @@ def test_schedule_html_includes_embed_widget_nav_link(
     assert 'href="https://hockey.ecu.edu/schedule/embed"' in html
     assert "Embed Widget" in html
     assert '<div class="nav-actions">' not in html
+
+
+def test_html_footer_includes_external_entity_links(
+    diverse_games: list[Game],
+) -> None:
+    """Verify rendered HTML footer contains external entity links."""
+    service = ScheduleDataService()
+    html = service.generate_html_schedule(diverse_games)
+
+    # Base footer organization and institutional links
+    assert (
+        '<a href="https://www.ecu.edu/"\n'
+        '   target="_blank"\n'
+        '   rel="noopener noreferrer">East Carolina University</a>'
+    ) in html or 'href="https://www.ecu.edu/"' in html
+    assert 'href="https://www.ecu.edu/"' in html
+    assert 'href="https://www.acchockey.com/"' in html
+    assert 'href="https://www.greenvillenc.gov/"' in html
+    assert 'href="https://www.nc.gov/"' in html
+    assert 'href="https://www.ecuhockey.com/"' in html
+    assert 'href="https://github.com/bdperkin/ecu-hockey-calendar"' in html
+    assert 'href="https://github.com/bdperkin/ecu-hockey-calendar/issues"' in html
+    assert "Atlantic Coast Conference Hockey League (ACCHL)" in html
+    assert "Official ECU Hockey Website" in html
+    assert "GitHub Repository" in html
+    assert "Issue Tracker" in html
+
+
+def test_root_html_includes_hero_external_links() -> None:
+    """Verify GET / hero section includes external entity links."""
+    app = create_app()
+    client = TestClient(app)
+    resp = client.get(
+        "/",
+        headers={"Accept": "text/html,application/xhtml+xml"},
+    )
+    assert resp.status_code == 200
+    html = resp.text
+
+    assert 'href="https://www.ecuhockey.com/"' in html
+    assert 'href="https://achahockey.org/"' in html
+    assert 'href="https://www.acchockey.com/"' in html
+    assert (
+        "East Carolina University Men&#39;s Ice Hockey</a>" in html
+        or "East Carolina University Men's Ice Hockey</a>" in html
+    )
+    assert ">ACHA</a>" in html
+    assert ">ACCHL</a>" in html
+
+
+def test_root_html_includes_grouped_feature_directory() -> None:
+    """Verify GET / renders grouped feature directory with titles and summaries."""
+    app = create_app()
+    client = TestClient(app)
+    resp = client.get(
+        "/",
+        headers={"Accept": "text/html,application/xhtml+xml"},
+    )
+    assert resp.status_code == 200
+    html = resp.text
+
+    # Section heading
+    assert "Navigation &amp; Feature Directory" in html
+
+    # Four logical category headers
+    assert "Schedule &amp; Subscriptions</h4>" in html
+    assert "Tools &amp; Widgets</h4>" in html
+    assert "Documentation &amp; APIs</h4>" in html
+    assert "System &amp; Diagnostics</h4>" in html
+
+    # Category 1: Schedule & Subscriptions
+    assert 'href="/schedule"' in html
+    assert "Interactive schedule table and mobile cards" in html
+    assert 'href="/schedule.ics"' in html
+    assert "Live iCal calendar feed syncing game dates" in html
+    assert 'href="/schedule.atom"' in html
+    assert 'href="/schedule.csv"' in html
+    assert 'href="/schedule.json"' in html
+    assert 'href="/schedule.pdf"' in html
+    assert 'href="/schedule.rss"' in html
+
+    # Category 2: Tools & Widgets
+    assert 'href="/schedule/embed"' in html
+    assert "Responsive iframe schedule widget designed" in html
+    assert 'id="hero-view-as-json-btn"' in html
+    assert "Live REST service discovery document" in html
+
+    # Category 3: Documentation & APIs
+    assert 'href="https://bdperkin.github.io/ecu-hockey-calendar/"' in html
+    assert 'href="https://github.com/bdperkin/ecu-hockey-calendar"' in html
+    assert "Comprehensive architecture guides" in html
+    assert "Source code repository, issue tracker" in html
+    assert 'href="/docs"' in html
+    assert "Interactive OpenAPI console to test endpoints" in html
+    assert 'href="/redoc"' in html
+    assert "Comprehensive visual OpenAPI reference documentation" in html
+
+    # Category 4: System & Diagnostics
+    assert 'href="/health"' in html
+    assert "Real-time service health check, component diagnostics" in html
+    assert 'href="/sync"' in html
+    assert "Ingestion pipeline telemetry, upstream source freshness" in html
+    assert 'href="/conflicts"' in html
+    assert "Multi-source schedule dispute detection and automated" in html
+
+    # Calendar subscription showcase URI consistency and sync guide
+    assert "http://testserver/schedule.ics" in html
+    assert "webcal://testserver/schedule.ics" in html
+    assert (
+        'href="https://bdperkin.github.io/ecu-hockey-calendar/calendar_sync.html"'
+        in html
+    )

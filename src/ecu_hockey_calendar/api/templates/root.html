@@ -73,11 +73,158 @@
     margin-bottom: 1.5rem;
   }
 
-  .hero-actions {
+  .hero-desc a {
+    color: var(--ecu-purple);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    transition: color 0.15s ease;
+  }
+
+  .hero-desc a:hover {
+    color: var(--ecu-purple-dark);
+  }
+
+  /* Grouped Feature Directory */
+  .directory-container {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+  }
+
+  .directory-section-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .directory-section-title {
+    font-size: 1.2rem;
+    color: var(--ecu-purple);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .directory-section-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .directory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .directory-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .directory-card:hover {
+    border-color: var(--ecu-purple);
+    box-shadow: 0 4px 12px rgba(89, 42, 138, 0.08);
+  }
+
+  .directory-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .directory-card-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  .directory-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ecu-purple);
+    margin: 0;
+  }
+
+  .directory-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex-grow: 1;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .feature-item-btn {
+    flex-shrink: 0;
+    width: 165px;
+  }
+
+  .feature-item-btn .btn {
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .feature-item-info {
+    flex-grow: 1;
+  }
+
+  .feature-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .feature-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+  }
+
+  .feature-chip {
+    font-size: 0.76rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    background: var(--bg-page);
+    color: var(--ecu-purple);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .feature-chip:hover {
+    background: var(--ecu-purple);
+    color: #ffffff;
+    border-color: var(--ecu-purple);
+    text-decoration: none;
+  }
+
+  @media (max-width: 600px) {
+    .feature-item {
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .feature-item-btn {
+      width: 100%;
+    }
   }
 
   /* Subscription Showcase */
@@ -276,15 +423,200 @@
                 </div>
             </div>
             <p class="hero-desc">
-                Unified real-time calendar subscription feeds, responsive schedule views, and machine-readable REST API endpoints for East Carolina University Men's Ice Hockey (ACHA M2 / ACCHL).
+                Unified real-time calendar subscription feeds, responsive schedule views, and machine-readable REST API endpoints for <a href="https://www.ecuhockey.com/"
+    target="_blank"
+    rel="noopener noreferrer">East Carolina University Men's Ice Hockey</a> (<a href="https://achahockey.org/"
+   target="_blank"
+   rel="noopener noreferrer">ACHA</a> M2 / <a href="https://www.acchockey.com/"
+    target="_blank"
+    rel="noopener noreferrer">ACCHL</a>).
             </p>
-            <div class="hero-actions">
-                <a href="/schedule" class="btn btn-primary">View Schedule</a>
-                <a href="/schedule.ics" class="btn btn-secondary">Subscribe (.ics)</a>
-                <a href="/docs" class="btn btn-outline">API Docs</a>
-                <a href="{{ json_url }}"
-                   class="btn btn-outline"
-                   id="hero-view-as-json-btn">View as JSON</a>
+            <!-- Grouped Feature Directory -->
+            <div class="directory-container">
+                <div class="directory-section-header">
+                    <h3 class="directory-section-title">Navigation &amp; Feature Directory</h3>
+                    <p class="directory-section-subtitle">
+                        Explore all services, data feeds, developer documentation, and operational telemetry available across the platform:
+                    </p>
+                </div>
+
+                <div class="directory-grid">
+                    <!-- Category 1: Schedule & Subscriptions -->
+                    <div class="directory-card">
+                        <div class="directory-card-header">
+                            <span class="directory-card-icon">📅</span>
+                            <h4 class="directory-card-title">Schedule &amp; Subscriptions</h4>
+                        </div>
+                        <div class="directory-card-body">
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="/schedule" class="btn btn-primary btn-sm">Schedule →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Interactive schedule table and mobile cards with filtering by season, opponent, and home/away status.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="/schedule.ics" class="btn btn-secondary btn-sm">Subscribe (.ics) →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Live iCal calendar feed syncing game dates, start times, and rink locations automatically to Apple, Google, and Outlook.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="/schedule.json" class="btn btn-outline btn-sm">Export Feeds →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Direct data exports and syndicated feeds for custom integrations, spreadsheets, and printouts:
+                                    </p>
+                                    <div class="feature-chips">
+                                        <a href="/schedule.atom" class="feature-chip">Atom</a>
+                                        <a href="/schedule.csv" class="feature-chip">CSV</a>
+                                        <a href="/schedule.json" class="feature-chip">JSON</a>
+                                        <a href="/schedule.pdf" class="feature-chip">PDF</a>
+                                        <a href="/schedule.rss" class="feature-chip">RSS</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 2: Interactive Tools & Widgets -->
+                    <div class="directory-card">
+                        <div class="directory-card-header">
+                            <span class="directory-card-icon">🧩</span>
+                            <h4 class="directory-card-title">Tools &amp; Widgets</h4>
+                        </div>
+                        <div class="directory-card-body">
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="{{ embed_url or '/schedule/embed' }}"
+                                       class="btn btn-outline btn-sm">Embed Widget →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Responsive iframe schedule widget designed for seamless embedding on club websites, student blogs, and sports portals.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="{{ json_url }}"
+                                       class="btn btn-outline btn-sm"
+                                       id="hero-view-as-json-btn">View as JSON →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Live REST service discovery document for machine-readable introspection and developer tooling.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 3: Documentation & APIs -->
+                    <div class="directory-card">
+                        <div class="directory-card-header">
+                            <span class="directory-card-icon">📖</span>
+                            <h4 class="directory-card-title">Documentation &amp; APIs</h4>
+                        </div>
+                        <div class="directory-card-body">
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="https://bdperkin.github.io/ecu-hockey-calendar/"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="btn btn-outline btn-sm">Project Docs ↗</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Comprehensive architecture guides, deployment details, and contribution documentation on GitHub Pages.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="https://github.com/bdperkin/ecu-hockey-calendar"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="btn btn-outline btn-sm">GitHub Repo ↗</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Source code repository, issue tracker, release notes, and contribution guidelines on GitHub.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="/docs" class="btn btn-outline btn-sm">Swagger UI →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Interactive OpenAPI console to test endpoints and inspect parameter schemas directly in your browser (/docs).
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="/redoc" class="btn btn-outline btn-sm">ReDoc →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Comprehensive visual OpenAPI reference documentation covering all request formats and schemas (/redoc).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 4: System & Diagnostics -->
+                    <div class="directory-card">
+                        <div class="directory-card-header">
+                            <span class="directory-card-icon">⚡</span>
+                            <h4 class="directory-card-title">System &amp; Diagnostics</h4>
+                        </div>
+                        <div class="directory-card-body">
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="/health" class="btn btn-outline btn-sm">Health Status →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Real-time service health check, component diagnostics, uptime metrics, and database connectivity (/health).
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="/sync" class="btn btn-outline btn-sm">Sync Telemetry →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Ingestion pipeline telemetry, upstream source freshness across ACHA and ECU Hockey, and sync logs (/sync).
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-item-btn">
+                                    <a href="/conflicts" class="btn btn-outline btn-sm">Conflicts →</a>
+                                </div>
+                                <div class="feature-item-info">
+                                    <p class="feature-desc">
+                                        Multi-source schedule dispute detection and automated reconciliation audit log (/conflicts).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -299,7 +631,8 @@
                     <div class="sub-links-box">
                         <div class="sub-link-row">
                             <span class="sub-link-tag">Standard iCal URL:</span>
-                            <a href="/schedule.ics" class="sub-link-code">/schedule.ics</a>
+                            <a href="{{ request.url.scheme }}://{{ request.url.netloc }}/schedule.ics"
+                               class="sub-link-code">{{ request.url.scheme }}://{{ request.url.netloc }}/schedule.ics</a>
                         </div>
                         <div class="sub-link-row">
                             <span class="sub-link-tag">Webcal Protocol:</span>
@@ -309,7 +642,7 @@
                 </div>
 
                 <div class="sub-guide-box">
-                    <a href="https://github.com/bdperkin/ecu-hockey-calendar/blob/main/docs/calendar_sync.md"
+                    <a href="https://bdperkin.github.io/ecu-hockey-calendar/calendar_sync.html"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="btn btn-gold">Calendar Sync Guide →</a>

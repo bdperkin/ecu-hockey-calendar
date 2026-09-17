@@ -378,7 +378,7 @@ def test_root_endpoint_content_negotiation_html() -> None:
     assert "/schedule.ics" in html_content
     assert "/calendar.ics" in html_content
     assert "webcal://" in html_content
-    assert "docs/calendar_sync.md" in html_content
+    assert "calendar_sync.html" in html_content
 
     # Endpoints directory links
     assert "/schedule" in html_content

@@ -973,6 +973,17 @@
       font-size: 0.85rem;
       color: var(--ecu-gold);
     }
+
+    .footer-bottom a {
+      color: var(--ecu-gold);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.15s ease;
+    }
+
+    .footer-bottom a:hover {
+      color: #ffffff;
+    }
         </style>
         {% block extra_styles %}{% endblock %}
     </head>
@@ -1083,6 +1094,16 @@
                                     </a>
                                 </li>
                                 <li role="none">
+                                    <a href="https://github.com/bdperkin/ecu-hockey-calendar"
+                                       class="dropdown-item"
+                                       role="menuitem"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        <span class="dropdown-item-endpoint">GitHub Repo ↗</span>
+                                        <span class="dropdown-item-desc">Source Code &amp; Issues</span>
+                                    </a>
+                                </li>
+                                <li role="none">
                                     <a href="/docs" class="dropdown-item" role="menuitem">
                                         <span class="dropdown-item-endpoint">/docs</span>
                                         <span class="dropdown-item-desc">Swagger UI</span>
@@ -1135,8 +1156,15 @@
                 <div class="footer-container">
                     <div class="footer-section">
                         <h4>East Carolina University Ice Hockey</h4>
-                        <p>Member of the Atlantic Collegiate Conference Hockey League (ACCHL)</p>
-                        <p>Greenville, North Carolina</p>
+                        <p><a href="https://www.ecu.edu/"
+   target="_blank"
+   rel="noopener noreferrer">East Carolina University</a></p>
+                        <p>Member of the <a href="https://www.acchockey.com/"
+    target="_blank"
+    rel="noopener noreferrer">Atlantic Coast Conference Hockey League (ACCHL)</a></p>
+                        <p><a href="https://www.greenvillenc.gov/"
+   target="_blank"
+   rel="noopener noreferrer">Greenville</a>, <a href="https://www.nc.gov/" target="_blank" rel="noopener noreferrer">North Carolina</a></p>
                     </div>
                     <div class="footer-section">
                         <h4>Subscriptions &amp; Feeds</h4>
@@ -1153,13 +1181,23 @@
                         <p><a href="{{ embed_url or '/schedule/embed' }}">Get Responsive Embed iFrame</a></p>
                         <p><a href="/health">Health &amp; Diagnostics</a></p>
                         <p><a href="/sync">Sync Telemetry</a></p>
-                        <p><a href="https://ecuhockey.com"
+                        <p><a href="https://github.com/bdperkin/ecu-hockey-calendar"
+   target="_blank"
+   rel="noopener noreferrer">GitHub Repository</a></p>
+                        <p><a href="https://github.com/bdperkin/ecu-hockey-calendar/issues"
+   target="_blank"
+   rel="noopener noreferrer">Issue Tracker</a></p>
+                        <p><a href="https://www.ecuhockey.com/"
    target="_blank"
    rel="noopener noreferrer">Official ECU Hockey Website</a></p>
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <p>ECU Hockey Calendar &amp; Data API v{{ service_version | default("0.5.0") }}</p>
+                    <p>
+                        <a href="https://github.com/bdperkin/ecu-hockey-calendar"
+                           target="_blank"
+                           rel="noopener noreferrer">ECU Hockey Calendar &amp; Data API</a> v{{ service_version | default("0.5.0") }}
+                    </p>
                 </div>
             </footer>
         {% endif %}
