@@ -424,7 +424,8 @@ def _format_html_game(game: Game, primary_team: str) -> dict[str, Any]:
 
 def _is_game_past(game: Game, ref_time: datetime) -> bool:
     """Determine whether a game has completed or occurred in the past."""
-    return game.start_time.astimezone(UTC) < ref_time or game.result in FINAL_RESULTS
+    ref_utc = ref_time if ref_time.tzinfo is not None else ref_time.replace(tzinfo=UTC)
+    return game.start_time.astimezone(UTC) < ref_utc
 
 
 def _find_first_future_index(games: Sequence[Game], ref_time: datetime) -> int | None:
@@ -785,6 +786,7 @@ class ScheduleDataService:
         effective_future_only = (
             not include_past if include_past is not None else future_only
         )
+        target_season = _resolve_filter_season(season, games, now_utc=None)
         filtered = filter_games(
             games,
             season=season,
@@ -799,7 +801,7 @@ class ScheduleDataService:
         ]
         return {
             "primary_team": self.primary_team_name,
-            "season": season,
+            "season": target_season,
             "total_games": len(formatted_games),
             "filters": {
                 "season": season,
