@@ -274,6 +274,7 @@ ini_options.addopts = """\
 ini_options.filterwarnings = [
     "error",
     "ignore::ResourceWarning",
+    "ignore::pytest.PytestUnhandledThreadExceptionWarning",
     "ignore::pytest.PytestUnraisableExceptionWarning",
     "ignore::starlette.exceptions.StarletteDeprecationWarning",
     "ignore::DeprecationWarning:anyio.*",

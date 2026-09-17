@@ -7,6 +7,8 @@ FastAPI BackgroundTasks execution with concurrency protection (HTTP 409)
 and rate-limiting cooldown intervals (HTTP 429).
 """
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
 import asyncio
@@ -22,6 +24,14 @@ from sqlalchemy import select
 
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
+from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
+from ecu_hockey_calendar.ingestion.opponent_crawler import OpponentCrawler
+from ecu_hockey_calendar.ingestion.opponent_parser import (
+    OpponentDirectory,
+    OpponentFixture,
+    filter_ecu_fixtures,
+    get_default_opponent_directory,
+)
 from ecu_hockey_calendar.notifications.dispatcher import NotificationDispatcher
 from ecu_hockey_calendar.reconciliation.change_detector import ChangeDetector
 from ecu_hockey_calendar.reconciliation.engine import ReconciliationEngine
@@ -60,6 +70,23 @@ logger = logging.getLogger(__name__)
 DEFAULT_COOLDOWN_SECONDS: int = 900  # 15 minutes
 MIN_COOLDOWN_SECONDS: int = 300  # 5 minutes
 MILLIS_PER_SECOND: int = 1000
+
+_DATA_SOURCE_TYPE_MAP: dict[str, DataSourceType] = {
+    "ecuhockey": DataSourceType.PRIMARY_SOT,
+    "acchockey": DataSourceType.LEAGUE,
+    "instagram": DataSourceType.SOCIAL,
+    "social": DataSourceType.SOCIAL,
+    "opponent": DataSourceType.OPPONENT,
+    "tickets": DataSourceType.TICKETS,
+}
+
+_DATA_SOURCE_DEFAULT_URLS: dict[str, str] = {
+    "ecuhockey": "https://www.ecuhockey.com",
+    "acchockey": "https://www.acchockey.com",
+    "instagram": "https://www.instagram.com/ecuhockey",
+    "social": "https://www.instagram.com/ecuhockey",
+    "opponent": "https://github.com/bdperkin/ecu-hockey-calendar",
+}
 
 
 def _convert_parsed_to_source_record(
@@ -140,13 +167,145 @@ async def _run_acchockey_crawler() -> tuple[list[SourceGameRecord], str, float]:
     return src_records, "SUCCESS", dur
 
 
+def _convert_opponent_fixture_to_source_record(
+    fixture: OpponentFixture,
+    canonical_name: str,
+) -> SourceGameRecord:
+    """Convert an ingested OpponentFixture into a reconciliation SourceGameRecord.
+
+    Args:
+        fixture: Ingested opponent fixture involving ECU.
+        canonical_name: Canonical name of the opposing institution.
+
+    Returns:
+        Structured SourceGameRecord ready for reconciliation.
+    """
+    return SourceGameRecord(
+        source_type=DataSourceType.OPPONENT,
+        source_code="opponent",
+        opponent_name=fixture.opponent_name or canonical_name,
+        start_time=fixture.start_time,
+        is_home=not fixture.is_opponent_home,
+        venue=fixture.venue,
+        status=fixture.status,
+        result=None,
+        home_score=None,
+        away_score=None,
+        confidence_score=0.85,
+        metadata=dict(fixture.raw_details) if fixture.raw_details else {},
+    )
+
+
+async def _run_instagram_crawler(
+    access_token: str | None = None,
+    season: str = "2026-2027",
+) -> tuple[list[SourceGameRecord], str, float]:
+    """Execute the ECU Hockey Instagram announcements crawler.
+
+    Args:
+        access_token: Optional override access token for Instagram Graph API.
+        season: Athletic season string.
+
+    Returns:
+        Tuple of (source_records, status_string, duration_seconds).
+    """
+    t0 = datetime.now(UTC)
+    token = access_token or os.environ.get("INSTAGRAM_ACCESS_TOKEN")
+    crawler = InstagramCrawler(access_token=token)
+    posts, _, _, _ = await crawler.fetch_posts()
+    dur = (datetime.now(UTC) - t0).total_seconds()
+    src_records = [
+        _convert_parsed_to_source_record(
+            rec,
+            DataSourceType.SOCIAL,
+            "instagram",
+        )
+        for post in posts
+        if (rec := post.to_parsed_game_record(season=season)) is not None
+    ]
+    return src_records, "SUCCESS", dur
+
+
+async def _run_opponent_crawler(
+    directory: OpponentDirectory | None = None,
+) -> tuple[list[SourceGameRecord], str, float]:
+    """Execute the Opponent Schedule Feeds crawler.
+
+    Args:
+        directory: Optional custom OpponentDirectory.
+
+    Returns:
+        Tuple of (source_records, status_string, duration_seconds).
+    """
+    t0 = datetime.now(UTC)
+    dir_inst = directory or get_default_opponent_directory()
+    crawler = OpponentCrawler(directory=dir_inst)
+    src_records: list[SourceGameRecord] = []
+    for config in dir_inst.list_endpoints():
+        fixtures, _, _, _ = await crawler.fetch_opponent_schedule(
+            config.canonical_name,
+        )
+        ecu_fixtures = filter_ecu_fixtures(fixtures)
+        src_records.extend(
+            _convert_opponent_fixture_to_source_record(
+                fix,
+                config.canonical_name,
+            )
+            for fix in ecu_fixtures
+        )
+
+    dur = (datetime.now(UTC) - t0).total_seconds()
+    return src_records, "SUCCESS", dur
+
+
+async def _execute_single_crawler(
+    crawler_fn: Callable[..., Any],
+    source_code: str,
+    source_name: str,
+    all_source_records: list[SourceGameRecord],
+    crawl_telemetry: list[dict[str, Any]],
+) -> None:
+    """Execute a single crawler and record records and telemetry.
+
+    Args:
+        crawler_fn: Async callable returning records, status, and duration.
+        source_code: Short identifier for the source.
+        source_name: Display name for telemetry reporting.
+        all_source_records: Mutable record list to append to.
+        crawl_telemetry: Mutable telemetry list to append to.
+    """
+    try:
+        records, status_val, dur = await crawler_fn()
+        all_source_records.extend(records)
+        crawl_telemetry.append(
+            {
+                "source": source_code,
+                "name": source_name,
+                "records": len(records),
+                "status": status_val,
+                "duration": dur,
+            },
+        )
+    except Exception as err:  # noqa: BLE001 # pylint: disable=broad-exception-caught
+        crawl_telemetry.append(
+            {
+                "source": source_code,
+                "name": source_name,
+                "records": 0,
+                "status": f"FAILED: {err}",
+                "duration": 0.0,
+            },
+        )
+
+
 async def _execute_crawlers(
     source_filter: str,
 ) -> tuple[list[SourceGameRecord], list[dict[str, Any]]]:
     """Execute active crawlers based on source filter and collect telemetry.
 
     Args:
-        source_filter: Filter for source execution ('all', 'ecuhockey', 'acchockey').
+        source_filter: Filter for source execution ('all', 'ecuhockey',
+            'acchockey', 'instagram', 'opponent', 'social').
 
     Returns:
         Tuple of (all_source_records, crawl_telemetry_list).
@@ -154,52 +313,41 @@ async def _execute_crawlers(
     all_source_records: list[SourceGameRecord] = []
     crawl_telemetry: list[dict[str, Any]] = []
 
-    if source_filter in ("all", "ecuhockey"):
-        try:
-            records, status_val, dur = await _run_ecuhockey_crawler()
-            all_source_records.extend(records)
-            crawl_telemetry.append(
-                {
-                    "source": "ecuhockey",
-                    "name": "ECU Hockey Official",
-                    "records": len(records),
-                    "status": status_val,
-                    "duration": dur,
-                },
-            )
-        except Exception as err:  # noqa: BLE001 # pylint: disable=broad-exception-caught
-            crawl_telemetry.append(
-                {
-                    "source": "ecuhockey",
-                    "name": "ECU Hockey Official",
-                    "records": 0,
-                    "status": f"FAILED: {err}",
-                    "duration": 0.0,
-                },
-            )
+    crawl_tasks: list[tuple[tuple[str, ...], Callable[..., Any], str, str]] = [
+        (
+            ("all", "ecuhockey"),
+            _run_ecuhockey_crawler,
+            "ecuhockey",
+            "ECU Hockey Official",
+        ),
+        (
+            ("all", "acchockey"),
+            _run_acchockey_crawler,
+            "acchockey",
+            "ACC Hockey League",
+        ),
+        (
+            ("all", "instagram", "social"),
+            _run_instagram_crawler,
+            "instagram",
+            "ECU Hockey Instagram",
+        ),
+        (
+            ("opponent",),
+            _run_opponent_crawler,
+            "opponent",
+            "Opponent Schedule Feeds",
+        ),
+    ]
 
-    if source_filter in ("all", "acchockey"):
-        try:
-            records, status_val, dur = await _run_acchockey_crawler()
-            all_source_records.extend(records)
-            crawl_telemetry.append(
-                {
-                    "source": "acchockey",
-                    "name": "ACC Hockey League",
-                    "records": len(records),
-                    "status": status_val,
-                    "duration": dur,
-                },
-            )
-        except Exception as err:  # noqa: BLE001 # pylint: disable=broad-exception-caught
-            crawl_telemetry.append(
-                {
-                    "source": "acchockey",
-                    "name": "ACC Hockey League",
-                    "records": 0,
-                    "status": f"FAILED: {err}",
-                    "duration": 0.0,
-                },
+    for filters, fn, code, name in crawl_tasks:
+        if source_filter in filters:
+            await _execute_single_crawler(
+                fn,
+                code,
+                name,
+                all_source_records,
+                crawl_telemetry,
             )
 
     return all_source_records, crawl_telemetry
@@ -319,29 +467,23 @@ def _ensure_data_source(
     source = session.scalar(
         select(DataSourceModel).where(DataSourceModel.source_code == source_code),
     )
-    if not source_url:
-        source_url = (
-            "https://www.ecuhockey.com"
-            if source_code == "ecuhockey"
-            else "https://www.acchockey.com"
-        )
+    resolved_url = source_url or _DATA_SOURCE_DEFAULT_URLS.get(source_code, "")
 
     if not source:
         source = DataSourceModel(
             source_code=source_code,
             name=source_name,
-            source_url=source_url,
+            source_url=resolved_url,
             source_type=source_type.value,
             priority_order=1,
             is_active=True,
             last_scraped_at=datetime.now(UTC),
         )
         session.add(source)
-        session.flush()
     else:
         source.last_scraped_at = datetime.now(UTC)
-        session.flush()
 
+    session.flush()
     return source
 
 
@@ -401,17 +543,18 @@ def _persist_reconciled_fixtures(
         _upsert_reconciled_game(session, rg, ecu_team_id)
 
 
+def _resolve_data_source_type(source_code: str) -> DataSourceType:
+    """Map source code string to appropriate DataSourceType enum."""
+    return _DATA_SOURCE_TYPE_MAP.get(source_code, DataSourceType.PRIMARY_SOT)
+
+
 def _ensure_crawl_data_sources(
     session: Session,
     crawl_telemetry: Sequence[dict[str, Any]],
 ) -> None:
     """Ensure data source registry records exist for crawled sources."""
     for telemetry in crawl_telemetry:
-        st = (
-            DataSourceType.PRIMARY_SOT
-            if telemetry["source"] == "ecuhockey"
-            else DataSourceType.LEAGUE
-        )
+        st = _resolve_data_source_type(telemetry["source"])
         _ensure_data_source(session, telemetry["source"], telemetry["name"], st)
 
 
@@ -492,6 +635,61 @@ def _dispatch_sync_notifications(
     dispatcher.dispatch_cycle(change_result, individual_changes=notify_individual)
 
 
+def _execute_db_persistence(
+    session: Session,
+    reconciled_games: Sequence[ReconciledGame],
+    crawl_telemetry: Sequence[dict[str, Any]],
+    change_result: ChangeDetectionCycleResult,
+    *,
+    dry_run: bool,
+    initial_audit_exists: bool,
+) -> None:
+    """Persist reconciliation and change detection results if not dry run."""
+    if not dry_run:
+        _persist_sync_results(
+            session,
+            reconciled_games,
+            crawl_telemetry,
+            change_result,
+            initial_audit_exists=initial_audit_exists,
+        )
+        session.commit()
+
+
+async def _execute_opponent_verification(
+    session: Session,
+    *,
+    dry_run: bool,
+    season: str | None,
+    reconciled_games: Sequence[ReconciledGame],
+    opponent_crawler_cls: type[OpponentCrawler] | None = None,
+) -> None:
+    """Execute opponent schedule reverse verification check.
+
+    Args:
+        session: Active database session.
+        dry_run: Whether running in dry-run mode.
+        season: Target season string.
+        reconciled_games: Reconciled game domain records.
+        opponent_crawler_cls: Optional custom OpponentCrawler class.
+    """
+    opp_cls = opponent_crawler_cls or OpponentCrawler
+    opp_crawler = opp_cls()
+    if not dry_run:
+        target_games = _load_baseline_games_from_db(session, season)
+        await opp_crawler.sync(
+            session,
+            games=target_games,
+            season=season or "2026-2027",
+        )
+    else:
+        games_to_check = [rg.to_domain_game() for rg in reconciled_games]
+        await opp_crawler.reverse_check_all_games(
+            games_to_check,
+            use_cache=True,
+        )
+
+
 async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-arguments # noqa: PLR0913
     *,
     engine: Engine,
@@ -506,12 +704,15 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     baseline_loader_fn: Callable[..., Any] | None = None,
     session_factory: Callable[..., Any] | None = None,
     dispatcher_cls: type[NotificationDispatcher] | None = None,
+    verify_opponents: bool = False,
+    opponent_crawler_cls: type[OpponentCrawler] | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Asynchronously execute core crawl, reconciliation, diffing, and storage.
 
     Args:
         engine: SQLAlchemy Engine instance.
-        source_filter: Filter for source execution ('all', 'ecuhockey', 'acchockey').
+        source_filter: Filter for source execution ('all', 'ecuhockey',
+            'acchockey', 'instagram', 'opponent', 'social').
         dry_run: If True, skip database persistence and notifications.
         notify: If True and not dry_run, dispatch webhook notifications.
         notify_individual: If True, send individual webhook change messages.
@@ -522,6 +723,9 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
         baseline_loader_fn: Optional custom baseline game loader callable.
         session_factory: Optional custom SQLAlchemy session factory callable.
         dispatcher_cls: Optional custom NotificationDispatcher class.
+        verify_opponents: If True, perform reverse verification against opponent
+            schedule feeds.
+        opponent_crawler_cls: Optional custom OpponentCrawler class.
 
     Returns:
         Tuple of (crawl_telemetry, change_detection_result, detected_conflicts).
@@ -551,15 +755,23 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
             cycle_id=reconciled_cycle.cycle_id,
         )
 
-        if not dry_run:
-            _persist_sync_results(
+        _execute_db_persistence(
+            session,
+            reconciled_cycle.reconciled_games,
+            crawl_telemetry,
+            change_result,
+            dry_run=dry_run,
+            initial_audit_exists=initial_audit_exists,
+        )
+
+        if verify_opponents:
+            await _execute_opponent_verification(
                 session,
-                reconciled_cycle.reconciled_games,
-                crawl_telemetry,
-                change_result,
-                initial_audit_exists=initial_audit_exists,
+                dry_run=dry_run,
+                season=season,
+                reconciled_games=reconciled_cycle.reconciled_games,
+                opponent_crawler_cls=opponent_crawler_cls,
             )
-            session.commit()
 
     # 4. Webhook notifications
     _dispatch_sync_notifications(
@@ -587,6 +799,8 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
     baseline_loader_fn: Callable[..., Any] | None = None,
     session_factory: Callable[..., Any] | None = None,
     dispatcher_cls: type[NotificationDispatcher] | None = None,
+    verify_opponents: bool = False,
+    opponent_crawler_cls: type[OpponentCrawler] | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous entrypoint executing core sync pipeline via asyncio.run.
 
@@ -603,6 +817,9 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
         baseline_loader_fn: Optional custom baseline game loader callable.
         session_factory: Optional custom SQLAlchemy session factory callable.
         dispatcher_cls: Optional custom NotificationDispatcher class.
+        verify_opponents: If True, perform reverse verification against opponent
+            schedule feeds.
+        opponent_crawler_cls: Optional custom OpponentCrawler class.
 
     Returns:
         Tuple of (crawl_telemetry, change_detection_result, detected_conflicts).
@@ -621,6 +838,8 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
             baseline_loader_fn=baseline_loader_fn,
             session_factory=session_factory,
             dispatcher_cls=dispatcher_cls,
+            verify_opponents=verify_opponents,
+            opponent_crawler_cls=opponent_crawler_cls,
         ),
     )
 

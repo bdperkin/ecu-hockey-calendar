@@ -10,6 +10,11 @@ import pytest
 from sqlalchemy import create_engine, select
 
 from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
+from ecu_hockey_calendar.ingestion.opponent_parser import (
+    OpponentEndpointConfig,
+    OpponentFeedType,
+    OpponentFixture,
+)
 from ecu_hockey_calendar.models import GameResult
 from ecu_hockey_calendar.reconciliation.models import (
     ChangeDetectionCycleResult,
@@ -30,14 +35,19 @@ from ecu_hockey_calendar.sync_service import (
     DEFAULT_COOLDOWN_SECONDS,
     MIN_COOLDOWN_SECONDS,
     SyncManager,
+    _convert_opponent_fixture_to_source_record,
     _convert_parsed_to_source_record,
+    _ensure_crawl_data_sources,
     _ensure_data_source,
     _execute_crawlers,
     _get_or_create_team,
     _load_baseline_games_from_db,
     _persist_sync_results,
+    _resolve_data_source_type,
     _run_acchockey_crawler,
     _run_ecuhockey_crawler,
+    _run_instagram_crawler,
+    _run_opponent_crawler,
     _update_existing_audit_record,
     _upsert_reconciled_game,
     execute_sync_pipeline,
@@ -170,7 +180,40 @@ async def test_execute_crawlers_filtering_and_resilience() -> None:
         assert len(telemetry) == 1
         assert telemetry[0]["source"] == "acchockey"
 
-    # Failure resilience in both crawlers
+    # Filter: instagram only
+    with patch(
+        "ecu_hockey_calendar.sync_service._run_instagram_crawler",
+        new_callable=AsyncMock,
+        return_value=([mock_src], "SUCCESS", 0.1),
+    ):
+        recs, telemetry = await _execute_crawlers("instagram")
+        assert len(recs) == 1
+        assert len(telemetry) == 1
+        assert telemetry[0]["source"] == "instagram"
+
+    # Filter: social alias
+    with patch(
+        "ecu_hockey_calendar.sync_service._run_instagram_crawler",
+        new_callable=AsyncMock,
+        return_value=([mock_src], "SUCCESS", 0.1),
+    ):
+        recs, telemetry = await _execute_crawlers("social")
+        assert len(recs) == 1
+        assert len(telemetry) == 1
+        assert telemetry[0]["source"] == "instagram"
+
+    # Filter: opponent only
+    with patch(
+        "ecu_hockey_calendar.sync_service._run_opponent_crawler",
+        new_callable=AsyncMock,
+        return_value=([mock_src], "SUCCESS", 0.1),
+    ):
+        recs, telemetry = await _execute_crawlers("opponent")
+        assert len(recs) == 1
+        assert len(telemetry) == 1
+        assert telemetry[0]["source"] == "opponent"
+
+    # Failure resilience in all crawlers
     with (
         patch(
             "ecu_hockey_calendar.sync_service._run_ecuhockey_crawler",
@@ -182,12 +225,179 @@ async def test_execute_crawlers_filtering_and_resilience() -> None:
             new_callable=AsyncMock,
             side_effect=RuntimeError("ACC failure"),
         ),
+        patch(
+            "ecu_hockey_calendar.sync_service._run_instagram_crawler",
+            new_callable=AsyncMock,
+            side_effect=RuntimeError("Instagram failure"),
+        ),
     ):
         recs, telemetry = await _execute_crawlers("all")
         assert len(recs) == 0
-        assert len(telemetry) == 2
+        assert len(telemetry) == 3
         assert "FAILED: ECU failure" in telemetry[0]["status"]
         assert "FAILED: ACC failure" in telemetry[1]["status"]
+        assert "FAILED: Instagram failure" in telemetry[2]["status"]
+
+    # Failure resilience in opponent crawler
+    with patch(
+        "ecu_hockey_calendar.sync_service._run_opponent_crawler",
+        new_callable=AsyncMock,
+        side_effect=RuntimeError("Opponent network down"),
+    ):
+        recs_opp, tel_opp = await _execute_crawlers("opponent")
+        assert len(recs_opp) == 0
+        assert len(tel_opp) == 1
+        assert "FAILED: Opponent network down" in tel_opp[0]["status"]
+
+
+def test_convert_opponent_fixture_to_source_record() -> None:
+    """Test converting OpponentFixture into SourceGameRecord."""
+    fix_home = OpponentFixture(
+        opponent_name="UNC Chapel Hill",
+        summary="ECU vs UNC",
+        start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+        venue="Orange County Sportsplex",
+        is_opponent_home=False,
+        status=GameStatus.SCHEDULED,
+        raw_details={"division": "M2"},
+    )
+    src_home = _convert_opponent_fixture_to_source_record(fix_home, "UNC Chapel Hill")
+    assert src_home.source_type == DataSourceType.OPPONENT
+    assert src_home.source_code == "opponent"
+    assert src_home.opponent_name == "UNC Chapel Hill"
+    assert src_home.is_home is True
+    assert src_home.venue == "Orange County Sportsplex"
+    assert src_home.metadata == {"division": "M2"}
+
+    # Opponent is home -> ECU is away, fallback canonical_name when opponent_name empty
+    fix_away = OpponentFixture(
+        opponent_name="",
+        summary="ECU at Duke",
+        start_time=datetime(2026, 11, 1, 20, 0, tzinfo=UTC),
+        venue="WCC",
+        is_opponent_home=True,
+    )
+    src_away = _convert_opponent_fixture_to_source_record(fix_away, "Duke University")
+    assert src_away.is_home is False
+    assert src_away.opponent_name == "Duke University"
+    assert not src_away.metadata
+
+
+@pytest.mark.anyio
+async def test_run_instagram_crawler_success() -> None:
+    """Test _run_instagram_crawler parses posts and skips non-game posts."""
+    mock_post_game = MagicMock()
+    mock_parsed_rec = ParsedGameRecord(
+        game_id="ig-1",
+        opponent_name="UNC Wilmington",
+        is_home=True,
+        start_time=datetime(2026, 10, 25, 19, 0, tzinfo=UTC),
+        venue="The Factory",
+    )
+    mock_post_game.to_parsed_game_record.return_value = mock_parsed_rec
+
+    mock_post_nongame = MagicMock()
+    mock_post_nongame.to_parsed_game_record.return_value = None
+
+    with patch(
+        "ecu_hockey_calendar.sync_service.InstagramCrawler.fetch_posts",
+        new_callable=AsyncMock,
+        return_value=([mock_post_game, mock_post_nongame], "{}", "hash", "json"),
+    ):
+        recs, status_str, dur = await _run_instagram_crawler(access_token="test_token")
+        assert len(recs) == 1
+        assert status_str == "SUCCESS"
+        assert dur >= 0.0
+        assert recs[0].source_type == DataSourceType.SOCIAL
+        assert recs[0].source_code == "instagram"
+        assert recs[0].opponent_name == "UNC Wilmington"
+
+
+@pytest.mark.anyio
+async def test_run_opponent_crawler_success() -> None:
+    """Test _run_opponent_crawler fetches and filters opponent schedules."""
+    mock_dir = MagicMock()
+    cfg = OpponentEndpointConfig(
+        canonical_name="UNC Chapel Hill",
+        feed_url="https://example.com/ical",
+        feed_type=OpponentFeedType.ICAL,
+    )
+    mock_dir.list_endpoints.return_value = [cfg]
+
+    mock_fix_ecu = OpponentFixture(
+        opponent_name="UNC Chapel Hill",
+        summary="ECU vs UNC",
+        start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+        venue="Sportsplex",
+        is_opponent_home=True,
+    )
+
+    with (
+        patch(
+            "ecu_hockey_calendar.sync_service.OpponentCrawler.fetch_opponent_schedule",
+            new_callable=AsyncMock,
+            return_value=([mock_fix_ecu], "ical", "hash", "text/calendar"),
+        ),
+        patch(
+            "ecu_hockey_calendar.sync_service.filter_ecu_fixtures",
+            return_value=[mock_fix_ecu],
+        ),
+    ):
+        recs, status_str, dur = await _run_opponent_crawler(directory=mock_dir)
+        assert len(recs) == 1
+        assert status_str == "SUCCESS"
+        assert dur >= 0.0
+        assert recs[0].source_type == DataSourceType.OPPONENT
+        assert recs[0].source_code == "opponent"
+
+
+def test_resolve_data_source_type() -> None:
+    """Test _resolve_data_source_type mapping helper."""
+    assert _resolve_data_source_type("ecuhockey") == DataSourceType.PRIMARY_SOT
+    assert _resolve_data_source_type("acchockey") == DataSourceType.LEAGUE
+    assert _resolve_data_source_type("instagram") == DataSourceType.SOCIAL
+    assert _resolve_data_source_type("social") == DataSourceType.SOCIAL
+    assert _resolve_data_source_type("opponent") == DataSourceType.OPPONENT
+    assert _resolve_data_source_type("tickets") == DataSourceType.TICKETS
+    assert _resolve_data_source_type("unknown") == DataSourceType.PRIMARY_SOT
+
+
+def test_ensure_data_source_custom_urls(sqlite_engine: Any) -> None:
+    """Test _ensure_data_source sets appropriate default URLs."""
+    with get_sync_session(sqlite_engine) as session:
+        src_ig = _ensure_data_source(
+            session,
+            "instagram",
+            "Instagram",
+            DataSourceType.SOCIAL,
+        )
+        assert "instagram.com" in src_ig.source_url
+
+        src_opp = _ensure_data_source(
+            session,
+            "opponent",
+            "Opponent",
+            DataSourceType.OPPONENT,
+        )
+        assert "ecu-hockey-calendar" in src_opp.source_url
+
+        src_other = _ensure_data_source(
+            session,
+            "custom",
+            "Custom",
+            DataSourceType.PRIMARY_SOT,
+        )
+        assert src_other.source_url == ""
+
+        # Test _ensure_crawl_data_sources with multiple sources
+        _ensure_crawl_data_sources(
+            session,
+            [
+                {"source": "ecuhockey", "name": "ECU"},
+                {"source": "instagram", "name": "Instagram"},
+                {"source": "opponent", "name": "Opponents"},
+            ],
+        )
 
 
 def test_load_baseline_games_from_db(sqlite_engine: Any) -> None:
@@ -381,6 +591,40 @@ def test_persist_sync_results_branches(sqlite_engine: Any) -> None:
         assert audit is not None
         assert audit.status == SyncStatus.SUCCESS.value
 
+    # Test initial_audit_exists=True where update succeeds
+    cycle_id_existing = "cycle-persist-existing"
+    with get_sync_session(sqlite_engine) as session:
+        audit_running = SyncAuditModel(
+            sync_cycle_id=cycle_id_existing,
+            started_at=datetime.now(UTC),
+            status=SyncStatus.RUNNING.value,
+        )
+        session.add(audit_running)
+        session.commit()
+
+    cycle_result_existing = ChangeDetectionCycleResult(
+        cycle_id=cycle_id_existing,
+        changes=[],
+    )
+    with get_sync_session(sqlite_engine) as session:
+        _persist_sync_results(
+            session,
+            [],
+            telemetry,
+            cycle_result_existing,
+            initial_audit_exists=True,
+        )
+        session.commit()
+
+    with get_sync_session(sqlite_engine) as session:
+        audit_done = session.scalar(
+            select(SyncAuditModel).where(
+                SyncAuditModel.sync_cycle_id == cycle_id_existing,
+            ),
+        )
+        assert audit_done is not None
+        assert audit_done.status == SyncStatus.SUCCESS.value
+
 
 @pytest.mark.anyio
 async def test_run_sync_pipeline_dry_run_and_notifications(sqlite_engine: Any) -> None:
@@ -466,6 +710,56 @@ def test_execute_sync_pipeline_wrapper(sqlite_engine: Any) -> None:
     )
     assert len(tel) == 1
     assert len(result.created_games) == 1
+
+
+@pytest.mark.anyio
+async def test_run_sync_pipeline_verify_opponents(sqlite_engine: Any) -> None:
+    """Test run_sync_pipeline with verify_opponents in live and dry-run modes."""
+    mock_src = SourceGameRecord(
+        source_type=DataSourceType.PRIMARY_SOT,
+        source_code="ecuhockey",
+        opponent_name="UNC Chapel Hill",
+        start_time=datetime(2026, 11, 20, 19, 0, tzinfo=UTC),
+        venue="The Factory",
+    )
+
+    async def mock_crawler(
+        _: str,
+    ) -> tuple[list[SourceGameRecord], list[dict[str, Any]]]:
+        return [mock_src], [
+            {
+                "source": "ecuhockey",
+                "name": "ECU",
+                "records": 1,
+                "status": "SUCCESS",
+                "duration": 0.1,
+            },
+        ]
+
+    mock_opp_crawler = MagicMock()
+    mock_opp_crawler.sync = AsyncMock(return_value=(1, 0, MagicMock()))
+    mock_opp_crawler.reverse_check_all_games = AsyncMock(return_value={})
+    mock_opp_cls = MagicMock(return_value=mock_opp_crawler)
+
+    # Live run with verify_opponents=True
+    await run_sync_pipeline(
+        engine=sqlite_engine,
+        dry_run=False,
+        verify_opponents=True,
+        crawler_fn=mock_crawler,
+        opponent_crawler_cls=mock_opp_cls,
+    )
+    assert mock_opp_crawler.sync.called
+
+    # Dry run with verify_opponents=True
+    await run_sync_pipeline(
+        engine=sqlite_engine,
+        dry_run=True,
+        verify_opponents=True,
+        crawler_fn=mock_crawler,
+        opponent_crawler_cls=mock_opp_cls,
+    )
+    assert mock_opp_crawler.reverse_check_all_games.called
 
 
 class TestSyncManager:
@@ -562,6 +856,18 @@ class TestSyncManager:
         sm_none = SyncManager(engine=None)
         sm_none._init_last_completed_from_db()
         assert sm_none.last_completed_at is None
+
+        # DB has no completed audits
+        sm_empty = SyncManager(engine=sqlite_engine)
+        sm_empty._last_completed_at = None
+        with get_sync_session(sqlite_engine) as session:
+            for rec in session.scalars(select(SyncAuditModel)).all():
+                session.delete(rec)
+
+            session.commit()
+
+        sm_empty._init_last_completed_from_db()
+        assert sm_empty._last_completed_at is None
 
     def test_record_initial_audit_and_finalize_failure(
         self,

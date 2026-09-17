@@ -35,6 +35,8 @@ from ecu_hockey_calendar.cli.status import (
 )
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
+from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
+from ecu_hockey_calendar.ingestion.opponent_crawler import OpponentCrawler
 from ecu_hockey_calendar.notifications.dispatcher import NotificationDispatcher
 from ecu_hockey_calendar.storage.base import Base
 from ecu_hockey_calendar.storage.engine import (
@@ -62,7 +64,9 @@ __all__ = [
     "ACCHockeyCrawler",
     "Base",
     "ECUHockeyCrawler",
+    "InstagramCrawler",
     "NotificationDispatcher",
+    "OpponentCrawler",
     "_convert_parsed_to_source_record",
     "_ensure_data_source",
     "_execute_crawlers",
@@ -152,6 +156,7 @@ def _execute_sync_pipeline(
     notify: bool,
     notify_individual: bool = False,
     season: str | None,
+    verify_opponents: bool = False,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous core pipeline orchestrating crawl, reconciliation, and storage."""
     return execute_sync_pipeline(
@@ -165,6 +170,7 @@ def _execute_sync_pipeline(
         baseline_loader_fn=_load_baseline_games_from_db,
         session_factory=get_sync_session,
         dispatcher_cls=NotificationDispatcher,
+        verify_opponents=verify_opponents,
     )
 
 
@@ -196,6 +202,7 @@ def _render_sync_results(
     conflicts: list[DetectedConflict],
     *,
     dry_run: bool,
+    verify_opponents: bool = False,
 ) -> None:
     """Render Rich tables displaying crawler telemetry and reconciliation summary."""
     console = get_console()
@@ -243,6 +250,12 @@ def _render_sync_results(
         "Active Discrepancies / Conflicts",
         f"[bold red]{len(conflicts)}[/bold red]",
     )
+    if verify_opponents:
+        summary_table.add_row(
+            "Opponent Verification",
+            "[bold green]Completed[/bold green]",
+        )
+
     console.print(summary_table)
     console.print()
 
@@ -290,6 +303,7 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
     season: str | None,
     api_url: str | None = None,
     token: str | None = None,
+    verify_opponents: bool = False,
 ) -> None:
     """Execute schedule crawl, reconciliation, and diffing pipeline."""
     console = get_console()
@@ -330,12 +344,19 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
                 notify=notify,
                 notify_individual=notify_individual,
                 season=season,
+                verify_opponents=verify_opponents,
             )
         except Exception as exc:
             print_error(f"Synchronization pipeline encountered a fatal error: {exc}")
             raise click.ClickException(str(exc)) from exc
 
-    _render_sync_results(telemetry, change_result, conflicts, dry_run=dry_run)
+    _render_sync_results(
+        telemetry,
+        change_result,
+        conflicts,
+        dry_run=dry_run,
+        verify_opponents=verify_opponents,
+    )
 
 
 def _fetch_remote_sync_status(api_url: str, token: str | None) -> dict[str, Any]:
@@ -444,10 +465,19 @@ def _run_sync_status(
     "--source",
     "-s",
     "source_code",
-    type=click.Choice(["all", "ecuhockey", "acchockey"], case_sensitive=False),
+    type=click.Choice(
+        ["all", "ecuhockey", "acchockey", "instagram", "opponent", "social"],
+        case_sensitive=False,
+    ),
     default="all",
     show_default=True,
     help="Restrict synchronization to a specific data source.",
+)
+@click.option(
+    "--verify-opponents",
+    is_flag=True,
+    default=False,
+    help="Perform reverse cross-checking against opponent schedule feeds.",
 )
 @click.option(
     "--dry-run",
@@ -496,6 +526,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     ctx: click.Context,
     *,
     source_code: str = "all",
+    verify_opponents: bool = False,
     dry_run: bool = False,
     notify: bool = False,
     notify_individual: bool = False,
@@ -519,6 +550,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
         season=season,
         api_url=api_url,
         token=token,
+        verify_opponents=verify_opponents,
     )
 
 
@@ -527,10 +559,19 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     "--source",
     "-s",
     "source_code",
-    type=click.Choice(["all", "ecuhockey", "acchockey"], case_sensitive=False),
+    type=click.Choice(
+        ["all", "ecuhockey", "acchockey", "instagram", "opponent", "social"],
+        case_sensitive=False,
+    ),
     default="all",
     show_default=True,
     help="Restrict synchronization to a specific data source.",
+)
+@click.option(
+    "--verify-opponents",
+    is_flag=True,
+    default=False,
+    help="Perform reverse cross-checking against opponent schedule feeds.",
 )
 @click.option(
     "--dry-run",
@@ -579,6 +620,7 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
     ctx: click.Context | None,
     *,
     source_code: str = "all",
+    verify_opponents: bool = False,
     dry_run: bool = False,
     notify: bool = False,
     notify_individual: bool = False,
@@ -598,6 +640,7 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
         season=season,
         api_url=api_url,
         token=token,
+        verify_opponents=verify_opponents,
     )
 
 

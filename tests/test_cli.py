@@ -1370,6 +1370,11 @@ class TestSyncCommand:
                 new_callable=AsyncMock,
                 return_value=([rec2], "<html></html>", "hash2", "text/html"),
             ),
+            patch(
+                "ecu_hockey_calendar.cli.sync.InstagramCrawler.fetch_posts",
+                new_callable=AsyncMock,
+                return_value=([], "", "", ""),
+            ),
         ):
             result = runner.invoke(
                 sync_command,
@@ -1403,6 +1408,11 @@ class TestSyncCommand:
                 "ecu_hockey_calendar.cli.sync.ACCHockeyCrawler.crawl",
                 new_callable=AsyncMock,
                 return_value=([], "", "hash", "text/html"),
+            ),
+            patch(
+                "ecu_hockey_calendar.cli.sync.InstagramCrawler.fetch_posts",
+                new_callable=AsyncMock,
+                return_value=([], "", "", ""),
             ),
         ):
             result = runner.invoke(
@@ -1515,6 +1525,80 @@ class TestSyncCommand:
             )
             assert res_fail.exit_code == 0
             assert "RESET BY PEER" in res_fail.output
+
+    def test_sync_instagram_and_opponent_sources(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify sync with --source instagram and --source opponent."""
+        with patch(
+            "ecu_hockey_calendar.cli.sync.InstagramCrawler.fetch_posts",
+            new_callable=AsyncMock,
+            return_value=([], "", "", ""),
+        ):
+            res_ig = runner.invoke(
+                sync_command,
+                ["--source", "instagram", "--db-url", db_url],
+            )
+            assert res_ig.exit_code == 0
+            assert "ECU Hockey Instagram" in res_ig.output
+
+        with patch(
+            "ecu_hockey_calendar.cli.sync.OpponentCrawler.fetch_opponent_schedule",
+            new_callable=AsyncMock,
+            return_value=([], "", "", ""),
+        ):
+            res_opp = runner.invoke(
+                sync_command,
+                ["--source", "opponent", "--db-url", db_url],
+            )
+            assert res_opp.exit_code == 0
+            assert "Opponent Schedule Feeds" in res_opp.output
+
+    def test_sync_verify_opponents_option(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify sync with --verify-opponents executes opponent verification."""
+        with (
+            patch(
+                "ecu_hockey_calendar.cli.sync.ECUHockeyCrawler.crawl",
+                new_callable=AsyncMock,
+                return_value=([], "", "", ""),
+            ),
+            patch(
+                "ecu_hockey_calendar.cli.sync.ACCHockeyCrawler.crawl",
+                new_callable=AsyncMock,
+                return_value=([], "", "", ""),
+            ),
+            patch(
+                "ecu_hockey_calendar.cli.sync.InstagramCrawler.fetch_posts",
+                new_callable=AsyncMock,
+                return_value=([], "", "", ""),
+            ),
+            patch(
+                "ecu_hockey_calendar.cli.sync.OpponentCrawler.sync",
+                new_callable=AsyncMock,
+                return_value=(0, 0, MagicMock()),
+            ) as mock_opp_sync,
+        ):
+            res = runner.invoke(
+                sync_command,
+                ["--verify-opponents", "--db-url", db_url],
+            )
+            assert res.exit_code == 0
+            assert "Opponent Verification" in res.output
+            assert mock_opp_sync.called
+
+            # Also trigger subcommand with --verify-opponents
+            res_trig = runner.invoke(
+                sync_trigger_command,
+                ["--verify-opponents", "--db-url", db_url],
+            )
+            assert res_trig.exit_code == 0
+            assert "Opponent Verification" in res_trig.output
 
     def test_ensure_data_source_explicit_url(self, db_url: str) -> None:
         """Verify _ensure_data_source retains explicit source_url."""
