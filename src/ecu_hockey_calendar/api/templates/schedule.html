@@ -8,9 +8,17 @@
             <div class="form-group">
                 <label for="season-select">Season</label>
                 <select id="season-select" name="season" class="form-control">
-                    <option value="">All Seasons</option>
+                    <option value="latest"
+                            {% if selected_season == "latest" %}selected{% endif %}>
+                        Latest Season{% if latest_season %} ({{ latest_season }}){% endif %}
+                    </option>
+                    <option value="all"
+                            {% if selected_season in ["all", ""] and is_all_seasons %}selected{% endif %}>
+                        All Seasons
+                    </option>
                     {% for s in available_seasons %}
-                        <option value="{{ s }}" {% if s == selected_season %}selected{% endif %}>{{ s }}</option>
+                        <option value="{{ s }}"
+                                {% if selected_season == s and not is_all_seasons %}selected{% endif %}>{{ s }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -59,7 +67,7 @@
     <div class="schedule-header-summary">
         <div class="schedule-count">
             <strong>{{ total_games }}</strong> game{% if total_games != 1 %}s{% endif %} listed
-            {% if selected_season %}• Season {{ selected_season }}{% endif %}
+            {% if display_season %}• Season {{ display_season }}{% elif is_all_seasons %}• All Seasons{% endif %}
             {% if selected_home_only %}• Home Matches Only{% endif %}
         </div>
         <div class="schedule-actions no-print">

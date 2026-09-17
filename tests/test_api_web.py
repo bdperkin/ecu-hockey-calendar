@@ -700,3 +700,139 @@ def test_root_html_includes_grouped_feature_directory() -> None:
         'href="https://bdperkin.github.io/ecu-hockey-calendar/calendar_sync.html"'
         in html
     )
+
+
+@pytest.fixture
+def multi_season_client(
+    tmp_path: Path,
+    ecu_team: Team,
+    unc_team: Team,
+) -> TestClient:
+    """Fixture providing TestClient with games spanning 2025-2026 and 2026-2027."""
+    db_file = tmp_path / "web_multi_season.db"
+    db_url = f"sqlite:///{db_file}"
+    engine = create_sync_engine(db_url)
+    init_db(engine)
+
+    g_current = Game(
+        game_id="ECU-2026-01",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=datetime(2026, 10, 16, 23, 30, tzinfo=UTC),
+        venue="The Factory Ice House",
+        result=GameResult.SCHEDULED,
+    )
+    vt_team = Team(name="Virginia Tech", city="Blacksburg", state="VA")
+    g_historical = Game(
+        game_id="ECU-2025-01",
+        home_team=ecu_team,
+        away_team=vt_team,
+        start_time=datetime(2025, 10, 10, 20, 0, tzinfo=UTC),
+        venue="The Factory Ice House",
+        result=GameResult.WIN,
+        home_score=4,
+        away_score=2,
+    )
+
+    with get_sync_session(engine) as session:
+        t1 = TeamModel(name=ecu_team.name, city=ecu_team.city, state=ecu_team.state)
+        t2 = TeamModel(name=unc_team.name, city=unc_team.city, state=unc_team.state)
+        t3 = TeamModel(name=vt_team.name, city=vt_team.city, state=vt_team.state)
+        session.add_all([t1, t2, t3])
+        session.flush()
+
+        session.add_all(
+            [
+                GameModel.from_domain(
+                    g_current,
+                    home_team_id=t1.id,
+                    away_team_id=t2.id,
+                    season="2026-2027",
+                ),
+                GameModel.from_domain(
+                    g_historical,
+                    home_team_id=t1.id,
+                    away_team_id=t3.id,
+                    season="2025-2026",
+                ),
+            ],
+        )
+        session.commit()
+
+    return TestClient(create_app(database_url=db_url))
+
+
+def test_schedule_html_multi_season_defaults_and_aliases(
+    multi_season_client: TestClient,
+) -> None:
+    """Verify /schedule HTML defaults to latest season and supports aliases."""
+    client = multi_season_client
+
+    # 1. Default visit to /schedule -> defaults to latest season (2026-2027)
+    res_default = client.get("/schedule")
+    assert res_default.status_code == 200
+    assert "<strong>1</strong> game listed" in res_default.text
+    assert "• Season 2026-2027" in res_default.text
+    assert "Latest Season (2026-2027)" in res_default.text
+    assert "UNC Chapel Hill" in res_default.text
+    assert "Virginia Tech" not in res_default.text
+
+    # 2. Explicit ?season=latest
+    res_latest = client.get("/schedule?season=latest")
+    assert res_latest.status_code == 200
+    assert "<strong>1</strong> game listed" in res_latest.text
+    assert "• Season 2026-2027" in res_latest.text
+    assert "UNC Chapel Hill" in res_latest.text
+    assert "Virginia Tech" not in res_latest.text
+
+    # 3. Explicit ?season=all -> shows all games across seasons
+    res_all = client.get("/schedule?season=all")
+    assert res_all.status_code == 200
+    assert "<strong>2</strong> games listed" in res_all.text
+    assert "• All Seasons" in res_all.text
+    assert "UNC Chapel Hill" in res_all.text
+    assert "Virginia Tech" in res_all.text
+
+    # 4. Explicit empty ?season= -> shows all games
+    res_empty = client.get("/schedule?season=")
+    assert res_empty.status_code == 200
+    assert "<strong>2</strong> games listed" in res_empty.text
+    assert "• All Seasons" in res_empty.text
+
+    # 5. Explicit historical season ?season=2025-2026
+    res_hist = client.get("/schedule?season=2025-2026")
+    assert res_hist.status_code == 200
+    assert "<strong>1</strong> game listed" in res_hist.text
+    assert "• Season 2025-2026" in res_hist.text
+    assert "Virginia Tech" in res_hist.text
+    assert "UNC Chapel Hill" not in res_hist.text
+
+
+def test_schedule_embed_multi_season_defaults_and_aliases(
+    multi_season_client: TestClient,
+) -> None:
+    """Verify /schedule/embed and HEAD requests with season defaults and aliases."""
+    client = multi_season_client
+
+    # 1. /schedule/embed default -> latest season
+    res_def = client.get("/schedule/embed")
+    assert res_def.status_code == 200
+    assert "<strong>1</strong> game listed" in res_def.text
+    assert "• Season 2026-2027" in res_def.text
+
+    # 2. /schedule/embed ?season=all -> all seasons
+    res_all = client.get("/schedule/embed?season=all")
+    assert res_all.status_code == 200
+    assert "<strong>2</strong> games listed" in res_all.text
+    assert "• All Seasons" in res_all.text
+
+    # 3. /schedule/embed ?season=latest
+    res_latest = client.get("/schedule/embed?season=latest")
+    assert res_latest.status_code == 200
+    assert "<strong>1</strong> game listed" in res_latest.text
+
+    # 4. HEAD requests for /schedule and /schedule/embed
+    assert client.head("/schedule?season=latest").status_code == 200
+    assert client.head("/schedule?season=all").status_code == 200
+    assert client.head("/schedule/embed?season=latest").status_code == 200
+    assert client.head("/schedule/embed?season=all").status_code == 200

@@ -98,9 +98,10 @@ def _render_schedule_view(  # noqa: PLR0913 # pylint: disable=too-many-arguments
         ScheduleDataService(),
     )
     base_url = str(request.base_url).rstrip("/")
+    effective_season = "latest" if season is None else season
     html_content = service.generate_html_schedule(
         games,
-        season=season,
+        season=effective_season,
         opponent=opponent,
         home_only=home_only,
         future_only=future_only,
@@ -153,7 +154,8 @@ def get_schedule_html(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to latest season."
             ),
         ),
     ] = None,
@@ -225,7 +227,12 @@ def head_schedule_html(
     *,
     season: Annotated[
         str | None,
-        Query(description="Filter games by season (e.g. '2026-2027')."),
+        Query(
+            description=(
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to latest season."
+            ),
+        ),
     ] = None,
     opponent: Annotated[
         str | None,
@@ -297,7 +304,8 @@ def get_schedule_embed(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to latest season."
             ),
         ),
     ] = None,
@@ -369,7 +377,12 @@ def head_schedule_embed(
     *,
     season: Annotated[
         str | None,
-        Query(description="Filter games by season (e.g. '2026-2027')."),
+        Query(
+            description=(
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to latest season."
+            ),
+        ),
     ] = None,
     opponent: Annotated[
         str | None,

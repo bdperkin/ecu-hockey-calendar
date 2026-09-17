@@ -11,7 +11,7 @@
     <div class="schedule-header-summary" style="margin: 0.75rem 0 0.5rem 0;">
         <div class="schedule-count">
             <strong>{{ total_games }}</strong> game{% if total_games != 1 %}s{% endif %} listed
-            {% if selected_season %}• Season {{ selected_season }}{% endif %}
+            {% if display_season %}• Season {{ display_season }}{% elif is_all_seasons %}• All Seasons{% endif %}
             {% if selected_home_only %}• Home Only{% endif %}
         </div>
     </div>

@@ -74,6 +74,44 @@ def resolve_game_season(game: Game) -> str:
     return f"{dt.year - 1}-{dt.year}"
 
 
+def _extract_available_seasons(games: Sequence[Game]) -> list[str]:
+    """Extract sorted distinct collegiate seasons from games."""
+    return sorted({resolve_game_season(g) for g in games}, reverse=True)
+
+
+def resolve_latest_season(
+    games: Sequence[Game] | None = None,
+    now_utc: datetime | None = None,
+) -> str:
+    """Determine the latest collegiate season string from games or reference date.
+
+    If games are provided and contain at least one valid season, returns the
+    latest season among them (sorted in reverse chronological order).
+    Otherwise, computes the collegiate season based on the reference timestamp
+    (defaults to current UTC time).
+
+    Args:
+        games: Optional sequence of domain Game objects.
+        now_utc: Optional reference datetime.
+
+    Returns:
+        Season string formatted as 'YYYY-YYYY' (e.g., '2026-2027').
+    """
+    if games:
+        return _extract_available_seasons(games)[0]
+
+    ref_time = now_utc if now_utc is not None else datetime.now(UTC)
+    if ref_time.tzinfo is None:
+        ref_time = ref_time.replace(tzinfo=UTC)
+    else:
+        ref_time = ref_time.astimezone(UTC)
+
+    if ref_time.month >= AUGUST_MONTH_CUTOFF:
+        return f"{ref_time.year}-{ref_time.year + 1}"
+
+    return f"{ref_time.year - 1}-{ref_time.year}"
+
+
 def _match_opponent(game: Game, opponent_query: str | None, primary_team: str) -> bool:
     """Check whether game opponent matches query filter."""
     if not opponent_query:
@@ -158,6 +196,25 @@ def _game_matches_filters(
     return _match_status(game, status)
 
 
+def _resolve_filter_season(
+    season: str | None,
+    games: Sequence[Game],
+    now_utc: datetime | None,
+) -> str | None:
+    """Resolve user season filter string to concrete collegiate season or None."""
+    if not season:
+        return None
+
+    clean = season.strip()
+    if clean.lower() == "all":
+        return None
+
+    if clean.lower() in ("latest", "current"):
+        return resolve_latest_season(games, now_utc=now_utc)
+
+    return clean
+
+
 def filter_games(  # noqa: PLR0913 # pylint: disable=too-many-arguments
     games: Sequence[Game],
     *,
@@ -190,12 +247,13 @@ def filter_games(  # noqa: PLR0913 # pylint: disable=too-many-arguments
     effective_future_only = (
         not include_past if include_past is not None else future_only
     )
+    target_season = _resolve_filter_season(season, games, now_utc)
     matched = [
         g
         for g in games
         if _game_matches_filters(
             g,
-            season=season,
+            season=target_season,
             opponent=opponent,
             home_only=home_only,
             status=status,
@@ -385,11 +443,6 @@ def _build_feed_urls(base_url: str) -> dict[str, str]:
     }
 
 
-def _extract_available_seasons(games: Sequence[Game]) -> list[str]:
-    """Extract sorted distinct collegiate seasons from games."""
-    return sorted({resolve_game_season(g) for g in games}, reverse=True)
-
-
 def resolve_pdf_filename(season: str | None, games: Sequence[Game]) -> str:
     """Resolve attachment filename for PDF schedule downloads.
 
@@ -401,8 +454,16 @@ def resolve_pdf_filename(season: str | None, games: Sequence[Game]) -> str:
         Formatted filename ending in .pdf.
     """
     if season:
-        clean = season.strip().replace(" ", "-")
-        return f"ecu_hockey_schedule_{clean}.pdf"
+        clean = season.strip()
+        if clean.lower() == "all":
+            return "ecu_hockey_schedule.pdf"
+
+        if clean.lower() in ("latest", "current"):
+            resolved = resolve_latest_season(games).strip().replace(" ", "-")
+            return f"ecu_hockey_schedule_{resolved}.pdf"
+
+        clean_season = clean.replace(" ", "-")
+        return f"ecu_hockey_schedule_{clean_season}.pdf"
 
     seasons = _extract_available_seasons(games)
     if len(seasons) == 1:
@@ -412,6 +473,21 @@ def resolve_pdf_filename(season: str | None, games: Sequence[Game]) -> str:
     return "ecu_hockey_schedule.pdf"
 
 
+def _resolve_render_seasons(
+    raw_season: object,
+    latest_season: str,
+) -> tuple[str, str | None, str | None, bool]:
+    """Resolve (selected_season, resolved_season, display_season, is_all_seasons)."""
+    clean = str(raw_season).strip() if raw_season is not None else "latest"
+    if clean.lower() in ("latest", "current"):
+        return ("latest", latest_season, latest_season, False)
+
+    if clean.lower() == "all" or not clean:
+        return ("all", None, None, True)
+
+    return (clean, clean, clean, False)
+
+
 def _build_render_context(
     games: Sequence[Game],
     formatted_games: list[dict[str, Any]],
@@ -419,21 +495,44 @@ def _build_render_context(
     filters: dict[str, str | bool | None],
 ) -> dict[str, Any]:
     """Build context dictionary for HTML template rendering."""
-    raw_season = filters.get("season")
     raw_opp = filters.get("opponent")
     raw_status = filters.get("status")
+    latest_season = resolve_latest_season(games)
+    selected_season, resolved_season, display_season, is_all_seasons = (
+        _resolve_render_seasons(filters.get("season"), latest_season)
+    )
+
     return {
         "primary_team": str(filters.get("primary_team") or ""),
         "games": formatted_games,
         "total_games": len(formatted_games),
         "available_seasons": _extract_available_seasons(games),
-        "selected_season": str(raw_season) if raw_season else "",
-        "selected_opponent": str(raw_opp) if raw_opp else "",
+        "latest_season": latest_season,
+        "selected_season": selected_season,
+        "resolved_season": resolved_season,
+        "display_season": display_season,
+        "is_all_seasons": is_all_seasons,
+        "selected_opponent": str(raw_opp or ""),
         "selected_home_only": bool(filters.get("home_only")),
-        "selected_status": str(raw_status).lower() if raw_status else "",
+        "selected_status": str(raw_status or "").lower(),
         "is_embed": bool(filters.get("embed")),
         **_build_feed_urls(base_url),
     }
+
+
+def _resolve_pdf_selected_season(raw_season: object, games: Sequence[Game]) -> str:
+    """Resolve selected_season string for PDF render context."""
+    if raw_season is None:
+        return ""
+
+    clean = str(raw_season).strip()
+    if clean.lower() in ("latest", "current"):
+        return resolve_latest_season(games)
+
+    if clean.lower() == "all":
+        return ""
+
+    return clean
 
 
 def _build_pdf_render_context(
@@ -443,7 +542,6 @@ def _build_pdf_render_context(
     generated_date: str | None = None,
 ) -> dict[str, Any]:
     """Build context dictionary for printable PDF schedule rendering."""
-    raw_season = filters.get("season")
     if generated_date is None:
         last_mod = CalendarFeedService.get_last_modified(games)
         generated_date = last_mod.astimezone(EASTERN_TZ).strftime("%b %d, %Y")
@@ -453,7 +551,7 @@ def _build_pdf_render_context(
         "games": formatted_games,
         "total_games": len(formatted_games),
         "available_seasons": _extract_available_seasons(games),
-        "selected_season": str(raw_season) if raw_season else "",
+        "selected_season": _resolve_pdf_selected_season(filters.get("season"), games),
         "selected_home_only": bool(filters.get("home_only")),
         "generated_date": generated_date,
         "tickets_url": DEFAULT_TICKETS_URL,
@@ -496,7 +594,7 @@ class ScheduleDataService:
         self,
         games: Sequence[Game],
         *,
-        season: str | None = None,
+        season: str | None = "latest",
         opponent: str | None = None,
         home_only: bool = False,
         status: str | None = None,
@@ -509,7 +607,8 @@ class ScheduleDataService:
 
         Args:
             games: Collection of games.
-            season: Optional season filter string.
+            season: Optional season filter string ('latest', 'all', or specific season).
+                Defaults to 'latest'.
             opponent: Optional opponent substring query.
             home_only: If True, include only home games.
             status: Optional status query.
@@ -521,9 +620,10 @@ class ScheduleDataService:
         Returns:
             Rendered HTML page string.
         """
+        effective_season = "latest" if season is None else season
         filtered = filter_games(
             games,
-            season=season,
+            season=effective_season,
             opponent=opponent,
             home_only=home_only,
             status=status,
@@ -536,7 +636,7 @@ class ScheduleDataService:
         ]
         filters: dict[str, str | bool | None] = {
             "primary_team": self.primary_team_name,
-            "season": season,
+            "season": effective_season,
             "opponent": opponent,
             "home_only": home_only,
             "status": status,
