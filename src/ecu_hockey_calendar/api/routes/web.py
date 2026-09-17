@@ -454,7 +454,8 @@ def get_web_schedule_pdf(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to latest season."
             ),
         ),
     ] = None,
@@ -515,7 +516,8 @@ def head_web_schedule_pdf(
         str | None,
         Query(
             description=(
-                "Filter games by season (e.g. '2026-2027'). Defaults to all seasons."
+                "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
+                "Defaults to latest season."
             ),
         ),
     ] = None,

@@ -832,6 +832,12 @@ def test_extract_games_from_database_season_aliases(
     assert res_historical.json()["total_games"] == 1
     assert res_historical.json()["games"][0]["game_id"] == "ECU-2025-01"
 
+    # Verify default JSON feed without season query defaults to latest season
+    res_default_json = client.get("/schedule.json")
+    assert res_default_json.status_code == 200
+    assert res_default_json.json()["total_games"] == len(sample_games)
+    assert res_default_json.json()["season"] == "2026-2027"
+
     # Verify CSV feed with aliases
     res_csv_latest = client.get("/schedule.csv?season=latest")
     assert res_csv_latest.status_code == 200
@@ -840,6 +846,11 @@ def test_extract_games_from_database_season_aliases(
     res_csv_all = client.get("/schedule.csv?season=all")
     assert res_csv_all.status_code == 200
     assert "ECU-2025-01" in res_csv_all.text
+
+    # Verify default CSV feed without season query defaults to latest season
+    res_default_csv = client.get("/schedule.csv")
+    assert res_default_csv.status_code == 200
+    assert "ECU-2025-01" not in res_default_csv.text
 
     # Verify PDF route with aliases
     res_pdf_latest = client.get("/schedule.pdf?season=latest")
@@ -854,6 +865,21 @@ def test_extract_games_from_database_season_aliases(
     assert (
         'filename="ecu_hockey_schedule.pdf"'
         in res_pdf_all.headers["content-disposition"]
+    )
+
+    # Verify default PDF feeds without season query default to latest season
+    res_default_pdf = client.get("/schedule.pdf")
+    assert res_default_pdf.status_code == 200
+    assert (
+        'filename="ecu_hockey_schedule_2026-2027.pdf"'
+        in res_default_pdf.headers["content-disposition"]
+    )
+
+    res_default_api_pdf = client.get("/api/schedule.pdf")
+    assert res_default_api_pdf.status_code == 200
+    assert (
+        'filename="ecu_hockey_schedule_2026-2027.pdf"'
+        in res_default_api_pdf.headers["content-disposition"]
     )
 
 
@@ -892,7 +918,7 @@ def test_extract_games_from_database_empty_db_latest(tmp_path: Path) -> None:
 
 
 def test_is_game_past(ecu_team: Team, unc_team: Team) -> None:
-    """Test _is_game_past returns True for past start time or completed match result."""
+    """Test _is_game_past evaluates chronologically based on game start time."""
     ref_time = datetime(2026, 10, 1, 0, 0, tzinfo=UTC)
 
     past_game = Game(
@@ -905,15 +931,18 @@ def test_is_game_past(ecu_team: Team, unc_team: Team) -> None:
     )
     assert _is_game_past(past_game, ref_time) is True
 
-    future_final_game = Game(
-        game_id="FINAL-1",
+    # Future game with a tie/win result (e.g. scraped unplayed game) is not past
+    future_game_with_result = Game(
+        game_id="FUTURE-TIE-1",
         home_team=ecu_team,
         away_team=unc_team,
         start_time=datetime(2026, 10, 15, 20, 0, tzinfo=UTC),
         venue="The Factory Ice House",
-        result=GameResult.WIN,
+        result=GameResult.TIE,
+        home_score=0,
+        away_score=0,
     )
-    assert _is_game_past(future_final_game, ref_time) is True
+    assert _is_game_past(future_game_with_result, ref_time) is False
 
     future_scheduled_game = Game(
         game_id="FUTURE-1",
@@ -924,6 +953,11 @@ def test_is_game_past(ecu_team: Team, unc_team: Team) -> None:
         result=GameResult.SCHEDULED,
     )
     assert _is_game_past(future_scheduled_game, ref_time) is False
+
+    # Naive ref_time handling
+    naive_ref = datetime(2026, 10, 1, 0, 0)  # noqa: DTZ001
+    assert _is_game_past(past_game, naive_ref) is True
+    assert _is_game_past(future_scheduled_game, naive_ref) is False
 
 
 def test_find_first_future_index(ecu_team: Team, unc_team: Team) -> None:

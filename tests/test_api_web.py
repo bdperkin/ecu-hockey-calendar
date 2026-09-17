@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 import pytest
@@ -87,7 +87,7 @@ def diverse_games(ecu_team: Team, unc_team: Team) -> list[Game]:
             game_id="ECU-2026-04",
             home_team=ecu_team,
             away_team=unc_team,
-            start_time=datetime(2026, 9, 20, 23, 0, tzinfo=UTC),
+            start_time=datetime(2026, 9, 5, 23, 0, tzinfo=UTC),
             venue="The Factory Ice House",
             result=GameResult.WIN,
             home_score=5,
@@ -97,7 +97,7 @@ def diverse_games(ecu_team: Team, unc_team: Team) -> list[Game]:
             game_id="ECU-2026-05",
             home_team=duke,
             away_team=ecu_team,
-            start_time=datetime(2026, 9, 27, 20, 0, tzinfo=UTC),
+            start_time=datetime(2026, 9, 12, 20, 0, tzinfo=UTC),
             venue="Orange County Sportsplex",
             result=GameResult.LOSS,
             home_score=4,
@@ -107,7 +107,7 @@ def diverse_games(ecu_team: Team, unc_team: Team) -> list[Game]:
             game_id="ECU-2026-06",
             home_team=ecu_team,
             away_team=vt,
-            start_time=datetime(2026, 10, 3, 23, 30, tzinfo=UTC),
+            start_time=datetime(2026, 9, 13, 23, 30, tzinfo=UTC),
             venue="The Factory Ice House",
             result=GameResult.OVERTIME_LOSS,
             home_score=3,
@@ -117,7 +117,7 @@ def diverse_games(ecu_team: Team, unc_team: Team) -> list[Game]:
             game_id="ECU-2026-07",
             home_team=nc_state,
             away_team=ecu_team,
-            start_time=datetime(2026, 10, 10, 23, 0, tzinfo=UTC),
+            start_time=datetime(2026, 9, 14, 23, 0, tzinfo=UTC),
             venue="Invisalign Arena",
             result=GameResult.TIE,
             home_score=2,
@@ -889,3 +889,65 @@ def test_schedule_now_divider_omitted_when_only_past_or_future(
     assert 'id="now-divider"' not in res_future.text
     assert "--- NOW ---" not in res_future.text
     assert "scrollToNowDivider" not in res_future.text
+
+
+def test_schedule_now_divider_with_future_tie_games(  # pylint: disable=too-many-locals
+    ecu_team: Team,
+    unc_team: Team,
+    tmp_path: Path,
+) -> None:
+    """Verify NOW divider renders when future games have tie results.
+
+    Tests edge case where unplayed future games were crawled with 0-0 ties.
+    """
+    now = datetime.now(UTC)
+    past_game = Game(
+        game_id="PAST-TIE",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=now - timedelta(days=5),
+        venue="The Factory Ice House",
+        result=GameResult.TIE,
+        home_score=2,
+        away_score=2,
+    )
+    future_game = Game(
+        game_id="FUTURE-TIE",
+        home_team=ecu_team,
+        away_team=unc_team,
+        start_time=now + timedelta(days=5),
+        venue="The Factory Ice House",
+        result=GameResult.TIE,
+        home_score=0,
+        away_score=0,
+    )
+    db_url = f"sqlite:///{tmp_path / 'tie_test.db'}"
+    engine = create_sync_engine(db_url)
+    init_db(engine)
+
+    with get_sync_session(engine) as session:
+        t1 = session.merge(TeamModel.from_domain(ecu_team))
+        t2 = session.merge(TeamModel.from_domain(unc_team))
+        session.flush()
+        session.add(
+            GameModel.from_domain(past_game, home_team_id=t1.id, away_team_id=t2.id),
+        )
+        session.add(
+            GameModel.from_domain(future_game, home_team_id=t1.id, away_team_id=t2.id),
+        )
+        session.commit()
+
+    app = create_app(database_url=db_url)
+    client = TestClient(app)
+
+    res = client.get("/schedule")
+    assert res.status_code == 200
+    assert 'id="now-divider"' in res.text
+    assert "--- NOW ---" in res.text
+    assert "scrollToNowDivider()" in res.text
+
+    res_embed = client.get("/schedule/embed")
+    assert res_embed.status_code == 200
+    assert 'id="now-divider"' in res_embed.text
+    assert "--- NOW ---" in res_embed.text
+    assert "scrollToNowDivider()" in res_embed.text

@@ -90,7 +90,7 @@ def get_schedule_json(
         Query(
             description=(
                 "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
-                "Defaults to all seasons."
+                "Defaults to latest season."
             ),
         ),
     ] = None,
@@ -138,7 +138,8 @@ def get_schedule_json(
     Returns:
         FastAPI Response with application/json body and caching headers.
     """
-    games = get_active_games(request, season)
+    effective_season = "latest" if season is None else season
+    games = get_active_games(request, effective_season)
     service: ScheduleDataService = getattr(
         request.app.state,
         "schedule_service",
@@ -153,7 +154,7 @@ def get_schedule_json(
 
     json_content = service.generate_json_string(
         games,
-        season=season,
+        season=effective_season,
         opponent=opponent,
         home_only=home_only,
         future_only=fut_only,
@@ -206,7 +207,7 @@ def head_schedule_json(
         Query(
             description=(
                 "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
-                "Defaults to all seasons."
+                "Defaults to latest season."
             ),
         ),
     ] = None,
@@ -303,7 +304,7 @@ def get_schedule_csv(
         Query(
             description=(
                 "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
-                "Defaults to all seasons."
+                "Defaults to latest season."
             ),
         ),
     ] = None,
@@ -351,7 +352,8 @@ def get_schedule_csv(
     Returns:
         FastAPI Response with text/csv body and attachment download headers.
     """
-    games = get_active_games(request, season)
+    effective_season = "latest" if season is None else season
+    games = get_active_games(request, effective_season)
     service: ScheduleDataService = getattr(
         request.app.state,
         "schedule_service",
@@ -366,7 +368,7 @@ def get_schedule_csv(
 
     csv_content = service.generate_csv_feed(
         games,
-        season=season,
+        season=effective_season,
         opponent=opponent,
         home_only=home_only,
         future_only=fut_only,
@@ -419,7 +421,7 @@ def head_schedule_csv(
         Query(
             description=(
                 "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
-                "Defaults to all seasons."
+                "Defaults to latest season."
             ),
         ),
     ] = None,
@@ -503,7 +505,8 @@ def serve_schedule_pdf(
     Returns:
         FastAPI Response with application/pdf body and caching headers.
     """
-    games = get_active_games(request, season)
+    effective_season = "latest" if season is None else season
+    games = get_active_games(request, effective_season)
     service: ScheduleDataService = getattr(
         request.app.state,
         "schedule_service",
@@ -516,14 +519,14 @@ def serve_schedule_pdf(
     )
     pdf_bytes = service.generate_pdf_schedule(
         games,
-        season=season,
+        season=effective_season,
         opponent=opponent,
         home_only=home_only,
         future_only=fut_only,
         include_past=inc_past,
         status=status_filter,
     )
-    filename = resolve_pdf_filename(season, games)
+    filename = resolve_pdf_filename(effective_season, games)
     headers = _build_schedule_caching_headers(
         content=pdf_bytes,
         games=games,
@@ -604,7 +607,7 @@ def get_schedule_pdf(
         Query(
             description=(
                 "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
-                "Defaults to all seasons."
+                "Defaults to latest season."
             ),
         ),
     ] = None,
@@ -666,7 +669,7 @@ def head_schedule_pdf(
         Query(
             description=(
                 "Filter games by season (e.g. '2026-2027', 'latest', 'all'). "
-                "Defaults to all seasons."
+                "Defaults to latest season."
             ),
         ),
     ] = None,
