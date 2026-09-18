@@ -58,6 +58,13 @@ DEFAULT_SCRAPERS: list[dict[str, Any]] = [
         "is_active": True,
         "last_scraped_at": None,
     },
+    {
+        "source_code": "opponent",
+        "name": "Opponent Schedule Feeds",
+        "source_type": "opponent",
+        "is_active": True,
+        "last_scraped_at": None,
+    },
 ]
 
 

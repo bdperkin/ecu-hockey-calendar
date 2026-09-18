@@ -126,7 +126,7 @@ def test_health_probe_in_memory() -> None:
     assert data["components"]["database"]["status"] == "not_configured"
     assert data["components"]["database"]["connected"] is False
     assert data["components"]["scrapers"]["status"] == "operational"
-    assert len(data["components"]["scrapers"]["sources"]) == 4
+    assert len(data["components"]["scrapers"]["sources"]) == 5
     assert data["uptime_seconds"] >= 0.0
 
 
@@ -258,7 +258,7 @@ def test_sync_status_in_memory() -> None:
     assert data["last_sync"]["status"] == "never_run"
     assert data["last_sync"]["games_created"] == 0
     assert data["last_success_at"] is None
-    assert len(data["sources"]) == 4
+    assert len(data["sources"]) == 5
 
 
 def test_sync_status_with_database(tmp_path: Path) -> None:
@@ -620,12 +620,12 @@ def test_health_and_sync_empty_database(tmp_path: Path) -> None:
     # Probe /health with empty DB
     health_resp = client.get("/health")
     assert health_resp.status_code == 200
-    assert len(health_resp.json()["components"]["scrapers"]["sources"]) == 4
+    assert len(health_resp.json()["components"]["scrapers"]["sources"]) == 5
 
     # Probe /api/v1/sync/status with empty DB
     sync_resp = client.get("/api/v1/sync/status")
     assert sync_resp.status_code == 200
-    assert len(sync_resp.json()["sources"]) == 4
+    assert len(sync_resp.json()["sources"]) == 5
 
 
 def test_trigger_sync_without_handler(admin_app: TestClient) -> None:

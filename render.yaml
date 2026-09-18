@@ -31,6 +31,8 @@ services:
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
+      - key: INSTAGRAM_ACCESS_TOKEN
+        sync: false
 
   # Scheduled Cron Worker: Multi-Source Schedule Synchronization & Change Detection
   - type: cron
@@ -59,6 +61,8 @@ services:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: INSTAGRAM_ACCESS_TOKEN
         sync: false
 databases:
   - name: ecu-hockey-db
