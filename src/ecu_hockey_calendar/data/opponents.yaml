@@ -1,0 +1,129 @@
+---
+opponents:
+  - canonical_name: UNC Chapel Hill
+    feed_url: https://unchockey.com/schedule/
+    feed_type: html
+    home_venue: Orange County Sportsplex
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [unc, north carolina, tar heels]
+    website: https://unchockey.com
+    enabled: true
+  - canonical_name: NC State University
+    feed_url: >-
+      https://calendar.google.com/calendar/ical/cb76db2abb10a1b54c81706e2d428c11716cb2e1a9dc0a8a054ab5507795a035%40group.calendar.google.com/public/basic.ics
+    feed_type: ical
+    home_venue: Invisalign Arena at Wake Competition Center
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [nc state, icepack, pack, wolfpack]
+    website: https://www.icepackhockey.com
+    enabled: true
+  - canonical_name: Virginia Tech
+    feed_url: http://vticehockey.pointstreaksites.com/view/vticehockey/schedule
+    feed_type: html
+    home_venue: Lancerlot Sports Complex
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [vt, virginia tech, hokies]
+    website: https://virginiatechicehockey.com
+    enabled: true
+  - canonical_name: Wake Forest University
+    feed_url: https://wsfairgrounds.com/arena-ice-rink/wake-forest-hockey-schedule/
+    feed_type: html
+    home_venue: Winston-Salem Fairgrounds Annex
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [wake forest, demon deacons, deacons]
+    website: https://wsfairgrounds.com/arena-ice-rink/wake-forest-hockey-schedule/
+    enabled: true
+  - canonical_name: Duke University
+    feed_url: https://www.dukehockey.org/blank-1
+    feed_type: html
+    home_venue: Orange County Sportsplex
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [duke, blue devils]
+    website: https://www.dukehockey.org
+    enabled: true
+  - canonical_name: UNC Wilmington
+    feed_url: https://uncwclubhockey.com/schedule/upcoming
+    feed_type: html
+    home_venue: Wilmington Ice House
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [uncw, wilmington, seahawks]
+    website: https://uncwclubhockey.com
+    enabled: true
+  - canonical_name: Appalachian State University
+    feed_url: https://www.appstatehockey.com/schedule/upcoming
+    feed_type: html
+    home_venue: Greensboro Ice House
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [app state, appalachian, mountaineers]
+    website: https://www.appstatehockey.com
+    enabled: true
+  - canonical_name: High Point University
+    feed_url: https://hpuclubsports.com/sports/mens-ice-hockey/schedule
+    feed_type: html
+    home_venue: Greensboro Ice House
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [high point, hpu, panthers]
+    website: https://hpuclubsports.com/sports/mens-ice-hockey
+    enabled: true
+  - canonical_name: Elon University
+    feed_url: https://elonuhockey.com/schedule/upcoming
+    feed_type: html
+    home_venue: Orange County Sportsplex
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [elon, phoenix]
+    website: https://elonuhockey.com
+    enabled: true
+  - canonical_name: UNC Charlotte
+    feed_url: https://www.charlotteicehockey.com/schedule/upcoming
+    feed_type: html
+    home_venue: Pineville IceHouse
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [charlotte, 49ers, uncc]
+    website: https://www.charlotteicehockey.com
+    enabled: true
+  - canonical_name: James Madison University
+    feed_url: https://www.jmuicehockey.com/schedule/upcoming
+    feed_type: html
+    home_venue: Haymarket Iceplex
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [jmu, dukes]
+    website: https://www.jmuicehockey.com
+    enabled: true
+  - canonical_name: University of Richmond
+    feed_url: https://www.uofrhockey.com/schedule/upcoming
+    feed_type: html
+    home_venue: Richmond Ice Zone
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [richmond, spiders]
+    website: https://www.uofrhockey.com
+    enabled: true
+  - canonical_name: University of Virginia
+    feed_url: https://www.uvamenshockey.com/schedule
+    feed_type: html
+    home_venue: Main Street Arena
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [uva, virginia, cavaliers, hoos, wahoos]
+    website: https://www.uvamenshockey.com
+    enabled: true
+  - canonical_name: Georgetown University
+    feed_url: https://www.georgetownhockey.com/schedule/upcoming
+    feed_type: html
+    home_venue: Fort Dupont Ice Arena
+    division: ACHA M2
+    conference: ACCHL
+    aliases: [georgetown, hoyas]
+    website: https://www.georgetownhockey.com
+    enabled: true

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+from importlib.resources import files
 from pathlib import Path
 from typing import Any, TextIO
 
@@ -353,96 +354,21 @@ class OpponentDirectory:
         return len(self._endpoints)
 
 
-_ICAL = OpponentFeedType.ICAL
-
-_DEFAULT_OPPONENTS: tuple[
-    tuple[str, str, str, tuple[str, ...]],
-    ...,
-] = (
-    (
-        "UNC Chapel Hill",
-        "tarheel",
-        "Orange County Sportsplex",
-        ("unc", "north carolina"),
-    ),
-    ("NC State University", "ncstate", "Wake Competition Center", ("nc state", "pack")),
-    ("Virginia Tech", "hokies", "Lancerlot Sports Complex", ("vt", "hokies")),
-    (
-        "Wake Forest University",
-        "wakeforest",
-        "Winston-Salem Fairgrounds Annex",
-        ("wake forest", "demon deacons"),
-    ),
-    ("Duke University", "duke", "Orange County Sportsplex", ("duke", "blue devils")),
-    ("UNC Wilmington", "uncw", "Wilmington Ice House", ("uncw", "seahawks")),
-    (
-        "Appalachian State University",
-        "appstate",
-        "AppState Rink",
-        ("app state", "mountaineers"),
-    ),
-    (
-        "High Point University",
-        "highpoint",
-        "Greensboro Ice House",
-        ("high point", "panthers"),
-    ),
-    ("Elon University", "elon", "Orange County Sportsplex", ("elon", "phoenix")),
-    ("UNC Charlotte", "charlotte", "Pineville IceHouse", ("charlotte", "49ers")),
-    ("James Madison University", "jmu", "Haymarket Iceplex", ("jmu", "dukes")),
-    (
-        "University of Richmond",
-        "richmond",
-        "Richmond Ice Zone",
-        ("richmond", "spiders"),
-    ),
-    ("University of Virginia", "virginia", "Main Street Arena", ("uva", "cavaliers")),
-    (
-        "Georgetown University",
-        "georgetown",
-        "Fort Dupont Ice Arena",
-        ("georgetown", "hoyas"),
-    ),
-)
-
-DEFAULT_OPPONENT_SPECS: tuple[
-    tuple[str, str, OpponentFeedType, str, tuple[str, ...]],
-    ...,
-] = tuple(
-    (
-        name,
-        f"https://{slug}hockey.{'org' if slug == 'duke' else 'com'}/schedule.ics",
-        _ICAL,
-        venue,
-        aliases,
-    )
-    for name, slug, venue, aliases in _DEFAULT_OPPONENTS
-)
-
-
 def get_default_opponent_directory() -> OpponentDirectory:
     """Construct and return default directory of known opponent endpoints.
+
+    Loads the package-bundled verified opponents dataset from
+    ``ecu_hockey_calendar.data/opponents.yaml``.
 
     Returns:
         Populated OpponentDirectory instance.
     """
-    directory = OpponentDirectory()
-    for name, url, ftype, venue, aliases in DEFAULT_OPPONENT_SPECS:
-        directory.register(
-            OpponentEndpointConfig(
-                canonical_name=name,
-                feed_url=url,
-                feed_type=ftype,
-                home_venue=venue,
-                aliases=aliases,
-            ),
-        )
-
-    return directory
+    data_res = files("ecu_hockey_calendar.data").joinpath("opponents.yaml")
+    yaml_text = data_res.read_text(encoding="utf-8")
+    return OpponentDirectory.from_yaml(yaml_text)
 
 
 __all__ = [
-    "DEFAULT_OPPONENT_SPECS",
     "OpponentConfigError",
     "OpponentDirectory",
     "OpponentEndpointConfig",

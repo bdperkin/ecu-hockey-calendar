@@ -9,7 +9,6 @@ from typing import Any
 import pytest
 
 from ecu_hockey_calendar.ingestion.opponent_config import (
-    DEFAULT_OPPONENT_SPECS,
     OpponentConfigError,
     OpponentDirectory,
     OpponentEndpointConfig,
@@ -376,11 +375,51 @@ def test_directory_from_yaml_edge_cases(tmp_path: Path) -> None:
         OpponentDirectory.from_yaml("opponents:\n  - 'just-a-string'")
 
 
-def test_default_opponent_directory_backwards_compatibility() -> None:
-    """Verify get_default_opponent_directory maintains existing behavior."""
+def test_default_opponent_directory_bundled_yaml() -> None:
+    """Verify get_default_opponent_directory loads all 14 bundled opponents."""
     dir_inst = get_default_opponent_directory()
-    assert len(dir_inst) == len(DEFAULT_OPPONENT_SPECS)
-    for name, _, _, _, aliases in DEFAULT_OPPONENT_SPECS:
+    assert len(dir_inst) == 14
+
+    expected_opponents = {
+        "UNC Chapel Hill": ("Orange County Sportsplex", OpponentFeedType.HTML),
+        "NC State University": (
+            "Invisalign Arena at Wake Competition Center",
+            OpponentFeedType.ICAL,
+        ),
+        "Virginia Tech": ("Lancerlot Sports Complex", OpponentFeedType.HTML),
+        "Wake Forest University": (
+            "Winston-Salem Fairgrounds Annex",
+            OpponentFeedType.HTML,
+        ),
+        "Duke University": ("Orange County Sportsplex", OpponentFeedType.HTML),
+        "UNC Wilmington": ("Wilmington Ice House", OpponentFeedType.HTML),
+        "Appalachian State University": (
+            "Greensboro Ice House",
+            OpponentFeedType.HTML,
+        ),
+        "High Point University": ("Greensboro Ice House", OpponentFeedType.HTML),
+        "Elon University": ("Orange County Sportsplex", OpponentFeedType.HTML),
+        "UNC Charlotte": ("Pineville IceHouse", OpponentFeedType.HTML),
+        "James Madison University": ("Haymarket Iceplex", OpponentFeedType.HTML),
+        "University of Richmond": ("Richmond Ice Zone", OpponentFeedType.HTML),
+        "University of Virginia": ("Main Street Arena", OpponentFeedType.HTML),
+        "Georgetown University": ("Fort Dupont Ice Arena", OpponentFeedType.HTML),
+    }
+
+    for name, (venue, feed_type) in expected_opponents.items():
         assert name in dir_inst
-        for alias in aliases:
+        endpoint = dir_inst.get(name)
+        assert endpoint is not None
+        assert endpoint.canonical_name == name
+        assert endpoint.home_venue == venue
+        assert endpoint.feed_type == feed_type
+        assert endpoint.feed_url.startswith(("http://", "https://"))
+        assert endpoint.website is not None
+        assert endpoint.website.startswith("https://")
+        assert endpoint.enabled is True
+        assert endpoint.division == "ACHA M2"
+        assert endpoint.conference == "ACCHL"
+        assert len(endpoint.aliases) > 0
+        for alias in endpoint.aliases:
             assert alias in dir_inst
+            assert dir_inst.get(alias) is endpoint

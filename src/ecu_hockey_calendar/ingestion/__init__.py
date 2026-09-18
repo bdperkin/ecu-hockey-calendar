@@ -74,7 +74,6 @@ from ecu_hockey_calendar.ingestion.normalizer import (
     parse_game_status,
 )
 from ecu_hockey_calendar.ingestion.opponent_config import (
-    DEFAULT_OPPONENT_SPECS,
     OpponentConfigError,
     OpponentDirectory,
     OpponentEndpointConfig,
@@ -138,7 +137,6 @@ __all__ = [
     "DEFAULT_INSTAGRAM_USERNAME",
     "DEFAULT_MAX_RETRIES",
     "DEFAULT_OPPONENT_CACHE_TTL",
-    "DEFAULT_OPPONENT_SPECS",
     "DEFAULT_PAGINATION_LIMIT",
     "DEFAULT_RATE_LIMIT_INTERVAL",
     "DEFAULT_RESULTS_HTML_URL",

@@ -123,6 +123,7 @@ build.targets.wheel.packages = [ "src/ecu_hockey_calendar" ]
 build.targets.wheel.artifacts = [
     "src/ecu_hockey_calendar/api/static/**",
     "src/ecu_hockey_calendar/api/templates/**",
+    "src/ecu_hockey_calendar/data/**",
 ]
 
 [tool.djlint]
