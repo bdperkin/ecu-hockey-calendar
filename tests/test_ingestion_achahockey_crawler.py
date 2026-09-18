@@ -21,6 +21,9 @@ from ecu_hockey_calendar.ingestion.achahockey_crawler import (
     _resolve_crawl_targets,
     _resolve_page_season,
     _resolve_target_season_id,
+    extract_achahockey_season_id_from_url,
+    normalize_season_label,
+    parse_achahockey_subseasons,
 )
 from ecu_hockey_calendar.ingestion.achahockey_parser import (
     CLIENT_CODE,
@@ -155,14 +158,66 @@ class TestACHAHockeyCrawlerBasics:
         )
         assert _resolve_page_season(r_empty) == DEFAULT_ACHA_SEASON
 
+    def test_extract_achahockey_season_id_from_url(self) -> None:
+        """Verify extracting season IDs from URL parameters and paths."""
+        url_param = (
+            "https://lscluster.hockeytech.com/feed/index.php"
+            "?feed=modulekit&view=schedule&season_id=73"
+        )
+        assert extract_achahockey_season_id_from_url(url_param) == "73"
+
+        url_path_team = (
+            "https://www.achahockey.org/stats/schedule/589/60/all-months/homeaway"
+        )
+        assert extract_achahockey_season_id_from_url(url_path_team) == "60"
+
+        url_path_direct = "https://www.achahockey.org/stats/schedule/46"
+        assert extract_achahockey_season_id_from_url(url_path_direct) == "46"
+
+        assert (
+            extract_achahockey_season_id_from_url("https://example.com/invalid") is None
+        )
+
+    def test_normalize_season_label(self) -> None:
+        """Verify season code normalization."""
+        assert normalize_season_label("26-27") == "2026-2027"
+        assert normalize_season_label("2026-27") == "2026-2027"
+        assert normalize_season_label("2026-2027") == "2026-2027"
+        assert normalize_season_label("invalid-season") is None
+
+    def test_parse_achahockey_subseasons(self) -> None:
+        """Verify parsing comma-separated, multiline, or URL subseasons."""
+        assert parse_achahockey_subseasons("") == []
+        assert parse_achahockey_subseasons("   ") == []
+
+        url1 = "https://www.achahockey.org/stats/schedule/589/73/all-months"
+        url2 = "https://www.achahockey.org/stats/schedule/589/60/all-months"
+        multiline = f"* 26-27 {url1}\n* 25-26 {url2}"
+        assert parse_achahockey_subseasons(multiline) == [url1, url2]
+
+        tokens = "* 73, 60; 46\n34,,  "
+        assert parse_achahockey_subseasons(tokens) == ["73", "60", "46", "34"]
+
     def test_resolve_target_season_id(self) -> None:
-        """Verify matching season query against label and ID."""
+        """Verify matching season query against label, short year, URL, and ID."""
         available = {"2026-2027": "73", "2025-2026": "60"}
         assert _resolve_target_season_id("2026-2027", available) == (
             "2026-2027",
             "73",
         )
+        assert _resolve_target_season_id("26-27", available) == (
+            "2026-2027",
+            "73",
+        )
         assert _resolve_target_season_id("60", available) == ("2025-2026", "60")
+        url = "https://www.achahockey.org/stats/schedule/589/73/all-months"
+        assert _resolve_target_season_id(url, available) == ("2026-2027", "73")
+        assert (
+            _resolve_target_season_id("https://example.com/no-season", available)
+            is None
+        )
+        assert _resolve_target_season_id("99", available) == ("season-99", "99")
+        assert _resolve_target_season_id("", available) is None
         assert _resolve_target_season_id("unknown", available) is None
 
     def test_resolve_crawl_targets(self) -> None:
@@ -274,6 +329,24 @@ class TestACHAHockeyCrawlerAsync:
         assert payload_data[0]["season"] == "2026-2027"
 
     @pytest.mark.anyio
+    async def test_crawl_with_subseasons(self) -> None:
+        """Verify crawling seasons specified through subseasons argument."""
+        sched_73 = _read_fixture_str("season_73.json")
+        client = ResilientHttpClient()
+        client.fetch_text = AsyncMock(return_value=(sched_73, "a" * 64))  # type: ignore[method-assign]
+
+        crawler = ACHAHockeyCrawler(client=client)
+        url = "https://www.achahockey.org/stats/schedule/589/73/all-months"
+        records, payload, _, _ = await crawler.crawl(
+            subseasons=f"* 26-27 {url}",
+            discover_future=False,
+        )
+        assert len(records) == 6
+        payload_data = json.loads(payload)
+        assert len(payload_data) == 1
+        assert payload_data[0]["season"] == "2026-2027"
+
+    @pytest.mark.anyio
     async def test_crawl_and_sync_persistence(self, db_session: Session) -> None:
         """Verify database persistence of snapshot and game entities."""
         sched_73 = _read_fixture_str("season_73.json")
@@ -340,3 +413,23 @@ class TestACHAHockeyCrawlerAsync:
         assert failed_audit is not None
         assert failed_audit.status == SyncStatus.FAILURE.value
         assert "Sync error" in (failed_audit.error_message or "")
+
+    @pytest.mark.anyio
+    async def test_crawl_and_sync_with_subseasons(
+        self,
+        db_session: Session,
+    ) -> None:
+        """Verify crawl_and_sync persistence when using subseasons argument."""
+        sched_73 = _read_fixture_str("season_73.json")
+        client = ResilientHttpClient()
+        client.fetch_text = AsyncMock(return_value=(sched_73, "a" * 64))  # type: ignore[method-assign]
+
+        crawler = ACHAHockeyCrawler(client=client)
+        audit = await crawler.crawl_and_sync(
+            db_session,
+            source_code="league_achahockey_subseasons",
+            subseasons="73",
+            discover_future=False,
+        )
+        assert audit.status == SyncStatus.SUCCESS.value
+        assert audit.games_created == 6

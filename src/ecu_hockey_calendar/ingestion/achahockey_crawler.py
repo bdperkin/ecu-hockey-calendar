@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -17,6 +18,7 @@ from ecu_hockey_calendar.ingestion.achahockey_parser import (
     DEFAULT_BASE_URL,
     ECU_TEAM_ID,
     KNOWN_SEASONS,
+    SHORT_YEAR_LENGTH,
     parse_achahockey_schedule_json,
     parse_achahockey_seasons_json,
 )
@@ -74,17 +76,147 @@ def _resolve_page_season(
     return fallback
 
 
+def extract_achahockey_season_id_from_url(url: str) -> str | None:
+    """Extract numeric season identifier from ACHA schedule URL or feed URL.
+
+    Args:
+        url: Web schedule URL or HockeyTech feed URL.
+
+    Returns:
+        Extracted numeric season ID string, or None if not found.
+    """
+    m_param = re.search(r"[?&]season_id=(\d+)", url)
+    if m_param:
+        return str(m_param.group(1))
+
+    m_path = re.search(r"/schedule/(?:\d+/)?(\d+)", url)
+    if m_path:
+        return str(m_path.group(1))
+
+    return None
+
+
+def normalize_season_label(label: str) -> str | None:
+    """Normalize short season labels like '26-27' to 'YYYY-YYYY'.
+
+    Args:
+        label: Raw season query string.
+
+    Returns:
+        Standardized 'YYYY-YYYY' string, or None if not matching pattern.
+    """
+    m = re.match(r"^(\d{2}|\d{4})-(\d{2}|\d{4})$", label.strip())
+    if not m:
+        return None
+
+    y1, y2 = m.group(1), m.group(2)
+    if len(y1) == SHORT_YEAR_LENGTH:
+        y1 = f"20{y1}"
+
+    if len(y2) == SHORT_YEAR_LENGTH:
+        y2 = f"{y1[:SHORT_YEAR_LENGTH]}{y2}"
+
+    return f"{y1}-{y2}"
+
+
+def _extract_embedded_urls(text: str) -> list[str]:
+    """Extract non-acchockey URLs from input text."""
+    urls = re.findall(r"https?://[^\s,]+", text)
+    return [u for u in urls if "acchockey.com" not in u]
+
+
+def _clean_subseason_tokens(tokens: list[str]) -> list[str]:
+    """Clean markdown bullet points and discard empty tokens."""
+    targets: list[str] = []
+    for item in tokens:
+        clean = re.sub(r"^[*+\-]\s*", "", item.strip()).strip()
+        if clean:
+            targets.append(clean)
+
+    return targets
+
+
+def parse_achahockey_subseasons(subseasons: str) -> list[str]:
+    """Parse comma-separated, space-separated, or multiline ACHA subseasons string.
+
+    Accepts schedule URLs, season IDs ('73'), canonical labels ('2026-2027'),
+    or short season labels ('26-27').
+
+    Args:
+        subseasons: Raw string passed via CLI or configuration.
+
+    Returns:
+        List of target season query strings or URLs.
+    """
+    clean_input = subseasons.strip() if subseasons else ""
+    if not clean_input:
+        return []
+
+    embedded_urls = _extract_embedded_urls(clean_input)
+    if embedded_urls:
+        return embedded_urls
+
+    tokens = re.split(r"[\n\r,;]+", clean_input)
+    return _clean_subseason_tokens(tokens)
+
+
+def _match_by_season_id(
+    trimmed: str,
+    available: dict[str, str],
+) -> tuple[str, str] | None:
+    """Find matching season by numeric season ID."""
+    for s_code, s_id in available.items():
+        if trimmed == s_id:
+            return s_code, s_id
+
+    return None
+
+
+def _match_available_season(
+    trimmed: str,
+    available: dict[str, str],
+) -> tuple[str, str] | None:
+    """Match trimmed query against direct available codes, normalized codes, or IDs."""
+    if trimmed in available:
+        return trimmed, available[trimmed]
+
+    norm = normalize_season_label(trimmed)
+    if norm in available:
+        return norm, available[norm]
+
+    return _match_by_season_id(trimmed, available)
+
+
+def _resolve_url_season_id(
+    url: str,
+    available: dict[str, str],
+) -> tuple[str, str] | None:
+    """Extract and resolve season ID from URL."""
+    sid = extract_achahockey_season_id_from_url(url)
+    if not sid:
+        return None
+
+    return _resolve_target_season_id(sid, available)
+
+
 def _resolve_target_season_id(
     item: str,
     available: dict[str, str],
 ) -> tuple[str, str] | None:
     """Match a season query string against available season labels and IDs."""
-    if item in available:
-        return item, available[item]
+    trimmed = item.strip()
+    if not trimmed:
+        return None
 
-    for s_code, s_id in available.items():
-        if item == s_id:
-            return s_code, s_id
+    if trimmed.startswith(("http://", "https://")):
+        return _resolve_url_season_id(trimmed, available)
+
+    matched = _match_available_season(trimmed, available)
+    if matched is not None:
+        return matched
+
+    if trimmed.isdigit():
+        return f"season-{trimmed}", trimmed
 
     return None
 
@@ -259,10 +391,11 @@ class ACHAHockeyCrawler:
             season_map=season_map,
             target_team_id=self.team_id,
         )
+        portal_link = f"{self.portal_url}/stats/schedule/{self.team_id}/{season_id}"
         self._notify_scrape(
             url,
             records_found=len(records),
-            details=f"Season {season_hint or season_id} schedule",
+            details=f"Season {season_hint or season_id} ({portal_link})",
         )
         return records, payload, content_hash
 
@@ -297,21 +430,27 @@ class ACHAHockeyCrawler:
         self,
         *,
         seasons: list[str] | None = None,
+        subseasons: str | None = None,
         discover_future: bool = True,
     ) -> tuple[list[ParsedGameRecord], str, str, str]:
         """Execute schedule crawl across requested or discovered seasons.
 
         Args:
             seasons: Optional list of season labels or IDs to crawl.
+            subseasons: Optional raw subseasons string or URL list.
             discover_future: Whether to discover new seasons dynamically.
 
         Returns:
             Tuple of (records, raw_payload, content_hash, content_type).
         """
+        targets_list = seasons
+        if subseasons:
+            targets_list = parse_achahockey_subseasons(subseasons)
+
         available = (
             await self.discover_seasons() if discover_future else dict(KNOWN_SEASONS)
         )
-        targets = _resolve_crawl_targets(seasons, available)
+        targets = _resolve_crawl_targets(targets_list, available)
         reverse_map = {s_id: s_name for s_name, s_id in available.items()}
 
         records, payloads = await self._execute_target_crawls(
@@ -500,6 +639,7 @@ class ACHAHockeyCrawler:
         *,
         source_code: str = "league_achahockey",
         seasons: list[str] | None = None,
+        subseasons: str | None = None,
         discover_future: bool = True,
     ) -> SyncAuditModel:
         """Execute crawl cycle and persist snapshot and game entities.
@@ -508,6 +648,7 @@ class ACHAHockeyCrawler:
             session: Active SQLAlchemy database session.
             source_code: Unique code for registered DataSource.
             seasons: Optional list of seasons to crawl.
+            subseasons: Optional raw subseasons string or URL list.
             discover_future: Whether to dynamically discover seasons.
 
         Returns:
@@ -527,6 +668,7 @@ class ACHAHockeyCrawler:
         try:
             crawl_result = await self.crawl(
                 seasons=seasons,
+                subseasons=subseasons,
                 discover_future=discover_future,
             )
             created, updated = self._record_snapshot_and_games(
@@ -555,4 +697,7 @@ class ACHAHockeyCrawler:
 __all__ = [
     "DEFAULT_ACHA_SEASON",
     "ACHAHockeyCrawler",
+    "extract_achahockey_season_id_from_url",
+    "normalize_season_label",
+    "parse_achahockey_subseasons",
 ]

@@ -20,6 +20,9 @@ from ecu_hockey_calendar.ingestion.acchockey_parser import (
 from ecu_hockey_calendar.ingestion.achahockey_crawler import (
     DEFAULT_ACHA_SEASON,
     ACHAHockeyCrawler,
+    extract_achahockey_season_id_from_url,
+    normalize_season_label,
+    parse_achahockey_subseasons,
 )
 from ecu_hockey_calendar.ingestion.achahockey_parser import (
     DEFAULT_ACHA_PORTAL_URL,
@@ -209,6 +212,7 @@ __all__ = [
     "cross_check_game_against_opponent",
     "cross_reference_announcements_with_games",
     "cross_reference_tickets_with_games",
+    "extract_achahockey_season_id_from_url",
     "extract_date_from_caption",
     "extract_opponent_from_caption",
     "extract_opponent_from_title",
@@ -224,6 +228,7 @@ __all__ = [
     "get_default_opponent_directory",
     "identify_ticketing_vendor",
     "is_ecu_match",
+    "normalize_season_label",
     "normalize_team_name",
     "parse_acchockey_game_html",
     "parse_acchockey_schedule_html",
@@ -232,6 +237,7 @@ __all__ = [
     "parse_achahockey_schedule_json",
     "parse_achahockey_scores",
     "parse_achahockey_seasons_json",
+    "parse_achahockey_subseasons",
     "parse_firestore_game_document",
     "parse_firestore_ticket_doc",
     "parse_firestore_tickets_response",

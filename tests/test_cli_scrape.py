@@ -234,10 +234,11 @@ def test_scrape_source_filters() -> None:
         "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl",
         new_callable=AsyncMock,
         return_value=([rec], "{}", "hash", "application/json"),
-    ):
+    ) as mock_acha:
         res = runner.invoke(cli, ["scrape", "-s", "achahockey"])
         assert res.exit_code == 0
         assert "ACHA Hockey" in res.output
+        mock_acha.assert_called_once_with(seasons=None)
 
     # instagram / social
     dummy_post = ParsedInstagramPost(
@@ -316,6 +317,82 @@ def test_scrape_subseasons_filter() -> None:
         assert "https://www.acchockey.com/sched/custom" in calls
 
 
+def test_scrape_achahockey_with_season() -> None:
+    """Verify --season limits achahockey crawl to specific season."""
+    runner = CliRunner()
+    rec = _sample_game_record()
+
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl",
+        new_callable=AsyncMock,
+        return_value=([rec], "{}", "hash", "application/json"),
+    ) as mock_crawl:
+        res = runner.invoke(
+            cli,
+            ["scrape", "-s", "achahockey", "--season", "2026-2027"],
+        )
+        assert res.exit_code == 0
+        mock_crawl.assert_called_once_with(seasons=["2026-2027"])
+
+
+def test_scrape_achahockey_with_subseasons() -> None:
+    """Verify --subseasons passes parsed season targets to achahockey crawler."""
+    runner = CliRunner()
+    rec = _sample_game_record()
+
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl",
+        new_callable=AsyncMock,
+        return_value=([rec], "{}", "hash", "application/json"),
+    ) as mock_crawl:
+        res = runner.invoke(
+            cli,
+            ["scrape", "-s", "achahockey", "--subseasons", "73,60"],
+        )
+        assert res.exit_code == 0
+        mock_crawl.assert_called_once_with(seasons=["73", "60"])
+
+
+def test_scrape_achahockey_with_urls_in_subseasons() -> None:
+    """Verify --subseasons extracts URLs for achahockey crawler."""
+    runner = CliRunner()
+    rec = _sample_game_record()
+    url1 = "https://www.achahockey.org/stats/schedule/589/73/all-months"
+
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl",
+        new_callable=AsyncMock,
+        return_value=([rec], "{}", "hash", "application/json"),
+    ) as mock_crawl:
+        res = runner.invoke(
+            cli,
+            ["scrape", "-s", "achahockey", "--subseasons", f"* 26-27 {url1}"],
+        )
+        assert res.exit_code == 0
+        mock_crawl.assert_called_once_with(seasons=[url1])
+
+
+def test_scrape_acchockey_subseasons_ignores_achahockey_urls() -> None:
+    """Verify ACCHL subseason crawl ignores ACHA URLs and short season codes."""
+    runner = CliRunner()
+    rec = _sample_game_record()
+    mixed = "https://www.achahockey.org/stats/schedule/589/73/all-months,26-27,950924"
+
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.ACCHockeyCrawler.crawl",
+        new_callable=AsyncMock,
+        return_value=([rec], "html", "hash", "text/html"),
+    ) as mock_crawl:
+        res = runner.invoke(
+            cli,
+            ["scrape", "-s", "acchockey", "--subseasons", mixed],
+        )
+        assert res.exit_code == 0
+        assert mock_crawl.call_count == 1
+        calls = [c.kwargs.get("url") for c in mock_crawl.call_args_list]
+        assert any("subseason=950924" in url for url in calls if url)
+
+
 def test_scrape_json_output() -> None:
     """Verify --json produces valid parseable JSON without banner or table noise."""
     runner = CliRunner()
@@ -362,6 +439,73 @@ def test_scrape_save_to_database(tmp_path: Path) -> None:
         assert res.exit_code == 0
         assert "Persisted scraped fixtures to database" in res.output
         mock_sync.assert_called_once()
+
+
+def test_scrape_achahockey_save_to_database(tmp_path: Path) -> None:
+    """Verify --save persists achahockey fixtures with seasons=None by default."""
+    db_file = tmp_path / "scrape_acha_save.db"
+    db_url = f"sqlite:///{db_file}"
+    runner = CliRunner()
+    rec = _sample_game_record()
+
+    with (
+        patch(
+            "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl",
+            new_callable=AsyncMock,
+            return_value=([rec], "{}", "hash", "application/json"),
+        ),
+        patch(
+            "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl_and_sync",
+            new_callable=AsyncMock,
+            return_value=None,
+        ) as mock_sync,
+    ):
+        res = runner.invoke(
+            cli,
+            ["scrape", "-s", "achahockey", "--save", "--db-url", db_url],
+        )
+        assert res.exit_code == 0
+        assert "Persisted scraped fixtures to database" in res.output
+        assert mock_sync.call_count == 1
+        assert mock_sync.call_args.kwargs.get("seasons") is None
+
+
+def test_scrape_achahockey_save_with_season(tmp_path: Path) -> None:
+    """Verify --save with --season passes season list to crawl_and_sync."""
+    db_file = tmp_path / "scrape_acha_season.db"
+    db_url = f"sqlite:///{db_file}"
+    runner = CliRunner()
+    rec = _sample_game_record()
+
+    with (
+        patch(
+            "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl",
+            new_callable=AsyncMock,
+            return_value=([rec], "{}", "hash", "application/json"),
+        ),
+        patch(
+            "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl_and_sync",
+            new_callable=AsyncMock,
+            return_value=None,
+        ) as mock_sync,
+    ):
+        res = runner.invoke(
+            cli,
+            [
+                "scrape",
+                "-s",
+                "achahockey",
+                "--season",
+                "2026-2027",
+                "--save",
+                "--db-url",
+                db_url,
+            ],
+        )
+        assert res.exit_code == 0
+        assert "Persisted scraped fixtures to database" in res.output
+        assert mock_sync.call_count == 1
+        assert mock_sync.call_args.kwargs.get("seasons") == ["2026-2027"]
 
 
 def test_scrape_error_handling() -> None:

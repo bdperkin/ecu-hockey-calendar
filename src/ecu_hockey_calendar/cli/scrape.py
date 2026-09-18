@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from dataclasses import asdict, is_dataclass
 from datetime import UTC, datetime
 from enum import Enum
@@ -27,7 +28,10 @@ from ecu_hockey_calendar.cli.console import (
 )
 from ecu_hockey_calendar.cli.sync import _resolve_cli_opponent_directory
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
-from ecu_hockey_calendar.ingestion.achahockey_crawler import ACHAHockeyCrawler
+from ecu_hockey_calendar.ingestion.achahockey_crawler import (
+    ACHAHockeyCrawler,
+    parse_achahockey_subseasons,
+)
 from ecu_hockey_calendar.ingestion.client import ResilientHttpClient
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
@@ -174,22 +178,45 @@ async def _scrape_ecuhockey(
         )
 
 
+def _is_non_acchockey_target(target: str) -> bool:
+    """Check if target string belongs to another source like ACHA."""
+    if "achahockey.org" in target or "hockeytech.com" in target:
+        return True
+
+    return bool(re.match(r"^\d{2}-\d{2}$", target))
+
+
+def _resolve_acchockey_subseason_url(sub_id: str) -> str:
+    """Build ACCHL schedule URL from token or direct URL."""
+    if sub_id.startswith(("http://", "https://")):
+        return sub_id
+
+    return (
+        f"https://www.acchockey.com/schedule/team_instance/10282704?subseason={sub_id}"
+    )
+
+
+def _parse_acchockey_subseason_tokens(subseasons: str) -> list[str]:
+    """Parse and filter valid ACCHL subseason tokens."""
+    tokens = re.split(r"[,;\n\r]+", subseasons)
+    valid: list[str] = []
+    for raw in tokens:
+        clean = re.sub(r"^[*+\-]\s*", "", raw.strip()).strip()
+        if clean and not _is_non_acchockey_target(clean):
+            valid.append(clean)
+
+    return valid
+
+
 async def _crawl_acchockey_subseasons(
     crawler: ACCHockeyCrawler,
     subseasons: str,
 ) -> list[ParsedGameRecord]:
     """Crawl fixtures across explicitly specified ACCHL subseasons."""
-    subseason_list = [s.strip() for s in subseasons.split(",") if s.strip()]
+    subseason_list = _parse_acchockey_subseason_tokens(subseasons)
     all_records: list[ParsedGameRecord] = []
     for sub_id in subseason_list:
-        if sub_id.startswith(("http://", "https://")):
-            target_url = sub_id
-        else:
-            target_url = (
-                "https://www.acchockey.com/schedule/team_instance/"
-                f"10282704?subseason={sub_id}"
-            )
-
+        target_url = _resolve_acchockey_subseason_url(sub_id)
         sub_records, _, _, _ = await crawler.crawl(url=target_url)
         all_records.extend(sub_records)
 
@@ -227,14 +254,20 @@ async def _scrape_acchockey(
 
 async def _scrape_achahockey(
     observer: ScrapeObserver | None = None,
+    subseasons: str | None = None,
     season: str | None = None,
 ) -> ScrapeResult:
     """Execute ACHA Hockey master league crawler with optional season filtering."""
     t0 = datetime.now(UTC)
     crawler = ACHAHockeyCrawler(observer=observer)
     try:
-        seasons = [season] if season else None
-        records, _, _, _ = await crawler.crawl(seasons=seasons)
+        targets: list[str] | None = None
+        if subseasons:
+            targets = parse_achahockey_subseasons(subseasons)
+        elif season:
+            targets = [season]
+
+        records, _, _, _ = await crawler.crawl(seasons=targets)
         dur = (datetime.now(UTC) - t0).total_seconds()
         status = "SUCCESS" if records else "EMPTY"
         return ScrapeResult("achahockey", "ACHA Hockey", status, records, dur)
@@ -344,7 +377,7 @@ async def _execute_primary_scrapes(
     target: str,
     observer: ScrapeObserver | None,
     subseasons: str | None,
-    season: str = "2026-2027",
+    season: str | None = None,
 ) -> list[ScrapeResult]:
     """Execute ECU Hockey, ACC Hockey, and ACHA Hockey schedule crawlers."""
     res: list[ScrapeResult] = []
@@ -355,7 +388,13 @@ async def _execute_primary_scrapes(
         res.append(await _scrape_acchockey(observer=observer, subseasons=subseasons))
 
     if target in {"all", "achahockey"}:
-        res.append(await _scrape_achahockey(observer=observer, season=season))
+        res.append(
+            await _scrape_achahockey(
+                observer=observer,
+                subseasons=subseasons,
+                season=season,
+            ),
+        )
 
     return res
 
@@ -400,7 +439,7 @@ async def _execute_scrapes(
         target,
         observer,
         subseasons,
-        season=season_val,
+        season=season,
     )
     secondary = await _execute_secondary_scrapes(
         target,
@@ -411,7 +450,11 @@ async def _execute_scrapes(
     return primary + secondary
 
 
-def _persist_primary_source(session: Session, res: ScrapeResult) -> bool:
+def _persist_primary_source(
+    session: Session,
+    res: ScrapeResult,
+    season: str | None = None,
+) -> bool:
     """Persist primary league or official schedule fixtures."""
     if res.source_code == "ecuhockey":
         asyncio.run(ECUHockeyCrawler().crawl_and_sync(session))
@@ -422,7 +465,8 @@ def _persist_primary_source(session: Session, res: ScrapeResult) -> bool:
         return True
 
     if res.source_code == "achahockey":
-        asyncio.run(ACHAHockeyCrawler().crawl_and_sync(session))
+        seasons = [season] if season else None
+        asyncio.run(ACHAHockeyCrawler().crawl_and_sync(session, seasons=seasons))
         return True
 
     return False
@@ -432,10 +476,11 @@ def _persist_single_source(
     session: Session,
     res: ScrapeResult,
     season: str,
+    raw_season: str | None = None,
     opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Persist fixtures for a single recognized scraper source."""
-    if _persist_primary_source(session, res):
+    if _persist_primary_source(session, res, season=raw_season):
         return
 
     if res.source_code == "tickets":
@@ -465,6 +510,7 @@ def _persist_scraped_results(
                     session,
                     res,
                     season_val,
+                    raw_season=season,
                     opponent_directory=opponent_directory,
                 )
 
