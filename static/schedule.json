@@ -1,7 +1,7 @@
 {
   "primary_team": "East Carolina University",
   "season": null,
-  "total_games": 137,
+  "total_games": 169,
   "filters": {
     "season": null,
     "opponent": null,
@@ -342,6 +342,66 @@
       "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
+      "game_id": "ecu-home-liberty-m2a-20211113",
+      "season": "2021-2022",
+      "start_time": "2021-11-13T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Liberty M2A",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Liberty M2A",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "TBD",
+      "location": "TBD",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 5,
+      "away_score": 4,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
+      "game_id": "ecu-home-liberty-m2a-20211114",
+      "season": "2021-2022",
+      "start_time": "2021-11-14T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Liberty M2A",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Liberty M2A",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "TBD",
+      "location": "TBD",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 1,
+      "away_score": 4,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-liberty-university-on-11132021-p340fu6rm9p",
       "season": "2021-2022",
       "start_time": "2021-11-14T03:15:00Z",
@@ -399,6 +459,36 @@
       "result": "W",
       "home_score": 1,
       "away_score": 4,
+      "tickets_url": null
+    },
+    {
+      "game_id": "ecu-away-naval-academy-20211120",
+      "season": "2021-2022",
+      "start_time": "2021-11-20T00:00:00Z",
+      "home_team": {
+        "name": "Naval Academy",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Naval Academy",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "Annapolis, MD, USA",
+      "location": "Annapolis, MD, USA",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 2,
+      "away_score": 7,
       "tickets_url": null
     },
     {
@@ -522,6 +612,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-coastal-20220129",
+      "season": "2021-2022",
+      "start_time": "2022-01-29T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Coastal",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Coastal",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "TBD",
+      "location": "TBD",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 3,
+      "away_score": 4,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-costal-carolina-on-01282022-i0ml4lmq54s",
       "season": "2021-2022",
       "start_time": "2022-01-29T03:00:00Z",
@@ -549,6 +669,36 @@
       "result": "W",
       "home_score": 3,
       "away_score": 4,
+      "tickets_url": null
+    },
+    {
+      "game_id": "ecu-away-coastal-20220130",
+      "season": "2021-2022",
+      "start_time": "2022-01-30T00:00:00Z",
+      "home_team": {
+        "name": "Coastal",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Coastal",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "Wilmington, NC, USA",
+      "location": "Wilmington, NC, USA",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 6,
+      "away_score": 1,
       "tickets_url": null
     },
     {
@@ -580,6 +730,36 @@
       "home_score": 1,
       "away_score": 6,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-nc-state-university-20220205",
+      "season": "2021-2022",
+      "start_time": "2022-02-05T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "NC State University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "NC State University",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Wilmington, NC, USA",
+      "location": "Wilmington, NC, USA",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 0,
+      "away_score": 8,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-north-carolina-state-on-02042022-kwqxqrmc",
@@ -945,6 +1125,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-away-elon-university-20220924",
+      "season": "2022-2023",
+      "start_time": "2022-09-24T23:00:00Z",
+      "home_team": {
+        "name": "Elon University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Elon University",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "Hillsborough, NC, USA",
+      "location": "Hillsborough, NC, USA",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": null
+    },
+    {
       "game_id": "game-vs-uncw-on-10012022-l7z5w2ax",
       "season": "2022-2023",
       "start_time": "2022-10-02T02:00:00Z",
@@ -1002,6 +1212,36 @@
       "result": "W",
       "home_score": 0,
       "away_score": 6,
+      "tickets_url": null
+    },
+    {
+      "game_id": "ecu-away-duke-university-20221015",
+      "season": "2022-2023",
+      "start_time": "2022-10-15T23:00:00Z",
+      "home_team": {
+        "name": "Duke University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Duke University",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "Hillsborough, NC, USA",
+      "location": "Hillsborough, NC, USA",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
       "tickets_url": null
     },
     {
@@ -1063,6 +1303,36 @@
       "home_score": 5,
       "away_score": 1,
       "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
+      "game_id": "ecu-away-duke-university-20221022",
+      "season": "2022-2023",
+      "start_time": "2022-10-22T23:00:00Z",
+      "home_team": {
+        "name": "Duke University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Duke University",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "Hillsborough, NC, USA",
+      "location": "Hillsborough, NC, USA",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 1,
+      "away_score": 5,
+      "tickets_url": null
     },
     {
       "game_id": "game-vs-stevenson-on-10282022-l7z5z7wj",
@@ -1155,6 +1425,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-georgetown-university-20221104",
+      "season": "2022-2023",
+      "start_time": "2022-11-04T23:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Georgetown University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Georgetown University",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Springfield, VA, USA - The Saint James",
+      "location": "Springfield, VA, USA - The Saint James",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 4,
+      "away_score": 2,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-west-virginia-universtiy-on-11052022-l8ying52",
       "season": "2022-2023",
       "start_time": "2022-11-05T15:45:00Z",
@@ -1185,6 +1485,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-west-virginia-m2-20221105",
+      "season": "2022-2023",
+      "start_time": "2022-11-05T23:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "West Virginia M2",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "West Virginia M2",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Arlington, VA, USA",
+      "location": "Arlington, VA, USA",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 4,
+      "away_score": 3,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-tampa-on-11062022-l8yio5kg",
       "season": "2022-2023",
       "start_time": "2022-11-06T14:15:00Z",
@@ -1213,6 +1543,36 @@
       "home_score": 3,
       "away_score": 4,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-denison-20221107",
+      "season": "2022-2023",
+      "start_time": "2022-11-07T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Denison",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Denison",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Arlington, VA, USA",
+      "location": "Arlington, VA, USA",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 3,
+      "away_score": 4,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-high-point-on-11122022-l8yiphst",
@@ -1587,6 +1947,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-2-20230923",
+      "season": "2023-2024",
+      "start_time": "2023-09-23T23:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "2",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "2",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Charlotte",
+      "location": "Charlotte",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-charlotte-on-09232023-lmo2u9j9",
       "season": "2023-2024",
       "start_time": "2023-09-24T00:30:00Z",
@@ -1737,6 +2127,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-7-20231020",
+      "season": "2023-2024",
+      "start_time": "2023-10-20T23:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "7",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "7",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Duke",
+      "location": "Duke",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-duke-on-10202023-lmo2y6jm",
       "season": "2023-2024",
       "start_time": "2023-10-21T02:15:00Z",
@@ -1765,6 +2185,36 @@
       "home_score": 7,
       "away_score": 4,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-5-20231021",
+      "season": "2023-2024",
+      "start_time": "2023-10-21T23:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "5",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "5",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Elon",
+      "location": "Elon",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-elon-on-10212023-lmo2zxiw",
@@ -1887,6 +2337,66 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-3-20231103",
+      "season": "2023-2024",
+      "start_time": "2023-11-03T23:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "3",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "3",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "St Joseph's",
+      "location": "St Joseph's",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
+      "game_id": "ecu-home-6-20231104",
+      "season": "2023-2024",
+      "start_time": "2023-11-04T23:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "6",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "6",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "East Carolina",
+      "location": "East Carolina",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-charlotte-on-11042023-lncamkln",
       "season": "2023-2024",
       "start_time": "2023-11-05T03:30:00Z",
@@ -1947,6 +2457,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-4-20231106",
+      "season": "2023-2024",
+      "start_time": "2023-11-06T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "4",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "4",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Duke",
+      "location": "Duke",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-west-virginia-universtiy-on-11102023-lmo354ds",
       "season": "2023-2024",
       "start_time": "2023-11-10T23:45:00Z",
@@ -1977,6 +2517,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-2-20231111",
+      "season": "2023-2024",
+      "start_time": "2023-11-11T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "2",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "2",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "West Virginia M2",
+      "location": "West Virginia M2",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-west-virginia-universtiy-on-11112023-lmo35pyx",
       "season": "2023-2024",
       "start_time": "2023-11-11T23:45:00Z",
@@ -2005,6 +2575,36 @@
       "home_score": null,
       "away_score": null,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-7-20240113",
+      "season": "2023-2024",
+      "start_time": "2024-01-13T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "7",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "7",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Elon",
+      "location": "Elon",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-elon-on-01122024-lrazkz3b",
@@ -2130,6 +2730,66 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-6-20240127",
+      "season": "2023-2024",
+      "start_time": "2024-01-27T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "6",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "6",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Wake Forest M2",
+      "location": "Wake Forest M2",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
+      "game_id": "ecu-home-5-20240204",
+      "season": "2023-2024",
+      "start_time": "2024-02-04T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "5",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "5",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Elon",
+      "location": "Elon",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-elon-on-01122024-lrazq9o2",
       "season": "2023-2024",
       "start_time": "2024-02-04T02:15:00Z",
@@ -2155,6 +2815,36 @@
       "coordinates": null,
       "status": "Cancelled",
       "result": "CANCELLED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
+      "game_id": "ecu-home-3-20240211",
+      "season": "2023-2024",
+      "start_time": "2024-02-11T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "3",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "3",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Wake Forest M2",
+      "location": "Wake Forest M2",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
       "home_score": null,
       "away_score": null,
       "tickets_url": "https://www.ecuhockey.com/tickets"
@@ -2460,6 +3150,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-away-saint-joseph-s-university-20241101",
+      "season": "2024-2025",
+      "start_time": "2024-11-01T23:00:00Z",
+      "home_team": {
+        "name": "Saint Joseph's University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Saint Joseph's University",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "Springfield, VA, USA",
+      "location": "Springfield, VA, USA",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 5,
+      "away_score": 2,
+      "tickets_url": null
+    },
+    {
       "game_id": "game-vs-tbd-on-11022024-lyiy0ax4",
       "season": "2024-2025",
       "start_time": "2024-11-02T14:30:00Z",
@@ -2518,6 +3238,36 @@
       "home_score": 4,
       "away_score": 5,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-denison-20241104",
+      "season": "2024-2025",
+      "start_time": "2024-11-04T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Denison",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Denison",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Springfield, VA, USA",
+      "location": "Springfield, VA, USA",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 4,
+      "away_score": 5,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-uva-on-11112024-lyiwhvn6",
@@ -3306,6 +4056,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-appalachian-state-university-20251024",
+      "season": "2025-2026",
+      "start_time": "2025-10-24T23:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Appalachian State University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Appalachian State University",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Fayetteville, NC, USA",
+      "location": "Fayetteville, NC, USA",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 6,
+      "away_score": 4,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-appalachian-state-on-10242025-memu9g3k",
       "season": "2025-2026",
       "start_time": "2025-10-25T22:30:00Z",
@@ -3334,6 +4114,36 @@
       "home_score": 6,
       "away_score": 4,
       "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
+      "game_id": "ecu-away-appalachian-state-university-20251025",
+      "season": "2025-2026",
+      "start_time": "2025-10-25T23:00:00Z",
+      "home_team": {
+        "name": "Appalachian State University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Appalachian State University",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "Fayetteville, NC, USA",
+      "location": "Fayetteville, NC, USA",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 7,
+      "away_score": 4,
+      "tickets_url": null
     },
     {
       "game_id": "game-vs-appalachian-state-on-10252025-memuafxd",
@@ -3426,6 +4236,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-georgetown-university-20251115",
+      "season": "2025-2026",
+      "start_time": "2025-11-15T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Georgetown University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Georgetown University",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Springfield, VA, USA - The Saint James",
+      "location": "Springfield, VA, USA - The Saint James",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 5,
+      "away_score": 1,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-tbd-on-11152025-memucmlv",
       "season": "2025-2026",
       "start_time": "2025-11-15T13:15:00Z",
@@ -3453,6 +4293,36 @@
       "result": "W",
       "home_score": 0,
       "away_score": 8,
+      "tickets_url": null
+    },
+    {
+      "game_id": "ecu-away-saint-joseph-s-university-20251116",
+      "season": "2025-2026",
+      "start_time": "2025-11-16T00:00:00Z",
+      "home_team": {
+        "name": "Saint Joseph's University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Saint Joseph's University",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "Springfield, VA, USA - The Saint James",
+      "location": "Springfield, VA, USA - The Saint James",
+      "coordinates": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 8,
+      "away_score": 0,
       "tickets_url": null
     },
     {
@@ -3486,6 +4356,36 @@
       "tickets_url": null
     },
     {
+      "game_id": "ecu-home-georgia-tech-20251121",
+      "season": "2025-2026",
+      "start_time": "2025-11-21T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Georgia Tech",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Georgia Tech",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Fayetteville, NC, USA",
+      "location": "Fayetteville, NC, USA",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 3,
+      "away_score": 2,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
+    },
+    {
       "game_id": "game-vs-georgia-tech-on-11202025-memuks0e",
       "season": "2025-2026",
       "start_time": "2025-11-21T00:30:00Z",
@@ -3514,6 +4414,36 @@
       "home_score": 3,
       "away_score": 2,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-georgia-tech-20251122",
+      "season": "2025-2026",
+      "start_time": "2025-11-22T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Georgia Tech",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Georgia Tech",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Fayetteville, NC, USA",
+      "location": "Fayetteville, NC, USA",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 3,
+      "away_score": 2,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-wake-forest-university-on-01102026-mk3el4qc",
@@ -3634,6 +4564,36 @@
       "home_score": 3,
       "away_score": 0,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-unc-charlotte-20260124",
+      "season": "2025-2026",
+      "start_time": "2026-01-24T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "UNC Charlotte",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "UNC Charlotte",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Greenville, NC, USA",
+      "location": "Greenville, NC, USA",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 3,
+      "away_score": 0,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-elon-on-01242026-mk3eqlfs",
