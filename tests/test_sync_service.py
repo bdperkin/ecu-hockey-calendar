@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """Unit and integration tests for ecu_hockey_calendar.sync_service."""
 
 from __future__ import annotations
@@ -45,6 +46,7 @@ from ecu_hockey_calendar.sync_service import (
     _persist_sync_results,
     _resolve_data_source_type,
     _run_acchockey_crawler,
+    _run_achahockey_crawler,
     _run_ecuhockey_crawler,
     _run_instagram_crawler,
     _run_opponent_crawler,
@@ -147,6 +149,18 @@ async def test_run_crawlers_success() -> None:
         assert dur_acc >= 0.0
         assert recs_acc[0].source_code == "acchockey"
 
+    with patch(
+        "ecu_hockey_calendar.sync_service.ACHAHockeyCrawler.crawl",
+        new_callable=AsyncMock,
+        return_value=([mock_record], '{"data": []}', "h3", "application/json"),
+    ) as mock_acha_crawl:
+        recs_acha, status_acha, dur_acha = await _run_achahockey_crawler()
+        mock_acha_crawl.assert_called_once_with()
+        assert len(recs_acha) == 1
+        assert status_acha == "SUCCESS"
+        assert dur_acha >= 0.0
+        assert recs_acha[0].source_code == "achahockey"
+
 
 @pytest.mark.anyio
 async def test_execute_crawlers_filtering_and_resilience() -> None:
@@ -180,6 +194,17 @@ async def test_execute_crawlers_filtering_and_resilience() -> None:
         assert len(recs) == 1
         assert len(telemetry) == 1
         assert telemetry[0]["source"] == "acchockey"
+
+    # Filter: achahockey only
+    with patch(
+        "ecu_hockey_calendar.sync_service._run_achahockey_crawler",
+        new_callable=AsyncMock,
+        return_value=([mock_src], "SUCCESS", 0.1),
+    ):
+        recs, telemetry = await _execute_crawlers("achahockey")
+        assert len(recs) == 1
+        assert len(telemetry) == 1
+        assert telemetry[0]["source"] == "achahockey"
 
     # Filter: instagram only
     with patch(
@@ -235,6 +260,11 @@ async def test_execute_crawlers_filtering_and_resilience() -> None:
             side_effect=RuntimeError("ACC failure"),
         ),
         patch(
+            "ecu_hockey_calendar.sync_service._run_achahockey_crawler",
+            new_callable=AsyncMock,
+            side_effect=RuntimeError("ACHA failure"),
+        ),
+        patch(
             "ecu_hockey_calendar.sync_service._run_instagram_crawler",
             new_callable=AsyncMock,
             side_effect=RuntimeError("Instagram failure"),
@@ -242,10 +272,11 @@ async def test_execute_crawlers_filtering_and_resilience() -> None:
     ):
         recs, telemetry = await _execute_crawlers("all")
         assert len(recs) == 0
-        assert len(telemetry) == 3
+        assert len(telemetry) == 4
         assert "FAILED: ECU failure" in telemetry[0]["status"]
         assert "FAILED: ACC failure" in telemetry[1]["status"]
-        assert "FAILED: Instagram failure" in telemetry[2]["status"]
+        assert "FAILED: ACHA failure" in telemetry[2]["status"]
+        assert "FAILED: Instagram failure" in telemetry[3]["status"]
 
     # Failure resilience in opponent crawler
     with patch(
@@ -364,6 +395,7 @@ def test_resolve_data_source_type() -> None:
     """Test _resolve_data_source_type mapping helper."""
     assert _resolve_data_source_type("ecuhockey") == DataSourceType.PRIMARY_SOT
     assert _resolve_data_source_type("acchockey") == DataSourceType.LEAGUE
+    assert _resolve_data_source_type("achahockey") == DataSourceType.LEAGUE
     assert _resolve_data_source_type("instagram") == DataSourceType.SOCIAL
     assert _resolve_data_source_type("social") == DataSourceType.SOCIAL
     assert _resolve_data_source_type("opponent") == DataSourceType.OPPONENT
@@ -522,6 +554,14 @@ def test_ensure_data_source(sqlite_engine: Any) -> None:
             DataSourceType.LEAGUE,
         )
         assert ds2.source_url == "https://www.acchockey.com"
+
+        ds3 = _ensure_data_source(
+            session,
+            "achahockey",
+            "ACHA Hockey",
+            DataSourceType.LEAGUE,
+        )
+        assert ds3.source_url == "https://www.achahockey.org"
 
         # Update existing
         ds1_updated = _ensure_data_source(

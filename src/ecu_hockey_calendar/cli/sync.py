@@ -34,6 +34,7 @@ from ecu_hockey_calendar.cli.status import (
     _render_system_panel,
 )
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
+from ecu_hockey_calendar.ingestion.achahockey_crawler import ACHAHockeyCrawler
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
 from ecu_hockey_calendar.ingestion.opponent_config import (
@@ -74,6 +75,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "ACCHockeyCrawler",
+    "ACHAHockeyCrawler",
     "Base",
     "ECUHockeyCrawler",
     "InstagramCrawler",
@@ -569,7 +571,15 @@ def _run_sync_status(
     "-s",
     "source_code",
     type=click.Choice(
-        ["all", "ecuhockey", "acchockey", "instagram", "opponent", "social"],
+        [
+            "all",
+            "ecuhockey",
+            "acchockey",
+            "achahockey",
+            "instagram",
+            "opponent",
+            "social",
+        ],
         case_sensitive=False,
     ),
     default="all",
@@ -690,7 +700,15 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     "-s",
     "source_code",
     type=click.Choice(
-        ["all", "ecuhockey", "acchockey", "instagram", "opponent", "social"],
+        [
+            "all",
+            "ecuhockey",
+            "acchockey",
+            "achahockey",
+            "instagram",
+            "opponent",
+            "social",
+        ],
         case_sensitive=False,
     ),
     default="all",

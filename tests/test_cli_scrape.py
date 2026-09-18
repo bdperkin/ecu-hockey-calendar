@@ -229,6 +229,16 @@ def test_scrape_source_filters() -> None:
         assert res.exit_code == 0
         assert "ACC Hockey League" in res.output
 
+    # achahockey
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl",
+        new_callable=AsyncMock,
+        return_value=([rec], "{}", "hash", "application/json"),
+    ):
+        res = runner.invoke(cli, ["scrape", "-s", "achahockey"])
+        assert res.exit_code == 0
+        assert "ACHA Hockey" in res.output
+
     # instagram / social
     dummy_post = ParsedInstagramPost(
         post_id="p1",
@@ -408,6 +418,13 @@ def test_persist_scraped_results_all_sources(tmp_path: Path) -> None:
             [_sample_game_record("g2")],
             1.0,
         ),
+        ScrapeResult(
+            "achahockey",
+            "ACHA Hockey",
+            "SUCCESS",
+            [_sample_game_record("g3")],
+            1.0,
+        ),
         ScrapeResult("tickets", "Tickets", "SUCCESS", [1], 1.0),
         ScrapeResult("instagram", "Instagram", "SUCCESS", [1], 1.0),
         ScrapeResult("opponent", "Opponent", "SUCCESS", [1], 1.0),
@@ -425,6 +442,10 @@ def test_persist_scraped_results_all_sources(tmp_path: Path) -> None:
             new_callable=AsyncMock,
         ) as m_acc,
         patch(
+            "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl_and_sync",
+            new_callable=AsyncMock,
+        ) as m_acha,
+        patch(
             "ecu_hockey_calendar.cli.scrape.TicketsCrawler.crawl_and_sync",
             new_callable=AsyncMock,
         ) as m_tix,
@@ -440,6 +461,7 @@ def test_persist_scraped_results_all_sources(tmp_path: Path) -> None:
         _persist_scraped_results(engine, results, season="2026-2027")
         assert m_ecu.call_count == 1
         assert m_acc.call_count == 1
+        assert m_acha.call_count == 1
         assert m_tix.call_count == 1
         assert m_ig.call_count == 1
         assert m_opp.call_count == 1
@@ -458,6 +480,16 @@ def test_scrape_source_exception_branches() -> None:
         assert res.exit_code == 0
         assert "ERROR" in res.output
         assert "ACCHL network error" in res.output
+
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.ACHAHockeyCrawler.crawl",
+        new_callable=AsyncMock,
+        side_effect=RuntimeError("ACHA network error"),
+    ):
+        res = runner.invoke(cli, ["scrape", "-s", "achahockey"])
+        assert res.exit_code == 0
+        assert "ERROR" in res.output
+        assert "ACHA network error" in res.output
 
     with patch(
         "ecu_hockey_calendar.cli.scrape.InstagramCrawler.fetch_posts",

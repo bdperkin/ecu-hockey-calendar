@@ -27,6 +27,7 @@ from ecu_hockey_calendar.cli.console import (
 )
 from ecu_hockey_calendar.cli.sync import _resolve_cli_opponent_directory
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
+from ecu_hockey_calendar.ingestion.achahockey_crawler import ACHAHockeyCrawler
 from ecu_hockey_calendar.ingestion.client import ResilientHttpClient
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
@@ -224,6 +225,31 @@ async def _scrape_acchockey(
         )
 
 
+async def _scrape_achahockey(
+    observer: ScrapeObserver | None = None,
+    season: str | None = None,
+) -> ScrapeResult:
+    """Execute ACHA Hockey master league crawler with optional season filtering."""
+    t0 = datetime.now(UTC)
+    crawler = ACHAHockeyCrawler(observer=observer)
+    try:
+        seasons = [season] if season else None
+        records, _, _, _ = await crawler.crawl(seasons=seasons)
+        dur = (datetime.now(UTC) - t0).total_seconds()
+        status = "SUCCESS" if records else "EMPTY"
+        return ScrapeResult("achahockey", "ACHA Hockey", status, records, dur)
+    except Exception as exc:  # pylint: disable=broad-except # noqa: BLE001
+        dur = (datetime.now(UTC) - t0).total_seconds()
+        return ScrapeResult(
+            "achahockey",
+            "ACHA Hockey",
+            "ERROR",
+            [],
+            dur,
+            error_message=str(exc),
+        )
+
+
 async def _scrape_instagram(
     observer: ScrapeObserver | None = None,
     season: str = "2026-2027",
@@ -318,14 +344,18 @@ async def _execute_primary_scrapes(
     target: str,
     observer: ScrapeObserver | None,
     subseasons: str | None,
+    season: str = "2026-2027",
 ) -> list[ScrapeResult]:
-    """Execute ECU Hockey and ACC Hockey schedule crawlers."""
+    """Execute ECU Hockey, ACC Hockey, and ACHA Hockey schedule crawlers."""
     res: list[ScrapeResult] = []
     if target in {"all", "ecuhockey"}:
         res.append(await _scrape_ecuhockey(observer=observer))
 
     if target in {"all", "acchockey"}:
         res.append(await _scrape_acchockey(observer=observer, subseasons=subseasons))
+
+    if target in {"all", "achahockey"}:
+        res.append(await _scrape_achahockey(observer=observer, season=season))
 
     return res
 
@@ -366,7 +396,12 @@ async def _execute_scrapes(
     """Execute target scrapers according to source code filter."""
     target = source_code.lower()
     season_val = season or "2026-2027"
-    primary = await _execute_primary_scrapes(target, observer, subseasons)
+    primary = await _execute_primary_scrapes(
+        target,
+        observer,
+        subseasons,
+        season=season_val,
+    )
     secondary = await _execute_secondary_scrapes(
         target,
         observer,
@@ -384,6 +419,10 @@ def _persist_primary_source(session: Session, res: ScrapeResult) -> bool:
 
     if res.source_code == "acchockey":
         asyncio.run(ACCHockeyCrawler().crawl_and_sync(session))
+        return True
+
+    if res.source_code == "achahockey":
+        asyncio.run(ACHAHockeyCrawler().crawl_and_sync(session))
         return True
 
     return False
@@ -632,7 +671,16 @@ def _resolve_scrape_cli_flags(
     "-s",
     "source_code",
     type=click.Choice(
-        ["all", "ecuhockey", "acchockey", "instagram", "opponent", "tickets", "social"],
+        [
+            "all",
+            "ecuhockey",
+            "acchockey",
+            "achahockey",
+            "instagram",
+            "opponent",
+            "tickets",
+            "social",
+        ],
         case_sensitive=False,
     ),
     default="all",

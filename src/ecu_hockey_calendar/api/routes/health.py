@@ -45,6 +45,13 @@ DEFAULT_SCRAPERS: list[dict[str, Any]] = [
         "last_scraped_at": None,
     },
     {
+        "source_code": "achahockey",
+        "name": "ACHA Master League Portal",
+        "source_type": "league",
+        "is_active": True,
+        "last_scraped_at": None,
+    },
+    {
         "source_code": "tickets",
         "name": "ECU Hockey Etix Ticket Portal",
         "source_type": "tickets",
