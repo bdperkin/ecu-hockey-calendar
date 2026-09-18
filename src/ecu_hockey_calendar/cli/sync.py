@@ -37,6 +37,10 @@ from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
 from ecu_hockey_calendar.ingestion.opponent_crawler import OpponentCrawler
+from ecu_hockey_calendar.ingestion.telemetry import (
+    ConsoleScrapeObserver,
+    ScrapeObserver,
+)
 from ecu_hockey_calendar.notifications.dispatcher import NotificationDispatcher
 from ecu_hockey_calendar.storage.base import Base
 from ecu_hockey_calendar.storage.engine import (
@@ -53,6 +57,7 @@ from ecu_hockey_calendar.sync_service import (
 )
 
 if TYPE_CHECKING:
+    from rich.console import Console
     from sqlalchemy.engine import Engine
 
     from ecu_hockey_calendar.reconciliation.models import (
@@ -157,6 +162,7 @@ def _execute_sync_pipeline(
     notify_individual: bool = False,
     season: str | None,
     verify_opponents: bool = False,
+    observer: ScrapeObserver | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous core pipeline orchestrating crawl, reconciliation, and storage."""
     return execute_sync_pipeline(
@@ -171,6 +177,7 @@ def _execute_sync_pipeline(
         session_factory=get_sync_session,
         dispatcher_cls=NotificationDispatcher,
         verify_opponents=verify_opponents,
+        observer=observer,
     )
 
 
@@ -292,6 +299,76 @@ def _populate_ctx_params(
         ctx.obj["db_url"] = db_url
 
 
+def _resolve_sync_cli_flags(
+    ctx: click.Context | None,
+    verbose: bool,
+    debug: bool,
+) -> tuple[bool, bool]:
+    """Extract and combine verbose and debug flags from CLI and context."""
+    obj = ctx.obj if ctx and isinstance(ctx.obj, dict) else {}
+    return verbose or bool(obj.get("verbose")), debug or bool(obj.get("debug"))
+
+
+def _print_sync_banner(
+    console: Console,
+    dry_run: bool,
+    source_code: str,
+    db_url_resolved: str,
+) -> None:
+    """Print synchronization execution banner and run mode."""
+    mode_str = (
+        "[bold yellow]DRY RUN[/bold yellow]"
+        if dry_run
+        else "[bold green]LIVE[/bold green]"
+    )
+    console.print(
+        f"Mode: {mode_str} | "
+        f"Source: [bold cyan]{source_code}[/bold cyan] | "
+        f"Target DB: [dim]{db_url_resolved}[/dim]\n",
+    )
+
+
+def _run_sync_pipeline_with_progress(  # noqa: PLR0913 # pylint: disable=too-many-arguments
+    *,
+    engine: Engine,
+    source_code: str,
+    dry_run: bool,
+    notify: bool,
+    notify_individual: bool,
+    season: str | None,
+    verify_opponents: bool,
+    observer: ScrapeObserver | None,
+    console: Console,
+) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
+    """Execute sync pipeline with spinner or live observer telemetry."""
+    if observer is not None:
+        return _execute_sync_pipeline(
+            engine=engine,
+            source_filter=source_code.lower(),
+            dry_run=dry_run,
+            notify=notify,
+            notify_individual=notify_individual,
+            season=season,
+            verify_opponents=verify_opponents,
+            observer=observer,
+        )
+
+    with console.status(
+        ("[bold #fec923]Crawling sources and reconciling fixtures...[/bold #fec923]"),
+        spinner="dots",
+    ):
+        return _execute_sync_pipeline(
+            engine=engine,
+            source_filter=source_code.lower(),
+            dry_run=dry_run,
+            notify=notify,
+            notify_individual=notify_individual,
+            season=season,
+            verify_opponents=verify_opponents,
+            observer=None,
+        )
+
+
 def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many-locals
     ctx: click.Context | None,
     *,
@@ -304,51 +381,44 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
     api_url: str | None = None,
     token: str | None = None,
     verify_opponents: bool = False,
+    verbose: bool = False,
+    debug: bool = False,
 ) -> None:
     """Execute schedule crawl, reconciliation, and diffing pipeline."""
     console = get_console()
     print_banner("SCHEDULE SYNCHRONIZATION & RECONCILIATION")
 
+    is_verbose, is_debug = _resolve_sync_cli_flags(ctx, verbose, debug)
     api_url, token = _resolve_remote_credentials(ctx, api_url, token)
     if api_url:
-        _execute_remote_sync(
-            api_url=api_url,
-            token=token,
-            source_code=source_code,
-        )
+        _execute_remote_sync(api_url=api_url, token=token, source_code=source_code)
         return
 
     db_url_resolved = get_sync_database_url(db_url)
     engine = create_sync_engine(db_url_resolved)
+    _print_sync_banner(console, dry_run, source_code, db_url_resolved)
 
-    mode_str = (
-        "[bold yellow]DRY RUN[/bold yellow]"
-        if dry_run
-        else "[bold green]LIVE[/bold green]"
-    )
-    console.print(
-        f"Mode: {mode_str} | "
-        f"Source: [bold cyan]{source_code}[/bold cyan] | "
-        f"Target DB: [dim]{db_url_resolved}[/dim]\n",
+    observer = (
+        ConsoleScrapeObserver(console=console, verbose=is_verbose, debug=is_debug)
+        if (is_verbose or is_debug)
+        else None
     )
 
-    with console.status(
-        "[bold #fec923]Crawling sources and reconciling fixtures...[/bold #fec923]",
-        spinner="dots",
-    ):
-        try:
-            telemetry, change_result, conflicts = _execute_sync_pipeline(
-                engine=engine,
-                source_filter=source_code.lower(),
-                dry_run=dry_run,
-                notify=notify,
-                notify_individual=notify_individual,
-                season=season,
-                verify_opponents=verify_opponents,
-            )
-        except Exception as exc:
-            print_error(f"Synchronization pipeline encountered a fatal error: {exc}")
-            raise click.ClickException(str(exc)) from exc
+    try:
+        telemetry, change_result, conflicts = _run_sync_pipeline_with_progress(
+            engine=engine,
+            source_code=source_code,
+            dry_run=dry_run,
+            notify=notify,
+            notify_individual=notify_individual,
+            season=season,
+            verify_opponents=verify_opponents,
+            observer=observer,
+            console=console,
+        )
+    except Exception as exc:
+        print_error(f"Synchronization pipeline encountered a fatal error: {exc}")
+        raise click.ClickException(str(exc)) from exc
 
     _render_sync_results(
         telemetry,
@@ -521,6 +591,19 @@ def _run_sync_status(
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
 )
+@click.option(
+    "--verbose",
+    "-v",
+    is_flag=True,
+    default=False,
+    help="Display URLs being scraped and extraction telemetry.",
+)
+@click.option(
+    "--debug",
+    is_flag=True,
+    default=False,
+    help="Display all HTTP wire requests, responses, headers, and body snippets.",
+)
 @click.pass_context
 def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many-locals
     ctx: click.Context,
@@ -534,6 +617,8 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     season: str | None = None,
     api_url: str | None = None,
     token: str | None = None,
+    verbose: bool = False,
+    debug: bool = False,
 ) -> None:
     """Ingest upstream schedules, reconcile conflicts, and detect changes."""
     _populate_ctx_params(ctx, api_url, token, db_url)
@@ -551,6 +636,8 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
         api_url=api_url,
         token=token,
         verify_opponents=verify_opponents,
+        verbose=verbose,
+        debug=debug,
     )
 
 
@@ -615,6 +702,19 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
 )
+@click.option(
+    "--verbose",
+    "-v",
+    is_flag=True,
+    default=False,
+    help="Display URLs being scraped and extraction telemetry.",
+)
+@click.option(
+    "--debug",
+    is_flag=True,
+    default=False,
+    help="Display all HTTP wire requests, responses, headers, and body snippets.",
+)
 @click.pass_context
 def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many-locals
     ctx: click.Context | None,
@@ -628,6 +728,8 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
     season: str | None = None,
     api_url: str | None = None,
     token: str | None = None,
+    verbose: bool = False,
+    debug: bool = False,
 ) -> None:
     """Trigger schedule crawl, reconciliation, and change detection pipeline."""
     _run_sync_trigger(
@@ -641,6 +743,8 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
         api_url=api_url,
         token=token,
         verify_opponents=verify_opponents,
+        verbose=verbose,
+        debug=debug,
     )
 
 

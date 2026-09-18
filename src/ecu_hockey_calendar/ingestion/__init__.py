@@ -98,6 +98,13 @@ from ecu_hockey_calendar.ingestion.opponent_parser import (
     parse_opponent_ical_feed,
     parse_opponent_json_feed,
 )
+from ecu_hockey_calendar.ingestion.telemetry import (
+    ConsoleScrapeObserver,
+    HttpWireEvent,
+    NullScrapeObserver,
+    ScrapeEvent,
+    ScrapeObserver,
+)
 from ecu_hockey_calendar.ingestion.tickets_crawler import (
     DEFAULT_TICKETS_PAGE_URL,
     TicketsCrawler,
@@ -145,10 +152,13 @@ __all__ = [
     "ACCHockeyCrawler",
     "AnnouncementType",
     "CacheEntry",
+    "ConsoleScrapeObserver",
     "Discrepancy",
     "DiscrepancyType",
     "ECUHockeyCrawler",
+    "HttpWireEvent",
     "InstagramCrawler",
+    "NullScrapeObserver",
     "OpponentCrawler",
     "OpponentDirectory",
     "OpponentEndpointConfig",
@@ -160,6 +170,8 @@ __all__ = [
     "RateLimiter",
     "ResilientHttpClient",
     "ReverseCheckResult",
+    "ScrapeEvent",
+    "ScrapeObserver",
     "SessionCache",
     "TicketPriceTier",
     "TicketsCrawler",

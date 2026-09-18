@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from sqlalchemy import create_engine, select
@@ -451,3 +451,27 @@ async def test_crawl_and_sync_failure(db_session: Session) -> None:
     assert audit is not None
     assert audit.status == SyncStatus.FAILURE.value
     assert "Simulated network drop" in str(audit.error_message)
+
+
+def test_crawler_observer_integration() -> None:
+    """Verify observer attachment and scrape telemetry notification."""
+    mock_observer = MagicMock()
+    client = ResilientHttpClient()
+    assert client.observer is None
+
+    crawler = ACCHockeyCrawler(client=client, observer=mock_observer)
+    assert crawler.client.observer is mock_observer
+
+    crawler._notify_scrape(
+        "https://test.example.com",
+        records_found=3,
+        sublinks_found=1,
+        details="Test details",
+    )
+    mock_observer.on_scrape.assert_called_once()
+    event = mock_observer.on_scrape.call_args[0][0]
+    assert event.url == "https://test.example.com"
+    assert event.records_found == 3
+    assert event.sublinks_found == 1
+    assert event.details == "Test details"
+    assert event.source_code == "acchockey"

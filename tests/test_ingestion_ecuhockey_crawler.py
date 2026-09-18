@@ -1,10 +1,13 @@
 """Tests for ECUHockeyCrawler and Firestore document parsing."""
 
+# pylint: disable=protected-access
+
 from __future__ import annotations
 
 import asyncio
 from datetime import UTC, datetime
 from typing import Any
+from unittest.mock import MagicMock
 
 import httpx
 import pytest
@@ -556,3 +559,27 @@ def test_crawl_and_sync_error_handling(sync_memory_engine) -> None:
                 assert "500" in audit.error_message
 
     asyncio.run(_run())
+
+
+def test_crawler_observer_integration() -> None:
+    """Verify observer attachment and scrape telemetry notification."""
+    mock_observer = MagicMock()
+    client = ResilientHttpClient()
+    assert client.observer is None
+
+    crawler = ECUHockeyCrawler(client=client, observer=mock_observer)
+    assert crawler.client.observer is mock_observer
+
+    crawler._notify_scrape(
+        "https://test.example.com",
+        records_found=5,
+        sublinks_found=0,
+        details="API response",
+    )
+    mock_observer.on_scrape.assert_called_once()
+    event = mock_observer.on_scrape.call_args[0][0]
+    assert event.url == "https://test.example.com"
+    assert event.records_found == 5
+    assert event.sublinks_found == 0
+    assert event.details == "API response"
+    assert event.source_code == "ecuhockey"

@@ -237,6 +237,13 @@ class TestCliRoot:
             runpy.run_module("ecu_hockey_calendar.cli.__main__", run_name="__main__")
             mock_exit.assert_called_once_with(0)
 
+    def test_cli_verbose_and_debug_flags(self, runner: CliRunner) -> None:
+        """Verify root CLI passes -v and --debug into context object."""
+        result_v = runner.invoke(cli, ["-v", "--help"])
+        assert result_v.exit_code == 0
+        result_d = runner.invoke(cli, ["--debug", "--help"])
+        assert result_d.exit_code == 0
+
 
 class TestStatusCommand:
     """Tests for 'ecu-hockey status' command."""
@@ -1707,3 +1714,35 @@ class TestSyncCommand:
         url, tok = _resolve_remote_credentials(None, "https://api", "tok")
         assert url == "https://api"
         assert tok == "tok"
+
+    def test_sync_verbose_and_debug_flags(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify sync and sync trigger accept -v and --debug flags with observers."""
+        mock_rec = ParsedGameRecord(
+            game_id="game-v-1",
+            opponent_name="Richmond",
+            is_home=True,
+            start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+            venue="The Factory",
+        )
+        with patch(
+            "ecu_hockey_calendar.cli.sync.ECUHockeyCrawler.crawl",
+            new_callable=AsyncMock,
+            return_value=([mock_rec], "<html></html>", "hash1", "text/html"),
+        ):
+            res_v = runner.invoke(
+                sync_command,
+                ["-v", "--dry-run", "--source", "ecuhockey", "--db-url", db_url],
+            )
+            assert res_v.exit_code == 0
+            assert "DRY RUN" in res_v.output
+
+            res_d = runner.invoke(
+                sync_trigger_command,
+                ["--debug", "--dry-run", "--source", "ecuhockey", "--db-url", db_url],
+            )
+            assert res_d.exit_code == 0
+            assert "DRY RUN" in res_d.output

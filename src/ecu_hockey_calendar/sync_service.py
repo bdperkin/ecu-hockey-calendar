@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy import select
 
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
+from ecu_hockey_calendar.ingestion.client import ResilientHttpClient
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
 from ecu_hockey_calendar.ingestion.opponent_crawler import OpponentCrawler
@@ -63,6 +64,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
     from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
+    from ecu_hockey_calendar.ingestion.telemetry import ScrapeObserver
     from ecu_hockey_calendar.models import GameResult
 
 logger = logging.getLogger(__name__)
@@ -125,14 +127,19 @@ def _convert_parsed_to_source_record(
     )
 
 
-async def _run_ecuhockey_crawler() -> tuple[list[SourceGameRecord], str, float]:
+async def _run_ecuhockey_crawler(
+    observer: ScrapeObserver | None = None,
+) -> tuple[list[SourceGameRecord], str, float]:
     """Execute the primary ECU Hockey crawler.
+
+    Args:
+        observer: Optional telemetry observer.
 
     Returns:
         Tuple of (source_records, status_string, duration_seconds).
     """
     t0 = datetime.now(UTC)
-    crawler = ECUHockeyCrawler()
+    crawler = ECUHockeyCrawler(observer=observer)
     records, _, _, _ = await crawler.crawl()
     dur = (datetime.now(UTC) - t0).total_seconds()
     src_records = [
@@ -146,14 +153,19 @@ async def _run_ecuhockey_crawler() -> tuple[list[SourceGameRecord], str, float]:
     return src_records, "SUCCESS", dur
 
 
-async def _run_acchockey_crawler() -> tuple[list[SourceGameRecord], str, float]:
+async def _run_acchockey_crawler(
+    observer: ScrapeObserver | None = None,
+) -> tuple[list[SourceGameRecord], str, float]:
     """Execute the ACC Hockey league schedule crawler.
+
+    Args:
+        observer: Optional telemetry observer.
 
     Returns:
         Tuple of (source_records, status_string, duration_seconds).
     """
     t0 = datetime.now(UTC)
-    crawler = ACCHockeyCrawler()
+    crawler = ACCHockeyCrawler(observer=observer)
     records, _, _, _ = await crawler.crawl()
     dur = (datetime.now(UTC) - t0).total_seconds()
     src_records = [
@@ -199,19 +211,22 @@ def _convert_opponent_fixture_to_source_record(
 async def _run_instagram_crawler(
     access_token: str | None = None,
     season: str = "2026-2027",
+    observer: ScrapeObserver | None = None,
 ) -> tuple[list[SourceGameRecord], str, float]:
     """Execute the ECU Hockey Instagram announcements crawler.
 
     Args:
         access_token: Optional override access token for Instagram Graph API.
         season: Athletic season string.
+        observer: Optional telemetry observer.
 
     Returns:
         Tuple of (source_records, status_string, duration_seconds).
     """
     t0 = datetime.now(UTC)
     token = access_token or os.environ.get("INSTAGRAM_ACCESS_TOKEN")
-    crawler = InstagramCrawler(access_token=token)
+    client = ResilientHttpClient(observer=observer)
+    crawler = InstagramCrawler(http_client=client, access_token=token)
     posts, _, _, _ = await crawler.fetch_posts()
     dur = (datetime.now(UTC) - t0).total_seconds()
     src_records = [
@@ -228,18 +243,21 @@ async def _run_instagram_crawler(
 
 async def _run_opponent_crawler(
     directory: OpponentDirectory | None = None,
+    observer: ScrapeObserver | None = None,
 ) -> tuple[list[SourceGameRecord], str, float]:
     """Execute the Opponent Schedule Feeds crawler.
 
     Args:
         directory: Optional custom OpponentDirectory.
+        observer: Optional telemetry observer.
 
     Returns:
         Tuple of (source_records, status_string, duration_seconds).
     """
     t0 = datetime.now(UTC)
     dir_inst = directory or get_default_opponent_directory()
-    crawler = OpponentCrawler(directory=dir_inst)
+    client = ResilientHttpClient(observer=observer)
+    crawler = OpponentCrawler(http_client=client, directory=dir_inst)
     src_records: list[SourceGameRecord] = []
     for config in dir_inst.list_endpoints():
         fixtures, _, _, _ = await crawler.fetch_opponent_schedule(
@@ -300,12 +318,14 @@ async def _execute_single_crawler(
 
 async def _execute_crawlers(
     source_filter: str,
+    observer: ScrapeObserver | None = None,
 ) -> tuple[list[SourceGameRecord], list[dict[str, Any]]]:
     """Execute active crawlers based on source filter and collect telemetry.
 
     Args:
         source_filter: Filter for source execution ('all', 'ecuhockey',
             'acchockey', 'instagram', 'opponent', 'social').
+        observer: Optional telemetry observer.
 
     Returns:
         Tuple of (all_source_records, crawl_telemetry_list).
@@ -316,25 +336,25 @@ async def _execute_crawlers(
     crawl_tasks: list[tuple[tuple[str, ...], Callable[..., Any], str, str]] = [
         (
             ("all", "ecuhockey"),
-            _run_ecuhockey_crawler,
+            lambda: _run_ecuhockey_crawler(observer=observer),
             "ecuhockey",
             "ECU Hockey Official",
         ),
         (
             ("all", "acchockey"),
-            _run_acchockey_crawler,
+            lambda: _run_acchockey_crawler(observer=observer),
             "acchockey",
             "ACC Hockey League",
         ),
         (
             ("all", "instagram", "social"),
-            _run_instagram_crawler,
+            lambda: _run_instagram_crawler(observer=observer),
             "instagram",
             "ECU Hockey Instagram",
         ),
         (
             ("opponent",),
-            _run_opponent_crawler,
+            lambda: _run_opponent_crawler(observer=observer),
             "opponent",
             "Opponent Schedule Feeds",
         ),
@@ -597,10 +617,15 @@ def _persist_sync_results(
 async def _execute_crawler_phase(
     crawler_fn: Callable[..., Any] | None,
     source_filter: str,
+    observer: ScrapeObserver | None = None,
 ) -> tuple[list[SourceGameRecord], list[dict[str, Any]]]:
     """Execute crawlers either via custom callable or default crawlers."""
     exec_crawlers = crawler_fn or _execute_crawlers
-    crawl_raw = exec_crawlers(source_filter)
+    try:
+        crawl_raw = exec_crawlers(source_filter, observer=observer)
+    except TypeError:
+        crawl_raw = exec_crawlers(source_filter)
+
     if inspect.isawaitable(crawl_raw):
         return await crawl_raw
 
@@ -664,7 +689,7 @@ async def _execute_opponent_verification(
     reconciled_games: Sequence[ReconciledGame],
     opponent_crawler_cls: type[OpponentCrawler] | None = None,
 ) -> None:
-    """Execute opponent schedule reverse verification check.
+    """Run reverse opponent fixture verification across reconciled games.
 
     Args:
         session: Active database session.
@@ -706,6 +731,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     dispatcher_cls: type[NotificationDispatcher] | None = None,
     verify_opponents: bool = False,
     opponent_crawler_cls: type[OpponentCrawler] | None = None,
+    observer: ScrapeObserver | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Asynchronously execute core crawl, reconciliation, diffing, and storage.
 
@@ -726,6 +752,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
         verify_opponents: If True, perform reverse verification against opponent
             schedule feeds.
         opponent_crawler_cls: Optional custom OpponentCrawler class.
+        observer: Optional telemetry observer interface.
 
     Returns:
         Tuple of (crawl_telemetry, change_detection_result, detected_conflicts).
@@ -736,6 +763,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     all_source_records, crawl_telemetry = await _execute_crawler_phase(
         crawler_fn,
         source_filter,
+        observer=observer,
     )
 
     # 2. Reconcile records
@@ -801,6 +829,7 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
     dispatcher_cls: type[NotificationDispatcher] | None = None,
     verify_opponents: bool = False,
     opponent_crawler_cls: type[OpponentCrawler] | None = None,
+    observer: ScrapeObserver | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous entrypoint executing core sync pipeline via asyncio.run.
 
@@ -820,6 +849,7 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
         verify_opponents: If True, perform reverse verification against opponent
             schedule feeds.
         opponent_crawler_cls: Optional custom OpponentCrawler class.
+        observer: Optional telemetry observer interface.
 
     Returns:
         Tuple of (crawl_telemetry, change_detection_result, detected_conflicts).
@@ -840,6 +870,7 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
             dispatcher_cls=dispatcher_cls,
             verify_opponents=verify_opponents,
             opponent_crawler_cls=opponent_crawler_cls,
+            observer=observer,
         ),
     )
 
