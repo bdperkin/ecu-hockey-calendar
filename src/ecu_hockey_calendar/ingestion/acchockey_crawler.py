@@ -20,6 +20,10 @@ from ecu_hockey_calendar.ingestion.client import (
     ResilientHttpClient,
     compute_content_hash,
 )
+from ecu_hockey_calendar.ingestion.telemetry import (
+    ScrapeEvent,
+    ScrapeObserver,
+)
 from ecu_hockey_calendar.storage.models import (
     DataSourceModel,
     DataSourceType,
@@ -65,13 +69,14 @@ def _resolve_page_season(
 
 
 class ACCHockeyCrawler:
-    """Crawler for the ACCHL official schedule on SportsEngine."""
+    """Crawler for the ACC Hockey league schedule and subseason fixtures."""
 
     def __init__(
         self,
         client: ResilientHttpClient | None = None,
         base_url: str = DEFAULT_BASE_URL,
         schedule_url: str = DEFAULT_ACCHL_SCHEDULE_URL,
+        observer: ScrapeObserver | None = None,
     ) -> None:
         """Initialize the crawler with HTTP client and target endpoints.
 
@@ -79,10 +84,40 @@ class ACCHockeyCrawler:
             client: Optional resilient HTTP client instance.
             base_url: Base domain URL for relative links.
             schedule_url: Default ECU team landing or schedule URL.
+            observer: Optional telemetry observer interface.
         """
-        self.client = client or ResilientHttpClient()
+        self.observer = observer
+        if client is not None:
+            self.client = client
+            if observer is not None and getattr(self.client, "observer", None) is None:
+                self.client.observer = observer
+        else:
+            self.client = ResilientHttpClient(observer=observer)
+
         self.base_url = base_url
         self.schedule_url = schedule_url
+
+    def _notify_scrape(
+        self,
+        url: str,
+        *,
+        status_code: int = 200,
+        records_found: int = 0,
+        sublinks_found: int = 0,
+        details: str = "",
+    ) -> None:
+        """Report URL scraping progress and item discovery to observer."""
+        if self.observer is not None:
+            self.observer.on_scrape(
+                ScrapeEvent(
+                    url=url,
+                    status_code=status_code,
+                    records_found=records_found,
+                    sublinks_found=sublinks_found,
+                    details=details,
+                    source_code="acchockey",
+                ),
+            )
 
     async def _fetch_landing_or_schedule(
         self,
@@ -91,15 +126,37 @@ class ACCHockeyCrawler:
         """Fetch target page, resolving direct schedule link if necessary."""
         html, _ = await self.client.fetch_text(target_url)
         records = parse_acchockey_schedule_html(html)
+        subseason_links = extract_subseason_urls(html, self.base_url)
         if records:
+            self._notify_scrape(
+                target_url,
+                records_found=len(records),
+                sublinks_found=len(subseason_links),
+            )
             return html, records
 
         schedule_links = extract_schedule_urls(html, self.base_url)
         if schedule_links:
+            self._notify_scrape(
+                target_url,
+                records_found=0,
+                sublinks_found=len(subseason_links),
+                details="Landing page",
+            )
             sched_html, _ = await self.client.fetch_text(schedule_links[0])
             sched_records = parse_acchockey_schedule_html(sched_html)
+            self._notify_scrape(
+                schedule_links[0],
+                records_found=len(sched_records),
+                details="Schedule page",
+            )
             return html + "\n" + sched_html, sched_records
 
+        self._notify_scrape(
+            target_url,
+            records_found=0,
+            sublinks_found=len(subseason_links),
+        )
         return html, []
 
     async def _crawl_pagination(
@@ -122,6 +179,11 @@ class ACCHockeyCrawler:
                 page_html, _ = await self.client.fetch_text(link)
                 html_chunks.append(page_html)
                 page_recs = parse_acchockey_schedule_html(page_html)
+                self._notify_scrape(
+                    link,
+                    records_found=len(page_recs),
+                    details="Pagination page",
+                )
                 records.extend(page_recs)
 
         return records, html_chunks
@@ -196,12 +258,14 @@ class ACCHockeyCrawler:
     async def crawl(
         self,
         *,
+        url: str | None = None,
         include_subseasons: bool = False,
         max_pages: int = DEFAULT_PAGINATION_LIMIT,
     ) -> tuple[list[ParsedGameRecord], str, str, str]:
         """Execute crawl and return raw payloads with content hash.
 
         Args:
+            url: Optional schedule or subseason URL override.
             include_subseasons: Whether to crawl alternate subseasons.
             max_pages: Maximum number of pages to fetch.
 
@@ -209,6 +273,7 @@ class ACCHockeyCrawler:
             Tuple of (records, raw_html, content_hash, content_type).
         """
         records, html, content_hash = await self.fetch_schedule(
+            url=url,
             include_subseasons=include_subseasons,
             max_pages=max_pages,
         )

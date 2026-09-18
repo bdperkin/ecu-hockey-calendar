@@ -61,16 +61,18 @@ ecu-hockey sync status [OPTIONS]
 
 **Options (`sync` / `sync trigger`):**
 
-| Option                   | Environment Variable     | Default    | Description                                                                              |
-| :----------------------- | :----------------------- | :--------- | :--------------------------------------------------------------------------------------- |
-| `-s, --source`           | —                        | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`).               |
-| `--dry-run`              | —                        | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.   |
-| `--notify / --no-notify` | —                        | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes. |
-| `--notify-individual`    | —                        | `False`    | Dispatch individual alert messages for each detected schedule change.                    |
-| `--db-url`               | `DATABASE_URL`           | `None`     | Database connection URL override.                                                        |
-| `--season`               | —                        | `None`     | Optional season filter (e.g., `2026-2027`).                                              |
-| `--api-url`              | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).             |
-| `--token`                | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.               |
+| Option                   | Environment Variable     | Default    | Description                                                                                                   |
+| :----------------------- | :----------------------- | :--------- | :------------------------------------------------------------------------------------------------------------ |
+| `-s, --source`           | —                        | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`, `instagram`, `opponent`, `social`). |
+| `--dry-run`              | —                        | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.                        |
+| `--notify / --no-notify` | —                        | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes.                      |
+| `--notify-individual`    | —                        | `False`    | Dispatch individual alert messages for each detected schedule change.                                         |
+| `-v, --verbose`          | —                        | `False`    | Display URLs being scraped and item extraction discovery statistics.                                          |
+| `--debug`                | —                        | `False`    | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                             |
+| `--db-url`               | `DATABASE_URL`           | `None`     | Database connection URL override.                                                                             |
+| `--season`               | —                        | `None`     | Optional season filter (e.g., `2026-2027`).                                                                   |
+| `--api-url`              | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                  |
+| `--token`                | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.                                    |
 
 **Options (`sync status`):**
 
@@ -86,6 +88,12 @@ ecu-hockey sync status [OPTIONS]
 ```bash
 # Run a full sync for the current season
 ecu-hockey sync
+
+# Run sync with verbose telemetry showing visited URLs
+ecu-hockey sync -v
+
+# Run sync with full wire-level HTTP request/response debugging
+ecu-hockey sync --debug
 
 # Inspect synchronization execution history
 ecu-hockey sync status
@@ -105,7 +113,64 @@ ecu-hockey sync --api-url https://ecu-hockey-api.onrender.com --token secret-tok
 
 ______________________________________________________________________
 
-### 3.2. `ecu-hockey status`
+### 3.2. `ecu-hockey scrape` (or `ecu-hockey crawl`)
+
+Directly executes schedule scrapers and crawlers without invoking the full reconciliation and diffing pipeline. Provides a three-tiered output granularity model for troubleshooting crawler health, verifying link traversal, and diagnosing API responses:
+
+1. **Default (Minimal)**: Clean, concise summary table with minimal terminal output.
+2. **Verbose (`-v`, `--verbose`)**: Real-time log of every URL fetched along with discovery statistics (games found, sublinks discovered).
+3. **Debug (`--debug`)**: Comprehensive HTTP wire tracing displaying methods, request headers, response headers, status codes, latencies, and response body previews.
+
+```bash
+# Run with minimal output (default)
+ecu-hockey scrape [OPTIONS]
+ecu-hockey crawl [OPTIONS]
+
+# Run with verbose URL logging
+ecu-hockey scrape -s acchockey -v
+
+# Run in debug mode (wire requests, responses, headers, timing)
+ecu-hockey scrape -s acchockey --debug
+```
+
+**Options:**
+
+| Option               | Environment Variable | Default     | Description                                                                                               |
+| :------------------- | :------------------- | :---------- | :-------------------------------------------------------------------------------------------------------- |
+| `-s, --source`       | —                    | `all`       | Target scraper(s) to run (`all`, `ecuhockey`, `acchockey`, `instagram`, `opponent`, `tickets`, `social`). |
+| `-v, --verbose`      | —                    | `False`     | List URLs being scraped and extraction discovery statistics in real time.                                 |
+| `--debug`            | —                    | `False`     | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                         |
+| `--subseasons`       | —                    | `None`      | Comma-separated subseason IDs or URLs for multi-season traversal on league scrapers.                      |
+| `--season`           | —                    | `None`      | Collegiate hockey athletic season filter (e.g. `2026-2027`).                                              |
+| `--json`             | —                    | `False`     | Output extracted fixtures and scraper telemetry as formatted JSON to stdout.                              |
+| `--save / --no-save` | —                    | `--no-save` | Persist raw snapshots and fixtures into relational storage.                                               |
+| `--db-url`           | `DATABASE_URL`       | `None`      | Database connection URL override when `--save` is used.                                                   |
+
+**Examples:**
+
+```bash
+# Scrape all sources with minimal summary output
+ecu-hockey scrape
+
+# Inspect ACC Hockey crawler link traversal with verbose output
+ecu-hockey scrape -s acchockey -v
+
+# Debug HTTP requests and headers for the official team website crawler
+ecu-hockey scrape -s ecuhockey --debug
+
+# Traverse specific historical ACC Hockey subseasons
+ecu-hockey scrape -s acchockey --subseasons 950924,932896 -v
+
+# Pipe clean JSON records to jq (telemetry output goes to stderr)
+ecu-hockey scrape -s acchockey --json | jq .records.acchockey[0]
+
+# Scrape and persist raw snapshots and fixtures to local SQLite database
+ecu-hockey scrape --save
+```
+
+______________________________________________________________________
+
+### 3.3. `ecu-hockey status`
 
 Displays comprehensive operational telemetry, database connectivity, scraper status, schedule overview metrics (wins, losses, cancellations), and the next upcoming match spotlight.
 
@@ -135,7 +200,7 @@ ecu-hockey status --api-url https://ecu-hockey-api.onrender.com
 
 ______________________________________________________________________
 
-### 3.3. `ecu-hockey health`
+### 3.4. `ecu-hockey health`
 
 Inspects service health diagnostics, database connectivity, scraper status, API version, and system uptime locally or against a remote API deployment. Returns an exit code of `0` if healthy, or `1` if degraded or unhealthy.
 
@@ -167,7 +232,7 @@ ecu-hockey health --api-url https://ecu-hockey-api.onrender.com
 
 ______________________________________________________________________
 
-### 3.4. `ecu-hockey export`
+### 3.5. `ecu-hockey export`
 
 Exports the schedule into standard RFC 5545 iCalendar (`.ics`), structured JSON, CSV, standalone responsive HTML, high-contrast printable PDF grid, RSS 2.0 XML, or Atom 1.0 XML format. Output can be saved directly to a file or streamed to standard output for piping.
 
@@ -227,7 +292,7 @@ ecu-hockey export --api-url https://ecu-hockey-api.onrender.com -f pdf -o remote
 
 ______________________________________________________________________
 
-### 3.5. `ecu-hockey conflicts`
+### 3.6. `ecu-hockey conflicts`
 
 Lists cross-source schedule discrepancies and potential data conflicts detected during reconciliation cycles. Discrepancies requiring manual review or administrative attention are highlighted.
 
@@ -274,7 +339,7 @@ ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token secre
 
 ______________________________________________________________________
 
-### 3.6. `ecu-hockey serve`
+### 3.7. `ecu-hockey serve`
 
 Starts the Uvicorn ASGI server hosting the FastAPI calendar and schedule service, providing canonical live feeds (`/schedule.ics`, `/schedule.json`, `/schedule.csv`, `/schedule.pdf`, `/schedule.rss`, `/schedule.atom`), backward-compatible aliases (`/calendar.ics`, `/feed.rss`), responsive HTML dashboards (`/schedule`, `/health`, `/sync`, `/conflicts`), and interactive OpenAPI documentation (`/docs`, `/redoc`).
 
@@ -304,7 +369,7 @@ ecu-hockey serve -h 0.0.0.0 -p 8080 --reload
 
 ______________________________________________________________________
 
-### 3.7. `ecu-hockey notify`
+### 3.8. `ecu-hockey notify`
 
 Dispatches custom notification alerts and automated failure reports across configured webhook channels (Discord, Slack, Telegram).
 

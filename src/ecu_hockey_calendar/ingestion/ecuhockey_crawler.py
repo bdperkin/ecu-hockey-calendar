@@ -21,6 +21,10 @@ from ecu_hockey_calendar.ingestion.normalizer import (
     parse_game_score,
     parse_game_status,
 )
+from ecu_hockey_calendar.ingestion.telemetry import (
+    ScrapeEvent,
+    ScrapeObserver,
+)
 from ecu_hockey_calendar.storage.models import (
     DataSourceModel,
     DataSourceType,
@@ -286,6 +290,7 @@ class ECUHockeyCrawler:
         client: ResilientHttpClient | None = None,
         team_id: str = DEFAULT_TEAM_ID,
         firestore_url: str = DEFAULT_FIRESTORE_URL,
+        observer: ScrapeObserver | None = None,
     ) -> None:
         """Initialize crawler instance.
 
@@ -293,10 +298,40 @@ class ECUHockeyCrawler:
             client: Optional ResilientHttpClient instance.
             team_id: Firestore team identifier for ECU Hockey.
             firestore_url: Firestore runQuery endpoint URL.
+            observer: Optional telemetry observer interface.
         """
-        self.client = client or ResilientHttpClient()
+        self.observer = observer
+        if client is not None:
+            self.client = client
+            if observer is not None and getattr(self.client, "observer", None) is None:
+                self.client.observer = observer
+        else:
+            self.client = ResilientHttpClient(observer=observer)
+
         self.team_id = team_id
         self.firestore_url = firestore_url
+
+    def _notify_scrape(
+        self,
+        url: str,
+        *,
+        status_code: int = 200,
+        records_found: int = 0,
+        sublinks_found: int = 0,
+        details: str = "",
+    ) -> None:
+        """Report URL scraping progress and item discovery to observer."""
+        if self.observer is not None:
+            self.observer.on_scrape(
+                ScrapeEvent(
+                    url=url,
+                    status_code=status_code,
+                    records_found=records_found,
+                    sublinks_found=sublinks_found,
+                    details=details,
+                    source_code="ecuhockey",
+                ),
+            )
 
     async def fetch_api_games(self) -> tuple[list[ParsedGameRecord], str, str]:
         """Fetch all games directly from the primary SOT Firestore API.
@@ -320,7 +355,13 @@ class ECUHockeyCrawler:
             self.firestore_url,
             json_data=query_payload,
         )
-        return _parse_api_records(data), json.dumps(data), content_hash
+        records = _parse_api_records(data)
+        self._notify_scrape(
+            self.firestore_url,
+            records_found=len(records),
+            details="Firestore runQuery API",
+        )
+        return records, json.dumps(data), content_hash
 
     async def fetch_html_games(
         self,
@@ -336,6 +377,11 @@ class ECUHockeyCrawler:
         """
         html, content_hash = await self.client.fetch_text(url)
         records = parse_schedule_html(html)
+        self._notify_scrape(
+            url,
+            records_found=len(records),
+            details="HTML schedule page",
+        )
         return records, html, content_hash
 
     async def crawl(
