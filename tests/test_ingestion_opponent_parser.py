@@ -12,7 +12,6 @@ from bs4 import BeautifulSoup, Tag
 
 from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
 from ecu_hockey_calendar.ingestion.opponent_parser import (
-    DEFAULT_OPPONENT_SPECS,
     HIGH_CONFIDENCE_THRESHOLD,
     Discrepancy,
     DiscrepancyType,
@@ -276,11 +275,29 @@ def test_opponent_directory_registration_and_lookup() -> None:
 def test_get_default_opponent_directory() -> None:
     """Verify standard collegiate opponents exist in default directory."""
     dir_obj = get_default_opponent_directory()
-    assert len(dir_obj.list_endpoints()) == len(DEFAULT_OPPONENT_SPECS)
+    assert len(dir_obj.list_endpoints()) == 14
 
-    for name, _, _, _, aliases in DEFAULT_OPPONENT_SPECS:
-        assert dir_obj.get(name) is not None
-        for alias in aliases:
+    expected_names = (
+        "UNC Chapel Hill",
+        "NC State University",
+        "Virginia Tech",
+        "Wake Forest University",
+        "Duke University",
+        "UNC Wilmington",
+        "Appalachian State University",
+        "High Point University",
+        "Elon University",
+        "UNC Charlotte",
+        "James Madison University",
+        "University of Richmond",
+        "University of Virginia",
+        "Georgetown University",
+    )
+    for name in expected_names:
+        config = dir_obj.get(name)
+        assert config is not None
+        assert config.canonical_name == name
+        for alias in config.aliases:
             assert dir_obj.get(alias) is not None
 
 

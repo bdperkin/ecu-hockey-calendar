@@ -218,3 +218,32 @@ if endpoint and endpoint.enabled:
 # Export directory back to YAML
 yaml_output = directory.to_yaml()
 ```
+
+### 8.3. Bundled Verified Dataset
+
+The library includes a pre-configured, verified dataset of ACCHL and regional collegiate opponents bundled within the package at `ecu_hockey_calendar.data/opponents.yaml`. This resource includes verified official team websites, schedule feed URLs, feed types (`ical`, `html`), and home venues for 14 programs:
+
+- Appalachian State University
+- Duke University
+- Elon University
+- Georgetown University
+- High Point University
+- James Madison University
+- NC State University
+- UNC Chapel Hill
+- UNC Charlotte
+- UNC Wilmington
+- University of Richmond
+- University of Virginia
+- Virginia Tech
+- Wake Forest University
+
+To instantiate an `OpponentDirectory` populated with the bundled verified dataset:
+
+```python
+from ecu_hockey_calendar.ingestion import get_default_opponent_directory
+
+# Loads package-bundled opponents.yaml automatically via importlib.resources
+directory = get_default_opponent_directory()
+print(f"Loaded {len(directory)} verified collegiate opponents.")
+```

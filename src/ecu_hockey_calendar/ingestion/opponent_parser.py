@@ -22,7 +22,6 @@ from ecu_hockey_calendar.ingestion.normalizer import (
     parse_game_datetime,
 )
 from ecu_hockey_calendar.ingestion.opponent_config import (
-    DEFAULT_OPPONENT_SPECS,
     OpponentConfigError,
     OpponentDirectory,
     OpponentEndpointConfig,
@@ -809,7 +808,6 @@ def cross_check_game_against_opponent(
 
 
 __all__ = [
-    "DEFAULT_OPPONENT_SPECS",
     "HIGH_CONFIDENCE_THRESHOLD",
     "Discrepancy",
     "DiscrepancyType",
