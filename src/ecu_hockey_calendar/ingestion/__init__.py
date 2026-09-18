@@ -79,6 +79,7 @@ from ecu_hockey_calendar.ingestion.opponent_config import (
     OpponentEndpointConfig,
     OpponentFeedType,
     get_default_opponent_directory,
+    resolve_opponent_directory,
 )
 from ecu_hockey_calendar.ingestion.opponent_crawler import (
     DEFAULT_OPPONENT_CACHE_TTL,
@@ -218,4 +219,5 @@ __all__ = [
     "parse_public_feed_json",
     "parse_schedule_html",
     "resolve_game_status_from_announcement",
+    "resolve_opponent_directory",
 ]

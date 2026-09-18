@@ -40,6 +40,17 @@ ecu-hockey status
 
 Options `--api-url` and `--token` can be supplied globally before subcommands (e.g. `ecu-hockey --api-url ... status`) or directly on individual subcommands (e.g. `ecu-hockey status --api-url ...`).
 
+### 2.1. Opponents Feed Configuration Override
+
+The CLI allows overriding the opponent schedule feeds configuration using a custom YAML file. The configuration is resolved using the following precedence hierarchy:
+
+1. **Explicit CLI option**: `--opponents-config <path>` or `-O <path>` on `sync`, `sync trigger`, `scrape`, or `crawl`.
+2. **Root CLI option**: Global option passed before the subcommand (e.g. `ecu-hockey -O custom_opponents.yaml sync`).
+3. **Environment variable**: `OPPONENTS_CONFIG=/path/to/opponents.yaml`.
+4. **Package bundled default**: Built-in verified collegiate dataset (`ecu_hockey_calendar/data/opponents.yaml`).
+
+If a custom configuration file does not exist or contains invalid YAML, the command aborts with a clear error message.
+
 ______________________________________________________________________
 
 ## 3. Subcommands Reference
@@ -64,6 +75,7 @@ ecu-hockey sync status [OPTIONS]
 | Option                   | Environment Variable     | Default    | Description                                                                                                   |
 | :----------------------- | :----------------------- | :--------- | :------------------------------------------------------------------------------------------------------------ |
 | `-s, --source`           | —                        | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`, `instagram`, `opponent`, `social`). |
+| `-O, --opponents-config` | `OPPONENTS_CONFIG`       | `None`     | Path to custom YAML configuration file for opponent schedule feeds.                                           |
 | `--dry-run`              | —                        | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.                        |
 | `--notify / --no-notify` | —                        | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes.                      |
 | `--notify-individual`    | —                        | `False`    | Dispatch individual alert messages for each detected schedule change.                                         |
@@ -135,16 +147,17 @@ ecu-hockey scrape -s acchockey --debug
 
 **Options:**
 
-| Option               | Environment Variable | Default     | Description                                                                                               |
-| :------------------- | :------------------- | :---------- | :-------------------------------------------------------------------------------------------------------- |
-| `-s, --source`       | —                    | `all`       | Target scraper(s) to run (`all`, `ecuhockey`, `acchockey`, `instagram`, `opponent`, `tickets`, `social`). |
-| `-v, --verbose`      | —                    | `False`     | List URLs being scraped and extraction discovery statistics in real time.                                 |
-| `--debug`            | —                    | `False`     | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                         |
-| `--subseasons`       | —                    | `None`      | Comma-separated subseason IDs or URLs for multi-season traversal on league scrapers.                      |
-| `--season`           | —                    | `None`      | Collegiate hockey athletic season filter (e.g. `2026-2027`).                                              |
-| `--json`             | —                    | `False`     | Output extracted fixtures and scraper telemetry as formatted JSON to stdout.                              |
-| `--save / --no-save` | —                    | `--no-save` | Persist raw snapshots and fixtures into relational storage.                                               |
-| `--db-url`           | `DATABASE_URL`       | `None`      | Database connection URL override when `--save` is used.                                                   |
+| Option                   | Environment Variable | Default     | Description                                                                                               |
+| :----------------------- | :------------------- | :---------- | :-------------------------------------------------------------------------------------------------------- |
+| `-s, --source`           | —                    | `all`       | Target scraper(s) to run (`all`, `ecuhockey`, `acchockey`, `instagram`, `opponent`, `tickets`, `social`). |
+| `-O, --opponents-config` | `OPPONENTS_CONFIG`   | `None`      | Path to custom YAML configuration file for opponent schedule feeds.                                       |
+| `-v, --verbose`          | —                    | `False`     | List URLs being scraped and extraction discovery statistics in real time.                                 |
+| `--debug`                | —                    | `False`     | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                         |
+| `--subseasons`           | —                    | `None`      | Comma-separated subseason IDs or URLs for multi-season traversal on league scrapers.                      |
+| `--season`               | —                    | `None`      | Collegiate hockey athletic season filter (e.g. `2026-2027`).                                              |
+| `--json`                 | —                    | `False`     | Output extracted fixtures and scraper telemetry as formatted JSON to stdout.                              |
+| `--save / --no-save`     | —                    | `--no-save` | Persist raw snapshots and fixtures into relational storage.                                               |
+| `--db-url`               | `DATABASE_URL`       | `None`      | Database connection URL override when `--save` is used.                                                   |
 
 **Examples:**
 

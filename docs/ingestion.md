@@ -247,3 +247,19 @@ from ecu_hockey_calendar.ingestion import get_default_opponent_directory
 directory = get_default_opponent_directory()
 print(f"Loaded {len(directory)} verified collegiate opponents.")
 ```
+
+### 8.4. Runtime Resolution Hierarchy
+
+For runtime operations and CLI pipelines, `resolve_opponent_directory()` automatically applies the precedence hierarchy:
+
+1. **Explicit file path**: `resolve_opponent_directory(config_path)`.
+2. **Environment variable override**: `OPPONENTS_CONFIG=/path/to/opponents.yaml`.
+3. **Bundled default dataset**: Falls back cleanly to `get_default_opponent_directory()`.
+
+```python
+from ecu_hockey_calendar.ingestion import resolve_opponent_directory
+
+# Automatically resolves via explicit argument, OPPONENTS_CONFIG envvar, or bundled default
+directory = resolve_opponent_directory()
+print(f"Active opponent directory contains {len(directory)} entries.")
+```

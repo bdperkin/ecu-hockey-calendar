@@ -57,6 +57,7 @@ from ecu_hockey_calendar.cli.sync import (
     _convert_parsed_to_source_record,
     _ensure_data_source,
     _populate_ctx_params,
+    _resolve_cli_opponent_directory,
     _resolve_remote_credentials,
     sync_command,
     sync_status_command,
@@ -196,6 +197,20 @@ class TestCliRoot:
         result = runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
         assert "ecu-hockey" in result.output
+
+    def test_cli_opponents_config_option(self, runner: CliRunner) -> None:
+        """Verify root cli records opponents_config in context object."""
+
+        @cli.command("test-opponents-config-ctx")
+        @click.pass_context
+        def _dummy_cmd(ctx: click.Context) -> None:
+            assert ctx.obj["opponents_config"] == "custom.yaml"
+
+        result = runner.invoke(
+            cli,
+            ["-O", "custom.yaml", "test-opponents-config-ctx"],
+        )
+        assert result.exit_code == 0
 
     def test_main_function_success(self) -> None:
         """Verify main() entrypoint with valid arguments returns 0."""
@@ -1704,10 +1719,17 @@ class TestSyncCommand:
         _populate_ctx_params(None, "https://api", "token", "sqlite:///:memory:")
         ctx = MagicMock()
         ctx.obj = {}
-        _populate_ctx_params(ctx, "https://api", "token", "sqlite:///:memory:")
+        _populate_ctx_params(
+            ctx,
+            "https://api",
+            "token",
+            "sqlite:///:memory:",
+            "custom.yaml",
+        )
         assert ctx.obj["api_url"] == "https://api"
         assert ctx.obj["token"] == "token"
         assert ctx.obj["db_url"] == "sqlite:///:memory:"
+        assert ctx.obj["opponents_config"] == "custom.yaml"
 
     def test_resolve_remote_credentials_none_context(self) -> None:
         """Verify _resolve_remote_credentials works with None context."""
@@ -1746,3 +1768,255 @@ class TestSyncCommand:
             )
             assert res_d.exit_code == 0
             assert "DRY RUN" in res_d.output
+
+
+class TestSyncOpponentsConfig:
+    """Tests for opponent configuration overrides in sync and trigger commands."""
+
+    def test_resolve_cli_opponent_directory_valid(self, tmp_path: Path) -> None:
+        """Verify _resolve_cli_opponent_directory successfully loads valid YAML."""
+        custom_yaml = tmp_path / "valid.yaml"
+        custom_yaml.write_text(
+            """opponents:
+    -
+        canonical_name: "Liberty University"
+        feed_url: "https://libertyflames.com/feed.ics"
+        feed_type: "ical"
+""",
+            encoding="utf-8",
+        )
+        directory = _resolve_cli_opponent_directory(None, custom_yaml)
+        assert "Liberty University" in directory
+
+    def test_resolve_cli_opponent_directory_missing_file(self, tmp_path: Path) -> None:
+        """Verify missing configuration file raises ClickException."""
+        missing = tmp_path / "missing_opponents.yaml"
+        with pytest.raises(
+            click.ClickException,
+            match="Opponent configuration file not found",
+        ):
+            _resolve_cli_opponent_directory(None, missing)
+
+    def test_resolve_cli_opponent_directory_invalid_yaml(self, tmp_path: Path) -> None:
+        """Verify invalid YAML markup raises ClickException."""
+        invalid_yaml = tmp_path / "invalid.yaml"
+        invalid_yaml.write_text("opponents: [broken", encoding="utf-8")
+        with pytest.raises(
+            click.ClickException,
+            match="Invalid opponent configuration",
+        ):
+            _resolve_cli_opponent_directory(None, invalid_yaml)
+
+    def test_resolve_cli_opponent_directory_context_value(self, tmp_path: Path) -> None:
+        """Verify _resolve_cli_opponent_directory retrieves path from Click context."""
+        custom_yaml = tmp_path / "valid_ctx.yaml"
+        custom_yaml.write_text(
+            """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+            encoding="utf-8",
+        )
+        ctx = MagicMock()
+        ctx.obj = {"opponents_config": str(custom_yaml)}
+        directory = _resolve_cli_opponent_directory(ctx, None)
+        assert "UNC Chapel Hill" in directory
+
+    def test_sync_with_opponents_config_flag(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify sync accepts -O / --opponents-config flag."""
+        custom_yaml = tmp_path / "opponents.yaml"
+        custom_yaml.write_text(
+            """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+            encoding="utf-8",
+        )
+        mock_rec = ParsedGameRecord(
+            game_id="game-opp-1",
+            opponent_name="UNC Chapel Hill",
+            is_home=True,
+            start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+            venue="The Factory",
+        )
+        with patch(
+            "ecu_hockey_calendar.cli.sync.ECUHockeyCrawler.crawl",
+            new_callable=AsyncMock,
+            return_value=([mock_rec], "<html></html>", "hash1", "text/html"),
+        ):
+            res = runner.invoke(
+                sync_command,
+                [
+                    "--opponents-config",
+                    str(custom_yaml),
+                    "--dry-run",
+                    "--source",
+                    "ecuhockey",
+                    "--db-url",
+                    db_url,
+                ],
+            )
+            assert res.exit_code == 0
+            assert "DRY RUN" in res.output
+
+    def test_sync_with_missing_opponents_config(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify sync aborts cleanly with error message when config file is missing."""
+        missing_file = tmp_path / "missing_sync_opponents.yaml"
+        res = runner.invoke(
+            sync_command,
+            [
+                "-O",
+                str(missing_file),
+                "--dry-run",
+                "--db-url",
+                db_url,
+            ],
+        )
+        assert res.exit_code != 0
+        assert "Opponent configuration file not found" in res.output
+
+    def test_sync_with_invalid_opponents_config(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify sync aborts cleanly when config file has invalid YAML."""
+        bad_yaml = tmp_path / "bad.yaml"
+        bad_yaml.write_text("opponents: [broken", encoding="utf-8")
+        res = runner.invoke(
+            sync_command,
+            ["-O", str(bad_yaml), "--dry-run", "--db-url", db_url],
+        )
+        assert res.exit_code != 0
+        assert "Invalid opponent configuration" in res.output
+
+    def test_sync_with_envvar_opponents_config(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Verify sync uses OPPONENTS_CONFIG environment variable."""
+        custom_yaml = tmp_path / "env_opponents.yaml"
+        custom_yaml.write_text(
+            """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+            encoding="utf-8",
+        )
+        monkeypatch.setenv("OPPONENTS_CONFIG", str(custom_yaml))
+        mock_rec = ParsedGameRecord(
+            game_id="game-opp-2",
+            opponent_name="UNC Chapel Hill",
+            is_home=True,
+            start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+            venue="The Factory",
+        )
+        with patch(
+            "ecu_hockey_calendar.cli.sync.ECUHockeyCrawler.crawl",
+            new_callable=AsyncMock,
+            return_value=([mock_rec], "<html></html>", "hash1", "text/html"),
+        ):
+            res = runner.invoke(
+                sync_command,
+                ["--dry-run", "--source", "ecuhockey", "--db-url", db_url],
+            )
+            assert res.exit_code == 0
+            assert "DRY RUN" in res.output
+
+    def test_sync_trigger_with_opponents_config(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify sync trigger accepts -O / --opponents-config flag."""
+        custom_yaml = tmp_path / "trigger_opponents.yaml"
+        custom_yaml.write_text(
+            """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+            encoding="utf-8",
+        )
+        with patch("ecu_hockey_calendar.cli.sync._run_sync_trigger") as mock_trigger:
+            res = runner.invoke(
+                sync_trigger_command,
+                [
+                    "-O",
+                    str(custom_yaml),
+                    "--dry-run",
+                    "--source",
+                    "ecuhockey",
+                    "--db-url",
+                    db_url,
+                ],
+            )
+            assert res.exit_code == 0
+            mock_trigger.assert_called_once()
+
+    def test_root_cli_opponents_config_context_inheritance(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify root cli -O option is passed down to sync command via ctx.obj."""
+        custom_yaml = tmp_path / "root_opponents.yaml"
+        custom_yaml.write_text(
+            """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+            encoding="utf-8",
+        )
+        mock_rec = ParsedGameRecord(
+            game_id="game-opp-3",
+            opponent_name="UNC Chapel Hill",
+            is_home=True,
+            start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+            venue="The Factory",
+        )
+        with patch(
+            "ecu_hockey_calendar.cli.sync.ECUHockeyCrawler.crawl",
+            new_callable=AsyncMock,
+            return_value=([mock_rec], "<html></html>", "hash1", "text/html"),
+        ):
+            res = runner.invoke(
+                cli,
+                [
+                    "-O",
+                    str(custom_yaml),
+                    "sync",
+                    "--dry-run",
+                    "--source",
+                    "ecuhockey",
+                    "--db-url",
+                    db_url,
+                ],
+            )
+            assert res.exit_code == 0
+            assert "DRY RUN" in res.output

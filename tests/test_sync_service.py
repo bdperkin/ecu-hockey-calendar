@@ -204,15 +204,23 @@ async def test_execute_crawlers_filtering_and_resilience() -> None:
         assert telemetry[0]["source"] == "instagram"
 
     # Filter: opponent only
+    mock_custom_dir = MagicMock()
     with patch(
         "ecu_hockey_calendar.sync_service._run_opponent_crawler",
         new_callable=AsyncMock,
         return_value=([mock_src], "SUCCESS", 0.1),
-    ):
-        recs, telemetry = await _execute_crawlers("opponent")
+    ) as mock_run_opp:
+        recs, telemetry = await _execute_crawlers(
+            "opponent",
+            opponent_directory=mock_custom_dir,
+        )
         assert len(recs) == 1
         assert len(telemetry) == 1
         assert telemetry[0]["source"] == "opponent"
+        mock_run_opp.assert_called_once_with(
+            directory=mock_custom_dir,
+            observer=None,
+        )
 
     # Failure resilience in all crawlers
     with (
@@ -743,14 +751,17 @@ async def test_run_sync_pipeline_verify_opponents(sqlite_engine: Any) -> None:
     mock_opp_cls = MagicMock(return_value=mock_opp_crawler)
 
     # Live run with verify_opponents=True
+    mock_dir = MagicMock()
     await run_sync_pipeline(
         engine=sqlite_engine,
         dry_run=False,
         verify_opponents=True,
         crawler_fn=mock_crawler,
         opponent_crawler_cls=mock_opp_cls,
+        opponent_directory=mock_dir,
     )
     assert mock_opp_crawler.sync.called
+    assert mock_opp_cls.call_args[1]["directory"] is mock_dir
 
     # Dry run with verify_opponents=True
     await run_sync_pipeline(

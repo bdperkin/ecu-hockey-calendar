@@ -14,6 +14,7 @@ from ecu_hockey_calendar.ingestion.opponent_config import (
     OpponentEndpointConfig,
     OpponentFeedType,
     get_default_opponent_directory,
+    resolve_opponent_directory,
 )
 
 SAMPLE_YAML = """
@@ -423,3 +424,56 @@ def test_default_opponent_directory_bundled_yaml() -> None:
         for alias in endpoint.aliases:
             assert alias in dir_inst
             assert dir_inst.get(alias) is endpoint
+
+
+def test_resolve_opponent_directory_explicit_path(tmp_path: Path) -> None:
+    """Verify resolve_opponent_directory resolves explicit config_path."""
+    custom_yaml = tmp_path / "custom_opponents.yaml"
+    custom_yaml.write_text(
+        """opponents:
+    -
+        canonical_name: "Liberty University"
+        feed_url: "https://libertyflames.com/schedule.ics"
+        feed_type: "ical"
+        home_venue: "LaHaye Ice Center"
+""",
+        encoding="utf-8",
+    )
+    directory = resolve_opponent_directory(custom_yaml)
+    assert len(directory) == 1
+    assert "Liberty University" in directory
+    endpoint = directory.get("Liberty University")
+    assert endpoint is not None
+    assert endpoint.home_venue == "LaHaye Ice Center"
+
+
+def test_resolve_opponent_directory_env_override(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify resolve_opponent_directory falls back to OPPONENTS_CONFIG envvar."""
+    custom_yaml = tmp_path / "env_opponents.yaml"
+    custom_yaml.write_text(
+        """opponents:
+    -
+        canonical_name: "Rowan University"
+        feed_url: "https://rowanhockey.com/feed.ics"
+        feed_type: "ical"
+        home_venue: "Hollydell Ice Arena"
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OPPONENTS_CONFIG", str(custom_yaml))
+    directory = resolve_opponent_directory()
+    assert len(directory) == 1
+    assert "Rowan University" in directory
+
+
+def test_resolve_opponent_directory_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify resolve_opponent_directory falls back to bundled default."""
+    monkeypatch.delenv("OPPONENTS_CONFIG", raising=False)
+    directory = resolve_opponent_directory()
+    assert len(directory) == 14
+    assert "UNC Chapel Hill" in directory

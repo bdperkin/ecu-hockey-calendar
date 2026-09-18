@@ -25,6 +25,7 @@ from ecu_hockey_calendar.cli.console import (
     print_success,
     print_warning,
 )
+from ecu_hockey_calendar.cli.sync import _resolve_cli_opponent_directory
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
 from ecu_hockey_calendar.ingestion.client import ResilientHttpClient
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
@@ -51,6 +52,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
     from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
+    from ecu_hockey_calendar.ingestion.opponent_config import OpponentDirectory
 
 __all__ = [
     "ScrapeResult",
@@ -250,10 +252,11 @@ async def _scrape_instagram(
 
 async def _scrape_opponent(
     observer: ScrapeObserver | None = None,
+    directory: OpponentDirectory | None = None,
 ) -> ScrapeResult:
     """Execute Opponent Schedule Feeds crawler across registered endpoints."""
     t0 = datetime.now(UTC)
-    dir_inst = get_default_opponent_directory()
+    dir_inst = directory or get_default_opponent_directory()
     client = ResilientHttpClient(observer=observer)
     crawler = OpponentCrawler(http_client=client, directory=dir_inst)
     all_fixtures: list[Any] = []
@@ -331,6 +334,7 @@ async def _execute_secondary_scrapes(
     target: str,
     observer: ScrapeObserver | None,
     season: str,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> list[ScrapeResult]:
     """Execute Instagram, ticketing, and opponent feed scrapers."""
     res: list[ScrapeResult] = []
@@ -341,7 +345,12 @@ async def _execute_secondary_scrapes(
         res.append(await _scrape_tickets(observer=observer, season=season))
 
     if target == "opponent":
-        res.append(await _scrape_opponent(observer=observer))
+        res.append(
+            await _scrape_opponent(
+                observer=observer,
+                directory=opponent_directory,
+            ),
+        )
 
     return res
 
@@ -352,12 +361,18 @@ async def _execute_scrapes(
     observer: ScrapeObserver | None = None,
     subseasons: str | None = None,
     season: str | None = None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> list[ScrapeResult]:
     """Execute target scrapers according to source code filter."""
     target = source_code.lower()
     season_val = season or "2026-2027"
     primary = await _execute_primary_scrapes(target, observer, subseasons)
-    secondary = await _execute_secondary_scrapes(target, observer, season_val)
+    secondary = await _execute_secondary_scrapes(
+        target,
+        observer,
+        season_val,
+        opponent_directory=opponent_directory,
+    )
     return primary + secondary
 
 
@@ -378,6 +393,7 @@ def _persist_single_source(
     session: Session,
     res: ScrapeResult,
     season: str,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Persist fixtures for a single recognized scraper source."""
     if _persist_primary_source(session, res):
@@ -388,13 +404,16 @@ def _persist_single_source(
     elif res.source_code == "instagram":
         asyncio.run(InstagramCrawler().sync(session, season=season))
     elif res.source_code == "opponent":
-        asyncio.run(OpponentCrawler().sync(session, season=season))
+        asyncio.run(
+            OpponentCrawler(directory=opponent_directory).sync(session, season=season),
+        )
 
 
 def _persist_scraped_results(
     engine: Engine,
     results: list[ScrapeResult],
     season: str | None = None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Persist scraped results into the database when --save is enabled."""
     Base.metadata.create_all(engine)
@@ -403,7 +422,12 @@ def _persist_scraped_results(
     with get_sync_session(engine) as session:
         for res in results:
             if res.status == "SUCCESS" and res.records:
-                _persist_single_source(session, res, season_val)
+                _persist_single_source(
+                    session,
+                    res,
+                    season_val,
+                    opponent_directory=opponent_directory,
+                )
 
 
 def _build_summary_table(results: list[ScrapeResult]) -> tuple[Table, int, float]:
@@ -509,21 +533,27 @@ def _format_json_payload(results: list[ScrapeResult]) -> str:
     return json.dumps(payload, indent=2)
 
 
-def _save_scraped_data(
+def _save_scraped_data(  # pylint: disable=too-many-arguments
     results: list[ScrapeResult],
     db_url: str | None,
     season: str | None,
     as_json: bool,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Save scraped results to relational database storage."""
     db_resolved = get_sync_database_url(db_url)
     engine = create_sync_engine(db_resolved)
-    _persist_scraped_results(engine, results, season=season)
+    _persist_scraped_results(
+        engine,
+        results,
+        season=season,
+        opponent_directory=opponent_directory,
+    )
     if not as_json:
         print_success(f"Persisted scraped fixtures to database ({db_resolved}).")
 
 
-def _run_scraper_pipeline(  # pylint: disable=too-many-arguments
+def _run_scraper_pipeline(  # noqa: PLR0913 # pylint: disable=too-many-arguments
     *,
     source_code: str,
     verbose: bool,
@@ -533,6 +563,7 @@ def _run_scraper_pipeline(  # pylint: disable=too-many-arguments
     as_json: bool,
     save: bool,
     db_url: str | None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Execute scraping pipeline with configured observer and output formatter."""
     out_console = get_console()
@@ -548,11 +579,18 @@ def _run_scraper_pipeline(  # pylint: disable=too-many-arguments
             observer=observer,
             subseasons=subseasons,
             season=season,
+            opponent_directory=opponent_directory,
         ),
     )
 
     if save:
-        _save_scraped_data(results, db_url, season, as_json)
+        _save_scraped_data(
+            results,
+            db_url,
+            season,
+            as_json,
+            opponent_directory=opponent_directory,
+        )
 
     if as_json:
         click.echo(_format_json_payload(results))
@@ -602,6 +640,14 @@ def _resolve_scrape_cli_flags(
     help="Target scraper or crawler to execute.",
 )
 @click.option(
+    "--opponents-config",
+    "-O",
+    "opponents_config",
+    envvar="OPPONENTS_CONFIG",
+    default=None,
+    help="Path to YAML configuration file for opponent schedule feeds.",
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -648,6 +694,7 @@ def scrape_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments
     ctx: click.Context | None,
     *,
     source_code: str = "all",
+    opponents_config: str | None = None,
     verbose: bool = False,
     debug: bool = False,
     subseasons: str | None = None,
@@ -657,6 +704,7 @@ def scrape_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments
     db_url: str | None = None,
 ) -> None:
     """Directly execute schedule scrapers with live telemetry."""
+    opp_dir = _resolve_cli_opponent_directory(ctx, opponents_config)
     is_verbose, is_debug, resolved_db_url = _resolve_scrape_cli_flags(
         ctx,
         verbose,
@@ -672,4 +720,5 @@ def scrape_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments
         as_json=as_json,
         save=save,
         db_url=resolved_db_url,
+        opponent_directory=opp_dir,
     )
