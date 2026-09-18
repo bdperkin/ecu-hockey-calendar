@@ -204,7 +204,7 @@ async def _scrape_acchockey(
         if subseasons:
             all_records = await _crawl_acchockey_subseasons(crawler, subseasons)
         else:
-            records, _, _, _ = await crawler.crawl()
+            records, _, _, _ = await crawler.crawl(include_subseasons=True)
             all_records = records
 
         dur = (datetime.now(UTC) - t0).total_seconds()

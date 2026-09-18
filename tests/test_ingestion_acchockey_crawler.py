@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from ecu_hockey_calendar.ingestion.acchockey_crawler import (
     DEFAULT_ACCHL_SCHEDULE_URL,
+    DEFAULT_PAGINATION_LIMIT,
     ACCHockeyCrawler,
     _dedupe_records,
     _resolve_page_season,
@@ -122,6 +123,7 @@ def db_session() -> Generator[Session, None, None]:
 
 def test_crawler_initialization() -> None:
     """Verify default and customized initialization."""
+    assert DEFAULT_PAGINATION_LIMIT == 25
     default_crawler = ACCHockeyCrawler()
     assert default_crawler.schedule_url == DEFAULT_ACCHL_SCHEDULE_URL
     assert default_crawler.base_url == "https://www.acchockey.com"
@@ -225,6 +227,23 @@ async def test_fetch_landing_or_schedule() -> None:
     )
     assert len(recs3) == 0
 
+    # 4. Landing page with fallback team instance links
+    html_fallback = (
+        '<div><a href="/posts/team_instance/10618291?subseason=966044">Posts</a></div>'
+    )
+    client.fetch_text = AsyncMock(  # type: ignore[method-assign]
+        side_effect=[
+            (html_fallback, "hash_fb_landing"),
+            (HTML_SCHEDULE_PAGE, "hash_fb_sched"),
+        ],
+    )
+    html4, recs4 = await crawler._fetch_landing_or_schedule(
+        "https://example.com/fallback_landing",
+    )
+    assert len(recs4) == 1
+    assert html_fallback in html4
+    assert HTML_SCHEDULE_PAGE in html4
+
 
 @pytest.mark.anyio
 async def test_crawl_pagination_and_subseasons() -> None:
@@ -313,6 +332,10 @@ async def test_fetch_schedule_and_crawl() -> None:
     assert isinstance(recs, list)
     assert content_type == "text/html"
     assert len(content_hash) == 64
+
+    # Also test include_subseasons=False
+    recs_single, _, _, _ = await crawler.crawl(include_subseasons=False)
+    assert isinstance(recs_single, list)
 
 
 def test_finalize_audit() -> None:

@@ -166,7 +166,7 @@ async def _run_acchockey_crawler(
     """
     t0 = datetime.now(UTC)
     crawler = ACCHockeyCrawler(observer=observer)
-    records, _, _, _ = await crawler.crawl()
+    records, _, _, _ = await crawler.crawl(include_subseasons=True)
     dur = (datetime.now(UTC) - t0).total_seconds()
     src_records = [
         _convert_parsed_to_source_record(

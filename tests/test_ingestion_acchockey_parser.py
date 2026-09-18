@@ -1,28 +1,56 @@
 """Unit tests for ACCHL SportsEngine schedule and game parser."""
 
+# pylint: disable=too-many-lines,too-many-locals
+
 from __future__ import annotations
 
 from bs4 import BeautifulSoup
 
 from ecu_hockey_calendar.ingestion.acchockey_parser import (
+    _cell_text_or_default,
     _collect_unique_names,
+    _detect_column_indices,
+    _detect_row_columns_by_count,
     _determine_division_and_game_type,
+    _extract_cell_team_and_url,
     _extract_header_names,
     _extract_header_scores,
     _extract_opponent_info,
+    _extract_row_basic_data,
     _extract_row_cells,
+    _extract_row_cells_tuple,
     _extract_score_and_result,
+    _extract_split_score,
     _extract_sportengine_game_id,
     _extract_tag_classes,
+    _extract_team_instance_schedule_link,
     _extract_time_and_status,
+    _find_cell_team_link,
+    _find_direct_schedule_links,
+    _find_header_col,
+    _find_header_indices,
     _get_cell_at,
+    _has_valid_scores,
+    _is_cell_score_like,
+    _is_ecu_name,
+    _is_split_headers,
     _is_valid_date_text,
+    _needs_fallback_columns,
     _parse_details_list,
     _parse_game_header,
+    _parse_int_score,
+    _parse_overtime_note,
     _parse_scores_for_record,
+    _parse_split_headers,
+    _parse_split_table_row,
+    _parse_standard_headers,
     _parse_stat_table_row,
     _parse_table_rows,
     _resolve_game_page_teams,
+    _resolve_row_columns,
+    _resolve_split_opponent,
+    _resolve_split_score_cols,
+    _TableColumnIndices,
     extract_pagination_urls,
     extract_schedule_urls,
     extract_season_from_html,
@@ -387,7 +415,7 @@ def test_parse_stat_table_row_edge_cases() -> None:
 
     # Date ValueError
     soup4 = BeautifulSoup(
-        "<tr><td>G1</td><td>InvalidDate</td><td>-</td><td>Elon</td></tr>",
+        "<tr><td>G1</td><td>99/99/9999</td><td>-</td><td>Elon</td></tr>",
         "html.parser",
     )
     r4 = soup4.find("tr")
@@ -625,3 +653,448 @@ def test_parser_header_and_pagination_branches() -> None:
     table = table_soup.find("table")
     assert table is not None
     assert len(_parse_table_rows(table, "2025-2026")) == 1
+
+
+def test_parse_7_column_schedule_tables() -> None:
+    """Verify parsing of 7-column tables with League Game or Game Type."""
+    html_league_game = """
+    <table class="statTable">
+    <thead>
+    <tr>
+    <th>Game ID</th><th>League Game</th><th>Date</th><th>Result</th>
+    <th>Opponent</th><th>Location</th><th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr id="game_list_row_201" class="completed">
+    <td>ME-10</td>
+    <td>League</td>
+    <td>Sat Oct 08</td>
+    <td>
+    <div class="scheduleListResult">W</div>
+    <div class="scheduleListScore">5-3</div>
+    </td>
+    <td>vs <a class="teamName" href="/page/show/duke">Duke</a></td>
+    <td>Wake Forest Ice House</td>
+    <td>Final</td>
+    </tr>
+    <tr id="game_list_row_202" class="scheduled">
+    <td>ME-11</td>
+    <td></td>
+    <td>Sun Oct 09</td>
+    <td>
+    <div class="scheduleListResult">-</div>
+    <div class="scheduleListScore"></div>
+    </td>
+    <td>@ <a class="teamName" href="/page/show/elon">Elon</a></td>
+    <td>Hillsborough, NC</td>
+    <td>3:00 PM EST</td>
+    </tr>
+    </tbody>
+    </table>
+    """
+    records = parse_acchockey_schedule_html(
+        html_league_game,
+        default_season="2022-2023",
+    )
+    assert len(records) == 2
+    rec1, rec2 = records[0], records[1]
+    assert rec1.opponent_name == "Duke University"
+    assert rec1.is_home is True
+    assert rec1.home_score == 5
+    assert rec1.away_score == 3
+    assert rec1.status == GameStatus.FINAL
+    assert rec1.venue == "Wake Forest Ice House"
+
+    assert rec2.opponent_name == "Elon University"
+    assert rec2.is_home is False
+    assert rec2.home_score is None
+    assert rec2.away_score is None
+    assert rec2.status == GameStatus.SCHEDULED
+
+    # 7-column table with Game Type instead of League Game
+    html_game_type = """
+    <table class="statTable">
+    <thead>
+    <tr>
+    <th>Game ID</th><th>Game Type</th><th>Date</th><th>Result</th>
+    <th>Opponent</th><th>Location</th><th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr id="game_list_row_301" class="completed">
+    <td>ME-20</td>
+    <td>Conference</td>
+    <td>Fri Nov 12</td>
+    <td>
+    <div class="scheduleListResult">L</div>
+    <div class="scheduleListScore">2-4</div>
+    </td>
+    <td>vs <a class="teamName" href="/page/show/uncw">UNC Wilmington</a></td>
+    <td>The Factory</td>
+    <td>Final</td>
+    </tr>
+    </tbody>
+    </table>
+    """
+    records_gt = parse_acchockey_schedule_html(
+        html_game_type,
+        default_season="2021-2022",
+    )
+    assert len(records_gt) == 1
+    rec_gt = records_gt[0]
+    assert rec_gt.opponent_name == "UNC Wilmington"
+    assert rec_gt.home_score == 2
+    assert rec_gt.away_score == 4
+    assert rec_gt.status == GameStatus.FINAL
+
+
+def test_parse_8_column_split_schedule_table() -> None:
+    """Verify parsing of 2023-2024 8-column table with separate away/home columns."""
+    html_split = """
+    <table class="statTable">
+    <thead>
+    <tr>
+    <th>Game ID</th><th>Date</th><th>Away</th><th>Score</th>
+    <th>Home</th><th>Score</th><th>Location</th><th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- ECU is Home, won 6-2 against Duke -->
+    <tr id="game_list_row_401" class="completed">
+    <td>ME-30</td>
+    <td>Sat Oct 21</td>
+    <td><a class="teamName" href="/page/show/duke">Duke</a></td>
+    <td><div class="scheduleListScore">2</div></td>
+    <td><a class="teamName" href="/page/show/ecu">East Carolina University</a></td>
+    <td><div class="scheduleListScore">6</div></td>
+    <td>Wake Forest Ice House</td>
+    <td>Final</td>
+    </tr>
+    <!-- ECU is Away, won 5-3 in overtime against Charlotte -->
+    <tr id="game_list_row_402" class="completed">
+    <td>ME-31</td>
+    <td>Sat Nov 04</td>
+    <td><a class="teamName" href="/page/show/ecu">East Carolina University</a></td>
+    <td><div class="scheduleListScore">5 (OT)</div></td>
+    <td><a class="teamName" href="/page/show/charlotte">Charlotte</a></td>
+    <td><div class="scheduleListScore">3</div></td>
+    <td>Pineville Ice House</td>
+    <td>Final</td>
+    </tr>
+    <!-- Scheduled future game, no scores -->
+    <tr id="game_list_row_403" class="scheduled">
+    <td>ME-32</td>
+    <td>Sat Jan 13</td>
+    <td><a class="teamName" href="/page/show/elon">Elon</a></td>
+    <td>-</td>
+    <td><a class="teamName" href="/page/show/ecu">East Carolina</a></td>
+    <td>-</td>
+    <td>The Factory</td>
+    <td>8:00 PM EST</td>
+    </tr>
+    </tbody>
+    </table>
+    """
+    records = parse_acchockey_schedule_html(html_split, default_season="2023-2024")
+    assert len(records) == 3
+
+    r1, r2, r3 = records[0], records[1], records[2]
+
+    # Opponents must be clean team names, not score digits!
+    assert r1.opponent_name == "Duke University"
+    assert r1.is_home is True
+    assert r1.home_score == 6
+    assert r1.away_score == 2
+    assert r1.status == GameStatus.FINAL
+    assert r1.venue == "Wake Forest Ice House"
+
+    assert r2.opponent_name == "UNC Charlotte"
+    assert r2.is_home is False
+    assert r2.home_score == 3
+    assert r2.away_score == 5
+    assert r2.overtime_note == "OT"
+    assert r2.status == GameStatus.FINAL
+    assert r2.venue == "Pineville Ice House"
+
+    assert r3.opponent_name == "Elon University"
+    assert r3.is_home is True
+    assert r3.home_score is None
+    assert r3.away_score is None
+    assert r3.status == GameStatus.SCHEDULED
+
+
+def test_schedule_discovery_from_team_instance_links() -> None:
+    """Verify fallback discovery of schedule URLs from team instance links."""
+    html_landing_posts = """
+    <div>
+        <h1>East Carolina University 2026-2027</h1>
+        <a href="/posts/team_instance/10618291?subseason=966044">Latest Posts</a>
+        <a href="/roster/team_instance/10618291?subseason=966044">Roster</a>
+    </div>
+    """
+    discovered = extract_schedule_urls(html_landing_posts)
+    assert len(discovered) == 1
+    assert discovered[0] == (
+        "https://www.acchockey.com/schedule/team_instance/10618291?subseason=966044"
+    )
+
+    # Without subseason query
+    html_no_sub = '<div><a href="/roster/team_instance/10618291">Roster</a></div>'
+    discovered_no_sub = extract_schedule_urls(html_no_sub)
+    assert discovered_no_sub == [
+        "https://www.acchockey.com/schedule/team_instance/10618291",
+    ]
+
+    # No team instance link
+    assert extract_schedule_urls("<div>No links here</div>") == []
+
+
+def test_column_indices_and_header_helpers() -> None:
+    """Verify header detection and column index mapping helpers."""
+    split_sample = ["game id", "date", "away", "score", "home", "score"]
+    assert _is_split_headers(split_sample) is True
+    assert _is_split_headers(["game id", "date", "visitor", "home"]) is True
+    assert _is_split_headers(["game id", "date", "result", "opponent"]) is False
+
+    headers_split = [
+        "game id",
+        "date",
+        "away",
+        "score",
+        "home",
+        "score",
+        "venue",
+        "status",
+    ]
+    assert _find_header_col(headers_split, ("date",), 0) == 1
+    assert _find_header_col(headers_split, ("nonexistent",), 99) == 99
+    assert _find_header_indices(headers_split, ("score",)) == [3, 5]
+    assert _resolve_split_score_cols(headers_split) == (3, 5)
+    assert _resolve_split_score_cols(["no", "scores"]) == (3, 5)
+
+    split_cols = _parse_split_headers(headers_split)
+    assert split_cols.is_split is True
+    assert split_cols.away_team == 2
+    assert split_cols.home_team == 4
+
+    std_headers = [
+        "game id",
+        "league game",
+        "date",
+        "result",
+        "opponent",
+        "location",
+        "status",
+    ]
+    std_cols = _parse_standard_headers(std_headers)
+    assert std_cols.is_split is False
+    assert std_cols.date == 2
+    assert std_cols.score == 3
+    assert std_cols.opponent == 4
+
+    # Table without th tags
+    soup_empty = BeautifulSoup("<table><tr><td>data</td></tr></table>", "html.parser")
+    table_empty = soup_empty.find("table")
+    assert table_empty is not None
+    assert _detect_column_indices(table_empty) == _TableColumnIndices()
+
+
+def test_row_column_detection_fallback_and_cells() -> None:
+    """Verify fallback row column detection and score checking."""
+    assert _is_cell_score_like(None) is False
+    soup_cells = BeautifulSoup(
+        "<tr><td>ME-1</td><td>League</td><td>Sat Oct 4</td><td>5-2</td>"
+        "<td>Elon</td><td>Rink</td><td>Final</td><td>Extra</td></tr>",
+        "html.parser",
+    )
+    row = soup_cells.find("tr")
+    assert row is not None
+    cells = _extract_row_cells(row)
+
+    assert _is_cell_score_like(cells[3]) is False
+    assert _is_cell_score_like(cells[1]) is False
+    dash_cell = BeautifulSoup("<td>-</td>", "html.parser").find("td")
+    assert _is_cell_score_like(dash_cell) is True
+
+    # 8-cell split detection
+    soup_split_cells = BeautifulSoup(
+        "<tr><td>ME-1</td><td>Sat Oct 4</td><td>Duke</td><td>3</td>"
+        "<td>ECU</td><td>5</td><td>Rink</td><td>Final</td></tr>",
+        "html.parser",
+    )
+    split_row = soup_split_cells.find("tr")
+    assert split_row is not None
+    split_cells = _extract_row_cells(split_row)
+    assert _is_cell_score_like(split_cells[3]) is True
+    cols_split = _detect_row_columns_by_count(split_cells)
+    assert cols_split.is_split is True
+
+    # 7-cell layout detection
+    cols_7 = _detect_row_columns_by_count(cells[:7])
+    assert cols_7.date == 2
+    assert cols_7.is_split is False
+
+    # 6-cell layout detection (default)
+    cols_6 = _detect_row_columns_by_count(cells[:6])
+    assert cols_6.date == 1
+
+    # _needs_fallback_columns check
+    assert _needs_fallback_columns(cells, _TableColumnIndices(date=1)) is True
+    assert _needs_fallback_columns(cells, _TableColumnIndices(date=2)) is False
+
+    # _resolve_row_columns
+    resolved = _resolve_row_columns(cells, _TableColumnIndices(date=2))
+    assert resolved.date == 2
+
+
+def test_split_row_helpers_and_edge_cases() -> None:
+    """Verify split row helper functions and edge case handling."""
+    assert _is_ecu_name("East Carolina University") is True
+    assert _is_ecu_name("ECU") is True
+    assert _is_ecu_name("East Carolina Club") is True
+    assert _is_ecu_name("Duke University") is False
+    assert _is_ecu_name("") is False
+
+    soup_links = BeautifulSoup(
+        '<div><a class="teamName" href="/p1">Duke</a>'
+        '<a href="/page/show/1234">ECU</a><a href="/other">Elon</a></div>',
+        "html.parser",
+    )
+    assert _find_cell_team_link(soup_links) is not None
+
+    instance_cell = BeautifulSoup(
+        '<td><a href="/team_instance/1234">Duke</a></td>',
+        "html.parser",
+    ).find("td")
+    assert instance_cell is not None
+    assert _find_cell_team_link(instance_cell) is not None
+
+    empty_cell = BeautifulSoup("<td></td>", "html.parser").find("td")
+    assert empty_cell is not None
+    assert _find_cell_team_link(empty_cell) is None
+    assert _extract_cell_team_and_url(None) == ("", "")
+    assert _extract_cell_team_and_url(empty_cell) == ("", "")
+
+    empty_link_cell = BeautifulSoup(
+        '<td><a href="/team"></a>Fallback</td>',
+        "html.parser",
+    ).find("td")
+    assert empty_link_cell is not None
+    assert _extract_cell_team_and_url(empty_link_cell) == ("Fallback", "")
+
+    cell_duke = BeautifulSoup(
+        '<td><a class="teamName" href="/duke">Duke</a></td>',
+        "html.parser",
+    ).find("td")
+    cell_ecu = BeautifulSoup(
+        '<td><a class="teamName" href="/ecu">ECU</a></td>',
+        "html.parser",
+    ).find("td")
+    cell_elon = BeautifulSoup(
+        '<td><a class="teamName" href="/elon">Elon</a></td>',
+        "html.parser",
+    ).find("td")
+
+    # When away is ECU
+    is_home1, opp1, _ = _resolve_split_opponent(cell_ecu, cell_duke)
+    assert is_home1 is False
+    assert opp1 == "Duke University"
+
+    # When home is ECU
+    is_home2, opp2, _ = _resolve_split_opponent(cell_duke, cell_ecu)
+    assert is_home2 is True
+    assert opp2 == "Duke University"
+
+    # When neither is ECU
+    is_home3, opp3, _ = _resolve_split_opponent(cell_duke, cell_elon)
+    assert is_home3 is True
+    assert opp3 == "Duke University"
+
+    # Score parsing helpers
+    assert _parse_int_score("5") == 5
+    assert _parse_int_score("invalid") is None
+    assert _parse_overtime_note("5 (OT)") == "OT"
+    assert _parse_overtime_note("3") is None
+    assert _extract_split_score(None) == (None, None)
+    assert _extract_split_score(empty_cell) == (None, None)
+
+    assert _has_valid_scores(None, 5) is False
+    assert _has_valid_scores(0, 0) is False
+    assert _has_valid_scores(5, 2) is True
+
+    assert _cell_text_or_default(None, "def") == "def"
+    assert _cell_text_or_default(empty_cell, "def") == "def"
+
+    # _extract_team_instance_schedule_link edge case
+    assert (
+        _extract_team_instance_schedule_link("/random/link", "https://example.com")
+        is None
+    )
+    assert not _find_direct_schedule_links(soup_links, "https://example.com")
+
+
+def test_split_table_row_edge_cases() -> None:
+    """Verify edge cases when parsing split table rows."""
+    # Row with invalid date
+    soup_bad_date = BeautifulSoup(
+        "<tr><td>ME-1</td><td>Date</td><td>Duke</td><td>2</td>"
+        "<td>ECU</td><td>5</td><td>Rink</td><td>Final</td></tr>",
+        "html.parser",
+    )
+    r_bad_date = soup_bad_date.find("tr")
+    assert r_bad_date is not None
+    cols = _TableColumnIndices(is_split=True)
+    cells_bad_date = _extract_row_cells(r_bad_date)
+    assert _parse_split_table_row(r_bad_date, cells_bad_date, "2023-2024", cols) is None
+
+    # Row with bad date format that fails parse_game_datetime
+    soup_unparseable = BeautifulSoup(
+        "<tr><td>ME-1</td><td>99/99/9999</td><td>Duke</td><td>2</td>"
+        "<td>ECU</td><td>5</td><td>Rink</td><td>Final</td></tr>",
+        "html.parser",
+    )
+    r_unp = soup_unparseable.find("tr")
+    assert r_unp is not None
+    cells_unp = _extract_row_cells(r_unp)
+    assert _parse_split_table_row(r_unp, cells_unp, "2023-2024", cols) is None
+
+    # Row with missing opponent name
+    soup_no_opp = BeautifulSoup(
+        "<tr><td>ME-1</td><td>Sat Oct 4</td><td></td><td>-</td>"
+        "<td></td><td>-</td><td>Rink</td><td>Final</td></tr>",
+        "html.parser",
+    )
+    r_no_opp = soup_no_opp.find("tr")
+    assert r_no_opp is not None
+    cells_no_opp = _extract_row_cells(r_no_opp)
+    assert _parse_split_table_row(r_no_opp, cells_no_opp, "2023-2024", cols) is None
+
+    # Row with Scheduled status clears scores
+    soup_sched = BeautifulSoup(
+        "<tr><td>ME-1</td><td>Sat Oct 4</td><td>Duke</td><td>-</td>"
+        "<td>ECU</td><td>-</td><td>Rink</td><td>Scheduled</td></tr>",
+        "html.parser",
+    )
+    r_sched = soup_sched.find("tr")
+    assert r_sched is not None
+    rec_sched = _parse_split_table_row(
+        r_sched,
+        _extract_row_cells(r_sched),
+        "2023-2024",
+        cols,
+    )
+    assert rec_sched is not None
+    assert rec_sched.status == GameStatus.SCHEDULED
+    assert rec_sched.home_score is None
+
+    # _extract_row_cells_tuple edge cases
+    soup_short = BeautifulSoup(
+        "<tr><td>ME-1</td><td>Sat Oct 4</td></tr>",
+        "html.parser",
+    )
+    r_short = soup_short.find("tr")
+    assert r_short is not None
+    cells_short = _extract_row_cells(r_short)
+    assert _extract_row_cells_tuple(cells_short, _TableColumnIndices()) is None
+    assert _extract_row_basic_data(cells_short) is None

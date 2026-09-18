@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
 
 DEFAULT_ACCHL_SCHEDULE_URL = "https://www.acchockey.com/page/show/9602441-east-carolina"
-DEFAULT_PAGINATION_LIMIT = 10
+DEFAULT_PAGINATION_LIMIT = 25
 
 
 def _dedupe_records(
@@ -435,7 +435,7 @@ class ACCHockeyCrawler:
         session: Session,
         *,
         source_code: str = "league_acchockey",
-        include_subseasons: bool = False,
+        include_subseasons: bool = True,
         max_pages: int = DEFAULT_PAGINATION_LIMIT,
     ) -> SyncAuditModel:
         """Execute full crawl cycle and persist snapshot and game entities.
