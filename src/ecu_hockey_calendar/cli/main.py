@@ -43,6 +43,14 @@ if TYPE_CHECKING:
     help="Administrative authentication Bearer token for protected remote endpoints.",
 )
 @click.option(
+    "--opponents-config",
+    "-O",
+    "opponents_config",
+    envvar="OPPONENTS_CONFIG",
+    default=None,
+    help="Path to YAML configuration file for opponent schedule feeds.",
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -61,6 +69,7 @@ def cli(
     *,
     api_url: str | None = None,
     token: str | None = None,
+    opponents_config: str | None = None,
     verbose: bool = False,
     debug: bool = False,
 ) -> None:
@@ -68,6 +77,7 @@ def cli(
     ctx.ensure_object(dict)
     ctx.obj["api_url"] = api_url
     ctx.obj["token"] = token
+    ctx.obj["opponents_config"] = opponents_config
     ctx.obj["verbose"] = verbose
     ctx.obj["debug"] = debug
 

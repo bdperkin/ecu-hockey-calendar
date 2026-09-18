@@ -319,6 +319,7 @@ async def _execute_single_crawler(
 async def _execute_crawlers(
     source_filter: str,
     observer: ScrapeObserver | None = None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> tuple[list[SourceGameRecord], list[dict[str, Any]]]:
     """Execute active crawlers based on source filter and collect telemetry.
 
@@ -326,6 +327,7 @@ async def _execute_crawlers(
         source_filter: Filter for source execution ('all', 'ecuhockey',
             'acchockey', 'instagram', 'opponent', 'social').
         observer: Optional telemetry observer.
+        opponent_directory: Optional custom OpponentDirectory instance.
 
     Returns:
         Tuple of (all_source_records, crawl_telemetry_list).
@@ -354,7 +356,10 @@ async def _execute_crawlers(
         ),
         (
             ("opponent",),
-            lambda: _run_opponent_crawler(observer=observer),
+            lambda: _run_opponent_crawler(
+                directory=opponent_directory,
+                observer=observer,
+            ),
             "opponent",
             "Opponent Schedule Feeds",
         ),
@@ -618,13 +623,21 @@ async def _execute_crawler_phase(
     crawler_fn: Callable[..., Any] | None,
     source_filter: str,
     observer: ScrapeObserver | None = None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> tuple[list[SourceGameRecord], list[dict[str, Any]]]:
     """Execute crawlers either via custom callable or default crawlers."""
     exec_crawlers = crawler_fn or _execute_crawlers
     try:
-        crawl_raw = exec_crawlers(source_filter, observer=observer)
+        crawl_raw = exec_crawlers(
+            source_filter,
+            observer=observer,
+            opponent_directory=opponent_directory,
+        )
     except TypeError:
-        crawl_raw = exec_crawlers(source_filter)
+        try:
+            crawl_raw = exec_crawlers(source_filter, observer=observer)
+        except TypeError:
+            crawl_raw = exec_crawlers(source_filter)
 
     if inspect.isawaitable(crawl_raw):
         return await crawl_raw
@@ -681,6 +694,18 @@ def _execute_db_persistence(
         session.commit()
 
 
+def _build_opponent_crawler(
+    opponent_crawler_cls: type[OpponentCrawler] | None,
+    opponent_directory: OpponentDirectory | None,
+) -> OpponentCrawler:
+    """Instantiate opponent crawler with optional custom directory."""
+    opp_cls = opponent_crawler_cls or OpponentCrawler
+    if opponent_directory is not None:
+        return opp_cls(directory=opponent_directory)
+
+    return opp_cls()
+
+
 async def _execute_opponent_verification(
     session: Session,
     *,
@@ -688,6 +713,7 @@ async def _execute_opponent_verification(
     season: str | None,
     reconciled_games: Sequence[ReconciledGame],
     opponent_crawler_cls: type[OpponentCrawler] | None = None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Run reverse opponent fixture verification across reconciled games.
 
@@ -697,9 +723,9 @@ async def _execute_opponent_verification(
         season: Target season string.
         reconciled_games: Reconciled game domain records.
         opponent_crawler_cls: Optional custom OpponentCrawler class.
+        opponent_directory: Optional custom OpponentDirectory instance.
     """
-    opp_cls = opponent_crawler_cls or OpponentCrawler
-    opp_crawler = opp_cls()
+    opp_crawler = _build_opponent_crawler(opponent_crawler_cls, opponent_directory)
     if not dry_run:
         target_games = _load_baseline_games_from_db(session, season)
         await opp_crawler.sync(
@@ -707,12 +733,13 @@ async def _execute_opponent_verification(
             games=target_games,
             season=season or "2026-2027",
         )
-    else:
-        games_to_check = [rg.to_domain_game() for rg in reconciled_games]
-        await opp_crawler.reverse_check_all_games(
-            games_to_check,
-            use_cache=True,
-        )
+        return
+
+    games_to_check = [rg.to_domain_game() for rg in reconciled_games]
+    await opp_crawler.reverse_check_all_games(
+        games_to_check,
+        use_cache=True,
+    )
 
 
 async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-arguments # noqa: PLR0913
@@ -732,6 +759,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     verify_opponents: bool = False,
     opponent_crawler_cls: type[OpponentCrawler] | None = None,
     observer: ScrapeObserver | None = None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Asynchronously execute core crawl, reconciliation, diffing, and storage.
 
@@ -753,6 +781,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
             schedule feeds.
         opponent_crawler_cls: Optional custom OpponentCrawler class.
         observer: Optional telemetry observer interface.
+        opponent_directory: Optional custom OpponentDirectory instance.
 
     Returns:
         Tuple of (crawl_telemetry, change_detection_result, detected_conflicts).
@@ -764,6 +793,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
         crawler_fn,
         source_filter,
         observer=observer,
+        opponent_directory=opponent_directory,
     )
 
     # 2. Reconcile records
@@ -799,6 +829,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
                 season=season,
                 reconciled_games=reconciled_cycle.reconciled_games,
                 opponent_crawler_cls=opponent_crawler_cls,
+                opponent_directory=opponent_directory,
             )
 
     # 4. Webhook notifications
@@ -813,7 +844,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     return crawl_telemetry, change_result, all_conflicts
 
 
-def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
+def execute_sync_pipeline(  # pylint: disable=too-many-locals,too-many-arguments # noqa: PLR0913
     *,
     engine: Engine,
     source_filter: str = "all",
@@ -830,6 +861,7 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
     verify_opponents: bool = False,
     opponent_crawler_cls: type[OpponentCrawler] | None = None,
     observer: ScrapeObserver | None = None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous entrypoint executing core sync pipeline via asyncio.run.
 
@@ -850,6 +882,7 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
             schedule feeds.
         opponent_crawler_cls: Optional custom OpponentCrawler class.
         observer: Optional telemetry observer interface.
+        opponent_directory: Optional custom OpponentDirectory instance.
 
     Returns:
         Tuple of (crawl_telemetry, change_detection_result, detected_conflicts).
@@ -871,6 +904,7 @@ def execute_sync_pipeline(  # pylint: disable=too-many-arguments # noqa: PLR0913
             verify_opponents=verify_opponents,
             opponent_crawler_cls=opponent_crawler_cls,
             observer=observer,
+            opponent_directory=opponent_directory,
         ),
     )
 

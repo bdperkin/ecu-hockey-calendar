@@ -532,3 +532,164 @@ def test_scrape_command_with_non_dict_context_obj() -> None:
         result = runner.invoke(scrape_command, ["-s", "ecuhockey"], obj="not-a-dict")
         assert result.exit_code == 0
         assert "ECU Hockey Official" in result.output
+
+
+def test_scrape_with_opponents_config_flag(tmp_path: Path) -> None:
+    """Verify scrape command accepts -O / --opponents-config flag."""
+    runner = CliRunner()
+    custom_yaml = tmp_path / "opponents.yaml"
+    custom_yaml.write_text(
+        """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+        encoding="utf-8",
+    )
+    dummy_fixture = OpponentFixture(
+        opponent_name="UNC Chapel Hill",
+        summary="ECU vs UNC",
+        start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+        venue="Orange County Sportsplex",
+        is_opponent_home=True,
+    )
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.OpponentCrawler.fetch_opponent_schedule",
+        new_callable=AsyncMock,
+        return_value=([dummy_fixture], "{}", "hash", "application/json"),
+    ):
+        res = runner.invoke(
+            scrape_command,
+            ["-O", str(custom_yaml), "-s", "opponent"],
+        )
+        assert res.exit_code == 0
+        assert "Opponent Schedule Feeds" in res.output
+
+
+def test_scrape_with_missing_opponents_config(tmp_path: Path) -> None:
+    """Verify scrape command aborts cleanly when opponent config is missing."""
+    runner = CliRunner()
+    missing = tmp_path / "missing_opponents.yaml"
+    res = runner.invoke(
+        scrape_command,
+        ["-O", str(missing), "-s", "opponent"],
+    )
+    assert res.exit_code != 0
+    assert "Opponent configuration file not found" in res.output
+
+
+def test_scrape_with_invalid_opponents_config(tmp_path: Path) -> None:
+    """Verify scrape command aborts cleanly on invalid YAML opponent config."""
+    runner = CliRunner()
+    bad_yaml = tmp_path / "bad.yaml"
+    bad_yaml.write_text("opponents: [broken", encoding="utf-8")
+    res = runner.invoke(
+        scrape_command,
+        ["-O", str(bad_yaml), "-s", "opponent"],
+    )
+    assert res.exit_code != 0
+    assert "Invalid opponent configuration" in res.output
+
+
+def test_crawl_alias_with_opponents_config(tmp_path: Path) -> None:
+    """Verify crawl alias accepts -O / --opponents-config flag."""
+    runner = CliRunner()
+    custom_yaml = tmp_path / "opponents.yaml"
+    custom_yaml.write_text(
+        """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+        encoding="utf-8",
+    )
+    dummy_fixture = OpponentFixture(
+        opponent_name="UNC Chapel Hill",
+        summary="ECU vs UNC",
+        start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+        venue="Orange County Sportsplex",
+        is_opponent_home=True,
+    )
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.OpponentCrawler.fetch_opponent_schedule",
+        new_callable=AsyncMock,
+        return_value=([dummy_fixture], "{}", "hash", "application/json"),
+    ):
+        res = runner.invoke(
+            cli,
+            ["crawl", "-O", str(custom_yaml), "-s", "opponent"],
+        )
+        assert res.exit_code == 0
+        assert "Opponent Schedule Feeds" in res.output
+
+
+def test_scrape_root_cli_context_inheritance(tmp_path: Path) -> None:
+    """Verify root cli -O option is passed down to scrape command via ctx.obj."""
+    runner = CliRunner()
+    custom_yaml = tmp_path / "root_opponents.yaml"
+    custom_yaml.write_text(
+        """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+        encoding="utf-8",
+    )
+    dummy_fixture = OpponentFixture(
+        opponent_name="UNC Chapel Hill",
+        summary="ECU vs UNC",
+        start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+        venue="Orange County Sportsplex",
+        is_opponent_home=True,
+    )
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.OpponentCrawler.fetch_opponent_schedule",
+        new_callable=AsyncMock,
+        return_value=([dummy_fixture], "{}", "hash", "application/json"),
+    ):
+        res = runner.invoke(
+            cli,
+            ["-O", str(custom_yaml), "scrape", "-s", "opponent"],
+        )
+        assert res.exit_code == 0
+        assert "Opponent Schedule Feeds" in res.output
+
+
+def test_scrape_with_envvar_opponents_config(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify scrape command respects OPPONENTS_CONFIG environment variable."""
+    runner = CliRunner()
+    custom_yaml = tmp_path / "env_opponents.yaml"
+    custom_yaml.write_text(
+        """opponents:
+    -
+        canonical_name: "UNC Chapel Hill"
+        feed_url: "https://unc.edu/feed.ics"
+        feed_type: "ical"
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OPPONENTS_CONFIG", str(custom_yaml))
+    dummy_fixture = OpponentFixture(
+        opponent_name="UNC Chapel Hill",
+        summary="ECU vs UNC",
+        start_time=datetime(2026, 10, 20, 19, 0, tzinfo=UTC),
+        venue="Orange County Sportsplex",
+        is_opponent_home=True,
+    )
+    with patch(
+        "ecu_hockey_calendar.cli.scrape.OpponentCrawler.fetch_opponent_schedule",
+        new_callable=AsyncMock,
+        return_value=([dummy_fixture], "{}", "hash", "application/json"),
+    ):
+        res = runner.invoke(
+            scrape_command,
+            ["-s", "opponent"],
+        )
+        assert res.exit_code == 0
+        assert "Opponent Schedule Feeds" in res.output

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from enum import StrEnum
 from importlib.resources import files
@@ -368,10 +369,41 @@ def get_default_opponent_directory() -> OpponentDirectory:
     return OpponentDirectory.from_yaml(yaml_text)
 
 
+def resolve_opponent_directory(
+    config_path: str | Path | None = None,
+) -> OpponentDirectory:
+    """Resolve opponent directory from path, environment variable, or bundled default.
+
+    Resolution hierarchy:
+    1. Explicit config_path parameter
+    2. OPPONENTS_CONFIG environment variable
+    3. Bundled package default dataset (opponents.yaml)
+
+    Args:
+        config_path: Optional path to opponent YAML configuration file.
+
+    Returns:
+        Populated OpponentDirectory instance.
+
+    Raises:
+        FileNotFoundError: If the specified configuration file does not exist.
+        OpponentConfigError: If YAML syntax or schema is invalid.
+    """
+    if config_path is not None:
+        return OpponentDirectory.from_yaml(Path(config_path))
+
+    env_path = os.environ.get("OPPONENTS_CONFIG")
+    if env_path:
+        return OpponentDirectory.from_yaml(Path(env_path))
+
+    return get_default_opponent_directory()
+
+
 __all__ = [
     "OpponentConfigError",
     "OpponentDirectory",
     "OpponentEndpointConfig",
     "OpponentFeedType",
     "get_default_opponent_directory",
+    "resolve_opponent_directory",
 ]

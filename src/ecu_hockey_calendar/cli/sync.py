@@ -36,6 +36,11 @@ from ecu_hockey_calendar.cli.status import (
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
+from ecu_hockey_calendar.ingestion.opponent_config import (
+    OpponentConfigError,
+    OpponentDirectory,
+    resolve_opponent_directory,
+)
 from ecu_hockey_calendar.ingestion.opponent_crawler import OpponentCrawler
 from ecu_hockey_calendar.ingestion.telemetry import (
     ConsoleScrapeObserver,
@@ -57,6 +62,8 @@ from ecu_hockey_calendar.sync_service import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from rich.console import Console
     from sqlalchemy.engine import Engine
 
@@ -86,6 +93,7 @@ __all__ = [
     "_render_local_sync_status",
     "_render_remote_sync_status",
     "_render_sync_results",
+    "_resolve_cli_opponent_directory",
     "_resolve_remote_credentials",
     "_run_sync_status",
     "_run_sync_trigger",
@@ -153,7 +161,7 @@ def _execute_remote_sync(
     _handle_remote_sync_result(result)
 
 
-def _execute_sync_pipeline(
+def _execute_sync_pipeline(  # noqa: PLR0913 # pylint: disable=too-many-arguments
     *,
     engine: Engine,
     source_filter: str,
@@ -163,6 +171,7 @@ def _execute_sync_pipeline(
     season: str | None,
     verify_opponents: bool = False,
     observer: ScrapeObserver | None = None,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous core pipeline orchestrating crawl, reconciliation, and storage."""
     return execute_sync_pipeline(
@@ -178,6 +187,7 @@ def _execute_sync_pipeline(
         dispatcher_cls=NotificationDispatcher,
         verify_opponents=verify_opponents,
         observer=observer,
+        opponent_directory=opponent_directory,
     )
 
 
@@ -278,25 +288,42 @@ def _render_sync_results(
         )
 
 
-def _populate_ctx_params(
+def _populate_ctx_params(  # pylint: disable=too-many-arguments
     ctx: click.Context | None,
     api_url: str | None,
     token: str | None,
     db_url: str | None,
+    opponents_config: str | None = None,
 ) -> None:
     """Store group-level connection parameters in Click context object."""
     if ctx is None:
         return
 
     ctx.ensure_object(dict)
-    if api_url is not None:
-        ctx.obj["api_url"] = api_url
+    params = {
+        "api_url": api_url,
+        "token": token,
+        "db_url": db_url,
+        "opponents_config": opponents_config,
+    }
+    for key, val in params.items():
+        if val is not None:
+            ctx.obj[key] = val
 
-    if token is not None:
-        ctx.obj["token"] = token
 
-    if db_url is not None:
-        ctx.obj["db_url"] = db_url
+def _resolve_cli_opponent_directory(
+    ctx: click.Context | None,
+    opponents_config: str | Path | None,
+) -> OpponentDirectory:
+    """Resolve OpponentDirectory for CLI execution with user-friendly error handling."""
+    ctx_val = _extract_ctx_str(ctx.obj if ctx else None, "opponents_config")
+    resolved_path = opponents_config or ctx_val
+    try:
+        return resolve_opponent_directory(resolved_path)
+    except (FileNotFoundError, OpponentConfigError) as exc:
+        err_msg = f"Invalid opponent configuration: {exc}"
+        print_error(err_msg)
+        raise click.ClickException(err_msg) from exc
 
 
 def _resolve_sync_cli_flags(
@@ -339,6 +366,7 @@ def _run_sync_pipeline_with_progress(  # noqa: PLR0913 # pylint: disable=too-man
     verify_opponents: bool,
     observer: ScrapeObserver | None,
     console: Console,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Execute sync pipeline with spinner or live observer telemetry."""
     if observer is not None:
@@ -351,6 +379,7 @@ def _run_sync_pipeline_with_progress(  # noqa: PLR0913 # pylint: disable=too-man
             season=season,
             verify_opponents=verify_opponents,
             observer=observer,
+            opponent_directory=opponent_directory,
         )
 
     with console.status(
@@ -366,6 +395,7 @@ def _run_sync_pipeline_with_progress(  # noqa: PLR0913 # pylint: disable=too-man
             season=season,
             verify_opponents=verify_opponents,
             observer=None,
+            opponent_directory=opponent_directory,
         )
 
 
@@ -383,11 +413,13 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
     verify_opponents: bool = False,
     verbose: bool = False,
     debug: bool = False,
+    opponents_config: str | Path | None = None,
 ) -> None:
     """Execute schedule crawl, reconciliation, and diffing pipeline."""
     console = get_console()
     print_banner("SCHEDULE SYNCHRONIZATION & RECONCILIATION")
 
+    opponent_directory = _resolve_cli_opponent_directory(ctx, opponents_config)
     is_verbose, is_debug = _resolve_sync_cli_flags(ctx, verbose, debug)
     api_url, token = _resolve_remote_credentials(ctx, api_url, token)
     if api_url:
@@ -415,6 +447,7 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
             verify_opponents=verify_opponents,
             observer=observer,
             console=console,
+            opponent_directory=opponent_directory,
         )
     except Exception as exc:
         print_error(f"Synchronization pipeline encountered a fatal error: {exc}")
@@ -550,6 +583,14 @@ def _run_sync_status(
     help="Perform reverse cross-checking against opponent schedule feeds.",
 )
 @click.option(
+    "--opponents-config",
+    "-O",
+    "opponents_config",
+    envvar="OPPONENTS_CONFIG",
+    default=None,
+    help="Path to YAML configuration file for opponent schedule feeds.",
+)
+@click.option(
     "--dry-run",
     is_flag=True,
     default=False,
@@ -610,6 +651,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     *,
     source_code: str = "all",
     verify_opponents: bool = False,
+    opponents_config: str | None = None,
     dry_run: bool = False,
     notify: bool = False,
     notify_individual: bool = False,
@@ -621,7 +663,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     debug: bool = False,
 ) -> None:
     """Ingest upstream schedules, reconcile conflicts, and detect changes."""
-    _populate_ctx_params(ctx, api_url, token, db_url)
+    _populate_ctx_params(ctx, api_url, token, db_url, opponents_config)
     if ctx.invoked_subcommand is not None:
         return
 
@@ -638,6 +680,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
         verify_opponents=verify_opponents,
         verbose=verbose,
         debug=debug,
+        opponents_config=opponents_config,
     )
 
 
@@ -659,6 +702,14 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     is_flag=True,
     default=False,
     help="Perform reverse cross-checking against opponent schedule feeds.",
+)
+@click.option(
+    "--opponents-config",
+    "-O",
+    "opponents_config",
+    envvar="OPPONENTS_CONFIG",
+    default=None,
+    help="Path to YAML configuration file for opponent schedule feeds.",
 )
 @click.option(
     "--dry-run",
@@ -721,6 +772,7 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
     *,
     source_code: str = "all",
     verify_opponents: bool = False,
+    opponents_config: str | None = None,
     dry_run: bool = False,
     notify: bool = False,
     notify_individual: bool = False,
@@ -745,6 +797,7 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
         verify_opponents=verify_opponents,
         verbose=verbose,
         debug=debug,
+        opponents_config=opponents_config,
     )
 
 
