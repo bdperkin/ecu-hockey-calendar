@@ -371,7 +371,7 @@ def test_ensure_data_source_custom_urls(sqlite_engine: Any) -> None:
             "Instagram",
             DataSourceType.SOCIAL,
         )
-        assert "instagram.com" in src_ig.source_url
+        assert src_ig.source_url == "https://www.instagram.com/ecuhockey"
 
         src_opp = _ensure_data_source(
             session,
@@ -379,7 +379,7 @@ def test_ensure_data_source_custom_urls(sqlite_engine: Any) -> None:
             "Opponent",
             DataSourceType.OPPONENT,
         )
-        assert "ecu-hockey-calendar" in src_opp.source_url
+        assert src_opp.source_url == "https://github.com/bdperkin/ecu-hockey-calendar"
 
         src_other = _ensure_data_source(
             session,
