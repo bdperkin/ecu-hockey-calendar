@@ -175,3 +175,46 @@ async def verify_against_opponents() -> None:
 
 asyncio.run(verify_against_opponents())
 ```
+
+## 8. Opponent Schedule Feeds Configuration (YAML Schema)
+
+Opponent schedule endpoints can be configured dynamically using structured YAML files, allowing feeds, venues, aliases, and platforms to be managed without modifying code.
+
+### 8.1. YAML Schema Definition
+
+```yaml
+opponents:
+  - canonical_name: "UNC Chapel Hill"
+    feed_url: "https://tarheelhockey.com/schedule.ics"
+    feed_type: "ical"  # 'ical' | 'json' | 'html' | 'sportengine'
+    home_venue: "Orange County Sportsplex"
+    division: "ACHA M2"
+    conference: "ACCHL"
+    aliases:
+      - "unc"
+      - "north carolina"
+      - "tar heels"
+    website: "https://tarheelhockey.com"
+    enabled: true
+```
+
+### 8.2. Loading & Serialization
+
+`OpponentDirectory` provides `from_yaml()` and `to_yaml()` methods to load and export endpoint configurations from file paths (`Path` or `str`), file-like streams (`TextIO`), or raw YAML strings:
+
+```python
+from pathlib import Path
+
+from ecu_hockey_calendar.ingestion import OpponentDirectory
+
+# Load from file path or Path object
+directory = OpponentDirectory.from_yaml(Path("config/opponents.yaml"))
+
+# Query opponent by name or alias
+endpoint = directory.get("unc")
+if endpoint and endpoint.enabled:
+    print(f"Feed URL: {endpoint.feed_url} ({endpoint.feed_type.value})")
+
+# Export directory back to YAML
+yaml_output = directory.to_yaml()
+```

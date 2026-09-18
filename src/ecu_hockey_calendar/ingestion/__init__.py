@@ -73,25 +73,28 @@ from ecu_hockey_calendar.ingestion.normalizer import (
     parse_game_score,
     parse_game_status,
 )
+from ecu_hockey_calendar.ingestion.opponent_config import (
+    DEFAULT_OPPONENT_SPECS,
+    OpponentConfigError,
+    OpponentDirectory,
+    OpponentEndpointConfig,
+    OpponentFeedType,
+    get_default_opponent_directory,
+)
 from ecu_hockey_calendar.ingestion.opponent_crawler import (
     DEFAULT_OPPONENT_CACHE_TTL,
     OpponentCrawler,
 )
 from ecu_hockey_calendar.ingestion.opponent_parser import (
-    DEFAULT_OPPONENT_SPECS,
     HIGH_CONFIDENCE_THRESHOLD,
     Discrepancy,
     DiscrepancyType,
-    OpponentDirectory,
-    OpponentEndpointConfig,
-    OpponentFeedType,
     OpponentFixture,
     ReverseCheckResult,
     VerificationStatus,
     compare_fixtures,
     cross_check_game_against_opponent,
     filter_ecu_fixtures,
-    get_default_opponent_directory,
     is_ecu_match,
     parse_ical_datetime_string,
     parse_opponent_html_feed,
@@ -159,6 +162,7 @@ __all__ = [
     "HttpWireEvent",
     "InstagramCrawler",
     "NullScrapeObserver",
+    "OpponentConfigError",
     "OpponentCrawler",
     "OpponentDirectory",
     "OpponentEndpointConfig",
