@@ -139,8 +139,9 @@ async def test_run_crawlers_success() -> None:
         "ecu_hockey_calendar.sync_service.ACCHockeyCrawler.crawl",
         new_callable=AsyncMock,
         return_value=([mock_record], "<html></html>", "h2", "text/html"),
-    ):
+    ) as mock_acc_crawl:
         recs_acc, status_acc, dur_acc = await _run_acchockey_crawler()
+        mock_acc_crawl.assert_called_once_with(include_subseasons=True)
         assert len(recs_acc) == 1
         assert status_acc == "SUCCESS"
         assert dur_acc >= 0.0
