@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
-import logging
 import time
 from typing import TYPE_CHECKING, Any, Self
 
@@ -23,7 +22,6 @@ DEFAULT_TIMEOUT = 15.0
 DEFAULT_MAX_RETRIES = 3
 DEFAULT_BACKOFF_FACTOR = 0.5
 RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
-logger = logging.getLogger("ecu_hockey_calendar.http")
 
 
 def compute_content_hash(data: bytes | str) -> str:
