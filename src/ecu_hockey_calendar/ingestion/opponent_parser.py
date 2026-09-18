@@ -19,8 +19,15 @@ from bs4 import BeautifulSoup
 
 from ecu_hockey_calendar.ingestion.normalizer import (
     DEFAULT_TIMEZONE,
-    normalize_team_name,
     parse_game_datetime,
+)
+from ecu_hockey_calendar.ingestion.opponent_config import (
+    DEFAULT_OPPONENT_SPECS,
+    OpponentConfigError,
+    OpponentDirectory,
+    OpponentEndpointConfig,
+    OpponentFeedType,
+    get_default_opponent_directory,
 )
 from ecu_hockey_calendar.storage.models import GameStatus
 
@@ -53,15 +60,6 @@ EXPECTED_SPLIT_PARTS = 2
 MIN_HTML_CELLS = 2
 MIN_HTML_TIME_CELLS = 3
 MIN_HTML_VENUE_CELLS = 4
-
-
-class OpponentFeedType(StrEnum):
-    """Supported opponent schedule feed data formats."""
-
-    ICAL = "ical"
-    JSON = "json"
-    HTML = "html"
-    SPORTENGINE = "sportengine"
 
 
 class VerificationStatus(StrEnum):
@@ -102,20 +100,6 @@ class Discrepancy:
             "opponent_value": self.opponent_value,
             "severity": self.severity,
         }
-
-
-@dataclass(frozen=True)
-class OpponentEndpointConfig:
-    """Configuration representing an opposing institution's schedule feed."""
-
-    canonical_name: str
-    feed_url: str
-    feed_type: OpponentFeedType = OpponentFeedType.ICAL
-    home_venue: str = "TBD"
-    division: str = "ACHA M2"
-    conference: str = "ACCHL"
-    aliases: tuple[str, ...] = ()
-    website: str | None = None
 
 
 @dataclass
@@ -177,53 +161,6 @@ class ReverseCheckResult:
             "venue_matched": self.venue_matched,
             "notes": self.notes,
         }
-
-
-class OpponentDirectory:
-    """Registry and query directory for opponent schedule feeds."""
-
-    def __init__(self) -> None:
-        """Initialize an empty opponent directory."""
-        self._endpoints: dict[str, OpponentEndpointConfig] = {}
-        self._alias_map: dict[str, str] = {}
-
-    def register(self, config: OpponentEndpointConfig) -> None:
-        """Register an opponent endpoint configuration.
-
-        Args:
-            config: OpponentEndpointConfig instance to register.
-        """
-        canonical = normalize_team_name(config.canonical_name)
-        self._endpoints[canonical.lower()] = config
-        self._alias_map[canonical.lower()] = canonical.lower()
-        for alias in config.aliases:
-            norm_alias = normalize_team_name(alias).lower()
-            self._alias_map[norm_alias] = canonical.lower()
-
-    def get(self, name: str) -> OpponentEndpointConfig | None:
-        """Lookup opponent configuration by institution name or alias.
-
-        Args:
-            name: Raw or normalized opponent institution name.
-
-        Returns:
-            OpponentEndpointConfig instance or None.
-        """
-        normalized = normalize_team_name(name).lower()
-        canonical_key = self._alias_map.get(normalized, normalized)
-        return self._endpoints.get(canonical_key)
-
-    def list_endpoints(self) -> list[OpponentEndpointConfig]:
-        """List all unique registered opponent endpoint configurations.
-
-        Returns:
-            List of OpponentEndpointConfig objects.
-        """
-        return list(self._endpoints.values())
-
-    def __contains__(self, name: str) -> bool:
-        """Check if opponent name or alias is registered."""
-        return self.get(name) is not None
 
 
 def is_ecu_match(text: str) -> bool:
@@ -871,97 +808,12 @@ def cross_check_game_against_opponent(
     )
 
 
-_ICAL = OpponentFeedType.ICAL
-_DEFAULT_OPPONENTS: tuple[
-    tuple[str, str, str, tuple[str, ...]],
-    ...,
-] = (
-    (
-        "UNC Chapel Hill",
-        "tarheel",
-        "Orange County Sportsplex",
-        ("unc", "north carolina"),
-    ),
-    ("NC State University", "ncstate", "Wake Competition Center", ("nc state", "pack")),
-    ("Virginia Tech", "hokies", "Lancerlot Sports Complex", ("vt", "hokies")),
-    (
-        "Wake Forest University",
-        "wakeforest",
-        "Winston-Salem Fairgrounds Annex",
-        ("wake forest", "demon deacons"),
-    ),
-    ("Duke University", "duke", "Orange County Sportsplex", ("duke", "blue devils")),
-    ("UNC Wilmington", "uncw", "Wilmington Ice House", ("uncw", "seahawks")),
-    (
-        "Appalachian State University",
-        "appstate",
-        "AppState Rink",
-        ("app state", "mountaineers"),
-    ),
-    (
-        "High Point University",
-        "highpoint",
-        "Greensboro Ice House",
-        ("high point", "panthers"),
-    ),
-    ("Elon University", "elon", "Orange County Sportsplex", ("elon", "phoenix")),
-    ("UNC Charlotte", "charlotte", "Pineville IceHouse", ("charlotte", "49ers")),
-    ("James Madison University", "jmu", "Haymarket Iceplex", ("jmu", "dukes")),
-    (
-        "University of Richmond",
-        "richmond",
-        "Richmond Ice Zone",
-        ("richmond", "spiders"),
-    ),
-    ("University of Virginia", "virginia", "Main Street Arena", ("uva", "cavaliers")),
-    (
-        "Georgetown University",
-        "georgetown",
-        "Fort Dupont Ice Arena",
-        ("georgetown", "hoyas"),
-    ),
-)
-DEFAULT_OPPONENT_SPECS: tuple[
-    tuple[str, str, OpponentFeedType, str, tuple[str, ...]],
-    ...,
-] = tuple(
-    (
-        name,
-        f"https://{slug}hockey.{'org' if slug == 'duke' else 'com'}/schedule.ics",
-        _ICAL,
-        venue,
-        aliases,
-    )
-    for name, slug, venue, aliases in _DEFAULT_OPPONENTS
-)
-
-
-def get_default_opponent_directory() -> OpponentDirectory:
-    """Construct and return default directory of known opponent endpoints.
-
-    Returns:
-        Populated OpponentDirectory instance.
-    """
-    directory = OpponentDirectory()
-    for name, url, ftype, venue, aliases in DEFAULT_OPPONENT_SPECS:
-        directory.register(
-            OpponentEndpointConfig(
-                canonical_name=name,
-                feed_url=url,
-                feed_type=ftype,
-                home_venue=venue,
-                aliases=aliases,
-            ),
-        )
-
-    return directory
-
-
 __all__ = [
     "DEFAULT_OPPONENT_SPECS",
     "HIGH_CONFIDENCE_THRESHOLD",
     "Discrepancy",
     "DiscrepancyType",
+    "OpponentConfigError",
     "OpponentDirectory",
     "OpponentEndpointConfig",
     "OpponentFeedType",
