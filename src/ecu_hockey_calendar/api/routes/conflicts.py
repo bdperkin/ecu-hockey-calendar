@@ -9,7 +9,6 @@ from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    NoReturn,
     Protocol,
     cast,
     runtime_checkable,
@@ -781,6 +780,7 @@ async def _extract_resolve_params(request: Request) -> dict[str, Any]:
             if isinstance(data, dict):
                 return data
         except (ValueError, json.JSONDecodeError):
+            # Fall back to form or query parameters if JSON payload parsing fails
             pass
     elif "form" in ctype:
         body = await request.body()
@@ -923,19 +923,19 @@ def _resolve_in_memory_state(
     return _build_in_memory_result(conflict_id, field, final_val, accept_src, params)
 
 
-def _raise_resolve_http_error(exc: ValueError) -> NoReturn:
-    """Raise appropriate HTTPException from storage resolution ValueError."""
+def _build_resolve_http_error(exc: ValueError) -> HTTPException:
+    """Build appropriate HTTPException from storage resolution ValueError."""
     err_msg = str(exc)
     if "not found" in err_msg.lower():
-        raise HTTPException(
+        return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=err_msg,
-        ) from exc
+        )
 
-    raise HTTPException(
+    return HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail=err_msg,
-    ) from exc
+    )
 
 
 def _execute_db_resolution(
@@ -969,7 +969,7 @@ def _resolve_in_database(
         with get_sync_session(engine) as session:
             return _execute_db_resolution(session, conflict_id, params)
     except ValueError as exc:
-        _raise_resolve_http_error(exc)
+        raise _build_resolve_http_error(exc) from exc
 
 
 def _dispatch_conflict_resolution(

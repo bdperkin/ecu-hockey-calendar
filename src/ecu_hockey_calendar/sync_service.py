@@ -936,7 +936,6 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     # 2. Reconcile records
     rec_engine = ReconciliationEngine()
     reconciled_cycle = rec_engine.reconcile_games(all_source_records, cycle_id=cycle_id)
-    all_conflicts = _collect_conflicts(reconciled_cycle.reconciled_games)
 
     # 3. Detect changes against DB baseline
     sess_factory = session_factory or get_sync_session
