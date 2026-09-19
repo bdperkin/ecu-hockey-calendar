@@ -95,7 +95,7 @@ DEFAULT_SOURCE_TIE_BREAKERS_AWAY: tuple[str, ...] = (
 )
 
 
-def _normalize_source_key(source: DataSourceType | str) -> str:
+def normalize_source_key(source: DataSourceType | str) -> str:
     """Normalize DataSourceType or string to lowercase string."""
     if isinstance(source, DataSourceType):
         return source.value
@@ -103,8 +103,8 @@ def _normalize_source_key(source: DataSourceType | str) -> str:
     return str(source).lower()
 
 
-# Public alias
-normalize_source_key = _normalize_source_key
+# Private alias for backwards-compatibility
+_normalize_source_key = normalize_source_key
 
 
 def _compare_numeric_precedence(val_a: int, val_b: int) -> int:
@@ -118,7 +118,7 @@ def _compare_numeric_precedence(val_a: int, val_b: int) -> int:
     return 0
 
 
-def _lookup_tiebreaker_order(key: str, tie_breakers: tuple[str, ...]) -> int:
+def lookup_tiebreaker_order(key: str, tie_breakers: tuple[str, ...]) -> int:
     """Find index in tie breakers or return length if absent."""
     try:
         return tie_breakers.index(key)
@@ -126,8 +126,8 @@ def _lookup_tiebreaker_order(key: str, tie_breakers: tuple[str, ...]) -> int:
         return len(tie_breakers)
 
 
-# Public alias
-lookup_tiebreaker_order = _lookup_tiebreaker_order
+# Private alias for backwards-compatibility
+_lookup_tiebreaker_order = lookup_tiebreaker_order
 
 
 @dataclass
@@ -793,4 +793,6 @@ __all__ = [
     "SourceGameRecord",
     "SourcePriority",
     "TimingRelationship",
+    "lookup_tiebreaker_order",
+    "normalize_source_key",
 ]
