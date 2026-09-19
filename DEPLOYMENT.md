@@ -566,6 +566,8 @@ curl -fsSL "https://ecu-hockey-api.onrender.com/conflicts?format=html" \
 
 > [!NOTE]
 > `POST /api/v1/sync/trigger` (and `POST /sync/trigger`) returns `202 Accepted` when an execution handler is attached, or `501 Not Implemented` in deployments where on-demand execution is not wired and synchronization is handled exclusively via scheduled cron.
+>
+> In production Render blueprints (`render.yaml`), on-demand synchronization is activated via `ENABLE_API_SYNC_TRIGGER: 'true'` with a default cooldown of `SYNC_COOLDOWN_SECONDS: '300'`. You can also trigger production synchronization via the CLI using `ecu-hockey sync --prod --token <TOKEN>`.
 
 #### 6.8.4. Calendar Client Subscription Instructions
 
@@ -728,8 +730,12 @@ Expected Response:
 | :---------------------------------- | :-------------------------------------------------------------------------------------------------------- |
 | **Run On-Demand Synchronization**   | `ecu-hockey sync --notify`                                                                                |
 | **Trigger Remote Sync via CLI**     | `ecu-hockey sync --api-url https://ecu-hockey-api.onrender.com --token <TOKEN>`                           |
+| **Trigger Production Sync via CLI** | `ecu-hockey sync --prod --token <TOKEN>`                                                                  |
+| **Trigger Prod via GitHub Actions** | `ecu-hockey sync trigger --prod --method github --token <GH_TOKEN>`                                       |
+| **Trigger Prod via Render Worker**  | `ecu-hockey sync trigger --prod --method render --token <RENDER_KEY>`                                     |
 | **Inspect System & Sync Telemetry** | `ecu-hockey status`                                                                                       |
 | **Query Remote Production Status**  | `ecu-hockey status --api-url https://ecu-hockey-api.onrender.com`                                         |
+| **Query Production Status via CLI** | `ecu-hockey sync status --prod --token <TOKEN>`                                                           |
 | **List Unresolved Data Conflicts**  | `ecu-hockey conflicts --review-only`                                                                      |
 | **Inspect Remote Discrepancies**    | `ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token <TOKEN> --review-only`        |
 | **Export Master ICS Schedule**      | `ecu-hockey export schedule.ics`                                                                          |

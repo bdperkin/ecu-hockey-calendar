@@ -85,15 +85,18 @@ ecu-hockey sync status [OPTIONS]
 | `--season`               | —                        | `None`     | Optional season filter (e.g., `2026-2027`).                                                                                 |
 | `--api-url`              | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                                |
 | `--token`                | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.                                                  |
+| `--prod, --production`   | —                        | `False`    | Target production environment (defaults API URL to `https://ecu-hockey-api.onrender.com`).                                  |
+| `--method`               | —                        | `auto`     | Production dispatch strategy (`auto`, `api`, `github`, `render`).                                                           |
 
 **Options (`sync status`):**
 
-| Option      | Environment Variable     | Default | Description                                                                  |
-| :---------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
-| `--db-url`  | `DATABASE_URL`           | `None`  | Database connection URL override.                                            |
-| `--api-url` | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`). |
-| `--token`   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.   |
-| `--json`    | —                        | `False` | Output raw synchronization telemetry as structured JSON.                     |
+| Option                 | Environment Variable     | Default | Description                                                                                |
+| :--------------------- | :----------------------- | :------ | :----------------------------------------------------------------------------------------- |
+| `--db-url`             | `DATABASE_URL`           | `None`  | Database connection URL override.                                                          |
+| `--api-url`            | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).               |
+| `--token`              | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.                 |
+| `--prod, --production` | —                        | `False` | Target production environment (defaults API URL to `https://ecu-hockey-api.onrender.com`). |
+| `--json`               | —                        | `False` | Output raw synchronization telemetry as structured JSON.                                   |
 
 **Examples:**
 
@@ -113,6 +116,9 @@ ecu-hockey sync status
 # Inspect remote synchronization status formatted as JSON
 ecu-hockey sync status --api-url https://ecu-hockey-api.onrender.com --json | jq .
 
+# Inspect live production synchronization status
+ecu-hockey sync status --prod --token secret-token-123
+
 # Preview changes with a dry run for the 2026-2027 season
 ecu-hockey sync --season 2026-2027 --dry-run
 
@@ -121,6 +127,15 @@ ecu-hockey sync --source ecuhockey --no-notify
 
 # Trigger on-demand sync cycle on a remote deployment
 ecu-hockey sync --api-url https://ecu-hockey-api.onrender.com --token secret-token-123
+
+# Trigger immediate production synchronization cycle via Web API
+ecu-hockey sync --prod --token secret-token-123
+
+# Trigger production sync via GitHub Actions workflow dispatch
+ecu-hockey sync trigger --prod --method github --token ghp_xxxx
+
+# Trigger production sync via Render background worker API / deploy hook
+ecu-hockey sync trigger --prod --method render --token rnd_xxxx
 ```
 
 ______________________________________________________________________
