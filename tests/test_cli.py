@@ -1183,6 +1183,161 @@ class TestConflictsCommand:
         assert len(_slice_conflicts(items, offset=1, limit=1)) == 1
         assert len(_slice_conflicts(items, offset=0, limit=None)) == 3
 
+    def test_conflicts_list_explicit_subcommand(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify 'ecu-hockey conflicts list' subcommand executes list workflow."""
+        result = runner.invoke(conflicts_command, ["list", "--db-url", db_url])
+        assert result.exit_code == 0
+        assert "No active schedule conflicts or discrepancies found" in result.output
+
+    def test_conflicts_resolve_argument_validation(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify resolve validation for missing field/value or source."""
+        # 1. --field without --value
+        res_field_only = runner.invoke(
+            conflicts_command,
+            ["resolve", "change-1", "--field", "venue", "--db-url", db_url],
+        )
+        assert res_field_only.exit_code != 0
+        assert (
+            "When specifying --field, --value must also be provided"
+            in res_field_only.output
+        )
+
+        # 2. Neither accept-source nor field+value
+        res_neither = runner.invoke(
+            conflicts_command,
+            ["resolve", "change-1", "--db-url", db_url],
+        )
+        assert res_neither.exit_code != 0
+        assert "Must specify either --accept-source" in res_neither.output
+
+    def test_conflicts_resolve_local_workflow(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify local resolution with accept-source, value, and json output."""
+        engine = create_sync_engine(db_url)
+        with get_sync_session(engine) as session:
+            change = GameChangeModel(
+                sync_cycle_id="cycle-res",
+                canonical_game_id="ecu-unc-20241011",
+                change_type="CONFLICT_DETECTED",
+                summary="Venue conflict",
+                field_diffs=[
+                    {
+                        "field": "venue",
+                        "source_a": "ecuhockey",
+                        "value_a": "The Triangle Rink",
+                        "source_b": "achahockey",
+                        "value_b": "Carolina Ice Palace",
+                        "requires_review": True,
+                    },
+                ],
+                snapshot_after={"venue": "The Triangle Rink"},
+                recorded_at=datetime.now(UTC),
+            )
+            session.add(change)
+            session.commit()
+            change_id = change.id
+
+        # 1. Resolve via accept-source
+        res_src = runner.invoke(
+            conflicts_command,
+            [
+                "resolve",
+                f"change-{change_id}",
+                "--accept-source",
+                "achahockey",
+                "--db-url",
+                db_url,
+            ],
+        )
+        assert res_src.exit_code == 0
+        assert "Conflict Resolved Successfully!" in res_src.output
+        assert "Carolina Ice Palace" in res_src.output
+
+        # 2. Resolve via field + value + json
+        res_json = runner.invoke(
+            conflicts_command,
+            [
+                "resolve",
+                f"change-{change_id}",
+                "--field",
+                "venue",
+                "--value",
+                "Custom Arena",
+                "--notes",
+                "Admin decision",
+                "--resolved-by",
+                "lead_admin",
+                "--json",
+                "--db-url",
+                db_url,
+            ],
+        )
+        assert res_json.exit_code == 0
+        assert '"status": "resolved"' in res_json.output
+        assert '"value": "Custom Arena"' in res_json.output
+        assert '"resolved_by": "lead_admin"' in res_json.output
+
+    def test_conflicts_resolve_local_errors(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify local resolve error handling for missing conflict and DB errors."""
+        # 1. Non-existent conflict ID
+        res_missing = runner.invoke(
+            conflicts_command,
+            [
+                "resolve",
+                "change-999999",
+                "--field",
+                "venue",
+                "--value",
+                "Arena",
+                "--db-url",
+                db_url,
+            ],
+        )
+        assert res_missing.exit_code != 0
+        assert (
+            "Failed to resolve conflict: Conflict 'change-999999' not found."
+            in res_missing.output
+        )
+
+        # 2. Unexpected database error
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.storage_resolve_conflict",
+            side_effect=RuntimeError("Storage crash"),
+        ):
+            res_crash = runner.invoke(
+                conflicts_command,
+                [
+                    "resolve",
+                    "change-1",
+                    "--field",
+                    "venue",
+                    "--value",
+                    "Arena",
+                    "--db-url",
+                    db_url,
+                ],
+            )
+            assert res_crash.exit_code != 0
+            assert (
+                "Database error while resolving conflict: Storage crash"
+                in res_crash.output
+            )
+
 
 class TestServeCommand:
     """Tests for 'ecu-hockey serve' command."""

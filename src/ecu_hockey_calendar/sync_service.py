@@ -53,6 +53,10 @@ from ecu_hockey_calendar.storage.models import (
     SyncStatus,
     TeamModel,
 )
+from ecu_hockey_calendar.storage.overrides import (
+    apply_overrides_to_reconciled_games,
+    get_active_overrides,
+)
 from ecu_hockey_calendar.storage.service import (
     _build_game_change_entities,
     record_change_cycle,
@@ -840,6 +844,12 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     sess_factory = session_factory or get_sync_session
     base_loader = baseline_loader_fn or _load_baseline_games_from_db
     with sess_factory(engine) as session:
+        active_overrides = get_active_overrides(session)
+        apply_overrides_to_reconciled_games(
+            reconciled_cycle.reconciled_games,
+            active_overrides,
+        )
+        all_conflicts = _collect_conflicts(reconciled_cycle.reconciled_games)
         baseline_games = base_loader(session, season)
         detector = ChangeDetector()
         change_result = detector.detect_changes(

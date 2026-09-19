@@ -586,6 +586,12 @@ def test_auth_helper_functions() -> None:
     # 2. _extract_provided_token
     assert _extract_provided_token(None, None) is None
     assert _extract_provided_token(None, "my-key") == "my-key"
+    assert _extract_provided_token(None, None, "q-tok") == "q-tok"
+    req_with_q = cast(
+        Request,
+        type("Req", (), {"query_params": {"token": "query-tok"}})(),
+    )
+    assert _extract_provided_token(None, None, None, req_with_q) == "query-tok"
 
     # 3. verify_admin_token direct exception check
     req_no_auth = cast(

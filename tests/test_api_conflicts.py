@@ -5,18 +5,23 @@ side-by-side discrepancy comparisons, severity badges, filter parameters,
 and pagination controls.
 """
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 
 from ecu_hockey_calendar.api.app import create_app
 from ecu_hockey_calendar.api.routes.conflicts import (
     CONFLICT_CHANGE_TYPES,
     _active_conflicts_query,
+    _apply_in_memory_resolution,
     _build_conflicts_context,
     _build_pagination_context,
     _change_model_to_conflict,
@@ -32,9 +37,11 @@ from ecu_hockey_calendar.api.routes.conflicts import (
     _extract_diff_text,
     _extract_diff_value,
     _extract_discrepancy_comparisons,
+    _extract_resolve_params,
     _extract_snapshot_comparison,
     _extract_snapshot_or_fallback_comparisons,
     _extract_summary_fallback,
+    _find_override_conflict,
     _format_active_filters,
     _format_raw_value,
     _format_recorded_time,
@@ -45,6 +52,7 @@ from ecu_hockey_calendar.api.routes.conflicts import (
     _matches_review,
     _matches_text,
     _tally_single_conflict,
+    _wants_html_response,
 )
 from ecu_hockey_calendar.reconciliation.models import (
     ConflictField,
@@ -52,8 +60,9 @@ from ecu_hockey_calendar.reconciliation.models import (
     DetectedConflict,
     DiscrepancyRecord,
 )
+from ecu_hockey_calendar.storage import CONFLICT_RESOLVED_CHANGE_TYPE
 from ecu_hockey_calendar.storage.engine import get_sync_session, init_db
-from ecu_hockey_calendar.storage.models import GameChangeModel
+from ecu_hockey_calendar.storage.models import ConflictOverrideModel, GameChangeModel
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -979,3 +988,431 @@ def test_conflicts_clean_route_alias_parity() -> None:
     )
     assert resp_filtered_clean.status_code == 200
     assert resp_filtered_clean.json() == resp_filtered_api.json()
+
+
+# ---------------------------------------------------------------------------
+# 11. Conflict Resolution Endpoints (POST /api/v1/conflicts/{id}/resolve)
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_conflict_json_in_memory_value() -> None:
+    """Verify resolving in-memory conflict via JSON with explicit field/value."""
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    conflict = _build_sample_detected_conflict(conflict_id="conf-resolve-1")
+    app.state.conflicts_override = [conflict]
+    client = TestClient(app)
+
+    payload = {
+        "field": "start_time",
+        "value": "2024-10-11T20:00:00Z",
+        "notes": "Puck drop moved to 8pm",
+        "resolved_by": "scheduler",
+    }
+    resp = client.post(
+        "/api/v1/conflicts/conf-resolve-1/resolve",
+        json=payload,
+        headers=AUTH_HEADERS,
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "resolved"
+    assert data["conflict_id"] == "conf-resolve-1"
+    assert data["field"] == "start_time"
+    assert data["value"] == "2024-10-11T20:00:00Z"
+    assert data["resolved_by"] == "scheduler"
+    assert data["notes"] == "Puck drop moved to 8pm"
+    assert conflict.resolved is True
+    assert conflict.resolved_value == "2024-10-11T20:00:00Z"
+    assert conflict.requires_review is False
+
+
+def test_resolve_conflict_json_in_memory_accept_source() -> None:
+    """Verify resolving in-memory conflict via JSON payload with accept_source."""
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    conflict = _build_sample_detected_conflict(conflict_id="conf-resolve-2")
+    app.state.conflicts_override = [conflict]
+    client = TestClient(app)
+
+    payload = {
+        "accept_source": "achahockey",
+    }
+    resp = client.post(
+        "/api/v1/conflicts/conf-resolve-2/resolve",
+        json=payload,
+        headers=AUTH_HEADERS,
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "resolved"
+    assert data["accepted_source"] == "achahockey"
+    assert conflict.resolved is True
+    assert conflict.resolved_by_source == "achahockey"
+
+
+def test_resolve_conflict_in_memory_dict_item() -> None:
+    """Verify resolving when in-memory item is a dictionary rather than an object."""
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    dict_item = {
+        "conflict_id": "dict-conf-1",
+        "game_id": "ecu-unc-20241011",
+        "field": "venue",
+        "requires_review": True,
+        "resolved": False,
+    }
+    app.state.conflicts_override = [dict_item]
+    client = TestClient(app)
+
+    resp = client.post(
+        "/api/v1/conflicts/dict-conf-1/resolve",
+        json={"field": "venue", "value": "New Arena"},
+        headers=AUTH_HEADERS,
+    )
+    assert resp.status_code == 200
+    assert dict_item["resolved"] is True
+    assert dict_item["resolved_value"] == "New Arena"
+    assert dict_item["requires_review"] is False
+
+
+def test_resolve_conflict_in_memory_error_paths() -> None:
+    """Verify 401, 404, and 400 error responses during in-memory resolution."""
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    conflict = _build_sample_detected_conflict(conflict_id="conf-err-1")
+    app.state.conflicts_override = [conflict]
+    client = TestClient(app)
+
+    # 1. Unauthenticated -> 401
+    unauth_resp = client.post(
+        "/api/v1/conflicts/conf-err-1/resolve",
+        json={"value": "foo"},
+    )
+    assert unauth_resp.status_code == 401
+
+    # 2. Conflict not found -> 404
+    not_found_resp = client.post(
+        "/api/v1/conflicts/missing-id/resolve",
+        json={"value": "foo"},
+        headers=AUTH_HEADERS,
+    )
+    assert not_found_resp.status_code == 404
+    assert "Conflict 'missing-id' not found." in not_found_resp.json()["detail"]
+
+    # 3. Missing value and accept_source -> 400
+    bad_req_resp = client.post(
+        "/api/v1/conflicts/conf-err-1/resolve",
+        json={},
+        headers=AUTH_HEADERS,
+    )
+    assert bad_req_resp.status_code == 400
+    assert (
+        "Either 'value' or 'accept_source' must be provided"
+        in bad_req_resp.json()["detail"]
+    )
+
+
+def test_resolve_conflict_html_form_303_redirect() -> None:
+    """Verify HTML form POST returns 303 Redirect to /conflicts dashboard with token."""
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    conflict = _build_sample_detected_conflict(conflict_id="conf-redirect-1")
+    app.state.conflicts_override = [conflict]
+    client = TestClient(app)
+
+    # POST with query token and URL-encoded form data
+    resp = client.post(
+        f"/conflicts/conf-redirect-1/resolve?token={TEST_ADMIN_TOKEN}",
+        data={"field": "venue", "value": "Override Rink"},
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert (
+        resp.headers["Location"]
+        == f"/conflicts?resolved=1&conflict_id=conf-redirect-1&token={TEST_ADMIN_TOKEN}"
+    )
+
+    # POST without query token
+    resp_no_token = client.post(
+        "/conflicts/conf-redirect-1/resolve",
+        data={"field": "venue", "value": "Override Rink"},
+        headers={**AUTH_HEADERS, "Content-Type": "application/x-www-form-urlencoded"},
+        follow_redirects=False,
+    )
+    assert resp_no_token.status_code == 303
+    assert (
+        resp_no_token.headers["Location"]
+        == "/conflicts?resolved=1&conflict_id=conf-redirect-1"
+    )
+
+
+def test_resolve_conflict_database_integration(tmp_path: Path) -> None:
+    """Verify resolving conflict persisted in database creates ConflictOverrideModel."""
+    db_file = tmp_path / "conflicts_resolve.db"
+    db_url = f"sqlite:///{db_file}"
+
+    app = create_app(database_url=db_url, admin_token=TEST_ADMIN_TOKEN)
+    init_db(app.state.db_engine)
+
+    with get_sync_session(app.state.db_engine) as session:
+        change = GameChangeModel(
+            sync_cycle_id="cycle-db-1",
+            canonical_game_id="ecu-unc-20241011",
+            change_type="CONFLICT_DETECTED",
+            summary="Venue mismatch",
+            field_diffs=[
+                {
+                    "field": "venue",
+                    "source_a": "ecuhockey",
+                    "value_a": "The Triangle Rink",
+                    "source_b": "achahockey",
+                    "value_b": "Carolina Ice Palace",
+                    "requires_review": True,
+                },
+            ],
+            snapshot_after={"venue": "The Triangle Rink"},
+            recorded_at=datetime.now(UTC),
+        )
+        session.add(change)
+        session.commit()
+        change_id = change.id
+
+    client = TestClient(app)
+
+    # Resolve via database
+    resp = client.post(
+        f"/api/v1/conflicts/change-{change_id}/resolve",
+        json={"accept_source": "achahockey", "notes": "Approved"},
+        headers=AUTH_HEADERS,
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "resolved"
+    assert data["value"] == "Carolina Ice Palace"
+
+    # Verify override record exists in database
+    with get_sync_session(app.state.db_engine) as session:
+        ov = session.scalars(select(ConflictOverrideModel)).first()
+        assert ov is not None
+        assert ov.canonical_game_id == "ecu-unc-20241011"
+        assert ov.field_name == "venue"
+        assert ov.override_value == "Carolina Ice Palace"
+
+    # Resolve non-existent conflict in DB -> 404
+    resp_404 = client.post(
+        "/api/v1/conflicts/change-999999/resolve",
+        json={"value": "Foo"},
+        headers=AUTH_HEADERS,
+    )
+    assert resp_404.status_code == 404
+
+    # Resolve without value or source in DB -> 400
+    resp_400 = client.post(
+        f"/api/v1/conflicts/change-{change_id}/resolve",
+        json={},
+        headers=AUTH_HEADERS,
+    )
+    assert resp_400.status_code == 400
+
+
+def test_resolve_conflict_no_db_and_no_override() -> None:
+    """Verify 404 when resolving on app with neither DB nor in-memory state."""
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    app.state.conflicts_override = None
+    app.state.db_engine = None
+    client = TestClient(app)
+
+    resp = client.post(
+        "/api/v1/conflicts/c-1/resolve",
+        json={"value": "val"},
+        headers=AUTH_HEADERS,
+    )
+    assert resp.status_code == 404
+    assert "no database configured" in resp.json()["detail"]
+
+
+def test_status_filtering_in_memory_and_database(  # pylint: disable=too-many-locals
+    tmp_path: Path,
+) -> None:
+    """Verify status query parameter filtering across active, resolved, and all."""
+    # 1. In-memory status filtering
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    active_conf = _build_sample_detected_conflict(conflict_id="c-active")
+    resolved_conf = _build_sample_detected_conflict(conflict_id="c-resolved")
+    resolved_conf.resolved = True
+    resolved_conf.requires_review = False
+    app.state.conflicts_override = [active_conf, resolved_conf]
+    client = TestClient(app)
+
+    res_active = client.get(
+        "/api/v1/conflicts?status=active",
+        headers=AUTH_HEADERS,
+    ).json()
+    assert res_active["total_conflicts"] == 1
+    assert res_active["conflicts"][0]["conflict_id"] == "c-active"
+
+    res_resolved = client.get(
+        "/api/v1/conflicts?status=resolved",
+        headers=AUTH_HEADERS,
+    ).json()
+    assert res_resolved["total_conflicts"] == 1
+    assert res_resolved["conflicts"][0]["conflict_id"] == "c-resolved"
+
+    res_all = client.get("/api/v1/conflicts?status=all", headers=AUTH_HEADERS).json()
+    assert res_all["total_conflicts"] == 2
+
+    res_inc = client.get(
+        "/api/v1/conflicts?include_resolved=true",
+        headers=AUTH_HEADERS,
+    ).json()
+    assert res_inc["total_conflicts"] == 2
+
+    # 2. Database status filtering
+    db_file = tmp_path / "status_filter.db"
+    app_db = create_app(
+        database_url=f"sqlite:///{db_file}",
+        admin_token=TEST_ADMIN_TOKEN,
+    )
+    init_db(app_db.state.db_engine)
+
+    with get_sync_session(app_db.state.db_engine) as session:
+        c1 = GameChangeModel(
+            sync_cycle_id="cycle-1",
+            canonical_game_id="game-1",
+            change_type="CONFLICT_DETECTED",
+            summary="Active",
+        )
+        c2 = GameChangeModel(
+            sync_cycle_id="cycle-2",
+            canonical_game_id="game-2",
+            change_type=CONFLICT_RESOLVED_CHANGE_TYPE,
+            summary="Resolved",
+            field_diffs=[{"field": "venue", "new_value": "Resolved Venue"}],
+        )
+        session.add_all([c1, c2])
+
+    client_db = TestClient(app_db)
+    db_resolved = client_db.get(
+        "/api/v1/conflicts?status=resolved",
+        headers=AUTH_HEADERS,
+    ).json()
+    assert db_resolved["total_conflicts"] == 1
+    assert db_resolved["conflicts"][0]["resolved"] is True
+    assert db_resolved["conflicts"][0]["resolved_value"] == "Resolved Venue"
+
+    db_active = client_db.get(
+        "/api/v1/conflicts?status=active",
+        headers=AUTH_HEADERS,
+    ).json()
+    assert db_active["total_conflicts"] == 1
+    assert db_active["conflicts"][0]["resolved"] is False
+
+
+def test_html_rendering_success_banner_and_controls() -> None:
+    """Verify HTML template renders success alert banner and resolution controls."""
+    app = create_app(admin_token=TEST_ADMIN_TOKEN)
+    conflict = _build_sample_detected_conflict(conflict_id="conf-banner-1")
+    app.state.conflicts_override = [conflict]
+    client = TestClient(app)
+
+    browser_headers = {
+        **AUTH_HEADERS,
+        "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+    }
+    resp = client.get(
+        "/conflicts?resolved=1&conflict_id=conf-banner-1&token=mytoken",
+        headers=browser_headers,
+    )
+    assert resp.status_code == 200
+    html = resp.text
+    # Verify banner
+    assert "Resolution Saved:" in html
+    assert "conf-banner-1" in html
+    # Verify Quick Accept button
+    assert "Accept ecuhockey" in html
+    assert "Accept acchockey" in html
+    # Verify manual resolution form
+    assert "Manual Override" in html
+    assert "Save Override" in html
+    assert "/conflicts/conf-banner-1/resolve" in html
+
+
+@pytest.mark.anyio
+async def test_conflict_helpers_coverage_branches() -> None:
+    """Verify branch edge cases in conflict helpers and extract functions."""
+
+    # 1. _convert_conflict_item with game_key but not game_id
+    class MockConvertible:
+        """Mock convertible conflict representation."""
+
+        def to_dict(self) -> dict[str, Any]:
+            """Return mock conflict dictionary."""
+            return {"conflict_id": "c-conv", "game_key": "k-100"}
+
+    converted = _convert_conflict_item(MockConvertible())
+    assert converted["game_id"] == "k-100"
+
+    class MockConvertibleBoth:
+        """Mock convertible conflict with both identifiers."""
+
+        def to_dict(self) -> dict[str, Any]:
+            """Return mock conflict dictionary with both identifiers."""
+            return {
+                "conflict_id": "c-both",
+                "game_key": "k-both",
+                "game_id": "g-both",
+            }
+
+    conv_both = _convert_conflict_item(MockConvertibleBoth())
+    assert conv_both["game_id"] == "g-both"
+
+    # 2. _change_model_to_conflict with resolved change and empty diffs
+    resolved_change_no_diff = GameChangeModel(
+        sync_cycle_id="c-1",
+        canonical_game_id="g-1",
+        change_type=CONFLICT_RESOLVED_CHANGE_TYPE,
+        summary="Resolved with empty diffs",
+        field_diffs=[],
+    )
+    conv_no_diff = _change_model_to_conflict(resolved_change_no_diff)
+    assert conv_no_diff["resolved"] is True
+    assert conv_no_diff["resolved_value"] is None
+
+    # 3. _find_override_conflict returns None when no match
+    assert _find_override_conflict([], "missing") is None
+
+    # 4. _wants_html_response branches
+    req_html = MagicMock()
+    req_html.headers = {"accept": "text/html", "content-type": ""}
+    assert _wants_html_response(req_html) is True
+
+    req_json = MagicMock()
+    req_json.headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+    }
+    assert _wants_html_response(req_json) is False
+
+    # 5. _extract_resolve_params with invalid JSON falls back to query params
+    req_bad_json = MagicMock()
+    req_bad_json.headers = {"content-type": "application/json"}
+    req_bad_json.json = AsyncMock(side_effect=ValueError("Invalid JSON"))
+    req_bad_json.query_params = {"field": "status", "value": "final"}
+    params = await _extract_resolve_params(req_bad_json)
+    assert params["field"] == "status"
+    assert params["value"] == "final"
+
+    # 6. _extract_resolve_params with non-dict json (list) and plain text content-type
+    req_list_json = MagicMock()
+    req_list_json.headers = {"content-type": "application/json"}
+    req_list_json.json = AsyncMock(return_value=["item1", "item2"])
+    req_list_json.query_params = {"fallback_param": "yes"}
+    assert (await _extract_resolve_params(req_list_json))["fallback_param"] == "yes"
+
+    req_text = MagicMock()
+    req_text.headers = {"content-type": "text/plain"}
+    req_text.query_params = {"text_fallback": "yes"}
+    assert (await _extract_resolve_params(req_text))["text_fallback"] == "yes"
+
+    # 7. _apply_in_memory_resolution with dict item and no field specified
+    dict_no_field = {"resolved": False}
+    val_no_field = _apply_in_memory_resolution(dict_no_field, None, "val-only", None)
+    assert val_no_field == "val-only"
+    assert "field" not in dict_no_field

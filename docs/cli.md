@@ -322,9 +322,21 @@ ______________________________________________________________________
 
 ### 3.6. `ecu-hockey conflicts`
 
+Command group for inspecting active cross-source schedule discrepancies and executing manual administrative conflict resolutions. Invoking `ecu-hockey conflicts` directly without a subcommand defaults to listing active conflicts.
+
+```bash
+ecu-hockey conflicts [COMMAND] [OPTIONS]
+```
+
+#### 3.6.1. Subcommands
+
+##### 3.6.1.1. `ecu-hockey conflicts list` (or `ecu-hockey conflicts`)
+
 Lists cross-source schedule discrepancies and potential data conflicts detected during reconciliation cycles. Discrepancies requiring manual review or administrative attention are highlighted.
 
 ```bash
+ecu-hockey conflicts list [OPTIONS]
+# or:
 ecu-hockey conflicts [OPTIONS]
 ```
 
@@ -342,6 +354,34 @@ ecu-hockey conflicts [OPTIONS]
 | `--db-url`                  | `DATABASE_URL`           | `None`       | Database connection URL override.                                                           |
 | `--api-url`                 | `ECU_HOCKEY_API_URL`     | `None`       | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                |
 | `--token`                   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`       | Administrative authentication Bearer token for protected remote endpoints.                  |
+| `--prod, --production`      | —                        | `False`      | Target production environment (`https://ecu-hockey-api.onrender.com`).                      |
+
+##### 3.6.1.2. `ecu-hockey conflicts resolve`
+
+Manually resolves a schedule discrepancy by recording an administrative attribute override or accepting a specific upstream data source. Reconciled schedule data will preserve this administrative decision against future sync cycles.
+
+```bash
+ecu-hockey conflicts resolve <CONFLICT_ID> [OPTIONS]
+```
+
+**Arguments:**
+
+- `<CONFLICT_ID>`: Discrepancy identifier (e.g., `change-42` or canonical game ID `ecu-unc-20241011`).
+
+**Options:**
+
+| Option                  | Environment Variable     | Default | Description                                                            |
+| :---------------------- | :----------------------- | :------ | :--------------------------------------------------------------------- |
+| `--accept-source`       | —                        | `None`  | Accept upstream data source value (e.g., `ECU Hockey`, `achahockey`).  |
+| `--field, --field-name` | —                        | `None`  | Attribute name to override (e.g., `venue`, `start_time`).              |
+| `--value`               | —                        | `None`  | Explicit override value to apply to conflicting attribute.             |
+| `--notes`               | —                        | `None`  | Audit notes explaining the manual resolution decision.                 |
+| `--resolved-by`         | —                        | `admin` | Username or administrator identifier performing the resolution.        |
+| `--prod, --production`  | —                        | `False` | Target production environment (`https://ecu-hockey-api.onrender.com`). |
+| `--api-url`             | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL.                                        |
+| `--token`               | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token.                            |
+| `--db-url`              | `DATABASE_URL`           | `None`  | Database connection URL override.                                      |
+| `--json`                | —                        | `False` | Output resolution result as structured JSON.                           |
 
 **Examples:**
 
@@ -350,10 +390,10 @@ ecu-hockey conflicts [OPTIONS]
 ecu-hockey conflicts
 
 # Show only discrepancies requiring manual administrative review
-ecu-hockey conflicts --requires-review
+ecu-hockey conflicts list --requires-review
 
 # Filter discrepancies affecting game start times with critical severity
-ecu-hockey conflicts --field-name start_time --severity critical
+ecu-hockey conflicts list --field-name start_time --severity critical
 
 # Paginate through conflicts with limit and offset
 ecu-hockey conflicts --limit 10 --offset 20
@@ -362,7 +402,16 @@ ecu-hockey conflicts --limit 10 --offset 20
 ecu-hockey conflicts --json | jq .
 
 # Inspect discrepancies on remote production deployment (authenticated)
-ecu-hockey conflicts --api-url https://ecu-hockey-api.onrender.com --token secret-token-123 --requires-review
+ecu-hockey conflicts --prod --token secret-token-123 --requires-review
+
+# Resolve a conflict locally by accepting upstream source value
+ecu-hockey conflicts resolve change-12 --accept-source "ECU Hockey" --notes "Verified with head coach"
+
+# Resolve a conflict on production by specifying explicit field and value
+ecu-hockey conflicts resolve ecu-unc-20241011 --field venue --value "Carolina Ice Palace" --prod --token secret-token-123
+
+# Output resolution result as JSON
+ecu-hockey conflicts resolve change-15 --accept-source "achahockey" --json
 ```
 
 ______________________________________________________________________
