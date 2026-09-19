@@ -8,6 +8,158 @@ Releases and changelog entries are managed automatically by [Python Semantic Rel
 
 <!-- version list -->
 
+## v0.8.1 (2026-09-19)
+
+### Bug Fixes
+
+- **api**: Fix schedule feed season defaults and now divider chronological check
+  ([#185](https://github.com/bdperkin/ecu-hockey-calendar/pull/185),
+  [`cb12904`](https://github.com/bdperkin/ecu-hockey-calendar/commit/cb12904989d0d53b2e1e2159cad74eb0f9460d87))
+
+- **conflicts**: Reconcile CONFLICT_DETECTED change type query filter in API and CLI (#166)
+  ([#167](https://github.com/bdperkin/ecu-hockey-calendar/pull/167),
+  [`013fa05`](https://github.com/bdperkin/ecu-hockey-calendar/commit/013fa05731650f18915888a9479b0018c52c657f))
+
+- **ingestion**: Prevent future scheduled games from displaying as 0-0 ties
+  ([#186](https://github.com/bdperkin/ecu-hockey-calendar/pull/186),
+  [`ddc4f59`](https://github.com/bdperkin/ecu-hockey-calendar/commit/ddc4f59f4331f830fed6871b4c5f6a8c5cbf16ab))
+
+- **ingestion**: Resolve acchockey scraper subseason discovery and column parsing failures (#193)
+  ([#201](https://github.com/bdperkin/ecu-hockey-calendar/pull/201),
+  [`f9b173a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f9b173a51bdd5c600718a5d6eb682b55118f7826))
+
+- **quality**: Resolve CodeQL alert #22 for empty except in remote client sync handler (#178)
+  ([#179](https://github.com/bdperkin/ecu-hockey-calendar/pull/179),
+  [`3caec31`](https://github.com/bdperkin/ecu-hockey-calendar/commit/3caec3185dfca09161985b5c659cf6ec8f33f9fe))
+
+- **reconciliation**: Prevent false clustering of weekend series and filter superseded conflicts
+  ([#189](https://github.com/bdperkin/ecu-hockey-calendar/pull/189),
+  [`c9e9e18`](https://github.com/bdperkin/ecu-hockey-calendar/commit/c9e9e18bd486faa0d149f13451a550a8c29d5831))
+
+### Chores
+
+- **deps**: Update pre-commit hooks and configure pymarkdown MD051 rule (#180)
+  ([#181](https://github.com/bdperkin/ecu-hockey-calendar/pull/181),
+  [`a4cff2a`](https://github.com/bdperkin/ecu-hockey-calendar/commit/a4cff2a27d2ba8913b79d6866e1c724826bbd3c7))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`c88b1f2`](https://github.com/bdperkin/ecu-hockey-calendar/commit/c88b1f2da1d3eeb025ed5476a27063b2b16ca951))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`8310122`](https://github.com/bdperkin/ecu-hockey-calendar/commit/831012279aaf0644797ce83fd65f5261fda6085c))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`dc3b6dc`](https://github.com/bdperkin/ecu-hockey-calendar/commit/dc3b6dc3b2a091ea91097e3dd0e244f713529c48))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`3cc6346`](https://github.com/bdperkin/ecu-hockey-calendar/commit/3cc6346fc022d3e7d638469ad259147bfd2d730e))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`7e570e3`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7e570e39e5aee6233862d3ceb2868bdfda52cd3c))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`0275aef`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0275aefe7658ffbc5c537125ddf1881fdfb3ce05))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`2fa7a75`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2fa7a7548bdf5d61604ac5599e625743c337cdfc))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`bc0f53b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/bc0f53b8f0d2757288c0683f4cfc5aa492c49071))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`4beb884`](https://github.com/bdperkin/ecu-hockey-calendar/commit/4beb884d1b1b21c7a037b3f380bc4c0589f38ea5))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`7104d12`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7104d123925a94161557391539ee867554cf5027))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`2bb5f0b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2bb5f0bdb3ce090d777255e274f20f7b0120bfff))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`f3fb27b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f3fb27bb120142b1ed6294e1d32e72607e0a345f))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`f6f7629`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f6f7629aee73479425210da813437f89e9dc3f63))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`b584b21`](https://github.com/bdperkin/ecu-hockey-calendar/commit/b584b212d3fbbcb790b61737f5d153f1e4d88b0c))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`12b26c5`](https://github.com/bdperkin/ecu-hockey-calendar/commit/12b26c5f253baf629bf08aab4d73a7347dc176e9))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`81a5219`](https://github.com/bdperkin/ecu-hockey-calendar/commit/81a52193fa27435ad3ddce2b6fc697189c498421))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`65e418b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/65e418b8b238cbc8f12e2b8c37a5355fe5943c63))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`7498351`](https://github.com/bdperkin/ecu-hockey-calendar/commit/7498351f423af4a342271b66c2c5904f86115cb8))
+
+- **schedule**: Automated schedule sync and calendar update
+  ([`4074f26`](https://github.com/bdperkin/ecu-hockey-calendar/commit/4074f26082ecb7f1658380d2db97910a1f2e4511))
+
+### Documentation
+
+- **interfaces**: Comprehensive interface consistency documentation and test suite reconciliation
+  ([#177](https://github.com/bdperkin/ecu-hockey-calendar/pull/177),
+  [`0c1023f`](https://github.com/bdperkin/ecu-hockey-calendar/commit/0c1023fc084fcf0c3206cbed3fe94f74d2ed8ab8))
+
+- **roadmap**: Track interface consistency phases 9.3 through 9.6 (#168-#171)
+  ([#172](https://github.com/bdperkin/ecu-hockey-calendar/pull/172),
+  [`ea3b2bb`](https://github.com/bdperkin/ecu-hockey-calendar/commit/ea3b2bb955fb0cae7c2473ee7089f10e441c4494))
+
+### Features
+
+- **api**: Canonical /schedule.* routes, legacy aliases, and query parameter normalization
+  ([#173](https://github.com/bdperkin/ecu-hockey-calendar/pull/173),
+  [`20daee3`](https://github.com/bdperkin/ecu-hockey-calendar/commit/20daee3d7bf28e9bd55046b3bfde0d54ba53d7ef))
+
+- **branding**: Replace brand logo assets, update social preview, and implement asset generator tool
+  (#182) ([#183](https://github.com/bdperkin/ecu-hockey-calendar/pull/183),
+  [`40c216c`](https://github.com/bdperkin/ecu-hockey-calendar/commit/40c216c0b1b3a9e6d8f055ce200f1e302d49c00e))
+
+- **cli**: Add --opponents-config flag and OPPONENTS_CONFIG environment override
+  ([#204](https://github.com/bdperkin/ecu-hockey-calendar/pull/204),
+  [`bbeb9d3`](https://github.com/bdperkin/ecu-hockey-calendar/commit/bbeb9d320d5c962c29acee66b8ea92d5500cc11b))
+
+- **cli**: Add scrape command with minimal, verbose, and debug output modes (#195)
+  ([#196](https://github.com/bdperkin/ecu-hockey-calendar/pull/196),
+  [`63447d6`](https://github.com/bdperkin/ecu-hockey-calendar/commit/63447d6ef1e9d2e275cce31f05dac577d1ec23cc))
+
+- **cli**: Command parity for health diagnostics, sync subcommands, and conflict options
+  ([#176](https://github.com/bdperkin/ecu-hockey-calendar/pull/176),
+  [`1d58d4e`](https://github.com/bdperkin/ecu-hockey-calendar/commit/1d58d4eebbdd402a22a1b560286ec5eac67b546c))
+
+- **cli**: Remote HTTP API client integration for operational subcommands (--api-url) (#164)
+  ([#165](https://github.com/bdperkin/ecu-hockey-calendar/pull/165),
+  [`263e6a0`](https://github.com/bdperkin/ecu-hockey-calendar/commit/263e6a0764882b71bfb3e3282664680758d57533))
+
+- **ingestion**: Create package-bundled verified opponent schedule feeds YAML dataset
+  ([#203](https://github.com/bdperkin/ecu-hockey-calendar/pull/203),
+  [`4f42d4b`](https://github.com/bdperkin/ecu-hockey-calendar/commit/4f42d4b6f6e38fde314865e2e62623b684dafc3c))
+
+- **ingestion**: Implement ACHA Hockey (achahockey) schedule ingestion scraper
+  ([#205](https://github.com/bdperkin/ecu-hockey-calendar/pull/205),
+  [`0025150`](https://github.com/bdperkin/ecu-hockey-calendar/commit/002515094adfe48bdd29bf3a39664a96421b176f))
+
+- **ingestion**: Implement YAML configuration loader and schema for opponent schedule feeds
+  ([#202](https://github.com/bdperkin/ecu-hockey-calendar/pull/202),
+  [`62d1235`](https://github.com/bdperkin/ecu-hockey-calendar/commit/62d1235e286da9521401c149b9ddfe520111cada))
+
+- **sync**: Integrate instagram announcements and opponent verification into sync service
+  ([#192](https://github.com/bdperkin/ecu-hockey-calendar/pull/192),
+  [`f4cc261`](https://github.com/bdperkin/ecu-hockey-calendar/commit/f4cc261c7254f7e84ad7c8fca8edc0b032270357))
+
+- **ui**: Schedule enhancements, navigation restructuring, branding updates, and NOW divider
+  ([#184](https://github.com/bdperkin/ecu-hockey-calendar/pull/184),
+  [`2914c41`](https://github.com/bdperkin/ecu-hockey-calendar/commit/2914c411cac342468a440b5d48280e8a2b9fbe23))
+
+- **web**: Clean WebUI dashboard routes (/sync, /conflicts) and /api/v1/health REST parity (#169)
+  ([#174](https://github.com/bdperkin/ecu-hockey-calendar/pull/174),
+  [`053bdba`](https://github.com/bdperkin/ecu-hockey-calendar/commit/053bdbaf737dba8975d2aab2b40b74f1a1e18d92))
+
+
 ## v0.8.0 (2026-09-14)
 
 ### Bug Fixes
