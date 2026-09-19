@@ -13,6 +13,7 @@ from dataclasses import asdict, is_dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, cast
+from urllib.parse import urlparse
 
 import click
 from rich.console import Console
@@ -178,9 +179,25 @@ async def _scrape_ecuhockey(
         )
 
 
+def _is_acha_host(host: str) -> bool:
+    """Check if hostname matches ACHA or HockeyTech domains."""
+    norm = host.lower()
+    return norm in {
+        "achahockey.org",
+        "hockeytech.com",
+    } or norm.endswith((".achahockey.org", ".hockeytech.com"))
+
+
+def _extract_target_hostname(target: str) -> str | None:
+    """Extract normalized hostname from target string."""
+    prefix = "" if "://" in target or target.startswith("//") else "https://"
+    return urlparse(f"{prefix}{target}").hostname
+
+
 def _is_non_acchockey_target(target: str) -> bool:
     """Check if target string belongs to another source like ACHA."""
-    if "achahockey.org" in target or "hockeytech.com" in target:
+    host = _extract_target_hostname(target)
+    if host and _is_acha_host(host):
         return True
 
     return bool(re.match(r"^\d{2}-\d{2}$", target))

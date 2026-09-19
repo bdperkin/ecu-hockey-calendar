@@ -21,6 +21,9 @@ from rich.console import Console
 from ecu_hockey_calendar.cli.main import cli
 from ecu_hockey_calendar.cli.scrape import (
     ScrapeResult,
+    _extract_target_hostname,
+    _is_acha_host,
+    _is_non_acchockey_target,
     _json_sanitize,
     _persist_scraped_results,
     _render_scrape_summary,
@@ -391,6 +394,32 @@ def test_scrape_acchockey_subseasons_ignores_achahockey_urls() -> None:
         assert mock_crawl.call_count == 1
         calls = [c.kwargs.get("url") for c in mock_crawl.call_args_list]
         assert any("subseason=950924" in url for url in calls if url)
+
+
+def test_is_acha_host_and_non_acchockey_target() -> None:
+    """Verify ACHA domain detection and target filtering helpers."""
+    assert _is_acha_host("achahockey.org")
+    assert _is_acha_host("www.achahockey.org")
+    assert _is_acha_host("hockeytech.com")
+    assert _is_acha_host("lscluster.hockeytech.com")
+    assert not _is_acha_host("acchockey.com")
+    assert not _is_acha_host("example.com")
+
+    assert (
+        _extract_target_hostname("https://www.achahockey.org") == "www.achahockey.org"
+    )
+    assert (
+        _extract_target_hostname("//lscluster.hockeytech.com")
+        == "lscluster.hockeytech.com"
+    )
+    assert _extract_target_hostname("") is None
+
+    assert _is_non_acchockey_target("https://www.achahockey.org/stats")
+    assert _is_non_acchockey_target("lscluster.hockeytech.com")
+    assert _is_non_acchockey_target("26-27")
+    assert not _is_non_acchockey_target("950924")
+    assert not _is_non_acchockey_target("https://www.acchockey.com")
+    assert not _is_non_acchockey_target("")
 
 
 def test_scrape_json_output() -> None:
