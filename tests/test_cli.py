@@ -191,6 +191,7 @@ class TestCliRoot:
         assert "export" in result.output
         assert "conflicts" in result.output
         assert "serve" in result.output
+        assert "opponent" in result.output
 
     def test_cli_version(self, runner: CliRunner) -> None:
         """Verify root CLI displays version information."""

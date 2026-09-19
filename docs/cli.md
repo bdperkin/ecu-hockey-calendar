@@ -417,3 +417,45 @@ ecu-hockey notify \
 # Dispatch exclusively to Discord
 ecu-hockey notify -m "Discord-only test message" -c discord
 ```
+
+______________________________________________________________________
+
+### 3.9. `ecu-hockey opponent discover`
+
+Spiders an opponent team's website to auto-detect schedule feeds (iCal, JSON, HTML), canonical institution name, home rink/venue, brand aliases, and website metadata. Outputs an interactive Rich summary with confidence ratings and a formatted YAML snippet ready for `opponents.yaml`, with optional automated appending.
+
+```bash
+ecu-hockey opponent discover <BASE_URL> [OPTIONS]
+```
+
+**Options:**
+
+| Option                 | Default   | Description                                                                |
+| :--------------------- | :-------- | :------------------------------------------------------------------------- |
+| `--append-to`          | `None`    | Append candidate configuration directly to an existing or new YAML file.   |
+| `--json`               | `False`   | Output candidate configuration as structured JSON for automated pipelines. |
+| `--max-pages`          | `10`      | Maximum number of internal pages to spider (range 1–50).                   |
+| `--division`           | `ACHA M2` | League division for the discovered opponent.                               |
+| `--conference`         | `ACCHL`   | Conference for the discovered opponent.                                    |
+| `--enabled/--disabled` | `True`    | Set the initial enabled state in the generated configuration snippet.      |
+
+**Examples:**
+
+```bash
+# Spider opponent website and display interactive detection summary and YAML snippet
+ecu-hockey opponent discover https://ncstatehockey.com
+
+# Spider website with higher depth and append entry directly to custom opponents YAML
+ecu-hockey opponent discover https://ncstatehockey.com \
+  --max-pages 15 \
+  --append-to src/ecu_hockey_calendar/data/opponents.yaml
+
+# Output structured JSON for automated configuration pipelines
+ecu-hockey opponent discover https://ncstatehockey.com --json
+
+# Discover opponent with custom division and conference tags
+ecu-hockey opponent discover https://wakehockey.com \
+  --division "ACHA M3" \
+  --conference "Independent" \
+  --disabled
+```
