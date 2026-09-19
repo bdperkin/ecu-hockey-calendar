@@ -547,7 +547,11 @@ async def test_sync_exception_failure(
     mock_directory: OpponentDirectory,
 ) -> None:
     """Test sync lifecycle when an unexpected error occurs during crawl."""
-    crawler = OpponentCrawler(directory=mock_directory)
+    mock_client = AsyncMock(spec=ResilientHttpClient)
+    crawler = OpponentCrawler(
+        http_client=mock_client,
+        directory=mock_directory,
+    )
 
     ecu_team = TeamModel(name="East Carolina University", city="Greenville", state="NC")
     unc_team = TeamModel(name="UNC Chapel Hill", city="Chapel Hill", state="NC")

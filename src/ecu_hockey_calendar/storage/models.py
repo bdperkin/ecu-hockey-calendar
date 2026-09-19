@@ -692,6 +692,79 @@ class GameChangeModel(Base):
         }
 
 
+class ConflictOverrideModel(Base):
+    """Relational model for manual conflict resolutions and field overrides."""
+
+    __tablename__ = "conflict_overrides"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    conflict_id: Mapped[str] = mapped_column(
+        String(128),
+        nullable=False,
+        index=True,
+    )
+    canonical_game_id: Mapped[str] = mapped_column(
+        String(128),
+        nullable=False,
+        index=True,
+    )
+    field_name: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+        index=True,
+    )
+    override_value: Mapped[str] = mapped_column(String(512), nullable=False)
+    accepted_source: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
+    )
+    resolved_by: Mapped[str] = mapped_column(
+        String(128),
+        default="admin",
+        nullable=False,
+    )
+    notes: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+        index=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize conflict override model to dictionary representation.
+
+        Returns:
+            Dictionary representation of the conflict override entity.
+        """
+        return {
+            "id": self.id,
+            "conflict_id": self.conflict_id,
+            "canonical_game_id": self.canonical_game_id,
+            "field_name": self.field_name,
+            "override_value": self.override_value,
+            "accepted_source": self.accepted_source,
+            "resolved_by": self.resolved_by,
+            "notes": self.notes,
+            "is_active": self.is_active,
+            "created_at": (self.created_at.isoformat() if self.created_at else None),
+            "updated_at": (self.updated_at.isoformat() if self.updated_at else None),
+        }
+
+
 # Model aliases for convenience
 TeamORM = TeamModel
 GameORM = GameModel
@@ -699,8 +772,11 @@ DataSourceORM = DataSourceModel
 RawSnapshotORM = RawSnapshotModel
 SyncAuditORM = SyncAuditModel
 GameChangeORM = GameChangeModel
+ConflictOverrideORM = ConflictOverrideModel
 
 __all__ = [
+    "ConflictOverrideModel",
+    "ConflictOverrideORM",
     "DataSourceModel",
     "DataSourceORM",
     "DataSourceType",

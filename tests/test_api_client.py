@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 # pylint: disable=protected-access,unused-argument,too-many-public-methods
+import json
 from datetime import datetime
+from typing import Any
 
 import httpx
 import pytest
@@ -566,6 +568,92 @@ class TestRemoteApiClientMethods:
         )
         with pytest.raises(RemoteApiError, match="Network error connecting"):
             client2.get_conflicts()
+
+    def test_resolve_conflict_success(self) -> None:
+        """Verify successful conflict resolution API call with explicit value."""
+        captured_payloads: list[dict[str, Any]] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            assert request.method == "POST"
+            assert request.url.path == "/api/v1/conflicts/conf-123/resolve"
+            data = json.loads(request.content.decode("utf-8"))
+            captured_payloads.append(data)
+            return httpx.Response(
+                200,
+                json={
+                    "status": "resolved",
+                    "conflict_id": "conf-123",
+                    "field": data.get("field", "venue"),
+                    "value": data.get("value", "Resolved Rink"),
+                },
+            )
+
+        client = RemoteApiClient(
+            "https://remote.api",
+            token="admin-secret",
+            transport=httpx.MockTransport(handler),
+        )
+
+        # 1. Resolve with explicit field/value
+        res1 = client.resolve_conflict(
+            "conf-123",
+            field="venue",
+            value="Target Arena",
+            notes="Manual fix",
+            resolved_by="lead-admin",
+        )
+        assert res1["status"] == "resolved"
+        assert res1["value"] == "Target Arena"
+        assert captured_payloads[0]["field"] == "venue"
+        assert captured_payloads[0]["value"] == "Target Arena"
+        assert captured_payloads[0]["notes"] == "Manual fix"
+        assert captured_payloads[0]["resolved_by"] == "lead-admin"
+
+        # 2. Resolve with accept_source and field_name alias
+        res2 = client.resolve_conflict(
+            "conf-123",
+            field_name="venue",
+            accept_source="achahockey",
+        )
+        assert res2["status"] == "resolved"
+        assert captured_payloads[1]["field"] == "venue"
+        assert captured_payloads[1]["accept_source"] == "achahockey"
+
+    def test_resolve_conflict_auth_error(self) -> None:
+        """Verify RemoteApiAuthError raised when resolve returns 401 or 403."""
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(401, json={"detail": "Unauthorized"})
+
+        client = RemoteApiClient(
+            "https://remote.api",
+            transport=httpx.MockTransport(handler),
+        )
+        with pytest.raises(RemoteApiAuthError, match="Valid admin token required"):
+            client.resolve_conflict("conf-123", value="Some Val")
+
+    def test_resolve_conflict_http_and_network_error(self) -> None:
+        """Verify RemoteApiError raised on resolve HTTP errors and network failures."""
+
+        def http_err_handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(500, text="Internal Error")
+
+        client = RemoteApiClient(
+            "https://remote.api",
+            transport=httpx.MockTransport(http_err_handler),
+        )
+        with pytest.raises(RemoteApiError, match="HTTP error resolving conflict"):
+            client.resolve_conflict("conf-123", value="Some Val")
+
+        def net_err_handler(request: httpx.Request) -> httpx.Response:
+            raise httpx.ConnectError("Connection failed")
+
+        client2 = RemoteApiClient(
+            "https://remote.api",
+            transport=httpx.MockTransport(net_err_handler),
+        )
+        with pytest.raises(RemoteApiError, match="Network error connecting"):
+            client2.resolve_conflict("conf-123", value="Some Val")
 
     def test_trigger_sync_success(self) -> None:
         """Verify successful sync trigger execution."""

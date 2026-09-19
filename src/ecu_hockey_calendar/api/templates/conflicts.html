@@ -532,11 +532,123 @@
     text-align: right;
     margin-top: 0.5rem;
   }
+
+  /* Administrative Manual Resolution UI */
+  .resolution-cell {
+    min-width: 200px;
+  }
+
+  .resolution-actions-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .quick-accept-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .resolve-quick-form {
+    display: inline-block;
+    margin: 0;
+  }
+
+  .btn-xs {
+    font-size: 0.725rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 4px;
+    line-height: 1.2;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .form-control-xs {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .resolve-custom-details {
+    font-size: 0.775rem;
+    margin-top: 0.25rem;
+  }
+
+  .resolve-custom-summary {
+    cursor: pointer;
+    color: var(--ecu-purple);
+    font-weight: 700;
+    user-select: none;
+  }
+
+  .resolve-custom-form {
+    margin-top: 0.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .resolve-success-banner {
+    background-color: #ecfdf5;
+    border: 1px solid #10b981;
+    color: #065f46;
+    padding: 0.85rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .resolve-banner-icon {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #059669;
+  }
+
+  .resolve-banner-text {
+    flex: 1;
+    font-size: 0.9rem;
+  }
+
+  .resolve-banner-text code {
+    background: #d1fae5;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.825rem;
+  }
+
+  .resolve-banner-dismiss {
+    color: #065f46;
+    font-weight: 700;
+    text-decoration: underline;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
     </style>
 {% endblock extra_styles %}
 
 {% block content %}
     <div class="conflicts-container">
+        {% if resolved_success %}
+            <div class="resolve-success-banner"
+                 role="alert"
+                 id="resolve-success-banner">
+                <span class="resolve-banner-icon">✓</span>
+                <div class="resolve-banner-text">
+                    <strong>Resolution Saved:</strong> Override successfully recorded for discrepancy <code>{{ resolved_conflict_id }}</code>. Reconciled schedule data will preserve this selection.
+                </div>
+                <a href="/conflicts{% if token %}?token={{ token }}{% endif %}"
+                   class="resolve-banner-dismiss">Dismiss</a>
+            </div>
+        {% endif %}
+
         <!-- Administrative Header Banner with Top-Level Status & Cross-Link -->
         <section class="conflicts-banner">
             <div class="banner-text-group">
@@ -691,6 +803,7 @@
                                 <th scope="col">Severity</th>
                                 <th scope="col">Side-by-Side Competing Values</th>
                                 <th scope="col">Review Status</th>
+                                <th scope="col">Administrative Resolution</th>
                                 <th scope="col">Details &amp; Audit</th>
                             </tr>
                         </thead>
@@ -751,6 +864,87 @@
                                             <span class="badge-review-cleared" aria-label="Review Cleared">
                                                 <span aria-hidden="true">✓</span> Cleared
                                             </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Administrative Manual Resolution Actions -->
+                                    <td class="resolution-cell">
+                                        {% if c.resolved %}
+                                            <span class="resolved-pill"
+                                                  aria-label="Conflict is resolved">✓ {{ c.resolved_value or 'Resolved' }}</span>
+                                        {% else %}
+                                            <div class="resolution-actions-group">
+                                                <div class="quick-accept-buttons">
+                                                    {% for comp in c.comparisons %}
+                                                        {% if comp.source_a and comp.source_a != "Previous Snapshot" and comp.source_a != "Previous State" %}
+                                                            <form method="post"
+                                                                  action="/conflicts/{{ c.conflict_id or c.game_id }}/resolve"
+                                                                  class="resolve-quick-form">
+                                                                {% if token %}
+                                                                    <input type="hidden"
+                                                                           name="token"
+                                                                           value="{{ token }}">
+                                                                {% endif %}
+                                                                <input type="hidden"
+                                                                       name="field"
+                                                                       value="{{ comp.field or c.field }}">
+                                                                <input type="hidden"
+                                                                       name="accept_source"
+                                                                       value="{{ comp.source_a }}">
+                                                                <button type="submit"
+                                                                        class="btn btn-outline btn-xs resolve-btn-accept"
+                                                                        title="Accept {{ comp.source_a }} value ({{ comp.value_a }})">
+                                                                    Accept {{ comp.source_a }}
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                        {% if comp.source_b and comp.source_b != "Current Snapshot" and comp.source_b != "Current State" %}
+                                                            <form method="post"
+                                                                  action="/conflicts/{{ c.conflict_id or c.game_id }}/resolve"
+                                                                  class="resolve-quick-form">
+                                                                {% if token %}
+                                                                    <input type="hidden"
+                                                                           name="token"
+                                                                           value="{{ token }}">
+                                                                {% endif %}
+                                                                <input type="hidden"
+                                                                       name="field"
+                                                                       value="{{ comp.field or c.field }}">
+                                                                <input type="hidden"
+                                                                       name="accept_source"
+                                                                       value="{{ comp.source_b }}">
+                                                                <button type="submit"
+                                                                        class="btn btn-outline btn-xs resolve-btn-accept"
+                                                                        title="Accept {{ comp.source_b }} value ({{ comp.value_b }})">
+                                                                    Accept {{ comp.source_b }}
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <details class="resolve-custom-details">
+                                                    <summary class="resolve-custom-summary">Manual Override</summary>
+                                                    <form method="post"
+                                                          action="/conflicts/{{ c.conflict_id or c.game_id }}/resolve"
+                                                          class="resolve-custom-form">
+                                                        {% if token %}
+                                                            <input type="hidden" name="token" value="{{ token }}">
+                                                        {% endif %}
+                                                        <input type="hidden" name="field" value="{{ c.field }}">
+                                                        <input type="text"
+                                                               name="value"
+                                                               placeholder="Override value"
+                                                               required
+                                                               class="form-control-xs">
+                                                        <input type="text"
+                                                               name="notes"
+                                                               placeholder="Notes (optional)"
+                                                               class="form-control-xs">
+                                                        <button type="submit"
+                                                                class="btn btn-primary btn-xs">Save Override</button>
+                                                    </form>
+                                                </details>
+                                            </div>
                                         {% endif %}
                                     </td>
 

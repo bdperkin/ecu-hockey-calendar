@@ -258,6 +258,37 @@ def _process_sync_response(resp: httpx.Response) -> dict[str, Any]:
     return resp.json()
 
 
+def _handle_resolve_response(resp: httpx.Response) -> dict[str, Any]:
+    """Validate status and parse JSON response for conflict resolution."""
+    if resp.status_code in (401, 403):
+        msg = (
+            f"Authentication failed ({resp.status_code}): "
+            "Valid admin token required to resolve conflicts."
+        )
+        raise RemoteApiAuthError(msg)
+
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _build_resolve_body(  # pylint: disable=too-many-arguments
+    field: str | None,
+    value: str | None,
+    accept_source: str | None,
+    notes: str | None,
+    resolved_by: str,
+) -> dict[str, Any]:
+    """Construct filtered JSON payload for conflict resolution."""
+    payload = {
+        "field": field,
+        "value": value,
+        "accept_source": accept_source,
+        "notes": notes,
+        "resolved_by": resolved_by,
+    }
+    return {k: v for k, v in payload.items() if v is not None}
+
+
 def _resolve_export_endpoint(
     format_type: str,
     *,
@@ -566,6 +597,57 @@ class RemoteApiClient:
             except httpx.HTTPStatusError as exc:
                 msg = (
                     f"HTTP error fetching conflicts ({exc.response.status_code}): {exc}"
+                )
+                raise RemoteApiError(msg) from exc
+            except httpx.RequestError as exc:
+                msg = f"Network error connecting to {self.base_url}: {exc}"
+                raise RemoteApiError(msg) from exc
+
+    def resolve_conflict(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        conflict_id: str,
+        *,
+        field_name: str | None = None,
+        field: str | None = None,
+        value: str | None = None,
+        accept_source: str | None = None,
+        notes: str | None = None,
+        resolved_by: str = "admin",
+    ) -> dict[str, Any]:
+        """Resolve a conflict via POST /api/v1/conflicts/{conflict_id}/resolve.
+
+        Args:
+            conflict_id: Identifier of conflict or canonical game ID.
+            field_name: Optional target field to override.
+            field: Optional alias for field_name.
+            value: Optional override value.
+            accept_source: Optional source whose data is accepted.
+            notes: Optional resolution documentation.
+            resolved_by: Identity of admin user.
+
+        Returns:
+            Dictionary response from the API.
+
+        Raises:
+            RemoteApiAuthError: If authentication fails.
+            RemoteApiError: On network or HTTP errors.
+        """
+        target_field = field or field_name
+        body = _build_resolve_body(
+            target_field,
+            value,
+            accept_source,
+            notes,
+            resolved_by,
+        )
+        url = f"/api/v1/conflicts/{conflict_id}/resolve"
+        with self._create_client() as client:
+            try:
+                resp = client.post(url, json=body, headers=self._get_headers())
+                return _handle_resolve_response(resp)
+            except httpx.HTTPStatusError as exc:
+                msg = (
+                    f"HTTP error resolving conflict ({exc.response.status_code}): {exc}"
                 )
                 raise RemoteApiError(msg) from exc
             except httpx.RequestError as exc:

@@ -5,6 +5,8 @@ HTTP API endpoints when --api-url is provided, with full coverage for both
 success and failure paths.
 """
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -20,6 +22,7 @@ from ecu_hockey_calendar.api.client import (
     RemoteSyncAudit,
 )
 from ecu_hockey_calendar.cli.main import cli
+from ecu_hockey_calendar.cli.production import DEFAULT_PROD_API_URL
 from ecu_hockey_calendar.models import Game, GameResult, Team
 from ecu_hockey_calendar.storage.models import SyncStatus
 
@@ -364,6 +367,229 @@ class TestCliRemoteConflicts:
                 review_only=True,
                 limit=None,
                 offset=0,
+            )
+
+    def test_conflicts_remote_resolve_accept_source(self, runner: CliRunner) -> None:
+        """Verify remote resolve command with --accept-source."""
+        mock_client = MagicMock()
+        mock_client.resolve_conflict.return_value = {
+            "status": "resolved",
+            "conflict_id": "conf-123",
+            "game_id": "game-456",
+            "field": "start_time",
+            "value": "19:00",
+            "accepted_source": "ECU Hockey",
+            "resolved_by": "admin",
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ) as mock_cls:
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "resolve",
+                    "conf-123",
+                    "--accept-source",
+                    "ECU Hockey",
+                    "--api-url",
+                    "https://remote.api",
+                    TOKEN_FLAG,
+                    MOCK_TOKEN,
+                ],
+            )
+            assert result.exit_code == 0
+            mock_cls.assert_called_once_with("https://remote.api", token=MOCK_TOKEN)
+            mock_client.resolve_conflict.assert_called_once_with(
+                "conf-123",
+                field=None,
+                value=None,
+                accept_source="ECU Hockey",
+                notes=None,
+                resolved_by="admin",
+            )
+            assert "Conflict Resolved Successfully!" in result.output
+            assert "conf-123" in result.output
+            assert "ECU Hockey" in result.output
+
+    def test_conflicts_remote_resolve_explicit_field_value_and_json(
+        self,
+        runner: CliRunner,
+    ) -> None:
+        """Verify remote resolve command with --field, --value, and JSON."""
+        mock_client = MagicMock()
+        mock_client.resolve_conflict.return_value = {
+            "status": "resolved",
+            "conflict_id": "conf-789",
+            "game_id": "game-999",
+            "field": "venue",
+            "value": "New Arena",
+            "accepted_source": None,
+            "resolved_by": "lead_editor",
+            "notes": "Verified by coaching staff",
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "resolve",
+                    "conf-789",
+                    "--field",
+                    "venue",
+                    "--value",
+                    "New Arena",
+                    "--notes",
+                    "Verified by coaching staff",
+                    "--resolved-by",
+                    "lead_editor",
+                    "--json",
+                    "--api-url",
+                    "https://remote.api",
+                ],
+            )
+            assert result.exit_code == 0
+            mock_client.resolve_conflict.assert_called_once_with(
+                "conf-789",
+                field="venue",
+                value="New Arena",
+                accept_source=None,
+                notes="Verified by coaching staff",
+                resolved_by="lead_editor",
+            )
+            assert '"status": "resolved"' in result.output
+            assert '"venue"' in result.output
+            assert '"New Arena"' in result.output
+
+    def test_conflicts_remote_resolve_prod_flag(self, runner: CliRunner) -> None:
+        """Verify remote resolve command targeting production using --prod."""
+        mock_client = MagicMock()
+        mock_client.resolve_conflict.return_value = {
+            "status": "resolved",
+            "conflict_id": "conf-111",
+            "game_id": "g-1",
+            "field": "start_time",
+            "value": "20:00",
+            "accepted_source": "achahockey",
+            "resolved_by": "admin",
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ) as mock_cls:
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "resolve",
+                    "conf-111",
+                    "--accept-source",
+                    "achahockey",
+                    "--prod",
+                    TOKEN_FLAG,
+                    MOCK_TOKEN,
+                ],
+            )
+            assert result.exit_code == 0
+            mock_cls.assert_called_once_with(DEFAULT_PROD_API_URL, token=MOCK_TOKEN)
+            assert "Conflict Resolved Successfully!" in result.output
+
+    def test_conflicts_remote_resolve_root_prod_flag(self, runner: CliRunner) -> None:
+        """Verify remote resolve command targeting production using root --prod."""
+        mock_client = MagicMock()
+        mock_client.resolve_conflict.return_value = {
+            "status": "resolved",
+            "conflict_id": "conf-222",
+            "game_id": "g-2",
+            "field": "date",
+            "value": "2026-10-01",
+            "accepted_source": "achahockey",
+            "resolved_by": "admin",
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ) as mock_cls:
+            result = runner.invoke(
+                cli,
+                [
+                    "--prod",
+                    TOKEN_FLAG,
+                    MOCK_TOKEN,
+                    "conflicts",
+                    "resolve",
+                    "conf-222",
+                    "--accept-source",
+                    "achahockey",
+                ],
+            )
+            assert result.exit_code == 0
+            mock_cls.assert_called_once_with(DEFAULT_PROD_API_URL, token=MOCK_TOKEN)
+
+    def test_conflicts_remote_resolve_auth_error(self, runner: CliRunner) -> None:
+        """Verify handling of authentication error during remote conflict resolution."""
+        mock_client = MagicMock()
+        mock_client.resolve_conflict.side_effect = RemoteApiAuthError(
+            "Unauthorized (401)",
+        )
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "resolve",
+                    "conf-123",
+                    "--accept-source",
+                    "ECU Hockey",
+                    "--api-url",
+                    "https://remote.api",
+                ],
+            )
+            assert result.exit_code != 0
+            assert "Authentication required" in result.output
+            assert (
+                "Authentication failed for remote conflict resolution." in result.output
+            )
+
+    def test_conflicts_remote_resolve_generic_error(self, runner: CliRunner) -> None:
+        """Verify handling of generic remote error during conflict resolution."""
+        mock_client = MagicMock()
+        mock_client.resolve_conflict.side_effect = RemoteApiError(
+            "Remote gateway error",
+        )
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "resolve",
+                    "conf-123",
+                    "--accept-source",
+                    "ECU Hockey",
+                    "--api-url",
+                    "https://remote.api",
+                ],
+            )
+            assert result.exit_code != 0
+            assert (
+                "Failed to resolve conflict on remote API: Remote gateway error"
+                in result.output
             )
 
 

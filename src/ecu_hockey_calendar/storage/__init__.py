@@ -32,6 +32,8 @@ from ecu_hockey_calendar.storage.migrations import (
     run_migrations_upgrade,
 )
 from ecu_hockey_calendar.storage.models import (
+    ConflictOverrideModel,
+    ConflictOverrideORM,
     DataSourceModel,
     DataSourceORM,
     DataSourceType,
@@ -48,6 +50,15 @@ from ecu_hockey_calendar.storage.models import (
     TeamModel,
     TeamORM,
 )
+from ecu_hockey_calendar.storage.overrides import (
+    CONFLICT_RESOLVED_CHANGE_TYPE,
+    apply_overrides_from_file,
+    apply_overrides_to_reconciled_games,
+    get_active_overrides,
+    load_overrides_from_file,
+    record_conflict_override,
+    resolve_conflict,
+)
 from ecu_hockey_calendar.storage.service import (
     async_get_changes_since,
     async_get_latest_game_snapshot,
@@ -60,11 +71,14 @@ from ecu_hockey_calendar.storage.service import (
 )
 
 __all__ = [
+    "CONFLICT_RESOLVED_CHANGE_TYPE",
     "DEFAULT_ASYNC_SQLITE_URL",
     "DEFAULT_SQLITE_PATH",
     "DEFAULT_SYNC_SQLITE_URL",
     "NAMING_CONVENTION",
     "Base",
+    "ConflictOverrideModel",
+    "ConflictOverrideORM",
     "DataSourceModel",
     "DataSourceORM",
     "DataSourceType",
@@ -80,6 +94,8 @@ __all__ = [
     "SyncStatus",
     "TeamModel",
     "TeamORM",
+    "apply_overrides_from_file",
+    "apply_overrides_to_reconciled_games",
     "async_drop_db",
     "async_get_changes_since",
     "async_get_latest_game_snapshot",
@@ -89,6 +105,7 @@ __all__ = [
     "create_async_engine",
     "create_sync_engine",
     "drop_db",
+    "get_active_overrides",
     "get_aiosqlite_driver_version",
     "get_alembic_config",
     "get_async_database_url",
@@ -102,7 +119,10 @@ __all__ = [
     "get_sync_session",
     "get_sync_session_factory",
     "init_db",
+    "load_overrides_from_file",
     "record_change_cycle",
+    "record_conflict_override",
+    "resolve_conflict",
     "run_migrations_downgrade",
     "run_migrations_upgrade",
 ]

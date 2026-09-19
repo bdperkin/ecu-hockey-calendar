@@ -1,7 +1,7 @@
 """Implementation of the 'ecu-hockey conflicts' CLI command.
 
 Inspects active cross-source discrepancies and conflicting fixtures requiring
-administrative review.
+administrative review, and provides workflows for administrative manual resolution.
 """
 
 from __future__ import annotations
@@ -27,11 +27,15 @@ from ecu_hockey_calendar.cli.console import (
     print_error,
     print_panel,
 )
+from ecu_hockey_calendar.cli.production import DEFAULT_PROD_API_URL
 from ecu_hockey_calendar.storage.base import Base
 from ecu_hockey_calendar.storage.engine import (
     create_sync_engine,
     get_sync_database_url,
     get_sync_session,
+)
+from ecu_hockey_calendar.storage.overrides import (
+    resolve_conflict as storage_resolve_conflict,
 )
 
 if TYPE_CHECKING:
@@ -43,6 +47,8 @@ if TYPE_CHECKING:
 
 __all__ = [
     "_fetch_remote_conflicts",
+    "_handle_local_conflicts_list",
+    "_handle_remote_conflicts_list",
     "_matches_filter",
     "_matches_review_filter",
     "_matches_text_filter",
@@ -52,9 +58,18 @@ __all__ = [
     "_render_conflicts_display",
     "_render_conflicts_output",
     "_render_conflicts_table",
+    "_render_resolve_display",
+    "_render_resolve_output",
+    "_resolve_local_conflict",
+    "_resolve_remote_conflict",
     "_resolve_remote_credentials",
+    "_run_conflicts_list",
+    "_run_conflicts_resolve",
     "_slice_conflicts",
+    "_validate_resolve_args",
     "conflicts_command",
+    "list_command",
+    "resolve_command",
 ]
 
 
@@ -198,14 +213,35 @@ def _extract_ctx_str(obj: object, key: str) -> str | None:
     return None
 
 
+def _is_prod_target(obj: object, prod: bool) -> bool:
+    """Determine whether production target is requested."""
+    if prod:
+        return True
+
+    return bool(isinstance(obj, dict) and obj.get("prod"))
+
+
+def _resolve_api_url(obj: object, api_url: str | None, *, prod: bool) -> str | None:
+    """Resolve target API URL respecting production flag and context."""
+    if api_url is not None:
+        return api_url
+
+    if _is_prod_target(obj, prod):
+        return DEFAULT_PROD_API_URL
+
+    return _extract_ctx_str(obj, "api_url")
+
+
 def _resolve_remote_credentials(
     ctx: click.Context | None,
     api_url: str | None,
     token: str | None,
+    *,
+    prod: bool = False,
 ) -> tuple[str | None, str | None]:
     """Extract and resolve remote API URL and admin token from CLI context."""
     obj = ctx.obj if ctx else None
-    url = api_url if api_url is not None else _extract_ctx_str(obj, "api_url")
+    url = _resolve_api_url(obj, api_url, prod=prod)
     tok = token if token is not None else _extract_ctx_str(obj, "token")
     return url, tok
 
@@ -332,7 +368,301 @@ def _render_conflicts_output(
     )
 
 
-@click.command("conflicts")
+def _handle_remote_conflicts_list(  # noqa: PLR0913 # pylint: disable=too-many-arguments
+    api_url: str,
+    token: str | None,
+    *,
+    severity: str | None,
+    game_id: str | None,
+    field_name: str | None,
+    requires_review: bool,
+    limit: int | None,
+    offset: int,
+    as_json: bool,
+) -> None:
+    """Fetch and render conflict records from a remote API instance."""
+    if not as_json:
+        get_console().print(
+            f"Target: [bold cyan]Remote API ({api_url})[/bold cyan]\n",
+        )
+
+    conflicts, total_count, payload = _fetch_remote_conflicts(
+        api_url,
+        token,
+        severity=severity,
+        game_id=game_id,
+        field_name=field_name,
+        review_only=requires_review,
+        limit=limit,
+        offset=offset,
+    )
+    _render_conflicts_output(
+        conflicts,
+        total_count,
+        as_json=as_json,
+        payload=payload,
+        limit=limit,
+        offset=offset,
+    )
+
+
+def _handle_local_conflicts_list(
+    db_url: str | None,
+    *,
+    severity: str | None,
+    game_id: str | None,
+    field_name: str | None,
+    requires_review: bool,
+    limit: int | None,
+    offset: int,
+    as_json: bool,
+) -> None:
+    """Query and render conflict records from local relational database."""
+    db_url_resolved = get_sync_database_url(db_url)
+    engine = create_sync_engine(db_url_resolved)
+    try:
+        Base.metadata.create_all(engine)
+        with get_sync_session(engine) as session:
+            conflicts, total_count = _query_conflicts(
+                session,
+                severity=severity,
+                game_id=game_id,
+                field_name=field_name,
+                requires_review=requires_review,
+                limit=limit,
+                offset=offset,
+            )
+    except Exception as exc:
+        print_error(f"Failed to query conflicts from database: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+    _render_conflicts_output(
+        conflicts,
+        total_count,
+        as_json=as_json,
+        payload=None,
+        limit=limit,
+        offset=offset,
+    )
+
+
+def _run_conflicts_list(  # noqa: PLR0913 # pylint: disable=too-many-arguments
+    ctx: click.Context | None,
+    *,
+    severity: str | None,
+    game_id: str | None,
+    field_name: str | None,
+    requires_review: bool,
+    limit: int | None = None,
+    offset: int = 0,
+    as_json: bool = False,
+    db_url: str | None,
+    api_url: str | None = None,
+    token: str | None = None,
+    prod: bool = False,
+) -> None:
+    """Execute list workflow for schedule conflicts."""
+    if not as_json:
+        print_banner("CROSS-SOURCE SCHEDULE CONFLICTS & DISCREPANCIES")
+
+    api_url, token = _resolve_remote_credentials(ctx, api_url, token, prod=prod)
+    if api_url:
+        _handle_remote_conflicts_list(
+            api_url,
+            token,
+            severity=severity,
+            game_id=game_id,
+            field_name=field_name,
+            requires_review=requires_review,
+            limit=limit,
+            offset=offset,
+            as_json=as_json,
+        )
+        return
+
+    _handle_local_conflicts_list(
+        db_url,
+        severity=severity,
+        game_id=game_id,
+        field_name=field_name,
+        requires_review=requires_review,
+        limit=limit,
+        offset=offset,
+        as_json=as_json,
+    )
+
+
+def _check_field_value_pair(field: str | None, value: str | None) -> None:
+    """Ensure value accompanies field when specified."""
+    if field and not value:
+        err = "When specifying --field, --value must also be provided."
+        raise click.ClickException(err)
+
+
+def _validate_resolve_args(
+    field: str | None,
+    value: str | None,
+    accept_source: str | None,
+) -> None:
+    """Validate presence and consistency of conflict resolution options."""
+    _check_field_value_pair(field, value)
+    has_override = bool(field and value)
+    if not accept_source and not has_override:
+        err = (
+            "Must specify either --accept-source <SOURCE> "
+            "or both --field <NAME> and --value <VAL>."
+        )
+        raise click.ClickException(err)
+
+
+def _resolve_remote_conflict(
+    api_url: str,
+    token: str | None,
+    *,
+    conflict_id: str,
+    field: str | None,
+    value: str | None,
+    accept_source: str | None,
+    notes: str | None,
+    resolved_by: str | None,
+) -> dict[str, Any]:
+    """Execute conflict resolution via remote API."""
+    client = RemoteApiClient(api_url, token=token)
+    try:
+        return client.resolve_conflict(
+            conflict_id,
+            field=field,
+            value=value,
+            accept_source=accept_source,
+            notes=notes,
+            resolved_by=resolved_by or "admin",
+        )
+    except RemoteApiAuthError as exc:
+        auth_msg = (
+            f"Authentication required: {exc}\n"
+            "Provide --token <TOKEN> or set ECU_HOCKEY_ADMIN_TOKEN."
+        )
+        print_error(auth_msg)
+        err_msg = "Authentication failed for remote conflict resolution."
+        raise click.ClickException(err_msg) from exc
+    except RemoteApiError as exc:
+        print_error(f"Failed to resolve conflict on remote API: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+
+def _resolve_local_conflict(
+    db_url: str | None,
+    *,
+    conflict_id: str,
+    field: str | None,
+    value: str | None,
+    accept_source: str | None,
+    notes: str | None,
+    resolved_by: str | None,
+) -> dict[str, Any]:
+    """Execute conflict resolution directly in local database storage."""
+    db_url_resolved = get_sync_database_url(db_url)
+    engine = create_sync_engine(db_url_resolved)
+    try:
+        Base.metadata.create_all(engine)
+        with get_sync_session(engine) as session:
+            result = storage_resolve_conflict(
+                session,
+                conflict_id,
+                field_name=field,
+                override_value=value,
+                accept_source=accept_source,
+                resolved_by=resolved_by or "admin",
+                notes=notes,
+            )
+            session.commit()
+            return result
+    except ValueError as exc:
+        print_error(f"Failed to resolve conflict: {exc}")
+        raise click.ClickException(str(exc)) from exc
+    except Exception as exc:
+        print_error(f"Database error while resolving conflict: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+
+def _render_resolve_display(result: dict[str, Any]) -> None:
+    """Render Rich confirmation panel for manual conflict resolution."""
+    cid = result.get("conflict_id", "N/A")
+    gid = result.get("game_id", "N/A")
+    fld = result.get("field", "N/A")
+    val = result.get("value", "N/A")
+    src = result.get("accepted_source") or "manual"
+    user = result.get("resolved_by", "admin")
+
+    msg = (
+        f"[bold green]Conflict Resolved Successfully![/bold green]\n\n"
+        f"  [bold]Conflict ID:[/]     [cyan]{cid}[/cyan]\n"
+        f"  [bold]Game ID:[/]         [cyan]{gid}[/cyan]\n"
+        f"  [bold]Field:[/]           [#fec923]{fld}[/#fec923]\n"
+        f"  [bold]Override Value:[/]  [white]{val}[/white]\n"
+        f"  [bold]Accepted Source:[/] [dim]{src}[/dim]\n"
+        f"  [bold]Resolved By:[/]     [dim]{user}[/dim]"
+    )
+    print_panel(
+        msg,
+        title="[bold green]Conflict Resolution Complete[/bold green]",
+        border_style="green",
+    )
+
+
+def _render_resolve_output(result: dict[str, Any], *, as_json: bool) -> None:
+    """Render resolution outcome as JSON or formatted panel."""
+    if as_json:
+        get_console().print_json(data=result)
+        return
+
+    _render_resolve_display(result)
+
+
+def _run_conflicts_resolve(  # noqa: PLR0913 # pylint: disable=too-many-arguments
+    ctx: click.Context | None,
+    *,
+    conflict_id: str,
+    field: str | None,
+    value: str | None,
+    accept_source: str | None,
+    notes: str | None,
+    resolved_by: str | None,
+    db_url: str | None,
+    api_url: str | None,
+    token: str | None,
+    prod: bool,
+    as_json: bool,
+) -> None:
+    """Execute resolution workflow for a specific schedule discrepancy."""
+    _validate_resolve_args(field, value, accept_source)
+    api_url, token = _resolve_remote_credentials(ctx, api_url, token, prod=prod)
+    if api_url:
+        result = _resolve_remote_conflict(
+            api_url,
+            token,
+            conflict_id=conflict_id,
+            field=field,
+            value=value,
+            accept_source=accept_source,
+            notes=notes,
+            resolved_by=resolved_by,
+        )
+    else:
+        result = _resolve_local_conflict(
+            db_url,
+            conflict_id=conflict_id,
+            field=field,
+            value=value,
+            accept_source=accept_source,
+            notes=notes,
+            resolved_by=resolved_by,
+        )
+
+    _render_resolve_output(result, as_json=as_json)
+
+
+@click.group("conflicts", invoke_without_command=True)
 @click.option(
     "--severity",
     type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"], case_sensitive=False),
@@ -399,75 +729,247 @@ def _render_conflicts_output(
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
 )
+@click.option(
+    "--prod",
+    "--production",
+    "prod",
+    is_flag=True,
+    default=False,
+    help="Target production environment (https://ecu-hockey-api.onrender.com).",
+)
 @click.pass_context
 def conflicts_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-many-arguments
     ctx: click.Context | None,
     *,
-    severity: str | None,
-    game_id: str | None,
-    field_name: str | None,
-    requires_review: bool,
+    severity: str | None = None,
+    game_id: str | None = None,
+    field_name: str | None = None,
+    requires_review: bool = False,
     limit: int | None = None,
     offset: int = 0,
     as_json: bool = False,
-    db_url: str | None,
+    db_url: str | None = None,
     api_url: str | None = None,
     token: str | None = None,
+    prod: bool = False,
 ) -> None:
-    """Display active cross-source discrepancies in a formatted table."""
-    if not as_json:
-        print_banner("CROSS-SOURCE SCHEDULE CONFLICTS & DISCREPANCIES")
-
-    api_url, token = _resolve_remote_credentials(ctx, api_url, token)
-    if api_url:
-        if not as_json:
-            get_console().print(
-                f"Target: [bold cyan]Remote API ({api_url})[/bold cyan]\n",
-            )
-
-        conflicts, total_count, payload = _fetch_remote_conflicts(
-            api_url,
-            token,
-            severity=severity,
-            game_id=game_id,
-            field_name=field_name,
-            review_only=requires_review,
-            limit=limit,
-            offset=offset,
-        )
-        _render_conflicts_output(
-            conflicts,
-            total_count,
-            as_json=as_json,
-            payload=payload,
-            limit=limit,
-            offset=offset,
-        )
+    """Inspect and resolve schedule discrepancies."""
+    if ctx and ctx.invoked_subcommand is not None:
         return
 
-    db_url_resolved = get_sync_database_url(db_url)
-    engine = create_sync_engine(db_url_resolved)
-    try:
-        Base.metadata.create_all(engine)
-        with get_sync_session(engine) as session:
-            conflicts, total_count = _query_conflicts(
-                session,
-                severity=severity,
-                game_id=game_id,
-                field_name=field_name,
-                requires_review=requires_review,
-                limit=limit,
-                offset=offset,
-            )
-    except Exception as exc:
-        print_error(f"Failed to query conflicts from database: {exc}")
-        raise click.ClickException(str(exc)) from exc
-
-    _render_conflicts_output(
-        conflicts,
-        total_count,
-        as_json=as_json,
-        payload=None,
+    _run_conflicts_list(
+        ctx,
+        severity=severity,
+        game_id=game_id,
+        field_name=field_name,
+        requires_review=requires_review,
         limit=limit,
         offset=offset,
+        as_json=as_json,
+        db_url=db_url,
+        api_url=api_url,
+        token=token,
+        prod=prod,
+    )
+
+
+@conflicts_command.command("list")
+@click.option(
+    "--severity",
+    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"], case_sensitive=False),
+    default=None,
+    help="Filter discrepancies by severity level.",
+)
+@click.option(
+    "--game-id",
+    default=None,
+    help="Filter discrepancies for a specific canonical game identifier.",
+)
+@click.option(
+    "--field",
+    "--field-name",
+    "field_name",
+    default=None,
+    help="Filter discrepancies by conflicting attribute name.",
+)
+@click.option(
+    "--requires-review/--all",
+    "--review-only/--show-all",
+    "requires_review",
+    default=False,
+    help="Show only discrepancies flagged as requiring administrative review.",
+)
+@click.option(
+    "--limit",
+    type=click.IntRange(min=1),
+    default=None,
+    help="Maximum number of discrepancies to return or display.",
+)
+@click.option(
+    "--offset",
+    type=click.IntRange(min=0),
+    default=0,
+    show_default=True,
+    help="Number of discrepancies to skip for pagination.",
+)
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    default=False,
+    help="Output discrepancies as formatted JSON.",
+)
+@click.option(
+    "--db-url",
+    envvar="DATABASE_URL",
+    default=None,
+    help="Database connection URL override (defaults to local SQLite or DATABASE_URL).",
+)
+@click.option(
+    "--api-url",
+    envvar="ECU_HOCKEY_API_URL",
+    default=None,
+    help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
+)
+@click.option(
+    "--token",
+    envvar="ECU_HOCKEY_ADMIN_TOKEN",
+    default=None,
+    help="Administrative authentication Bearer token for protected remote endpoints.",
+)
+@click.option(
+    "--prod",
+    "--production",
+    "prod",
+    is_flag=True,
+    default=False,
+    help="Target production environment (https://ecu-hockey-api.onrender.com).",
+)
+@click.pass_context
+def list_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-many-arguments
+    ctx: click.Context | None,
+    *,
+    severity: str | None = None,
+    game_id: str | None = None,
+    field_name: str | None = None,
+    requires_review: bool = False,
+    limit: int | None = None,
+    offset: int = 0,
+    as_json: bool = False,
+    db_url: str | None = None,
+    api_url: str | None = None,
+    token: str | None = None,
+    prod: bool = False,
+) -> None:
+    """List active cross-source discrepancies in a formatted table or JSON."""
+    _run_conflicts_list(
+        ctx,
+        severity=severity,
+        game_id=game_id,
+        field_name=field_name,
+        requires_review=requires_review,
+        limit=limit,
+        offset=offset,
+        as_json=as_json,
+        db_url=db_url,
+        api_url=api_url,
+        token=token,
+        prod=prod,
+    )
+
+
+@conflicts_command.command("resolve")
+@click.argument("conflict_id", required=True)
+@click.option(
+    "--field",
+    "--field-name",
+    "field",
+    default=None,
+    help="Attribute name to override (e.g. 'venue', 'start_time').",
+)
+@click.option(
+    "--value",
+    "value",
+    default=None,
+    help="Explicit override value to apply to conflicting attribute.",
+)
+@click.option(
+    "--accept-source",
+    "accept_source",
+    default=None,
+    help="Accept upstream data source value (e.g. 'ECU Hockey', 'achahockey').",
+)
+@click.option(
+    "--notes",
+    default=None,
+    help="Audit notes explaining the manual resolution decision.",
+)
+@click.option(
+    "--resolved-by",
+    default=None,
+    help="Username or administrator identifier performing the resolution.",
+)
+@click.option(
+    "--prod",
+    "--production",
+    "prod",
+    is_flag=True,
+    default=False,
+    help="Resolve conflict on production API instance.",
+)
+@click.option(
+    "--api-url",
+    envvar="ECU_HOCKEY_API_URL",
+    default=None,
+    help="Remote ECU Hockey API base URL.",
+)
+@click.option(
+    "--token",
+    envvar="ECU_HOCKEY_ADMIN_TOKEN",
+    default=None,
+    help="Administrative authentication Bearer token.",
+)
+@click.option(
+    "--db-url",
+    envvar="DATABASE_URL",
+    default=None,
+    help="Database connection URL override.",
+)
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    default=False,
+    help="Output resolution result as formatted JSON.",
+)
+@click.pass_context
+def resolve_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments
+    ctx: click.Context | None,
+    *,
+    conflict_id: str,
+    field: str | None = None,
+    value: str | None = None,
+    accept_source: str | None = None,
+    notes: str | None = None,
+    resolved_by: str | None = None,
+    prod: bool = False,
+    api_url: str | None = None,
+    token: str | None = None,
+    db_url: str | None = None,
+    as_json: bool = False,
+) -> None:
+    """Manually resolve a schedule conflict by accepting a source or override value."""
+    _run_conflicts_resolve(
+        ctx,
+        conflict_id=conflict_id,
+        field=field,
+        value=value,
+        accept_source=accept_source,
+        notes=notes,
+        resolved_by=resolved_by,
+        db_url=db_url,
+        api_url=api_url,
+        token=token,
+        prod=prod,
+        as_json=as_json,
     )
