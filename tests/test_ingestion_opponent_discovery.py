@@ -300,6 +300,16 @@ class TestNameAndVenueDetection:
         assert name == "NC State University"
         assert conf == ConfidenceLevel.HIGH
 
+    def test_detect_name_from_markup_mascot(self) -> None:
+        """Verify mascot match promotion to HIGH confidence."""
+        html = "<title>Demon Deacons</title>"
+        soup = BeautifulSoup(html, "html.parser")
+        res = _detect_name_from_markup(soup)
+        assert res is not None
+        name, conf = res
+        assert name == "Wake Forest University"
+        assert conf == ConfidenceLevel.HIGH
+
     def test_detect_name_from_markup_unnormalized_valid(self) -> None:
         """Verify non-normalized candidate with length >= 3 returns MEDIUM."""
         html = "<title>Raleigh Red Wings Hockey Club</title>"

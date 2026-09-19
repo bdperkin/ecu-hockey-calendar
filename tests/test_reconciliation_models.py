@@ -5,6 +5,10 @@ from unittest.mock import MagicMock
 
 from ecu_hockey_calendar.models import Game, GameResult, Team
 from ecu_hockey_calendar.reconciliation.models import (
+    DEFAULT_SOURCE_TIE_BREAKERS,
+    DEFAULT_SOURCE_TIE_BREAKERS_AWAY,
+    DEFAULT_SOURCE_TIERS,
+    DEFAULT_SOURCE_TIERS_AWAY,
     ChangeDetectionCycleResult,
     ConflictField,
     ConflictSeverity,
@@ -124,6 +128,47 @@ def test_source_priority_defaults_and_custom() -> None:
     assert (
         sp.compare_priority(DataSourceType.PRIMARY_SOT, DataSourceType.PRIMARY_SOT) == 0
     )
+
+    # Away fixtures (is_home=False)
+    assert sp.get_tier(DataSourceType.OPPONENT, is_home=False) == 1
+    assert sp.get_tier(DataSourceType.LEAGUE, is_home=False) == 1
+    assert sp.get_tier(DataSourceType.PRIMARY_SOT, is_home=False) == 2
+    assert sp.get_tier(DataSourceType.TICKETS, is_home=False) == 2
+    assert sp.get_tier(DataSourceType.SOCIAL, is_home=False) == 3
+
+    # Away comparisons: opponent home team preferred over visiting primary sot
+    assert (
+        sp.compare_priority(
+            DataSourceType.OPPONENT,
+            DataSourceType.PRIMARY_SOT,
+            is_home=False,
+        )
+        == -1
+    )
+    assert (
+        sp.compare_priority(
+            DataSourceType.PRIMARY_SOT,
+            DataSourceType.OPPONENT,
+            is_home=False,
+        )
+        == 1
+    )
+    assert (
+        sp.compare_priority(
+            DataSourceType.OPPONENT,
+            DataSourceType.LEAGUE,
+            is_home=False,
+        )
+        == -1
+    )
+
+    # Verify away constants structure
+    assert DEFAULT_SOURCE_TIERS_AWAY[DataSourceType.OPPONENT.value] == 1
+    assert DEFAULT_SOURCE_TIERS_AWAY[DataSourceType.PRIMARY_SOT.value] == 2
+    assert DEFAULT_SOURCE_TIERS[DataSourceType.PRIMARY_SOT.value] == 1
+    assert DEFAULT_SOURCE_TIERS[DataSourceType.OPPONENT.value] == 3
+    assert DEFAULT_SOURCE_TIE_BREAKERS_AWAY[0] == DataSourceType.OPPONENT.value
+    assert DEFAULT_SOURCE_TIE_BREAKERS[0] == DataSourceType.PRIMARY_SOT.value
 
 
 def test_source_game_record_from_game() -> None:

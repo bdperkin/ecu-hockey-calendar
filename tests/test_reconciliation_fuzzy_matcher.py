@@ -7,6 +7,7 @@ from ecu_hockey_calendar.reconciliation.fuzzy_matcher import (
     DEFAULT_VENUE_MATCH_THRESHOLD,
     GENERIC_COLLEGE_TERMS,
     _evaluate_stripped_match,
+    _resolve_canonical_venue,
     _score_exact_canonical,
     _score_sequence_ratio,
     _score_stripped_mascot,
@@ -17,6 +18,7 @@ from ecu_hockey_calendar.reconciliation.fuzzy_matcher import (
     is_opponent_match,
     is_venue_match,
     is_venue_unspecified,
+    resolve_canonical_venue,
     strip_mascot_terms,
 )
 
@@ -180,3 +182,23 @@ def test_generic_college_terms_and_exports() -> None:
     assert isinstance(GENERIC_COLLEGE_TERMS, tuple)
     assert "ice hockey club" in GENERIC_COLLEGE_TERMS
     assert "university" in GENERIC_COLLEGE_TERMS
+
+
+def test_resolve_canonical_venue() -> None:
+    """Verify venue alias canonicalization with exact, prefix, and fallback cases."""
+    assert resolve_canonical_venue(None) == ""
+    assert resolve_canonical_venue("") == ""
+    assert resolve_canonical_venue("the factory") == "The Factory Ice House"
+    assert resolve_canonical_venue("indian trail") == "Extreme Ice Center"
+    assert (
+        resolve_canonical_venue(
+            "Extreme Ice Center - 4705 Indian Trail Fairview Rd, Indian Trail, NC",
+        )
+        == "Extreme Ice Center"
+    )
+    assert (
+        resolve_canonical_venue("Unknown Rink - 123 Main St")
+        == "Unknown Rink - 123 Main St"
+    )
+    assert resolve_canonical_venue("Apex Ice Center") == "Apex Ice Center"
+    assert _resolve_canonical_venue("wcc") == "Wake Competition Center"

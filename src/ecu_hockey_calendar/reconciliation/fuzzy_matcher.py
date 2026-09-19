@@ -93,6 +93,9 @@ VENUE_ALIASES: dict[str, str] = {
     "richmond ice zone": "Richmond Ice Zone",
     "main street arena": "Main Street Arena",
     "fort dupont ice arena": "Fort Dupont Ice Arena",
+    "extreme ice center": "Extreme Ice Center",
+    "extreme ice": "Extreme Ice Center",
+    "indian trail": "Extreme Ice Center",
 }
 
 
@@ -304,7 +307,20 @@ def is_venue_unspecified(venue: str | None) -> bool:
 def _resolve_canonical_venue(venue: str | None) -> str:
     """Resolve venue alias to canonical arena name if known."""
     clean = clean_string_for_matching(venue)
-    return VENUE_ALIASES.get(clean, (venue or "").strip())
+    if clean in VENUE_ALIASES:
+        return VENUE_ALIASES[clean]
+
+    if venue:
+        prefix = re.split(r"[-,\u2013]", venue)[0].strip()
+        clean_prefix = clean_string_for_matching(prefix)
+        if clean_prefix in VENUE_ALIASES:
+            return VENUE_ALIASES[clean_prefix]
+
+    return (venue or "").strip()
+
+
+# Public alias
+resolve_canonical_venue = _resolve_canonical_venue
 
 
 def _is_substring_match(str_a: str, str_b: str) -> bool:
@@ -376,5 +392,6 @@ __all__ = [
     "is_opponent_match",
     "is_venue_match",
     "is_venue_unspecified",
+    "resolve_canonical_venue",
     "strip_mascot_terms",
 ]

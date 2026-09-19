@@ -5,6 +5,7 @@ discrepancies in date, start time, venue, status, and home/away designations,
 applies configurable source priority hierarchies, and flags high-confidence
 conflicts for administrative review.
 """
+# pylint: disable=too-many-lines
 
 from __future__ import annotations
 
@@ -27,6 +28,7 @@ from ecu_hockey_calendar.reconciliation.fuzzy_matcher import (
     compute_opponent_similarity,
     is_venue_match,
     is_venue_unspecified,
+    resolve_canonical_venue,
 )
 from ecu_hockey_calendar.reconciliation.models import (
     ConflictField,
@@ -39,8 +41,10 @@ from ecu_hockey_calendar.reconciliation.models import (
     SourceGameRecord,
     SourcePriority,
     TimingRelationship,
+    lookup_tiebreaker_order,
+    normalize_source_key,
 )
-from ecu_hockey_calendar.storage.models import GameStatus
+from ecu_hockey_calendar.storage.models import DataSourceType, GameStatus
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -49,9 +53,14 @@ CANONICAL_ECU_NAME = "East Carolina University"
 CANONICAL_SEASON = "2026-2027"
 
 
-def _is_high_tier_source(source_type: str, priority: SourcePriority) -> bool:
+def _is_high_tier_source(
+    source_type: str,
+    priority: SourcePriority,
+    *,
+    is_home: bool = True,
+) -> bool:
     """Check if source belongs to the highest precedence tier (Tier 1)."""
-    return priority.get_tier(source_type) == 1
+    return priority.get_tier(source_type, is_home=is_home) == 1
 
 
 def _generate_canonical_game_id(
@@ -176,11 +185,18 @@ def _resolve_pairwise_severity(
     src_a: str,
     src_b: str,
     priority: SourcePriority,
+    *,
+    is_home: bool = True,
 ) -> ConflictSeverity:
     """Determine conflict severity based on participating source tiers."""
-    is_high = _is_high_tier_source(src_a, priority) and _is_high_tier_source(
+    is_high = _is_high_tier_source(
+        src_a,
+        priority,
+        is_home=is_home,
+    ) and _is_high_tier_source(
         src_b,
         priority,
+        is_home=is_home,
     )
     return ConflictSeverity.HIGH if is_high else ConflictSeverity.MEDIUM
 
@@ -203,6 +219,7 @@ def _build_status_discrepancy(
         rec_a.source_type.value,
         rec_b.source_type.value,
         priority,
+        is_home=rec_a.is_home,
     )
     return DiscrepancyRecord(
         field=ConflictField.STATUS,
@@ -232,6 +249,7 @@ def _build_venue_discrepancy(
         rec_a.source_type.value,
         rec_b.source_type.value,
         priority,
+        is_home=rec_a.is_home,
     )
     return DiscrepancyRecord(
         field=ConflictField.VENUE,
@@ -259,6 +277,7 @@ def _build_time_discrepancy(
         rec_a.source_type.value,
         rec_b.source_type.value,
         priority,
+        is_home=rec_a.is_home,
     )
     return DiscrepancyRecord(
         field=ConflictField.START_TIME,
@@ -288,6 +307,7 @@ def _build_date_discrepancy(
         rec_a.source_type.value,
         rec_b.source_type.value,
         priority,
+        is_home=rec_a.is_home,
     )
     return DiscrepancyRecord(
         field=ConflictField.DATE,
@@ -440,14 +460,43 @@ def _determine_reconciliation_status(
     )
 
 
+def _find_primary_game_id(records: Sequence[SourceGameRecord]) -> str | None:
+    """Find explicit game identifier from primary source of truth records."""
+    for r in records:
+        if r.source_type == DataSourceType.PRIMARY_SOT and r.game_id is not None:
+            return r.game_id
+
+    return None
+
+
+def _find_any_game_id(records: Sequence[SourceGameRecord]) -> str | None:
+    """Find first explicit game identifier from candidate records."""
+    for r in records:
+        if r.game_id is not None:
+            return r.game_id
+
+    return None
+
+
 def _resolve_game_identity(
     record: SourceGameRecord,
     start_time: datetime,
     tz_name: str,
+    *,
+    fallback_records: Sequence[SourceGameRecord] | None = None,
 ) -> str:
     """Return explicit game_id or generate canonical ID."""
+    records = list(fallback_records or [])
+    primary_id = _find_primary_game_id(records)
+    if primary_id is not None:
+        return primary_id
+
     if record.game_id is not None:
         return record.game_id
+
+    any_id = _find_any_game_id(records)
+    if any_id is not None:
+        return any_id
 
     return _generate_canonical_game_id(
         record.opponent_name,
@@ -476,18 +525,122 @@ def _build_initial_provenance(top: SourceGameRecord) -> dict[str, str]:
     }
 
 
+def _compute_source_weight(
+    record: SourceGameRecord,
+    priority: SourcePriority,
+    *,
+    is_home: bool,
+) -> int:
+    """Compute numeric weight for a source record (higher is better)."""
+    tier = priority.get_tier(record.source_type.value, is_home=is_home)
+    return max(1, 5 - tier)
+
+
+def _score_candidate_group(
+    group: list[SourceGameRecord],
+    priority: SourcePriority,
+    *,
+    is_home: bool,
+) -> tuple[int, int, int, int]:
+    """Score candidate group by count, weight, tier, and tiebreaker."""
+    tie_breakers = priority.tie_breakers if is_home else priority.away_tie_breakers
+    count = len(group)
+    total_weight = sum(
+        _compute_source_weight(r, priority, is_home=is_home) for r in group
+    )
+    best_tier = min(
+        priority.get_tier(r.source_type.value, is_home=is_home) for r in group
+    )
+    best_tb = min(
+        lookup_tiebreaker_order(
+            normalize_source_key(r.source_type.value),
+            tie_breakers,
+        )
+        for r in group
+    )
+    return count, total_weight, -best_tier, -best_tb
+
+
+def _find_matching_time_group(
+    rec: SourceGameRecord,
+    groups: list[list[SourceGameRecord]],
+    exact_tolerance_min: int,
+) -> list[SourceGameRecord] | None:
+    """Find first existing time group matching the candidate within tolerance."""
+    for grp in groups:
+        diff_min = abs((rec.start_time - grp[0].start_time).total_seconds()) / 60
+        if diff_min <= exact_tolerance_min:
+            return grp
+
+    return None
+
+
+def _group_time_candidates(
+    records: Sequence[SourceGameRecord],
+    exact_tolerance_min: int,
+) -> list[list[SourceGameRecord]]:
+    """Group non-TBD records by start time within exact tolerance."""
+    groups: list[list[SourceGameRecord]] = []
+    for rec in records:
+        target = _find_matching_time_group(rec, groups, exact_tolerance_min)
+        if target is not None:
+            target.append(rec)
+        else:
+            groups.append([rec])
+
+    return groups
+
+
+def _find_matching_venue_group(
+    rec: SourceGameRecord,
+    groups: list[list[SourceGameRecord]],
+    venue_threshold: float,
+) -> list[SourceGameRecord] | None:
+    """Find first existing venue group compatible with the candidate."""
+    for grp in groups:
+        if is_venue_match(rec.venue, grp[0].venue, threshold=venue_threshold):
+            return grp
+
+    return None
+
+
+def _group_venue_candidates(
+    records: Sequence[SourceGameRecord],
+    venue_threshold: float,
+) -> list[list[SourceGameRecord]]:
+    """Group records with specified venues by compatibility."""
+    groups: list[list[SourceGameRecord]] = []
+    for rec in records:
+        target = _find_matching_venue_group(rec, groups, venue_threshold)
+        if target is not None:
+            target.append(rec)
+        else:
+            groups.append([rec])
+
+    return groups
+
+
 class ReconciliationEngine:
     """Core multi-source schedule reconciliation and conflict resolution engine."""
 
     def _select_sorted_candidates(
         self,
         cluster: Sequence[SourceGameRecord],
+        *,
+        is_home: bool = True,
     ) -> list[SourceGameRecord]:
         """Sort cluster records by source priority hierarchy."""
+        tie_breakers = (
+            self.priority.tie_breakers if is_home else self.priority.away_tie_breakers
+        )
         return sorted(
             cluster,
             key=lambda r: (
-                self.priority.get_tier(r.source_type.value),
+                self.priority.get_tier(r.source_type.value, is_home=is_home),
+                lookup_tiebreaker_order(
+                    normalize_source_key(r.source_type.value),
+                    tie_breakers,
+                ),
                 r.is_time_tbd,
                 is_venue_unspecified(r.venue),
             ),
@@ -638,14 +791,23 @@ class ReconciliationEngine:
         self,
         sorted_records: Sequence[SourceGameRecord],
         provenance: dict[str, str],
+        *,
+        is_home: bool = True,
     ) -> tuple[datetime, datetime | None, bool]:
-        """Select canonical start time, end time, and TBD flag."""
-        time_winner = sorted_records[0]
-        for r in sorted_records:
-            if not r.is_time_tbd:
-                time_winner = r
-                break
+        """Select start time, end time, and TBD flag via consensus and priority."""
+        valid_records = [r for r in sorted_records if not r.is_time_tbd]
+        if not valid_records:
+            fallback = sorted_records[0]
+            provenance["start_time"] = fallback.source_code
+            provenance["is_time_tbd"] = fallback.source_code
+            return fallback.start_time, fallback.end_time, fallback.is_time_tbd
 
+        groups = _group_time_candidates(valid_records, self.exact_tolerance_min)
+        groups.sort(
+            key=lambda grp: _score_candidate_group(grp, self.priority, is_home=is_home),
+            reverse=True,
+        )
+        time_winner = groups[0][0]
         provenance["start_time"] = time_winner.source_code
         provenance["is_time_tbd"] = time_winner.source_code
         return time_winner.start_time, time_winner.end_time, time_winner.is_time_tbd
@@ -654,28 +816,42 @@ class ReconciliationEngine:
         self,
         sorted_records: Sequence[SourceGameRecord],
         provenance: dict[str, str],
+        *,
+        is_home: bool = True,
     ) -> str:
-        """Select canonical venue string by source priority."""
-        venue_winner = sorted_records[0]
-        for r in sorted_records:
-            if not is_venue_unspecified(r.venue):
-                venue_winner = r
-                break
+        """Select canonical venue string by consensus and source priority."""
+        valid_records = [r for r in sorted_records if not is_venue_unspecified(r.venue)]
+        if not valid_records:
+            fallback = sorted_records[0]
+            provenance["venue"] = fallback.source_code
+            return fallback.venue
 
+        groups = _group_venue_candidates(valid_records, self.venue_similarity_threshold)
+        groups.sort(
+            key=lambda grp: _score_candidate_group(grp, self.priority, is_home=is_home),
+            reverse=True,
+        )
+        venue_winner = groups[0][0]
         provenance["venue"] = venue_winner.source_code
-        return venue_winner.venue
+        return resolve_canonical_venue(venue_winner.venue)
 
     def _resolve_status_field(
         self,
         sorted_records: Sequence[SourceGameRecord],
         provenance: dict[str, str],
+        *,
+        is_home: bool = True,
     ) -> GameStatus:
         """Select canonical operational status."""
         for r in sorted_records:
             if r.status in {
                 GameStatus.CANCELLED,
                 GameStatus.POSTPONED,
-            } and _is_high_tier_source(r.source_type.value, self.priority):
+            } and _is_high_tier_source(
+                r.source_type.value,
+                self.priority,
+                is_home=is_home,
+            ):
                 provenance["status"] = r.source_code
                 return r.status
 
@@ -704,11 +880,25 @@ class ReconciliationEngine:
         self,
         sorted_records: Sequence[SourceGameRecord],
         provenance: dict[str, str],
+        *,
+        is_home: bool = True,
     ) -> dict[str, Any]:
         """Resolve all field values and populate provenance tracking."""
-        st, et, tbd = self._resolve_time_fields(sorted_records, provenance)
-        venue = self._resolve_venue_field(sorted_records, provenance)
-        status = self._resolve_status_field(sorted_records, provenance)
+        st, et, tbd = self._resolve_time_fields(
+            sorted_records,
+            provenance,
+            is_home=is_home,
+        )
+        venue = self._resolve_venue_field(
+            sorted_records,
+            provenance,
+            is_home=is_home,
+        )
+        status = self._resolve_status_field(
+            sorted_records,
+            provenance,
+            is_home=is_home,
+        )
         res, hs, ascore = self._resolve_scores_and_result(sorted_records, provenance)
         if status in {GameStatus.SCHEDULED, GameStatus.CANCELLED, GameStatus.POSTPONED}:
             if status == GameStatus.CANCELLED:
@@ -744,16 +934,31 @@ class ReconciliationEngine:
         Returns:
             ReconciledGame instance with provenance and resolved conflicts.
         """
-        sorted_recs = self.select_sorted_candidates(cluster)
+        is_home = cluster[0].is_home if cluster else True
+        sorted_recs = self.select_sorted_candidates(cluster, is_home=is_home)
         top = sorted_recs[0]
 
-        temp_id = _resolve_game_identity(top, top.start_time, self.tz_name)
+        temp_id = _resolve_game_identity(
+            top,
+            top.start_time,
+            self.tz_name,
+            fallback_records=cluster,
+        )
         conflicts = self.detect_conflicts(cluster, temp_id)
 
         provenance = _build_initial_provenance(top)
-        f_vals = self._extract_cluster_fields(sorted_recs, provenance)
+        f_vals = self._extract_cluster_fields(
+            sorted_recs,
+            provenance,
+            is_home=is_home,
+        )
 
-        canonical_id = _resolve_game_identity(top, f_vals["start_time"], self.tz_name)
+        canonical_id = _resolve_game_identity(
+            top,
+            f_vals["start_time"],
+            self.tz_name,
+            fallback_records=cluster,
+        )
         requires_review = _has_review_requirement(conflicts)
         _mark_conflicts_resolved(conflicts, provenance, top.source_code)
         rec_status = _determine_reconciliation_status(

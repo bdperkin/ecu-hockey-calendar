@@ -91,7 +91,7 @@ class TestACHAHockeyParserFixtures:
         g0 = records[0]
 
         assert g0.league_game_id == "34694"
-        assert g0.opponent_name == "University of North Carolina-Charlotte"
+        assert g0.opponent_name == "UNC Charlotte"
         assert not g0.is_home
         assert g0.venue == "Extreme Ice Center, Charlotte, NC"
         assert g0.status == GameStatus.SCHEDULED
