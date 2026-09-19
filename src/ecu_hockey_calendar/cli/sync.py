@@ -4,6 +4,8 @@ Synchronizes schedule fixtures from upstream crawlers, reconciles conflicts,
 detects state transitions, and persists updates to relational storage.
 """
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -26,6 +28,11 @@ from ecu_hockey_calendar.cli.console import (
     print_error,
     print_success,
     print_warning,
+)
+from ecu_hockey_calendar.cli.production import (
+    DEFAULT_PROD_API_URL,
+    dispatch_production_sync,
+    resolve_admin_token,
 )
 from ecu_hockey_calendar.cli.status import (
     _query_sources,
@@ -81,6 +88,7 @@ __all__ = [
     "InstagramCrawler",
     "NotificationDispatcher",
     "OpponentCrawler",
+    "_apply_prod_defaults",
     "_convert_parsed_to_source_record",
     "_ensure_data_source",
     "_execute_crawlers",
@@ -90,12 +98,16 @@ __all__ = [
     "_fetch_remote_sync_status",
     "_handle_remote_sync_result",
     "_load_baseline_games_from_db",
+    "_maybe_dispatch_remote_sync",
     "_normalize_source_filter",
     "_populate_ctx_params",
     "_render_local_sync_status",
     "_render_remote_sync_status",
+    "_render_sync_details",
     "_render_sync_results",
+    "_render_sync_url",
     "_resolve_cli_opponent_directory",
+    "_resolve_prod_flag",
     "_resolve_remote_credentials",
     "_run_sync_status",
     "_run_sync_trigger",
@@ -115,7 +127,35 @@ def _normalize_source_filter(source_code: str) -> str | None:
     return None if norm == "all" else norm
 
 
-def _handle_remote_sync_result(result: dict[str, Any]) -> None:
+def _render_sync_url(console: Console, api_url: str | None) -> None:
+    """Display status URL line if remote API URL is present."""
+    if api_url:
+        status_url = f"{api_url.rstrip('/')}/api/v1/sync/status"
+        console.print(f"  [bold]Status URL:[/bold]    [dim]{status_url}[/dim]")
+
+
+def _render_sync_details(result: dict[str, Any], api_url: str | None) -> None:
+    """Display Rich confirmation details for remote sync trigger result."""
+    console = get_console()
+    cycle_id = result.get("sync_cycle_id")
+    target_source = result.get("target_source") or result.get("source")
+    timestamp = result.get("timestamp")
+    if cycle_id:
+        console.print(f"  [bold]Run ID:[/bold]        [cyan]{cycle_id}[/cyan]")
+
+    if target_source:
+        console.print(f"  [bold]Target Source:[/bold] [cyan]{target_source}[/cyan]")
+
+    if timestamp:
+        console.print(f"  [bold]Dispatched At:[/bold] [dim]{timestamp}[/dim]")
+
+    _render_sync_url(console, api_url)
+
+
+def _handle_remote_sync_result(
+    result: dict[str, Any],
+    api_url: str | None = None,
+) -> None:
     """Render warning or success message for remote sync trigger result."""
     if result.get("status") == "unsupported":
         warn_msg = result.get("message", "Synchronization trigger not supported.")
@@ -124,6 +164,7 @@ def _handle_remote_sync_result(result: dict[str, Any]) -> None:
 
     status_msg = result.get("message") or result.get("status") or "Triggered"
     print_success(f"Remote synchronization dispatched successfully: {status_msg}")
+    _render_sync_details(result, api_url)
 
 
 def _execute_remote_sync(
@@ -131,11 +172,17 @@ def _execute_remote_sync(
     api_url: str,
     token: str | None,
     source_code: str,
+    is_production: bool = False,
 ) -> None:
     """Dispatch synchronization trigger request to remote HTTP API."""
     console = get_console()
+    label = (
+        f"Production Web API ({api_url})"
+        if is_production
+        else f"Remote API ({api_url})"
+    )
     console.print(
-        f"Target: [bold cyan]Remote API ({api_url})[/bold cyan]\n",
+        f"Target: [bold cyan]{label}[/bold cyan]\n",
     )
     client = RemoteApiClient(api_url, token=token)
     status_spinner_msg = (
@@ -160,7 +207,7 @@ def _execute_remote_sync(
         print_error(f"Failed to trigger synchronization on remote API: {exc}")
         raise click.ClickException(str(exc)) from exc
 
-    _handle_remote_sync_result(result)
+    _handle_remote_sync_result(result, api_url=api_url)
 
 
 def _execute_sync_pipeline(  # noqa: PLR0913 # pylint: disable=too-many-arguments
@@ -203,15 +250,40 @@ def _extract_ctx_str(obj: object, key: str) -> str | None:
     return None
 
 
+def _resolve_prod_flag(ctx: click.Context | None, prod: bool) -> bool:
+    """Determine whether production mode is active."""
+    if prod:
+        return True
+
+    if ctx and isinstance(ctx.obj, dict):
+        return bool(ctx.obj.get("prod"))
+
+    return False
+
+
+def _apply_prod_defaults(
+    url: str | None,
+    token: str | None,
+) -> tuple[str, str | None]:
+    """Apply default production URL and token when in production mode."""
+    target_url = url or DEFAULT_PROD_API_URL
+    target_token = token or resolve_admin_token(None)
+    return target_url, target_token
+
+
 def _resolve_remote_credentials(
     ctx: click.Context | None,
     api_url: str | None,
     token: str | None,
+    prod: bool = False,
 ) -> tuple[str | None, str | None]:
     """Extract and resolve remote API URL and admin token from CLI context."""
     obj = ctx.obj if ctx else None
     url = api_url if api_url is not None else _extract_ctx_str(obj, "api_url")
     tok = token if token is not None else _extract_ctx_str(obj, "token")
+    if _resolve_prod_flag(ctx, prod):
+        return _apply_prod_defaults(url, tok)
+
     return url, tok
 
 
@@ -290,12 +362,13 @@ def _render_sync_results(
         )
 
 
-def _populate_ctx_params(  # pylint: disable=too-many-arguments
+def _populate_ctx_params(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     ctx: click.Context | None,
     api_url: str | None,
     token: str | None,
     db_url: str | None,
     opponents_config: str | None = None,
+    prod: bool = False,
 ) -> None:
     """Store group-level connection parameters in Click context object."""
     if ctx is None:
@@ -311,6 +384,9 @@ def _populate_ctx_params(  # pylint: disable=too-many-arguments
     for key, val in params.items():
         if val is not None:
             ctx.obj[key] = val
+
+    if prod:
+        ctx.obj["prod"] = True
 
 
 def _resolve_cli_opponent_directory(
@@ -401,6 +477,40 @@ def _run_sync_pipeline_with_progress(  # noqa: PLR0913 # pylint: disable=too-man
         )
 
 
+def _maybe_dispatch_remote_sync(  # noqa: PLR0913 # pylint: disable=too-many-arguments
+    *,
+    is_prod: bool,
+    method: str,
+    api_url: str | None,
+    token: str | None,
+    source_code: str,
+    dry_run: bool,
+    notify: bool,
+    notify_individual: bool,
+    season: str | None,
+) -> bool:
+    """Dispatch production or remote API sync if applicable."""
+    if is_prod or method in ("github", "render"):
+        dispatch_production_sync(
+            method=method,
+            api_url=api_url or DEFAULT_PROD_API_URL,
+            token=token,
+            source_code=source_code,
+            dry_run=dry_run,
+            notify=notify,
+            notify_individual=notify_individual,
+            season=season,
+            execute_remote_fn=_execute_remote_sync,
+        )
+        return True
+
+    if api_url:
+        _execute_remote_sync(api_url=api_url, token=token, source_code=source_code)
+        return True
+
+    return False
+
+
 def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many-locals
     ctx: click.Context | None,
     *,
@@ -416,6 +526,8 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
     verbose: bool = False,
     debug: bool = False,
     opponents_config: str | Path | None = None,
+    prod: bool = False,
+    method: str = "auto",
 ) -> None:
     """Execute schedule crawl, reconciliation, and diffing pipeline."""
     console = get_console()
@@ -423,9 +535,20 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
 
     opponent_directory = _resolve_cli_opponent_directory(ctx, opponents_config)
     is_verbose, is_debug = _resolve_sync_cli_flags(ctx, verbose, debug)
-    api_url, token = _resolve_remote_credentials(ctx, api_url, token)
-    if api_url:
-        _execute_remote_sync(api_url=api_url, token=token, source_code=source_code)
+    api_url, token = _resolve_remote_credentials(ctx, api_url, token, prod=prod)
+    is_prod = _resolve_prod_flag(ctx, prod)
+
+    if _maybe_dispatch_remote_sync(
+        is_prod=is_prod,
+        method=method,
+        api_url=api_url,
+        token=token,
+        source_code=source_code,
+        dry_run=dry_run,
+        notify=notify,
+        notify_individual=notify_individual,
+        season=season,
+    ):
         return
 
     db_url_resolved = get_sync_database_url(db_url)
@@ -538,16 +661,17 @@ def _render_local_sync_status(
     console.print(_render_sources_table(sources))
 
 
-def _run_sync_status(
+def _run_sync_status(  # pylint: disable=too-many-arguments
     ctx: click.Context | None,
     *,
     db_url: str | None,
     api_url: str | None,
     token: str | None,
     as_json: bool,
+    prod: bool = False,
 ) -> None:
     """Orchestrate sync status inspection in local or remote mode."""
-    api_url, token = _resolve_remote_credentials(ctx, api_url, token)
+    api_url, token = _resolve_remote_credentials(ctx, api_url, token, prod=prod)
     if api_url:
         payload = _fetch_remote_sync_status(api_url, token)
         _render_remote_sync_status(payload, api_url, as_json=as_json)
@@ -643,6 +767,27 @@ def _run_sync_status(
     help="Administrative authentication Bearer token for protected remote endpoints.",
 )
 @click.option(
+    "--prod",
+    "--production",
+    "prod",
+    is_flag=True,
+    default=False,
+    help=(
+        "Target production environment "
+        "(defaults API URL to https://ecu-hockey-api.onrender.com)."
+    ),
+)
+@click.option(
+    "--method",
+    type=click.Choice(["auto", "api", "github", "render"], case_sensitive=False),
+    default="auto",
+    show_default=True,
+    help=(
+        "Production dispatch strategy "
+        "(auto-detect, Web API, GitHub Actions, or Render)."
+    ),
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -671,9 +816,11 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     token: str | None = None,
     verbose: bool = False,
     debug: bool = False,
+    prod: bool = False,
+    method: str = "auto",
 ) -> None:
     """Ingest upstream schedules, reconcile conflicts, and detect changes."""
-    _populate_ctx_params(ctx, api_url, token, db_url, opponents_config)
+    _populate_ctx_params(ctx, api_url, token, db_url, opponents_config, prod=prod)
     if ctx.invoked_subcommand is not None:
         return
 
@@ -691,6 +838,8 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
         verbose=verbose,
         debug=debug,
         opponents_config=opponents_config,
+        prod=prod,
+        method=method,
     )
 
 
@@ -772,6 +921,27 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     help="Administrative authentication Bearer token for protected remote endpoints.",
 )
 @click.option(
+    "--prod",
+    "--production",
+    "prod",
+    is_flag=True,
+    default=False,
+    help=(
+        "Target production environment "
+        "(defaults API URL to https://ecu-hockey-api.onrender.com)."
+    ),
+)
+@click.option(
+    "--method",
+    type=click.Choice(["auto", "api", "github", "render"], case_sensitive=False),
+    default="auto",
+    show_default=True,
+    help=(
+        "Production dispatch strategy "
+        "(auto-detect, Web API, GitHub Actions, or Render)."
+    ),
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -800,6 +970,8 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
     token: str | None = None,
     verbose: bool = False,
     debug: bool = False,
+    prod: bool = False,
+    method: str = "auto",
 ) -> None:
     """Trigger schedule crawl, reconciliation, and change detection pipeline."""
     _run_sync_trigger(
@@ -816,6 +988,8 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
         verbose=verbose,
         debug=debug,
         opponents_config=opponents_config,
+        prod=prod,
+        method=method,
     )
 
 
@@ -839,6 +1013,17 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
     help="Administrative authentication Bearer token for protected remote endpoints.",
 )
 @click.option(
+    "--prod",
+    "--production",
+    "prod",
+    is_flag=True,
+    default=False,
+    help=(
+        "Target production environment "
+        "(defaults API URL to https://ecu-hockey-api.onrender.com)."
+    ),
+)
+@click.option(
     "--json",
     "as_json",
     is_flag=True,
@@ -846,13 +1031,14 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
     help="Output synchronization telemetry as formatted JSON.",
 )
 @click.pass_context
-def sync_status_command(
+def sync_status_command(  # pylint: disable=too-many-arguments
     ctx: click.Context | None,
     *,
     db_url: str | None = None,
     api_url: str | None = None,
     token: str | None = None,
     as_json: bool = False,
+    prod: bool = False,
 ) -> None:
     """Display synchronization telemetry, latest audit cycle, and crawler sources."""
     _run_sync_status(
@@ -861,4 +1047,5 @@ def sync_status_command(
         api_url=api_url,
         token=token,
         as_json=as_json,
+        prod=prod,
     )

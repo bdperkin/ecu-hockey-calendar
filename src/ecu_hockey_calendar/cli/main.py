@@ -64,8 +64,19 @@ if TYPE_CHECKING:
     default=False,
     help="Enable full HTTP wire tracing and diagnostic inspection.",
 )
+@click.option(
+    "--prod",
+    "--production",
+    "prod",
+    is_flag=True,
+    default=False,
+    help=(
+        "Target production environment "
+        "(defaults API URL to https://ecu-hockey-api.onrender.com)."
+    ),
+)
 @click.pass_context
-def cli(
+def cli(  # pylint: disable=too-many-arguments
     ctx: click.Context,
     *,
     api_url: str | None = None,
@@ -73,6 +84,7 @@ def cli(
     opponents_config: str | None = None,
     verbose: bool = False,
     debug: bool = False,
+    prod: bool = False,
 ) -> None:
     """ECU Men's Ice Hockey calendar synchronization and export CLI."""
     ctx.ensure_object(dict)
@@ -81,6 +93,7 @@ def cli(
     ctx.obj["opponents_config"] = opponents_config
     ctx.obj["verbose"] = verbose
     ctx.obj["debug"] = debug
+    ctx.obj["prod"] = prod
 
 
 # Register subcommands

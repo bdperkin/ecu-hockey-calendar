@@ -23,6 +23,10 @@ services:
         value: 'true'
       - key: LOG_LEVEL
         value: info
+      - key: ENABLE_API_SYNC_TRIGGER
+        value: 'true'
+      - key: SYNC_COOLDOWN_SECONDS
+        value: '300'
       - key: DISCORD_WEBHOOK_URL
         sync: false
       - key: SLACK_WEBHOOK_URL
