@@ -72,19 +72,19 @@ ecu-hockey sync status [OPTIONS]
 
 **Options (`sync` / `sync trigger`):**
 
-| Option                   | Environment Variable     | Default    | Description                                                                                                   |
-| :----------------------- | :----------------------- | :--------- | :------------------------------------------------------------------------------------------------------------ |
-| `-s, --source`           | —                        | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`, `instagram`, `opponent`, `social`). |
-| `-O, --opponents-config` | `OPPONENTS_CONFIG`       | `None`     | Path to custom YAML configuration file for opponent schedule feeds.                                           |
-| `--dry-run`              | —                        | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.                        |
-| `--notify / --no-notify` | —                        | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes.                      |
-| `--notify-individual`    | —                        | `False`    | Dispatch individual alert messages for each detected schedule change.                                         |
-| `-v, --verbose`          | —                        | `False`    | Display URLs being scraped and item extraction discovery statistics.                                          |
-| `--debug`                | —                        | `False`    | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                             |
-| `--db-url`               | `DATABASE_URL`           | `None`     | Database connection URL override.                                                                             |
-| `--season`               | —                        | `None`     | Optional season filter (e.g., `2026-2027`).                                                                   |
-| `--api-url`              | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                  |
-| `--token`                | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.                                    |
+| Option                   | Environment Variable     | Default    | Description                                                                                                                 |
+| :----------------------- | :----------------------- | :--------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `-s, --source`           | —                        | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`, `achahockey`, `instagram`, `opponent`, `social`). |
+| `-O, --opponents-config` | `OPPONENTS_CONFIG`       | `None`     | Path to custom YAML configuration file for opponent schedule feeds.                                                         |
+| `--dry-run`              | —                        | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.                                      |
+| `--notify / --no-notify` | —                        | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes.                                    |
+| `--notify-individual`    | —                        | `False`    | Dispatch individual alert messages for each detected schedule change.                                                       |
+| `-v, --verbose`          | —                        | `False`    | Display URLs being scraped and item extraction discovery statistics.                                                        |
+| `--debug`                | —                        | `False`    | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                                           |
+| `--db-url`               | `DATABASE_URL`           | `None`     | Database connection URL override.                                                                                           |
+| `--season`               | —                        | `None`     | Optional season filter (e.g., `2026-2027`).                                                                                 |
+| `--api-url`              | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                                |
+| `--token`                | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.                                                  |
 
 **Options (`sync status`):**
 
@@ -147,17 +147,17 @@ ecu-hockey scrape -s acchockey --debug
 
 **Options:**
 
-| Option                   | Environment Variable | Default     | Description                                                                                               |
-| :----------------------- | :------------------- | :---------- | :-------------------------------------------------------------------------------------------------------- |
-| `-s, --source`           | —                    | `all`       | Target scraper(s) to run (`all`, `ecuhockey`, `acchockey`, `instagram`, `opponent`, `tickets`, `social`). |
-| `-O, --opponents-config` | `OPPONENTS_CONFIG`   | `None`      | Path to custom YAML configuration file for opponent schedule feeds.                                       |
-| `-v, --verbose`          | —                    | `False`     | List URLs being scraped and extraction discovery statistics in real time.                                 |
-| `--debug`                | —                    | `False`     | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                         |
-| `--subseasons`           | —                    | `None`      | Comma-separated subseason IDs or URLs for multi-season traversal on league scrapers.                      |
-| `--season`               | —                    | `None`      | Collegiate hockey athletic season filter (e.g. `2026-2027`).                                              |
-| `--json`                 | —                    | `False`     | Output extracted fixtures and scraper telemetry as formatted JSON to stdout.                              |
-| `--save / --no-save`     | —                    | `--no-save` | Persist raw snapshots and fixtures into relational storage.                                               |
-| `--db-url`               | `DATABASE_URL`       | `None`      | Database connection URL override when `--save` is used.                                                   |
+| Option                   | Environment Variable | Default     | Description                                                                                                             |
+| :----------------------- | :------------------- | :---------- | :---------------------------------------------------------------------------------------------------------------------- |
+| `-s, --source`           | —                    | `all`       | Target scraper(s) to run (`all`, `ecuhockey`, `acchockey`, `achahockey`, `instagram`, `opponent`, `tickets`, `social`). |
+| `-O, --opponents-config` | `OPPONENTS_CONFIG`   | `None`      | Path to custom YAML configuration file for opponent schedule feeds.                                                     |
+| `-v, --verbose`          | —                    | `False`     | List URLs being scraped and extraction discovery statistics in real time.                                               |
+| `--debug`                | —                    | `False`     | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                                       |
+| `--subseasons`           | —                    | `None`      | Comma-separated subseason IDs or URLs for multi-season traversal on league scrapers.                                    |
+| `--season`               | —                    | `None`      | Collegiate hockey athletic season filter (e.g. `2026-2027`).                                                            |
+| `--json`                 | —                    | `False`     | Output extracted fixtures and scraper telemetry as formatted JSON to stdout.                                            |
+| `--save / --no-save`     | —                    | `--no-save` | Persist raw snapshots and fixtures into relational storage.                                                             |
+| `--db-url`               | `DATABASE_URL`       | `None`      | Database connection URL override when `--save` is used.                                                                 |
 
 **Examples:**
 

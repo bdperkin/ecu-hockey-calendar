@@ -90,7 +90,23 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 12. Ticketing & Promotional Theme Parser
+## 12. ACHA Hockey Schedule Parser
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.achahockey_parser
+   :members:
+   :show-inheritance:
+```
+
+## 13. ACHA Hockey Master Crawler
+
+```{eval-rst}
+.. automodule:: ecu_hockey_calendar.ingestion.achahockey_crawler
+   :members:
+   :show-inheritance:
+```
+
+## 14. Ticketing & Promotional Theme Parser
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.ingestion.tickets_parser
@@ -98,7 +114,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 13. Ticketing Crawler
+## 15. Ticketing Crawler
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.ingestion.tickets_crawler
@@ -106,7 +122,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 14. Instagram Feed & Announcement Parser
+## 16. Instagram Feed & Announcement Parser
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.ingestion.instagram_parser
@@ -114,7 +130,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 15. Instagram Crawler & Session Cache
+## 17. Instagram Crawler & Session Cache
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.ingestion.instagram_crawler
@@ -122,7 +138,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 16. Opponent Schedule Feed & Verification Parser
+## 18. Opponent Schedule Feed & Verification Parser
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.ingestion.opponent_parser
@@ -130,7 +146,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 17. Opponent Schedule Crawler & Reverse Verification
+## 19. Opponent Schedule Crawler & Reverse Verification
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.ingestion.opponent_crawler
@@ -138,7 +154,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 18. Reconciliation Models & Priority Configuration
+## 20. Reconciliation Models & Priority Configuration
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.reconciliation.models
@@ -146,7 +162,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 19. Opponent & Venue Fuzzy Matching Engine
+## 21. Opponent & Venue Fuzzy Matching Engine
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.reconciliation.fuzzy_matcher
@@ -154,7 +170,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 20. Timezone & Schedule Date Aligner
+## 22. Timezone & Schedule Date Aligner
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.reconciliation.date_aligner
@@ -162,7 +178,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 21. Multi-Source Reconciliation & Conflict Engine
+## 23. Multi-Source Reconciliation & Conflict Engine
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.reconciliation.engine
@@ -170,7 +186,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 22. Reconciliation Change Detector
+## 24. Reconciliation Change Detector
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.reconciliation.change_detector
@@ -178,7 +194,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 23. Storage Change Audit Service
+## 25. Storage Change Audit Service
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.storage.service
@@ -186,7 +202,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 24. Notification Models & Configuration
+## 26. Notification Models & Configuration
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.notifications.models
@@ -194,7 +210,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 25. Webhook Embed & Message Formatters
+## 27. Webhook Embed & Message Formatters
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.notifications.formatters
@@ -202,7 +218,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 26. Multi-Platform Webhook Dispatcher
+## 28. Multi-Platform Webhook Dispatcher
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.notifications.dispatcher
@@ -210,7 +226,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 27. FastAPI Application Factory
+## 29. FastAPI Application Factory
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.app
@@ -218,7 +234,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 28. Administrative Authentication & Security
+## 30. Administrative Authentication & Security
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.auth
@@ -226,7 +242,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 29. Public Schedule Data Service
+## 31. Public Schedule Data Service
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.schedule_service
@@ -234,7 +250,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 30. Calendar Feed & iCalendar Service
+## 32. Calendar Feed & iCalendar Service
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.service
@@ -242,7 +258,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 31. Server Execution Utility
+## 33. Server Execution Utility
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.server
@@ -250,7 +266,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 32. Responsive HTML Web Views
+## 34. Responsive HTML Web Views
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.web
@@ -259,7 +275,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 33. HTTP Content Negotiation & Template Utilities
+## 35. HTTP Content Negotiation & Template Utilities
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.negotiation
@@ -267,7 +283,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 34. Content-Negotiated Error Handlers
+## 36. Content-Negotiated Error Handlers
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.errors
@@ -275,7 +291,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 35. CLI Entry Points & Core Commands
+## 37. CLI Entry Points & Core Commands
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.main
@@ -283,7 +299,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 36. CLI Synchronization Command
+## 38. CLI Synchronization Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.sync
@@ -292,7 +308,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 37. CLI Status & Telemetry Command
+## 39. CLI Status & Telemetry Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.status
@@ -301,7 +317,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 38. CLI Schedule Export Command
+## 40. CLI Schedule Export Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.export
@@ -310,7 +326,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 39. CLI Conflict Inspection Command
+## 41. CLI Conflict Inspection Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.conflicts
@@ -319,7 +335,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 40. CLI API Server Command
+## 42. CLI API Server Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.serve
@@ -327,7 +343,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 41. CLI Notification Dispatch Command
+## 43. CLI Notification Dispatch Command
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.notify
@@ -335,7 +351,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 42. CLI Console & Rich Utilities
+## 44. CLI Console & Rich Utilities
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.cli.console
@@ -343,7 +359,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 43. Synchronization Pipeline & Concurrency Manager
+## 45. Synchronization Pipeline & Concurrency Manager
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.sync_service
@@ -352,7 +368,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 44. RSS 2.0 and Atom 1.0 Syndication Engine
+## 46. RSS 2.0 and Atom 1.0 Syndication Engine
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.syndication
@@ -360,7 +376,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 45. API Syndication Route Handlers
+## 47. API Syndication Route Handlers
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.syndication
@@ -369,7 +385,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 46. Calendar Route Handlers
+## 48. Calendar Route Handlers
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.calendar
@@ -378,7 +394,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 47. Public Schedule Feed Route Handlers
+## 49. Public Schedule Feed Route Handlers
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.schedule
@@ -387,7 +403,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 48. Service Health & Diagnostic Route Handlers
+## 50. Service Health & Diagnostic Route Handlers
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.health
@@ -396,7 +412,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 49. Synchronization Telemetry & Trigger Route Handlers
+## 51. Synchronization Telemetry & Trigger Route Handlers
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.sync
@@ -405,7 +421,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 50. Conflict Resolution Route Handlers
+## 52. Conflict Resolution Route Handlers
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.conflicts
@@ -414,7 +430,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 51. Shared Route Utilities & Extraction Helpers
+## 53. Shared Route Utilities & Extraction Helpers
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.routes.common
@@ -422,7 +438,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 52. Storage Declarative Base & Metadata
+## 54. Storage Declarative Base & Metadata
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.storage.base
@@ -431,7 +447,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 53. Package Version Management
+## 55. Package Version Management
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.version
@@ -439,7 +455,7 @@ Complete API documentation for `ecu-hockey-calendar`.
    :show-inheritance:
 ```
 
-## 54. Remote API Client & Models
+## 56. Remote API Client & Models
 
 ```{eval-rst}
 .. automodule:: ecu_hockey_calendar.api.client

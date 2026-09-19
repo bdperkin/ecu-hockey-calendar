@@ -1,0 +1,687 @@
+{
+  "SiteKit": {
+    "Parameters": {
+      "feed": "modulekit",
+      "view": "seasons",
+      "key": "test-key",
+      "client_code": "acha",
+      "fmt": "json",
+      "league_id": "1",
+      "season_id": "73"
+    },
+    "Seasons": [
+      {
+        "season_id": "73",
+        "season_name": "2026-2027 Men's Divisions",
+        "shortname": "2627 Mens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2026-08-01",
+        "end_date": "2027-04-01"
+      },
+      {
+        "season_id": "74",
+        "season_name": "2026-27 Women's Divisions",
+        "shortname": "2627 Womens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2026-08-01",
+        "end_date": "2027-04-01"
+      },
+      {
+        "season_id": "71",
+        "season_name": "2026 Men's Division 3 National Final Four",
+        "shortname": "M3FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-21",
+        "end_date": "2026-03-22"
+      },
+      {
+        "season_id": "65",
+        "season_name": "2026 Women's Division 1 Nationals Final Four",
+        "shortname": "WD1FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-21",
+        "end_date": "2026-03-22"
+      },
+      {
+        "season_id": "69",
+        "season_name": "2026 Men's Division 3 Nationals Pool Play",
+        "shortname": "M3PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-18",
+        "end_date": "2026-03-22"
+      },
+      {
+        "season_id": "72",
+        "season_name": "2026 Women's Division 2 Nationals Final Four",
+        "shortname": "W2FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-18",
+        "end_date": "2026-03-19"
+      },
+      {
+        "season_id": "64",
+        "season_name": "2026 Women's Division 1 Nationals Pool Play",
+        "shortname": "WD1PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-17",
+        "end_date": "2026-03-22"
+      },
+      {
+        "season_id": "67",
+        "season_name": "2026 Men's Division 2 Nationals Final Four",
+        "shortname": "M2FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-16",
+        "end_date": "2026-03-17"
+      },
+      {
+        "season_id": "70",
+        "season_name": "2026 Women's Division 2 Nationals Pool Play",
+        "shortname": "W2PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-15",
+        "end_date": "2026-03-19"
+      },
+      {
+        "season_id": "68",
+        "season_name": "2026 Men's Division 1 Nationals",
+        "shortname": "M1N",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-12",
+        "end_date": "2026-03-17"
+      },
+      {
+        "season_id": "66",
+        "season_name": "2026 Men's Division 2 Nationals Pool Play",
+        "shortname": "M2PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2026-03-12",
+        "end_date": "2026-02-17"
+      },
+      {
+        "season_id": "63",
+        "season_name": "2026 Men's D2 Regionals",
+        "shortname": "2026 M2 Reg",
+        "career": "0",
+        "playoff": "1",
+        "start_date": "2026-02-19",
+        "end_date": "2026-02-23"
+      },
+      {
+        "season_id": "62",
+        "season_name": "i",
+        "shortname": "i",
+        "career": "0",
+        "playoff": "0",
+        "start_date": "2025-09-01",
+        "end_date": "2026-04-01"
+      },
+      {
+        "season_id": "60",
+        "season_name": "2025-2026 Men's Divisions",
+        "shortname": "25/26 Mens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2025-08-24",
+        "end_date": "2026-04-01"
+      },
+      {
+        "season_id": "61",
+        "season_name": "2025-2026 Women's Divisions",
+        "shortname": "25/26 Womens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2025-08-24",
+        "end_date": "2026-04-01"
+      },
+      {
+        "season_id": "59",
+        "season_name": "2025 M2 All Star Challenge",
+        "shortname": "M2 ASC",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2025-04-25",
+        "end_date": "2025-04-27"
+      },
+      {
+        "season_id": "56",
+        "season_name": "2025 Women's Division 2 Final Four",
+        "shortname": "2025 WD2 FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-03-24",
+        "end_date": "2025-03-25"
+      },
+      {
+        "season_id": "50",
+        "season_name": "2025 Men's Division 3 Nationals Final Four",
+        "shortname": "2025 M3 FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-03-21",
+        "end_date": "2025-03-23"
+      },
+      {
+        "season_id": "55",
+        "season_name": "2025 Women's Division 2 Nationals Pool Play",
+        "shortname": "2025 WD2 NPP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-03-21",
+        "end_date": "2025-03-25"
+      },
+      {
+        "season_id": "52",
+        "season_name": "2025 Women's Division 1 National Final Four",
+        "shortname": "2025 WD1 FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-03-20",
+        "end_date": "2025-03-22"
+      },
+      {
+        "season_id": "48",
+        "season_name": "2025 Men's Division 3 Nationals Pool Play",
+        "shortname": "2025 M3 PP",
+        "career": "0",
+        "playoff": "1",
+        "start_date": "2025-03-18",
+        "end_date": "2025-03-22"
+      },
+      {
+        "season_id": "58",
+        "season_name": "2025 Men's Division 2 National Final Four",
+        "shortname": "2025 M2 FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-03-17",
+        "end_date": "2025-03-16"
+      },
+      {
+        "season_id": "51",
+        "season_name": "2025 Women's Division 1 Nationals Pool Play",
+        "shortname": "2025 W1PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-03-17",
+        "end_date": "2025-03-21"
+      },
+      {
+        "season_id": "57",
+        "season_name": "2025 Men's Division 2 Nationals Pool Play",
+        "shortname": "2025 M2 PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-03-14",
+        "end_date": "2025-03-18"
+      },
+      {
+        "season_id": "53",
+        "season_name": "2025 Men's Division 1 Nationals",
+        "shortname": "2025 M1 Nationals",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-03-13",
+        "end_date": "2025-03-18"
+      },
+      {
+        "season_id": "54",
+        "season_name": "2025 Men's Division 2 Regionals",
+        "shortname": "2025 M2 Reg",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-02-19",
+        "end_date": "2025-02-23"
+      },
+      {
+        "season_id": "49",
+        "season_name": "2025 Women's World University Games",
+        "shortname": "WWUG",
+        "career": "0",
+        "playoff": "0",
+        "start_date": "2025-01-12",
+        "end_date": "2025-01-26"
+      },
+      {
+        "season_id": "47",
+        "season_name": "2025 Men's World University Games at Torino ITALY",
+        "shortname": "2025 MEN'S WUG",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2025-01-11",
+        "end_date": "2025-01-22"
+      },
+      {
+        "season_id": "45",
+        "season_name": "2024-2025 Women's Divisions",
+        "shortname": "24/25 Womens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2024-09-01",
+        "end_date": "2025-04-01"
+      },
+      {
+        "season_id": "46",
+        "season_name": "2024-2025 Men's Divisions",
+        "shortname": "24/25 Mens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2024-08-30",
+        "end_date": "2025-04-01"
+      },
+      {
+        "season_id": "43",
+        "season_name": "2024 Women's Division 2 Final Four",
+        "shortname": "WD2FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-03-15",
+        "end_date": "2024-03-16"
+      },
+      {
+        "season_id": "40",
+        "season_name": "2024 Men's Division 2 Final Four",
+        "shortname": "MD2FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-03-14",
+        "end_date": "2024-03-15"
+      },
+      {
+        "season_id": "36",
+        "season_name": "2024 Women's Division 1 Nationals",
+        "shortname": "WD1N",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-03-13",
+        "end_date": "2023-12-18"
+      },
+      {
+        "season_id": "42",
+        "season_name": "2024 Women's Division 2 Nationals Pool Play",
+        "shortname": "WD2PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-03-12",
+        "end_date": "2024-03-14"
+      },
+      {
+        "season_id": "39",
+        "season_name": "2024 Men's Division 2 Nationals Pool Play",
+        "shortname": "MD2PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-03-11",
+        "end_date": "2024-03-13"
+      },
+      {
+        "season_id": "38",
+        "season_name": "2024 Men's Division 3 Final Four",
+        "shortname": "MD3FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-03-11",
+        "end_date": "2024-03-12"
+      },
+      {
+        "season_id": "41",
+        "season_name": "2024 Men's Division 1 Nationals",
+        "shortname": "MD1N",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-03-07",
+        "end_date": "2024-03-12"
+      },
+      {
+        "season_id": "37",
+        "season_name": "2024 Men's Division 3 Nationals Pool Play",
+        "shortname": "M3NPP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-03-06",
+        "end_date": "2024-03-12"
+      },
+      {
+        "season_id": "44",
+        "season_name": "2024 Men's Division 2 Regionals",
+        "shortname": "MD2R",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2024-02-23",
+        "end_date": "2024-02-25"
+      },
+      {
+        "season_id": "34",
+        "season_name": "2023-2024 Men's Divisions",
+        "shortname": "23/24 Mens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2023-09-01",
+        "end_date": "2024-04-01"
+      },
+      {
+        "season_id": "35",
+        "season_name": "2023-2024 Women's Divisions",
+        "shortname": "23/24 Womens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2023-09-01",
+        "end_date": "2024-04-01"
+      },
+      {
+        "season_id": "33",
+        "season_name": "2023 World Cup of Hockey",
+        "shortname": "2023 WCOH",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-04-14",
+        "end_date": "2023-04-19"
+      },
+      {
+        "season_id": "27",
+        "season_name": "2023 Men's Division 2 Nationals Final Four",
+        "shortname": "M2 Nationals FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-03-20",
+        "end_date": "2023-03-21"
+      },
+      {
+        "season_id": "29",
+        "season_name": "2023 Men's Division 3 Nationals Final Four",
+        "shortname": "M3 Nationals FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-03-20",
+        "end_date": "2023-03-21"
+      },
+      {
+        "season_id": "31",
+        "season_name": "2023 Women's Division 2 Nationals Final Four",
+        "shortname": "W2 Nationals FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-03-19",
+        "end_date": "2023-03-20"
+      },
+      {
+        "season_id": "26",
+        "season_name": "2023 Men's Division 2 Nationals Pool Play",
+        "shortname": "M2 Nationals",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-03-17",
+        "end_date": "2023-03-21"
+      },
+      {
+        "season_id": "24",
+        "season_name": "2023 Men's Division 1 Nationals",
+        "shortname": "M1 Nationals",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-03-16",
+        "end_date": "2023-03-21"
+      },
+      {
+        "season_id": "28",
+        "season_name": "2023 Men's Division 3 Nationals Pool Play",
+        "shortname": "M3 Nationals PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-03-16",
+        "end_date": "2023-03-21"
+      },
+      {
+        "season_id": "25",
+        "season_name": "2023 Women's Division 1 Nationals",
+        "shortname": "W1 Nationals",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-03-16",
+        "end_date": "2023-03-20"
+      },
+      {
+        "season_id": "30",
+        "season_name": "2023 Women's Division 2 Nationals Pool Play",
+        "shortname": "W2 Nationals PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-03-16",
+        "end_date": "2023-03-20"
+      },
+      {
+        "season_id": "32",
+        "season_name": "2023 Men's Division 2 Regionals",
+        "shortname": "M2 Regionals",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2023-02-23",
+        "end_date": "2023-02-26"
+      },
+      {
+        "season_id": "21",
+        "season_name": "2022-2023 Men's Regular Season",
+        "shortname": "22/23 Mens",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2022-08-01",
+        "end_date": "2023-04-21"
+      },
+      {
+        "season_id": "22",
+        "season_name": "2022-2023 Women's Division 1 Regular Season",
+        "shortname": "22/23 Womens 1",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2022-08-01",
+        "end_date": "2023-05-01"
+      },
+      {
+        "season_id": "23",
+        "season_name": "2022-2023 Women's Division 2 Regular Season",
+        "shortname": "22/23 Womens 2",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2022-08-01",
+        "end_date": "2023-05-01"
+      },
+      {
+        "season_id": "20",
+        "season_name": "2022 Women's Division 2 National Final Four",
+        "shortname": "WD2 FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-03-18",
+        "end_date": "2022-03-19"
+      },
+      {
+        "season_id": "14",
+        "season_name": "2022 Men's Division 2 Nationals Final Four",
+        "shortname": "M2 FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-03-17",
+        "end_date": "2022-03-18"
+      },
+      {
+        "season_id": "17",
+        "season_name": "2022 Women's Division 1 Nationals",
+        "shortname": "W1 Nats",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-03-16",
+        "end_date": "2022-03-20"
+      },
+      {
+        "season_id": "19",
+        "season_name": "2022 Women's Division 2 Nationals Pool Play",
+        "shortname": "W2 Nationals PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-03-15",
+        "end_date": "2022-03-17"
+      },
+      {
+        "season_id": "13",
+        "season_name": "2022 Men's Division 2 Nationals Pool Play",
+        "shortname": "M2 Nats PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-03-14",
+        "end_date": "2022-03-16"
+      },
+      {
+        "season_id": "18",
+        "season_name": "2022 Men's Division 3 Final Four",
+        "shortname": "M3 FF",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-03-14",
+        "end_date": "2022-03-15"
+      },
+      {
+        "season_id": "15",
+        "season_name": "2022 Men's Division 1 Nationals",
+        "shortname": "M1 Nats",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-03-10",
+        "end_date": "2022-03-15"
+      },
+      {
+        "season_id": "16",
+        "season_name": "2022 Men's Division 3 Nationals Pool Play",
+        "shortname": "ACHA M3 PP",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-03-10",
+        "end_date": "2022-02-15"
+      },
+      {
+        "season_id": "12",
+        "season_name": "2022 Men's Division 2 Regionals",
+        "shortname": "2021-22 M2 Regionals",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2022-02-24",
+        "end_date": "2022-02-28"
+      },
+      {
+        "season_id": "11",
+        "season_name": "2021-2022  Women's Regular Season",
+        "shortname": "Women's 21-22 Season",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2021-09-01",
+        "end_date": "2022-04-30"
+      },
+      {
+        "season_id": "10",
+        "season_name": "2021-2022 Men's Regular Season",
+        "shortname": "Men's 21-22 Season",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2021-09-01",
+        "end_date": "2022-04-30"
+      },
+      {
+        "season_id": "7",
+        "season_name": "2021 Men's Division 2 Nationals Final Four",
+        "shortname": "M2 NationalsFF 20-21",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2021-04-19",
+        "end_date": "2021-04-20"
+      },
+      {
+        "season_id": "8",
+        "season_name": "2021 Men's Division 3 Nationals Final Four",
+        "shortname": "M3 NationalsFF 20-21",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2021-04-19",
+        "end_date": "2021-04-20"
+      },
+      {
+        "season_id": "3",
+        "season_name": "2021 Men's Division 1 Nationals",
+        "shortname": "M1 Nationals 20-21",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2021-04-15",
+        "end_date": "2021-04-20"
+      },
+      {
+        "season_id": "4",
+        "season_name": "2021 Men's Division 2 Nationals Pool Play",
+        "shortname": "M2 NationalsPP 20-21",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2021-04-15",
+        "end_date": "2021-04-18"
+      },
+      {
+        "season_id": "5",
+        "season_name": "2021 Men's Division 3 Nationals Pool Play",
+        "shortname": "M3 NationalsPP 20-21",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2021-04-15",
+        "end_date": "2021-04-17"
+      },
+      {
+        "season_id": "9",
+        "season_name": "2021 Women's Division 1 Nationals Final Four",
+        "shortname": "W1 NationalsFF 20-21",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2021-04-15",
+        "end_date": "2021-04-17"
+      },
+      {
+        "season_id": "6",
+        "season_name": "2021 Women's Division 1 Nationals Pool Play",
+        "shortname": "W1 NationalsPP 20-21",
+        "career": "1",
+        "playoff": "1",
+        "start_date": "2021-04-15",
+        "end_date": "2021-04-20"
+      },
+      {
+        "season_id": "1",
+        "season_name": "2020-2021 Men's Regular Season",
+        "shortname": "20-21 Season",
+        "career": "1",
+        "playoff": "0",
+        "start_date": "2020-09-01",
+        "end_date": "2021-05-01"
+      },
+      {
+        "season_id": "2",
+        "season_name": "2020-2021 Women's Regular Season",
+        "shortname": "Women's 20/21 Season",
+        "career": "0",
+        "playoff": "0",
+        "start_date": "2020-09-01",
+        "end_date": "2021-05-01"
+      }
+    ],
+    "Copyright": {
+      "required_copyright": "Official statistics provided by American Collegiate Hockey Association",
+      "required_link": "http://leaguestat.com",
+      "powered_by": "Powered by HockeyTech.com",
+      "powered_by_url": "http://hockeytech.com"
+    }
+  }
+}

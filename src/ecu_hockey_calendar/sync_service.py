@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy import select
 
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
+from ecu_hockey_calendar.ingestion.achahockey_crawler import ACHAHockeyCrawler
 from ecu_hockey_calendar.ingestion.client import ResilientHttpClient
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
@@ -76,6 +77,7 @@ MILLIS_PER_SECOND: int = 1000
 _DATA_SOURCE_TYPE_MAP: dict[str, DataSourceType] = {
     "ecuhockey": DataSourceType.PRIMARY_SOT,
     "acchockey": DataSourceType.LEAGUE,
+    "achahockey": DataSourceType.LEAGUE,
     "instagram": DataSourceType.SOCIAL,
     "social": DataSourceType.SOCIAL,
     "opponent": DataSourceType.OPPONENT,
@@ -85,6 +87,7 @@ _DATA_SOURCE_TYPE_MAP: dict[str, DataSourceType] = {
 _DATA_SOURCE_DEFAULT_URLS: dict[str, str] = {
     "ecuhockey": "https://www.ecuhockey.com",
     "acchockey": "https://www.acchockey.com",
+    "achahockey": "https://www.achahockey.org",
     "instagram": "https://www.instagram.com/ecuhockey",
     "social": "https://www.instagram.com/ecuhockey",
     "opponent": "https://github.com/bdperkin/ecu-hockey-calendar",
@@ -173,6 +176,32 @@ async def _run_acchockey_crawler(
             r,
             DataSourceType.LEAGUE,
             "acchockey",
+        )
+        for r in records
+    ]
+    return src_records, "SUCCESS", dur
+
+
+async def _run_achahockey_crawler(
+    observer: ScrapeObserver | None = None,
+) -> tuple[list[SourceGameRecord], str, float]:
+    """Execute the ACHA Hockey master league portal crawler.
+
+    Args:
+        observer: Optional telemetry observer.
+
+    Returns:
+        Tuple of (source_records, status_string, duration_seconds).
+    """
+    t0 = datetime.now(UTC)
+    crawler = ACHAHockeyCrawler(observer=observer)
+    records, _, _, _ = await crawler.crawl()
+    dur = (datetime.now(UTC) - t0).total_seconds()
+    src_records = [
+        _convert_parsed_to_source_record(
+            r,
+            DataSourceType.LEAGUE,
+            "achahockey",
         )
         for r in records
     ]
@@ -325,7 +354,7 @@ async def _execute_crawlers(
 
     Args:
         source_filter: Filter for source execution ('all', 'ecuhockey',
-            'acchockey', 'instagram', 'opponent', 'social').
+            'acchockey', 'achahockey', 'instagram', 'opponent', 'social').
         observer: Optional telemetry observer.
         opponent_directory: Optional custom OpponentDirectory instance.
 
@@ -347,6 +376,12 @@ async def _execute_crawlers(
             lambda: _run_acchockey_crawler(observer=observer),
             "acchockey",
             "ACC Hockey League",
+        ),
+        (
+            ("all", "achahockey"),
+            lambda: _run_achahockey_crawler(observer=observer),
+            "achahockey",
+            "ACHA Hockey Master Portal",
         ),
         (
             ("all", "instagram", "social"),
@@ -766,7 +801,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     Args:
         engine: SQLAlchemy Engine instance.
         source_filter: Filter for source execution ('all', 'ecuhockey',
-            'acchockey', 'instagram', 'opponent', 'social').
+            'acchockey', 'achahockey', 'instagram', 'opponent', 'social').
         dry_run: If True, skip database persistence and notifications.
         notify: If True and not dry_run, dispatch webhook notifications.
         notify_individual: If True, send individual webhook change messages.

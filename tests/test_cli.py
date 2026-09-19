@@ -1,4 +1,4 @@
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines,too-many-public-methods
 """Tests for the ECU Hockey command-line interface (ecu-hockey).
 
 Covers root CLI group, subcommands (sync, status, export, conflicts, serve),
@@ -1393,6 +1393,11 @@ class TestSyncCommand:
                 return_value=([rec2], "<html></html>", "hash2", "text/html"),
             ),
             patch(
+                "ecu_hockey_calendar.cli.sync.ACHAHockeyCrawler.crawl",
+                new_callable=AsyncMock,
+                return_value=([], "", "", ""),
+            ),
+            patch(
                 "ecu_hockey_calendar.cli.sync.InstagramCrawler.fetch_posts",
                 new_callable=AsyncMock,
                 return_value=([], "", "", ""),
@@ -1430,6 +1435,11 @@ class TestSyncCommand:
                 "ecu_hockey_calendar.cli.sync.ACCHockeyCrawler.crawl",
                 new_callable=AsyncMock,
                 return_value=([], "", "hash", "text/html"),
+            ),
+            patch(
+                "ecu_hockey_calendar.cli.sync.ACHAHockeyCrawler.crawl",
+                new_callable=AsyncMock,
+                return_value=([], "", "", ""),
             ),
             patch(
                 "ecu_hockey_calendar.cli.sync.InstagramCrawler.fetch_posts",
@@ -1547,6 +1557,45 @@ class TestSyncCommand:
             )
             assert res_fail.exit_code == 0
             assert "RESET BY PEER" in res_fail.output
+
+    def test_sync_achahockey_source_only_and_failure(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify sync with --source achahockey and crawler failure handling."""
+        rec = ParsedGameRecord(
+            game_id="game-acha-only",
+            opponent_name="Liberty",
+            is_home=False,
+            start_time=datetime(2026, 12, 1, 20, 0, tzinfo=UTC),
+            venue="LaHaye Ice Center",
+        )
+        with patch(
+            "ecu_hockey_calendar.cli.sync.ACHAHockeyCrawler.crawl",
+            new_callable=AsyncMock,
+            return_value=([rec], "", "", ""),
+        ):
+            res = runner.invoke(
+                sync_command,
+                ["--source", "achahockey", "--db-url", db_url],
+            )
+            assert res.exit_code == 0
+            assert "ACHA Hockey" in res.output
+
+        with patch(
+            "ecu_hockey_calendar.cli.sync.ACHAHockeyCrawler.crawl",
+            new_callable=AsyncMock,
+            side_effect=ConnectionResetError("Reset by peer"),
+        ):
+            res_fail = runner.invoke(
+                sync_command,
+                ["--source", "achahockey", "--db-url", db_url],
+            )
+            assert res_fail.exit_code == 0
+            assert "FAILED" in res_fail.output
+            assert "RESET" in res_fail.output
+            assert "PEER" in res_fail.output
 
     def test_sync_instagram_and_opponent_sources(
         self,

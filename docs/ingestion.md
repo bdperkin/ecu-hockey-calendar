@@ -101,7 +101,26 @@ async def fetch_league_schedule() -> None:
 asyncio.run(fetch_league_schedule())
 ```
 
-## 5. Ticketing & Promotional Crawler (TicketsCrawler)
+## 5. ACHA Master League Crawler (ACHAHockeyCrawler)
+
+The American Collegiate Hockey Association (ACHA) operates a master schedule portal at `achahockey.org` powered by HockeyTech ModuleKit APIs (`lscluster.hockeytech.com`). `ACHAHockeyCrawler` discovers current, historical, and future seasons dynamically, normalizes team names, converts game start datetimes to UTC, and extracts official scores and rink venues.
+
+```python
+import asyncio
+from ecu_hockey_calendar.ingestion import ACHAHockeyCrawler, ResilientHttpClient
+
+
+async def fetch_acha_schedule() -> None:
+    async with ResilientHttpClient() as client:
+        crawler = ACHAHockeyCrawler(client=client)
+        records, raw_text, content_hash, content_type = await crawler.crawl()
+        print(f"Ingested {len(records)} official ACHA schedule games.")
+
+
+asyncio.run(fetch_acha_schedule())
+```
+
+## 6. Ticketing & Promotional Crawler (TicketsCrawler)
 
 `TicketsCrawler` scrapes ticket listings from `ecuhockey.com/tickets`. It parses pricing tiers (e.g., student discounts, general admission) and extracts special promotional themes such as *Military Appreciation Night* or *Teddy Bear Toss*.
 
@@ -128,7 +147,7 @@ async def fetch_ticketing_data() -> None:
 asyncio.run(fetch_ticketing_data())
 ```
 
-## 6. Social Media & Announcements (InstagramCrawler)
+## 7. Social Media & Announcements (InstagramCrawler)
 
 Game times and cancellations are frequently announced first on social media. `InstagramCrawler` monitors public Instagram posts from `@ecuicehockey`, using fuzzy keyword heuristics to classify announcements into categories:
 
@@ -156,7 +175,7 @@ async def fetch_social_announcements() -> None:
 asyncio.run(fetch_social_announcements())
 ```
 
-## 7. Opponent Schedule Reverse Check (OpponentCrawler)
+## 8. Opponent Schedule Reverse Check (OpponentCrawler)
 
 To ensure schedule integrity, `OpponentCrawler` performs reverse lookups against opponent team sites and league feeds. It cross-checks ECU fixtures against opponent schedules, verifying start times, dates, and venues, and alerting when discrepancies are detected.
 
@@ -176,11 +195,11 @@ async def verify_against_opponents() -> None:
 asyncio.run(verify_against_opponents())
 ```
 
-## 8. Opponent Schedule Feeds Configuration (YAML Schema)
+## 9. Opponent Schedule Feeds Configuration (YAML Schema)
 
 Opponent schedule endpoints can be configured dynamically using structured YAML files, allowing feeds, venues, aliases, and platforms to be managed without modifying code.
 
-### 8.1. YAML Schema Definition
+### 9.1. YAML Schema Definition
 
 ```yaml
 opponents:
@@ -198,7 +217,7 @@ opponents:
     enabled: true
 ```
 
-### 8.2. Loading & Serialization
+### 9.2. Loading & Serialization
 
 `OpponentDirectory` provides `from_yaml()` and `to_yaml()` methods to load and export endpoint configurations from file paths (`Path` or `str`), file-like streams (`TextIO`), or raw YAML strings:
 
@@ -219,7 +238,7 @@ if endpoint and endpoint.enabled:
 yaml_output = directory.to_yaml()
 ```
 
-### 8.3. Bundled Verified Dataset
+### 9.3. Bundled Verified Dataset
 
 The library includes a pre-configured, verified dataset of ACCHL and regional collegiate opponents bundled within the package at `ecu_hockey_calendar.data/opponents.yaml`. This resource includes verified official team websites, schedule feed URLs, feed types (`ical`, `html`), and home venues for 14 programs:
 
@@ -248,7 +267,7 @@ directory = get_default_opponent_directory()
 print(f"Loaded {len(directory)} verified collegiate opponents.")
 ```
 
-### 8.4. Runtime Resolution Hierarchy
+### 9.4. Runtime Resolution Hierarchy
 
 For runtime operations and CLI pipelines, `resolve_opponent_directory()` automatically applies the precedence hierarchy:
 
