@@ -69,7 +69,7 @@ jobs:
           uv run djlint --check src/ecu_hockey_calendar/api/templates
           uv run djlint --lint src/ecu_hockey_calendar/api/templates
       - name: Lint Dockerfile with Hadolint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: Dockerfile
           config: .hadolint.yaml
