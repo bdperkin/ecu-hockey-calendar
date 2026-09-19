@@ -162,13 +162,16 @@ def _extract_google_cal_id(parsed_qs: dict[str, list[str]]) -> str | None:
 
 def extract_google_calendar_feed(url: str) -> str | None:
     """Convert Google Calendar embed or view URL to direct public iCal URL."""
-    if "calendar.google.com" not in url:
+    parsed = urlparse(url)
+    if parsed.netloc.lower() not in (
+        "calendar.google.com",
+        "www.calendar.google.com",
+    ):
         return None
 
-    if "/calendar/ical/" in url and url.endswith(".ics"):
+    if "/calendar/ical/" in parsed.path and parsed.path.endswith(".ics"):
         return url
 
-    parsed = urlparse(url)
     qs = parse_qs(parsed.query)
     cal_id = _extract_google_cal_id(qs)
     if not cal_id:

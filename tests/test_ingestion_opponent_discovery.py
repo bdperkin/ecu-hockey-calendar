@@ -678,7 +678,7 @@ class TestOpponentDiscoverySpider:
         assert discovered.feed_type == OpponentFeedType.ICAL
         assert discovered.home_venue == "Invisalign Arena"
         assert discovered.overall_confidence() == ConfidenceLevel.HIGH
-        assert "https://ncstatehockey.com" in discovered.pages_crawled
+        assert discovered.pages_crawled[0] == "https://ncstatehockey.com"
 
     @pytest.mark.anyio
     async def test_discover_html_feed_fallback(self) -> None:
