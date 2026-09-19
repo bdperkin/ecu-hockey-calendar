@@ -20,7 +20,8 @@ import threading
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete as _sa_delete
+from sqlalchemy import select
 
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
 from ecu_hockey_calendar.ingestion.achahockey_crawler import ACHAHockeyCrawler
@@ -683,7 +684,7 @@ def _prune_stale_fixtures(
         return []
 
     session.execute(
-        delete(GameModel).where(GameModel.game_id.in_(stale_ids)),
+        _sa_delete(GameModel).where(GameModel.game_id.in_(stale_ids)),
     )
     session.flush()
     return stale_ids
