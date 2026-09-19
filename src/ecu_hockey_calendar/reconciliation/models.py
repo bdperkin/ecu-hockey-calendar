@@ -70,12 +70,28 @@ DEFAULT_SOURCE_TIERS: dict[str, int] = {
     DataSourceType.OPPONENT.value: 3,
 }
 
+DEFAULT_SOURCE_TIERS_AWAY: dict[str, int] = {
+    DataSourceType.OPPONENT.value: 1,
+    DataSourceType.LEAGUE.value: 1,
+    DataSourceType.PRIMARY_SOT.value: 2,
+    DataSourceType.TICKETS.value: 2,
+    DataSourceType.SOCIAL.value: 3,
+}
+
 DEFAULT_SOURCE_TIE_BREAKERS: tuple[str, ...] = (
     DataSourceType.PRIMARY_SOT.value,
     DataSourceType.LEAGUE.value,
     DataSourceType.TICKETS.value,
     DataSourceType.SOCIAL.value,
     DataSourceType.OPPONENT.value,
+)
+
+DEFAULT_SOURCE_TIE_BREAKERS_AWAY: tuple[str, ...] = (
+    DataSourceType.OPPONENT.value,
+    DataSourceType.LEAGUE.value,
+    DataSourceType.PRIMARY_SOT.value,
+    DataSourceType.TICKETS.value,
+    DataSourceType.SOCIAL.value,
 )
 
 
@@ -85,6 +101,10 @@ def _normalize_source_key(source: DataSourceType | str) -> str:
         return source.value
 
     return str(source).lower()
+
+
+# Public alias
+normalize_source_key = _normalize_source_key
 
 
 def _compare_numeric_precedence(val_a: int, val_b: int) -> int:
@@ -106,41 +126,61 @@ def _lookup_tiebreaker_order(key: str, tie_breakers: tuple[str, ...]) -> int:
         return len(tie_breakers)
 
 
+# Public alias
+lookup_tiebreaker_order = _lookup_tiebreaker_order
+
+
 @dataclass
 class SourcePriority:
     """Configurable hierarchy and precedence rules across data sources.
 
     Lower tier values indicate higher precedence (Tier 1 > Tier 2 > Tier 3).
+    When resolving away fixtures (is_home=False), the home team opponent schedule
+    and official league feeds receive higher precedence than the visiting team.
     """
 
     tier_map: dict[str, int] = dataclass_field(
         default_factory=lambda: dict(DEFAULT_SOURCE_TIERS),
     )
+    away_tier_map: dict[str, int] = dataclass_field(
+        default_factory=lambda: dict(DEFAULT_SOURCE_TIERS_AWAY),
+    )
     tie_breakers: tuple[str, ...] = DEFAULT_SOURCE_TIE_BREAKERS
+    away_tie_breakers: tuple[str, ...] = DEFAULT_SOURCE_TIE_BREAKERS_AWAY
     default_tier: int = 4
 
-    def get_tier(self, source_type: DataSourceType | str) -> int:
+    def get_tier(
+        self,
+        source_type: DataSourceType | str,
+        *,
+        is_home: bool = True,
+    ) -> int:
         """Lookup precedence tier for a data source type.
 
         Args:
             source_type: Source type enum or string identifier.
+            is_home: Whether ECU is the home team for this fixture.
 
         Returns:
             Precedence tier integer (lower number = higher precedence).
         """
         key = _normalize_source_key(source_type)
-        return self.tier_map.get(key, self.default_tier)
+        mapping = self.tier_map if is_home else self.away_tier_map
+        return mapping.get(key, self.default_tier)
 
     def compare_priority(
         self,
         source_a: DataSourceType | str,
         source_b: DataSourceType | str,
+        *,
+        is_home: bool = True,
     ) -> int:
         """Compare two sources by precedence tier and tie-breaker ordering.
 
         Args:
             source_a: First source identifier.
             source_b: Second source identifier.
+            is_home: Whether ECU is the home team for this fixture.
 
         Returns:
             -1 if source_a has higher precedence, 1 if source_b has higher
@@ -149,14 +189,15 @@ class SourcePriority:
         key_a = _normalize_source_key(source_a)
         key_b = _normalize_source_key(source_b)
         tier_cmp = _compare_numeric_precedence(
-            self.get_tier(key_a),
-            self.get_tier(key_b),
+            self.get_tier(key_a, is_home=is_home),
+            self.get_tier(key_b, is_home=is_home),
         )
         if tier_cmp != 0:
             return tier_cmp
 
-        idx_a = _lookup_tiebreaker_order(key_a, self.tie_breakers)
-        idx_b = _lookup_tiebreaker_order(key_b, self.tie_breakers)
+        breakers = self.tie_breakers if is_home else self.away_tie_breakers
+        idx_a = _lookup_tiebreaker_order(key_a, breakers)
+        idx_b = _lookup_tiebreaker_order(key_b, breakers)
         return _compare_numeric_precedence(idx_a, idx_b)
 
 
@@ -735,7 +776,9 @@ class ChangeDetectionCycleResult:
 
 __all__ = [
     "DEFAULT_SOURCE_TIERS",
+    "DEFAULT_SOURCE_TIERS_AWAY",
     "DEFAULT_SOURCE_TIE_BREAKERS",
+    "DEFAULT_SOURCE_TIE_BREAKERS_AWAY",
     "ChangeDetectionCycleResult",
     "ConflictField",
     "ConflictSeverity",

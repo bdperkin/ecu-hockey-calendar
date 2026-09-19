@@ -486,6 +486,27 @@ def test_identity_and_provenance_helpers() -> None:
     assert _resolve_game_identity(r_with_id, t, "America/New_York") == "EXPLICIT-ID-1"
     canon = _resolve_game_identity(r_no_id, t, "America/New_York")
     assert "unc" in canon
+    fb_id = _resolve_game_identity(
+        r_no_id,
+        t,
+        "America/New_York",
+        fallback_records=[r_with_id],
+    )
+    assert fb_id == "EXPLICIT-ID-1"
+
+    r_sec_with_id = _create_record(
+        "UNC",
+        t,
+        source_type=DataSourceType.OPPONENT,
+        game_id="SECONDARY-ID-1",
+    )
+    sec_id = _resolve_game_identity(
+        r_no_id,
+        t,
+        "America/New_York",
+        fallback_records=[r_sec_with_id],
+    )
+    assert sec_id == "SECONDARY-ID-1"
 
     prov = _build_initial_provenance(r_with_id)
     assert prov["opponent_name"] == "ecuhockey"
@@ -583,7 +604,7 @@ def test_engine_time_and_venue_resolution() -> None:
     r_ven = _create_record("UNC", t_sched, venue="The Factory", source_code="league")
     prov_ven: dict[str, str] = {}
     venue = engine._resolve_venue_field([r_no_ven, r_ven], prov_ven)
-    assert venue == "The Factory"
+    assert venue == "The Factory Ice House"
     assert prov_ven["venue"] == "league"
 
     # Venue fields: when all records have unspecified venue, falls back to top record
@@ -842,3 +863,112 @@ def test_weekend_series_clustering_and_midnight_rollover() -> None:
     clusters_rollover = engine.cluster_records([rec_late, rec_early])
     assert len(clusters_rollover) == 1
     assert len(clusters_rollover[0]) == 2
+
+
+def test_engine_consensus_and_source_weighting() -> None:
+    """Verify multi-source consensus and away host weighting over visiting team."""
+    engine = ReconciliationEngine()
+    t_wrong = datetime(2026, 9, 20, 0, 0, tzinfo=UTC)  # 8:00 PM EDT
+    t_correct = datetime(2026, 9, 20, 1, 30, tzinfo=UTC)  # 9:30 PM EDT
+
+    r_ecu = _create_record(
+        "UNC Charlotte",
+        t_wrong,
+        source_type=DataSourceType.PRIMARY_SOT,
+        source_code="ecuhockey",
+        venue="Indian Trail",
+        is_home=False,
+        game_id="game-vs-charlotte-on-09192026-mrxgmz79",
+    )
+    r_opp = _create_record(
+        "UNC Charlotte",
+        t_correct,
+        source_type=DataSourceType.OPPONENT,
+        source_code="opponent",
+        venue="Extreme Ice Center - 4705 Indian Trail Fairview Rd, Indian Trail, NC",
+        is_home=False,
+    )
+    r_acha = _create_record(
+        "UNC Charlotte",
+        t_correct,
+        source_type=DataSourceType.LEAGUE,
+        source_code="achahockey",
+        venue="Extreme Ice Center",
+        is_home=False,
+        game_id="ecu-away-university-of-north-carolina-charlotte-20260920",
+    )
+
+    cluster = [r_ecu, r_opp, r_acha]
+    rec_game = engine.resolve_cluster(cluster)
+
+    assert rec_game.canonical_game_id == "game-vs-charlotte-on-09192026-mrxgmz79"
+    assert rec_game.start_time == t_correct
+    assert rec_game.venue == "Extreme Ice Center"
+    assert not rec_game.is_home
+    assert rec_game.field_provenance["start_time"] == "opponent"
+    assert rec_game.field_provenance["venue"] == "opponent"
+    assert rec_game.status_reconciliation == ReconciliationStatus.AUTO_RESOLVED
+    assert not rec_game.requires_admin_review
+
+
+def test_engine_home_game_weighting() -> None:
+    """Verify home game weights ECU primary source higher than opponent."""
+    engine = ReconciliationEngine()
+    t_ecu = datetime(2026, 10, 10, 23, 0, tzinfo=UTC)  # 7:00 PM EDT
+    t_opp = datetime(2026, 10, 11, 0, 30, tzinfo=UTC)  # 8:30 PM EDT
+
+    r_ecu = _create_record(
+        "UNC Charlotte",
+        t_ecu,
+        source_type=DataSourceType.PRIMARY_SOT,
+        source_code="ecuhockey",
+        venue="Carolina Ice Zone",
+        is_home=True,
+    )
+    r_opp = _create_record(
+        "UNC Charlotte",
+        t_opp,
+        source_type=DataSourceType.OPPONENT,
+        source_code="opponent",
+        venue="Carolina Ice Zone",
+        is_home=True,
+    )
+
+    rec_game = engine.resolve_cluster([r_ecu, r_opp])
+    assert rec_game.start_time == t_ecu
+    assert rec_game.venue == "Carolina Ice Zone"
+    assert rec_game.is_home
+    assert rec_game.field_provenance["start_time"] == "ecuhockey"
+
+
+def test_candidate_grouping_multiple_groups() -> None:
+    """Verify time and venue grouping with multiple existing groups."""
+    engine = ReconciliationEngine()
+    t1 = datetime(2026, 10, 15, 19, 0, tzinfo=UTC)
+    t2 = datetime(2026, 10, 15, 21, 30, tzinfo=UTC)
+    r_a = _create_record(
+        "UNC",
+        t1,
+        venue="The Factory Ice House",
+        source_type=DataSourceType.PRIMARY_SOT,
+    )
+    r_b = _create_record(
+        "UNC",
+        t2,
+        venue="Extreme Ice Center",
+        source_type=DataSourceType.LEAGUE,
+    )
+    r_b2 = _create_record(
+        "UNC",
+        t2,
+        venue="Extreme Ice Center - 4705 Indian Trail",
+        source_type=DataSourceType.OPPONENT,
+    )
+
+    prov_t: dict[str, str] = {}
+    st, _, _ = engine._resolve_time_fields([r_a, r_b, r_b2], prov_t)
+    assert st == t2
+
+    prov_v: dict[str, str] = {}
+    v = engine._resolve_venue_field([r_a, r_b, r_b2], prov_v)
+    assert v == "Extreme Ice Center"

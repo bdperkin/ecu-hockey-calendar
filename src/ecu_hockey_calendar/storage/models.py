@@ -195,6 +195,11 @@ def _resolve_game_status_from_domain(
     return GameStatus.SCHEDULED.value
 
 
+def _ensure_utc(dt: datetime) -> datetime:
+    """Ensure datetime is timezone-aware UTC."""
+    return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+
+
 def _resolve_game_model_unplayed(
     status: str,
     start_time: datetime,
@@ -209,7 +214,8 @@ def _resolve_game_model_unplayed(
     }:
         return True
 
-    is_future = start_time.astimezone(UTC) > datetime.now(UTC) if start_time else False
+    st = _ensure_utc(start_time)
+    is_future = st > datetime.now(UTC)
     return is_future and home_score == 0 and away_score == 0
 
 
@@ -317,9 +323,10 @@ class GameModel(Base):
         Returns:
             The equivalent domain Game instance.
         """
+        resolved_start_time = _ensure_utc(self.start_time)
         is_unplayed = _resolve_game_model_unplayed(
             self.status,
-            self.start_time,
+            resolved_start_time,
             self.home_score,
             self.away_score,
         )
@@ -335,7 +342,7 @@ class GameModel(Base):
             game_id=self.game_id,
             home_team=self.home_team.to_domain(),
             away_team=self.away_team.to_domain(),
-            start_time=self.start_time,
+            start_time=resolved_start_time,
             venue=self.venue,
             result=outcome,
             home_score=hs,
