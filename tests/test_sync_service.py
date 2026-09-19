@@ -20,6 +20,8 @@ from ecu_hockey_calendar.models import GameResult
 from ecu_hockey_calendar.reconciliation.models import (
     ChangeDetectionCycleResult,
     DataSourceType,
+    GameChangeRecord,
+    GameStateTransition,
     ReconciledGame,
     SourceGameRecord,
 )
@@ -36,6 +38,7 @@ from ecu_hockey_calendar.sync_service import (
     DEFAULT_COOLDOWN_SECONDS,
     MIN_COOLDOWN_SECONDS,
     SyncManager,
+    _collect_stale_game_ids,
     _convert_opponent_fixture_to_source_record,
     _convert_parsed_to_source_record,
     _ensure_crawl_data_sources,
@@ -44,12 +47,16 @@ from ecu_hockey_calendar.sync_service import (
     _get_or_create_team,
     _load_baseline_games_from_db,
     _persist_sync_results,
+    _prune_stale_fixtures,
     _resolve_data_source_type,
     _run_acchockey_crawler,
     _run_achahockey_crawler,
     _run_ecuhockey_crawler,
     _run_instagram_crawler,
     _run_opponent_crawler,
+    _should_skip_pruning,
+    _stale_ids_from_baseline,
+    _stale_ids_from_deleted,
     _update_existing_audit_record,
     _upsert_reconciled_game,
     execute_sync_pipeline,
@@ -1025,3 +1032,225 @@ class TestSyncManager:
             assert audit is not None
             assert audit.status == SyncStatus.FAILURE.value
             assert "Network disconnected" in str(audit.error_message)
+
+
+def test_stale_ids_helpers() -> None:
+    """Verify helpers for computing stale IDs from baseline and deleted records."""
+    dt = datetime(2026, 9, 20, 1, 30, tzinfo=UTC)
+    gm1 = GameModel(game_id="game-1", start_time=dt, venue="Ice 1", season="2026-2027")
+    gm2 = GameModel(game_id="game-2", start_time=dt, venue="Ice 2", season="2026-2027")
+    reconciled_ids = {"game-1"}
+
+    assert _stale_ids_from_baseline(reconciled_ids, [gm1, gm2]) == ["game-2"]
+
+    rec_del = GameChangeRecord(
+        canonical_game_id="game-2",
+        state_transition=GameStateTransition.DELETED,
+        field_diffs=[],
+        previous_snapshot={},
+        current_snapshot=None,
+        detected_conflicts=[],
+        human_summary="Deleted game",
+        recorded_at=dt,
+    )
+    rec_kept = GameChangeRecord(
+        canonical_game_id="game-1",
+        state_transition=GameStateTransition.UNCHANGED,
+        field_diffs=[],
+        previous_snapshot={},
+        current_snapshot={},
+        detected_conflicts=[],
+        human_summary="Kept game",
+        recorded_at=dt,
+    )
+    assert _stale_ids_from_deleted(reconciled_ids, [rec_del, rec_kept]) == ["game-2"]
+
+    # _collect_stale_game_ids branches
+    assert _collect_stale_game_ids(reconciled_ids, [gm1, gm2], None) == ["game-2"]
+    assert _collect_stale_game_ids(reconciled_ids, None, [rec_del]) == ["game-2"]
+    assert _collect_stale_game_ids(reconciled_ids, None, None) == []
+
+
+def test_should_skip_pruning() -> None:
+    """Verify pruning is only skipped during partial crawl cycles."""
+    assert _should_skip_pruning("ecuhockey") is True
+    assert _should_skip_pruning("instagram") is True
+    assert _should_skip_pruning("all") is False
+    assert _should_skip_pruning("ALL") is False
+    assert _should_skip_pruning("") is False
+    assert _should_skip_pruning("  ") is False
+
+
+def test_prune_stale_fixtures(sqlite_engine: Any) -> None:
+    """Verify database pruning removes stale game fixtures."""
+    dt = datetime(2026, 9, 20, 1, 30, tzinfo=UTC)
+    with get_sync_session(sqlite_engine) as session:
+        t1 = _get_or_create_team(session, "East Carolina University")
+        t2 = _get_or_create_team(session, "UNC Charlotte")
+
+        g1 = GameModel(
+            game_id="game-vs-charlotte-0919",
+            home_team_id=t2.id,
+            away_team_id=t1.id,
+            start_time=dt,
+            venue="Extreme Ice Center",
+            season="2026-2027",
+        )
+        g_stale = GameModel(
+            game_id="ecu-away-charlotte-duplicate",
+            home_team_id=t2.id,
+            away_team_id=t1.id,
+            start_time=dt,
+            venue="Extreme Ice Center",
+            season="2026-2027",
+        )
+        session.add_all([g1, g_stale])
+        session.commit()
+
+    rg = ReconciledGame(
+        canonical_game_id="game-vs-charlotte-0919",
+        opponent_name="UNC Charlotte",
+        start_time=dt,
+        venue="Extreme Ice Center",
+        is_home=False,
+    )
+
+    # 1. Skip if source_filter != 'all'
+    with get_sync_session(sqlite_engine) as session:
+        pruned = _prune_stale_fixtures(
+            session,
+            [rg],
+            baseline_games=[g1, g_stale],
+            source_filter="ecuhockey",
+        )
+        assert pruned == []
+
+    # 2. No stale IDs
+    with get_sync_session(sqlite_engine) as session:
+        pruned = _prune_stale_fixtures(
+            session,
+            [rg],
+            baseline_games=[g1],
+            source_filter="all",
+        )
+        assert pruned == []
+
+    # 3. Prune stale fixture via baseline_games
+    with get_sync_session(sqlite_engine) as session:
+        pruned = _prune_stale_fixtures(
+            session,
+            [rg],
+            baseline_games=[g1, g_stale],
+            source_filter="all",
+        )
+        session.commit()
+        assert pruned == ["ecu-away-charlotte-duplicate"]
+
+    with get_sync_session(sqlite_engine) as session:
+        remaining = session.scalars(select(GameModel.game_id)).all()
+        assert "game-vs-charlotte-0919" in remaining
+        assert "ecu-away-charlotte-duplicate" not in remaining
+
+
+def test_prune_stale_fixtures_via_deleted_records(sqlite_engine: Any) -> None:
+    """Verify pruning works via deleted_records when baseline_games is None."""
+    dt = datetime(2026, 9, 20, 1, 30, tzinfo=UTC)
+    with get_sync_session(sqlite_engine) as session:
+        t1 = _get_or_create_team(session, "East Carolina University")
+        t2 = _get_or_create_team(session, "UNC Charlotte")
+
+        g_stale = GameModel(
+            game_id="ecu-away-charlotte-stale-2",
+            home_team_id=t2.id,
+            away_team_id=t1.id,
+            start_time=dt,
+            venue="Extreme Ice Center",
+            season="2026-2027",
+        )
+        session.add(g_stale)
+        session.commit()
+
+    rec_del = GameChangeRecord(
+        canonical_game_id="ecu-away-charlotte-stale-2",
+        state_transition=GameStateTransition.DELETED,
+        field_diffs=[],
+        previous_snapshot={},
+        current_snapshot=None,
+        detected_conflicts=[],
+        human_summary="Deleted game",
+        recorded_at=dt,
+    )
+    rg = ReconciledGame(
+        canonical_game_id="game-vs-charlotte-0919",
+        opponent_name="UNC Charlotte",
+        start_time=dt,
+        venue="Extreme Ice Center",
+        is_home=False,
+    )
+
+    with get_sync_session(sqlite_engine) as session:
+        pruned = _prune_stale_fixtures(
+            session,
+            [rg],
+            baseline_games=None,
+            deleted_records=[rec_del],
+            source_filter="all",
+        )
+        session.commit()
+        assert pruned == ["ecu-away-charlotte-stale-2"]
+
+    with get_sync_session(sqlite_engine) as session:
+        remaining = session.scalars(
+            select(GameModel).where(GameModel.game_id == "ecu-away-charlotte-stale-2"),
+        ).first()
+        assert remaining is None
+
+
+@pytest.mark.anyio
+async def test_run_sync_pipeline_prunes_synthetic_duplicate(sqlite_engine: Any) -> None:
+    """Verify pipeline purges pre-existing synthetic duplicate games."""
+    dt = datetime(2026, 9, 20, 1, 30, tzinfo=UTC)
+    with get_sync_session(sqlite_engine) as session:
+        t_ecu = _get_or_create_team(session, "East Carolina University")
+        t_uncc = _get_or_create_team(session, "UNC Charlotte")
+
+        old_duplicate = GameModel(
+            game_id="ecu-away-university-of-north-carolina-charlotte-20260920",
+            home_team_id=t_uncc.id,
+            away_team_id=t_ecu.id,
+            start_time=dt,
+            venue="Extreme Ice Center, Charlotte, NC",
+            season="2026-2027",
+        )
+        session.add(old_duplicate)
+        session.commit()
+
+    async def mock_crawler(
+        _: str,
+    ) -> tuple[list[SourceGameRecord], list[dict[str, Any]]]:
+        rec = SourceGameRecord(
+            source_type=DataSourceType.PRIMARY_SOT,
+            source_code="ecuhockey",
+            game_id="game-vs-charlotte-on-09192026-mrxgmz79",
+            start_time=dt,
+            opponent_name="UNC Charlotte",
+            venue="Extreme Ice Center",
+            is_home=False,
+        )
+        return [rec], [{"source": "ecuhockey", "name": "ECU Official"}]
+
+    _, change_res, _ = await run_sync_pipeline(
+        engine=sqlite_engine,
+        source_filter="all",
+        crawler_fn=mock_crawler,
+    )
+
+    assert change_res is not None
+
+    with get_sync_session(sqlite_engine) as session:
+        games = session.scalars(select(GameModel)).all()
+        game_ids = [g.game_id for g in games]
+        assert "game-vs-charlotte-on-09192026-mrxgmz79" in game_ids
+        assert (
+            "ecu-away-university-of-north-carolina-charlotte-20260920" not in game_ids
+        )

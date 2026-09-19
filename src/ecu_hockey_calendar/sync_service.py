@@ -20,7 +20,7 @@ import threading
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
 from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
 from ecu_hockey_calendar.ingestion.achahockey_crawler import ACHAHockeyCrawler
@@ -41,6 +41,7 @@ from ecu_hockey_calendar.reconciliation.models import (
     ChangeDetectionCycleResult,
     DataSourceType,
     DetectedConflict,
+    GameChangeRecord,
     ReconciledGame,
     SourceGameRecord,
 )
@@ -607,6 +608,87 @@ def _persist_reconciled_fixtures(
         _upsert_reconciled_game(session, rg, ecu_team_id)
 
 
+def _stale_ids_from_baseline(
+    reconciled_ids: set[str],
+    baseline_games: Sequence[GameModel],
+) -> list[str]:
+    """Find baseline game IDs missing from reconciled set."""
+    return [g.game_id for g in baseline_games if g.game_id not in reconciled_ids]
+
+
+def _stale_ids_from_deleted(
+    reconciled_ids: set[str],
+    deleted_records: Sequence[GameChangeRecord],
+) -> list[str]:
+    """Find deleted change record IDs missing from reconciled set."""
+    return [
+        d.canonical_game_id
+        for d in deleted_records
+        if d.canonical_game_id not in reconciled_ids
+    ]
+
+
+def _collect_stale_game_ids(
+    reconciled_ids: set[str],
+    baseline_games: Sequence[GameModel] | None,
+    deleted_records: Sequence[GameChangeRecord] | None,
+) -> list[str]:
+    """Extract stale game IDs comparing baseline or deleted sets with reconciled IDs."""
+    if baseline_games is not None:
+        return _stale_ids_from_baseline(reconciled_ids, baseline_games)
+
+    if deleted_records is not None:
+        return _stale_ids_from_deleted(reconciled_ids, deleted_records)
+
+    return []
+
+
+def _should_skip_pruning(source_filter: str) -> bool:
+    """Return True if source filter indicates a partial crawl cycle."""
+    clean = (source_filter or "").strip().lower()
+    return bool(clean and clean != "all")
+
+
+def _prune_stale_fixtures(
+    session: Session,
+    reconciled_games: Sequence[ReconciledGame],
+    *,
+    baseline_games: Sequence[GameModel] | None = None,
+    deleted_records: Sequence[GameChangeRecord] | None = None,
+    source_filter: str = "all",
+) -> list[str]:
+    """Remove stale, superseded, or deleted game fixtures from storage.
+
+    When running a full synchronization cycle (source_filter is 'all' or empty),
+    any fixture present in baseline_games whose game_id is not in the active
+    reconciled_games set is pruned from the database. If baseline_games is omitted,
+    any fixture referenced in deleted_records is pruned.
+
+    Args:
+        session: Active database session.
+        reconciled_games: Sequence of resolved ReconciledGame records.
+        baseline_games: Sequence of GameModel records loaded prior to sync.
+        deleted_records: Optional change records with DELETED state transition.
+        source_filter: Source filter string used for this crawl cycle.
+
+    Returns:
+        List of pruned canonical game IDs.
+    """
+    if _should_skip_pruning(source_filter):
+        return []
+
+    reconciled_ids = {rg.canonical_game_id for rg in reconciled_games}
+    stale_ids = _collect_stale_game_ids(reconciled_ids, baseline_games, deleted_records)
+    if not stale_ids:
+        return []
+
+    session.execute(
+        delete(GameModel).where(GameModel.game_id.in_(stale_ids)),
+    )
+    session.flush()
+    return stale_ids
+
+
 def _resolve_data_source_type(source_code: str) -> DataSourceType:
     """Map source code string to appropriate DataSourceType enum."""
     return _DATA_SOURCE_TYPE_MAP.get(source_code, DataSourceType.PRIMARY_SOT)
@@ -622,13 +704,15 @@ def _ensure_crawl_data_sources(
         _ensure_data_source(session, telemetry["source"], telemetry["name"], st)
 
 
-def _persist_sync_results(
+def _persist_sync_results(  # pylint: disable=too-many-arguments
     session: Session,
     reconciled_games: Sequence[ReconciledGame],
     crawl_telemetry: Sequence[dict[str, Any]],
     change_result: ChangeDetectionCycleResult,
     *,
     initial_audit_exists: bool = False,
+    baseline_games: Sequence[GameModel] | None = None,
+    source_filter: str = "all",
 ) -> None:
     """Persist reconciled fixtures, active data sources, and audit record.
 
@@ -638,6 +722,8 @@ def _persist_sync_results(
         crawl_telemetry: Telemetry records from crawler execution.
         change_result: Output from change detection.
         initial_audit_exists: Whether an initial RUNNING audit record exists.
+        baseline_games: Optional baseline games loaded prior to sync.
+        source_filter: Source filter string for conditional pruning.
     """
     ecu_team = _get_or_create_team(
         session,
@@ -646,6 +732,13 @@ def _persist_sync_results(
         "NC",
     )
     _persist_reconciled_fixtures(session, reconciled_games, ecu_team.id)
+    _prune_stale_fixtures(
+        session,
+        reconciled_games,
+        baseline_games=baseline_games,
+        deleted_records=change_result.deleted_games,
+        source_filter=source_filter,
+    )
     _ensure_crawl_data_sources(session, crawl_telemetry)
 
     if initial_audit_exists and _update_existing_audit_record(session, change_result):
@@ -712,7 +805,7 @@ def _dispatch_sync_notifications(
     dispatcher.dispatch_cycle(change_result, individual_changes=notify_individual)
 
 
-def _execute_db_persistence(
+def _execute_db_persistence(  # pylint: disable=too-many-arguments
     session: Session,
     reconciled_games: Sequence[ReconciledGame],
     crawl_telemetry: Sequence[dict[str, Any]],
@@ -720,6 +813,8 @@ def _execute_db_persistence(
     *,
     dry_run: bool,
     initial_audit_exists: bool,
+    baseline_games: Sequence[GameModel] | None = None,
+    source_filter: str = "all",
 ) -> None:
     """Persist reconciliation and change detection results if not dry run."""
     if not dry_run:
@@ -729,6 +824,8 @@ def _execute_db_persistence(
             crawl_telemetry,
             change_result,
             initial_audit_exists=initial_audit_exists,
+            baseline_games=baseline_games,
+            source_filter=source_filter,
         )
         session.commit()
 
@@ -865,6 +962,8 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
             change_result,
             dry_run=dry_run,
             initial_audit_exists=initial_audit_exists,
+            baseline_games=baseline_games,
+            source_filter=source_filter,
         )
 
         if verify_opponents:
