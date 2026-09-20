@@ -8,6 +8,7 @@ error handling, rich formatting, and options.
 from __future__ import annotations
 
 import io
+import json
 import os
 import runpy
 from datetime import UTC, datetime, timedelta
@@ -18,13 +19,30 @@ import click
 import pytest
 from click.testing import CliRunner
 from rich.console import Console
+from rich.table import Table
 from sqlalchemy import select
 
 from ecu_hockey_calendar.cli.conflicts import (
+    _append_candidates_rows,
+    _append_comparison_sections,
+    _append_diffs_rows,
+    _append_discrepancies_rows,
+    _append_resolution_item,
+    _append_resolution_rows,
+    _append_snapshots_rows,
+    _build_base_detail_table,
+    _format_conflict_status,
+    _format_diff_text,
+    _format_diff_val,
     _matches_filter,
     _matches_review_filter,
+    _render_conflict_detail,
+    _render_get_display,
+    _render_get_output,
+    _resolve_conflict_border_style,
     _slice_conflicts,
     conflicts_command,
+    get_command,
 )
 from ecu_hockey_calendar.cli.console import (
     create_table,
@@ -1337,6 +1355,244 @@ class TestConflictsCommand:
                 "Database error while resolving conflict: Storage crash"
                 in res_crash.output
             )
+
+    def test_conflicts_get_clean(self, runner: CliRunner, db_url: str) -> None:
+        """Verify 'conflicts get' when no discrepancies exist for game ID."""
+        result = runner.invoke(
+            conflicts_command,
+            ["get", "game-clean-999", "--db-url", db_url],
+        )
+        assert result.exit_code == 0
+        assert "Conflict Status Clean: game-clean-999" in result.output
+        assert "No active schedule conflicts or discrepancies found" in result.output
+
+        res_direct = runner.invoke(
+            get_command,
+            ["game-clean-999", "--db-url", db_url],
+        )
+        assert res_direct.exit_code == 0
+        assert "Conflict Status Clean: game-clean-999" in res_direct.output
+
+        res_clean_json = runner.invoke(
+            conflicts_command,
+            ["get", "game-clean-999", "--json", "--db-url", db_url],
+        )
+        assert res_clean_json.exit_code == 0
+        clean_data = json.loads(res_clean_json.output)
+        assert clean_data["game_id"] == "game-clean-999"
+        assert clean_data["total_conflicts"] == 0
+        assert clean_data["conflicts"] == []
+
+    def test_conflicts_get_with_conflicts_local(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify 'conflicts get' displays detailed row-based breakdown for game ID."""
+        engine = create_sync_engine(db_url)
+        with get_sync_session(engine) as session:
+            audit = SyncAuditModel(
+                sync_cycle_id="sync-get-test",
+                status="SUCCESS",
+            )
+            session.add(audit)
+            session.flush()
+
+            change = GameChangeModel(
+                sync_cycle_id="sync-get-test",
+                sync_audit_id=audit.id,
+                canonical_game_id="game-detail-201",
+                change_type="CONFLICT_DETECTED",
+                summary="Conflicting venue between primary and opponent",
+                field_diffs=[
+                    {
+                        "field": "venue",
+                        "field_name": "venue",
+                        "severity": "CRITICAL",
+                        "requires_review": True,
+                        "old_value": "Old Arena",
+                        "new_value": "New Arena",
+                        "source": "achahockey",
+                        "human_description": "ACHA reports different arena",
+                    },
+                ],
+                recorded_at=datetime(2026, 9, 10, 18, 0, tzinfo=UTC),
+            )
+            session.add(change)
+            session.commit()
+
+        result = runner.invoke(
+            conflicts_command,
+            ["get", "game-detail-201", "--db-url", db_url],
+        )
+        assert result.exit_code == 0
+        assert "SCHEDULE CONFLICT BREAKDOWN" in result.output
+        assert "Discrepancy Detail:" in result.output
+        assert "Conflict ID" in result.output
+        assert "Game ID" in result.output
+        assert "game-detail-201" in result.output
+        assert "Conflicting Field" in result.output
+        assert "venue" in result.output
+        assert "Severity" in result.output
+        assert "CRITICAL" in result.output
+        assert "Requires Review" in result.output
+        assert "YES" in result.output
+        assert "Field Differences" in result.output
+        assert "Base: Old Arena -> Proposed: New Arena" in result.output
+        assert "ACHA reports different arena" in result.output
+
+        res_json = runner.invoke(
+            conflicts_command,
+            ["get", "game-detail-201", "--json", "--db-url", db_url],
+        )
+        assert res_json.exit_code == 0
+        data = json.loads(res_json.output)
+        assert data["game_id"] == "game-detail-201"
+        assert data["total_conflicts"] == 1
+        assert len(data["conflicts"]) == 1
+        assert data["conflicts"][0]["field"] == "venue"
+
+    def test_conflicts_get_db_error(self, runner: CliRunner) -> None:
+        """Verify 'conflicts get' handles database connection errors."""
+        result = runner.invoke(
+            conflicts_command,
+            ["get", "game-any", "--db-url", "sqlite:////root/forbidden_db.db"],
+        )
+        assert result.exit_code != 0
+        assert "Failed to query conflicts from database" in result.output
+
+    def test_conflicts_get_helpers_coverage(self) -> None:
+        """Verify branch coverage on conflict get helper rendering methods."""
+        # 1. Border styles
+        assert _resolve_conflict_border_style("CRITICAL") == "red"
+        assert _resolve_conflict_border_style("HIGH") == "red"
+        assert _resolve_conflict_border_style("MEDIUM") == "yellow"
+        assert _resolve_conflict_border_style("LOW") == "cyan"
+        assert _resolve_conflict_border_style("UNKNOWN") == "#592a8a"
+        assert _resolve_conflict_border_style(None) == "#592a8a"
+
+        # 2. Conflict status
+        assert "Resolved" in _format_conflict_status({"resolved": True})
+        assert "Requires Review" in _format_conflict_status({"requires_review": True})
+        assert "Open" in _format_conflict_status({})
+
+        # 3. Diff val and text
+        assert _format_diff_val(None) == "None"
+        assert _format_diff_val("value") == "value"
+        assert "Source: test_src" in _format_diff_text(
+            {
+                "old_value": "A",
+                "new_value": "B",
+                "source": "test_src",
+                "human_description": "desc",
+            },
+        )
+        plain_diff = _format_diff_text({"old_value": "A", "new_value": "B"})
+        assert "Source:" not in plain_diff
+        assert "Detail:" not in plain_diff
+
+        # 4. Table building with various branches
+        c_min = {"conflict_id": "c-min", "game_id": "g-min"}
+        t_min = _build_base_detail_table(c_min)
+        assert len(t_min.rows) == 8
+
+        # 5. Resolution rows
+        t_res = Table()
+        _append_resolution_item(t_res, "Key", None)
+        _append_resolution_rows(t_res, {"resolved": False})
+        _append_resolution_rows(
+            t_res,
+            {
+                "resolved": True,
+                "resolved_value": "Accepted",
+                "accepted_source": "src1",
+                "resolved_by": "user1",
+                "notes": "admin note",
+            },
+        )
+        assert len(t_res.rows) == 4
+
+        # 6. Candidates rows
+        t_cand = Table()
+        _append_candidates_rows(t_cand, [])
+        _append_candidates_rows(
+            t_cand,
+            [
+                {"source_code": "code1", "value": "val1"},
+                {"source": "code2", "value": None},
+                {"other": "x"},
+            ],
+        )
+        assert len(t_cand.rows) == 4
+
+        # 7. Diffs rows
+        t_diffs = Table()
+        _append_diffs_rows(t_diffs, [])
+        _append_diffs_rows(
+            t_diffs,
+            [
+                {"field_name": "f1", "old_value": "1", "new_value": "2"},
+                {"field": "f2", "old_value": "3", "new_value": "4"},
+                {"old_value": "5", "new_value": "6"},
+            ],
+        )
+        assert len(t_diffs.rows) == 4
+
+        # 8. Discrepancies rows
+        t_disc = Table()
+        _append_discrepancies_rows(t_disc, [])
+        _append_discrepancies_rows(
+            t_disc,
+            [
+                {"source_a": "A", "value_a": "1", "source_b": "B", "value_b": "2"},
+            ],
+        )
+        assert len(t_disc.rows) == 2
+
+        # 9. Snapshots rows
+        t_snap = Table()
+        _append_snapshots_rows(t_snap, {})
+        _append_snapshots_rows(
+            t_snap,
+            {
+                "snapshot_before": {"venue": "Old"},
+                "snapshot_after": {"venue": "New"},
+                "field": "venue",
+            },
+        )
+        assert len(t_snap.rows) == 3
+
+        # 10. Comparison sections
+        t_sec = Table()
+        _append_comparison_sections(
+            t_sec,
+            {
+                "snapshot_before": {"venue": "Old"},
+                "snapshot_after": {"venue": "New"},
+            },
+        )
+        assert len(t_sec.rows) == 3
+
+        # 11. Panel rendering & display
+        p = _render_conflict_detail(
+            {
+                "conflict_id": "c-full",
+                "game_id": "g-full",
+                "discrepancies": [
+                    {"source_a": "A", "value_a": "1", "source_b": "B", "value_b": "2"},
+                ],
+            },
+        )
+        assert p is not None
+
+        # 12. Display & output empty vs populated
+        _render_get_display("g-empty", [])
+        _render_get_output(
+            game_id="g-empty",
+            conflicts=[],
+            total_count=0,
+            as_json=False,
+        )
 
 
 class TestServeCommand:

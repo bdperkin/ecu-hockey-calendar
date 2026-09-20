@@ -4,11 +4,15 @@ Inspects active cross-source discrepancies and conflicting fixtures requiring
 administrative review, and provides workflows for administrative manual resolution.
 """
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
 import click
+from rich.panel import Panel
+from rich.table import Table
 
 from ecu_hockey_calendar.api.client import (
     RemoteApiAuthError,
@@ -39,35 +43,53 @@ from ecu_hockey_calendar.storage.overrides import (
 )
 
 if TYPE_CHECKING:
-    from rich.table import Table
     from sqlalchemy.orm import Session
 
     from ecu_hockey_calendar.storage.models import GameChangeModel
 
 
 __all__ = [
+    "_append_candidates_rows",
+    "_append_comparison_sections",
+    "_append_diffs_rows",
+    "_append_discrepancies_rows",
+    "_append_resolution_item",
+    "_append_resolution_rows",
+    "_append_snapshots_rows",
+    "_build_base_detail_table",
     "_fetch_remote_conflicts",
+    "_format_conflict_status",
+    "_format_diff_text",
+    "_format_diff_val",
+    "_handle_local_conflicts_get",
     "_handle_local_conflicts_list",
+    "_handle_remote_conflicts_get",
     "_handle_remote_conflicts_list",
     "_matches_filter",
     "_matches_review_filter",
     "_matches_text_filter",
     "_normalize_conflict",
     "_query_conflicts",
+    "_render_conflict_detail",
     "_render_conflicts_count",
     "_render_conflicts_display",
     "_render_conflicts_output",
     "_render_conflicts_table",
+    "_render_get_display",
+    "_render_get_output",
     "_render_resolve_display",
     "_render_resolve_output",
+    "_resolve_conflict_border_style",
     "_resolve_local_conflict",
     "_resolve_remote_conflict",
     "_resolve_remote_credentials",
+    "_run_conflicts_get",
     "_run_conflicts_list",
     "_run_conflicts_resolve",
     "_slice_conflicts",
     "_validate_resolve_args",
     "conflicts_command",
+    "get_command",
     "list_command",
     "resolve_command",
 ]
@@ -662,6 +684,325 @@ def _run_conflicts_resolve(  # noqa: PLR0913 # pylint: disable=too-many-argument
     _render_resolve_output(result, as_json=as_json)
 
 
+def _resolve_conflict_border_style(severity: str | None) -> str:
+    """Return panel border color corresponding to severity level."""
+    sev = str(severity or "").strip().upper()
+    if sev in ("CRITICAL", "HIGH"):
+        return "red"
+
+    if sev == "MEDIUM":
+        return "yellow"
+
+    if sev == "LOW":
+        return "cyan"
+
+    return "#592a8a"
+
+
+def _format_conflict_status(c: dict[str, Any]) -> str:
+    """Format human-readable conflict lifecycle status."""
+    if c.get("resolved"):
+        return "[bold green]Resolved[/bold green]"
+
+    if c.get("requires_review"):
+        return "[bold red]Open (Requires Review)[/bold red]"
+
+    return "[yellow]Open[/yellow]"
+
+
+def _build_base_detail_table(c: dict[str, Any]) -> Table:
+    """Build key-value table containing primary conflict attributes."""
+    table = Table(box=None, show_header=False, pad_edge=False)
+    table.add_column("Property", style="bold cyan", width=22, no_wrap=True)
+    table.add_column("Value", style="white")
+
+    cid = str(c.get("conflict_id", "N/A"))
+    gid = str(c.get("game_id", "N/A"))
+    fld = str(c.get("field", "N/A"))
+    sev_badge = format_severity_badge(c.get("severity", "MEDIUM"))
+    status_str = _format_conflict_status(c)
+    rev_str = (
+        "[bold red]YES[/bold red]" if c.get("requires_review") else "[dim]No[/dim]"
+    )
+    rec_at = str(c.get("recorded_at") or "Unknown").replace("T", " ")[:19]
+    summary = str(c.get("summary") or "N/A")
+
+    table.add_row("Conflict ID", cid)
+    table.add_row("Game ID", gid)
+    table.add_row("Conflicting Field", f"[bold #fec923]{fld}[/bold #fec923]")
+    table.add_row("Severity", sev_badge)
+    table.add_row("Status", status_str)
+    table.add_row("Requires Review", rev_str)
+    table.add_row("Recorded At", rec_at)
+    table.add_row("Summary", summary)
+    return table
+
+
+def _append_resolution_item(table: Table, label: str, val: object) -> None:
+    """Add row to table if value is present."""
+    if val:
+        table.add_row(f"[bold green]{label}[/bold green]", str(val))
+
+
+def _append_resolution_rows(table: Table, c: dict[str, Any]) -> None:
+    """Append resolution details to conflict detail table if present."""
+    res_val = c.get("resolved_value")
+    if not c.get("resolved") and not res_val:
+        return
+
+    display_val = "N/A" if res_val is None else str(res_val)
+    table.add_row("[bold green]Resolved Value[/bold green]", display_val)
+    _append_resolution_item(table, "Accepted Source", c.get("accepted_source"))
+    _append_resolution_item(table, "Resolved By", c.get("resolved_by"))
+    _append_resolution_item(table, "Resolution Notes", c.get("notes"))
+
+
+def _append_candidates_rows(
+    table: Table,
+    candidates: list[dict[str, Any]],
+) -> None:
+    """Append candidate source reported values to table."""
+    if not candidates:
+        return
+
+    table.add_row("[bold #fec923]Candidate Sources[/bold #fec923]", "")
+    for cand in candidates:
+        src = cand.get("source_code") or cand.get("source") or "Source"
+        val = str(cand.get("value", "N/A"))
+        table.add_row(f"  • {src}", val)
+
+
+def _format_diff_val(val: object) -> str:
+    """Format diff value, returning 'None' if None."""
+    return "None" if val is None else str(val)
+
+
+def _format_diff_text(diff: dict[str, Any]) -> str:
+    """Format single diff entry text representation."""
+    old_v = _format_diff_val(diff.get("old_value"))
+    new_v = _format_diff_val(diff.get("new_value"))
+    text = f"Base: {old_v} -> Proposed: {new_v}"
+    src = diff.get("source") or diff.get("sources")
+    if src:
+        text += f" (Source: {src})"
+
+    desc = diff.get("human_description") or diff.get("notes")
+    if desc:
+        text += f"\n  Detail: {desc}"
+
+    return text
+
+
+def _append_diffs_rows(table: Table, diffs: list[dict[str, Any]]) -> None:
+    """Append field diff comparison entries to table."""
+    if not diffs:
+        return
+
+    table.add_row("[bold #fec923]Field Differences[/bold #fec923]", "")
+    for diff in diffs:
+        fld = diff.get("field_name") or diff.get("field") or "Attribute"
+        table.add_row(f"  • {fld}", _format_diff_text(diff))
+
+
+def _append_discrepancies_rows(
+    table: Table,
+    discrepancies: list[dict[str, Any]],
+) -> None:
+    """Append source comparison discrepancies to table."""
+    if not discrepancies:
+        return
+
+    table.add_row("[bold #fec923]Source Discrepancies[/bold #fec923]", "")
+    for disc in discrepancies:
+        src_a = disc.get("source_a", "Source A")
+        val_a = disc.get("value_a", "N/A")
+        src_b = disc.get("source_b", "Source B")
+        val_b = disc.get("value_b", "N/A")
+        table.add_row(f"  • {src_a} vs {src_b}", f"{val_a}  vs  {val_b}")
+
+
+def _append_snapshots_rows(table: Table, c: dict[str, Any]) -> None:
+    """Append snapshot before/after values to table if diffs absent."""
+    before = c.get("snapshot_before")
+    after = c.get("snapshot_after")
+    if not (isinstance(before, dict) and isinstance(after, dict)):
+        return
+
+    fld = str(c.get("field") or "venue")
+    table.add_row("[bold #fec923]Fixture Snapshots[/bold #fec923]", "")
+    table.add_row("  • Previous State", str(before.get(fld, "N/A")))
+    table.add_row("  • Current State", str(after.get(fld, "N/A")))
+
+
+def _append_comparison_sections(table: Table, c: dict[str, Any]) -> None:
+    """Append available source comparisons, diffs, or snapshots to table."""
+    has_specific = False
+    section_handlers = (
+        ("candidates", _append_candidates_rows),
+        ("field_diffs", _append_diffs_rows),
+        ("discrepancies", _append_discrepancies_rows),
+    )
+    for key, handler in section_handlers:
+        data = c.get(key)
+        if isinstance(data, list) and data:
+            handler(table, data)
+            has_specific = True
+
+    if not has_specific:
+        _append_snapshots_rows(table, c)
+
+
+def _render_conflict_detail(c: dict[str, Any]) -> Panel:
+    """Construct formatted Panel with vertical row breakdown for a single conflict."""
+    table = _build_base_detail_table(c)
+    _append_resolution_rows(table, c)
+    _append_comparison_sections(table, c)
+
+    cid = str(c.get("conflict_id", "N/A"))
+    fld = str(c.get("field", "N/A"))
+    border_color = _resolve_conflict_border_style(c.get("severity"))
+    title = f"[bold #fec923]Discrepancy Detail: {cid} ({fld})[/bold #fec923]"
+    return Panel(table, title=title, border_style=border_color, expand=False)
+
+
+def _render_get_display(game_id: str, conflicts: list[dict[str, Any]]) -> None:
+    """Render row-based detailed conflict breakdown or clean state message."""
+    if not conflicts:
+        clean_msg = (
+            f"[bold green]No active schedule conflicts or discrepancies found "
+            f"for game ID: [cyan]{game_id}[/cyan][/bold green]\n"
+            "All crawled fixture sources are aligned or no discrepancies have "
+            "been reported."
+        )
+        print_panel(
+            clean_msg,
+            title=f"[bold green]Conflict Status Clean: {game_id}[/bold green]",
+            border_style="green",
+        )
+        return
+
+    console = get_console()
+    for conflict in conflicts:
+        console.print(_render_conflict_detail(conflict))
+
+
+def _render_get_output(
+    *,
+    game_id: str,
+    conflicts: list[dict[str, Any]],
+    total_count: int,
+    as_json: bool,
+) -> None:
+    """Render game conflict details as JSON or formatted Rich row panels."""
+    if as_json:
+        get_console().print_json(
+            data={
+                "game_id": game_id,
+                "total_conflicts": total_count,
+                "conflicts": conflicts,
+            },
+        )
+        return
+
+    _render_get_display(game_id, conflicts)
+
+
+def _handle_remote_conflicts_get(
+    api_url: str,
+    token: str | None,
+    *,
+    game_id: str,
+    as_json: bool,
+) -> None:
+    """Fetch and render detailed game discrepancies from a remote API instance."""
+    if not as_json:
+        get_console().print(
+            f"Target: [bold cyan]Remote API ({api_url})[/bold cyan]\n",
+        )
+
+    conflicts, total_count, _ = _fetch_remote_conflicts(
+        api_url,
+        token,
+        severity=None,
+        game_id=game_id,
+        field_name=None,
+        review_only=False,
+    )
+    _render_get_output(
+        game_id=game_id,
+        conflicts=conflicts,
+        total_count=total_count,
+        as_json=as_json,
+    )
+
+
+def _handle_local_conflicts_get(
+    db_url: str | None,
+    *,
+    game_id: str,
+    as_json: bool,
+) -> None:
+    """Query and render detailed game discrepancies from local relational database."""
+    db_url_resolved = get_sync_database_url(db_url)
+    engine = create_sync_engine(db_url_resolved)
+    try:
+        Base.metadata.create_all(engine)
+        with get_sync_session(engine) as session:
+            conflicts, total_count = _query_conflicts(
+                session,
+                severity=None,
+                game_id=game_id,
+                field_name=None,
+                requires_review=False,
+            )
+    except Exception as exc:
+        print_error(f"Failed to query conflicts from database: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+    _render_get_output(
+        game_id=game_id,
+        conflicts=conflicts,
+        total_count=total_count,
+        as_json=as_json,
+    )
+
+
+def _run_conflicts_get(  # pylint: disable=too-many-arguments
+    ctx: click.Context | None,
+    *,
+    game_id: str,
+    as_json: bool = False,
+    db_url: str | None = None,
+    api_url: str | None = None,
+    token: str | None = None,
+    prod: bool = False,
+) -> None:
+    """Execute detailed discrepancy inspection workflow for a single game ID."""
+    if not as_json:
+        print_banner("SCHEDULE CONFLICT BREAKDOWN", f"Game ID: {game_id}")
+
+    resolved_api_url, resolved_token = _resolve_remote_credentials(
+        ctx,
+        api_url,
+        token,
+        prod=prod,
+    )
+    if resolved_api_url:
+        _handle_remote_conflicts_get(
+            resolved_api_url,
+            resolved_token,
+            game_id=game_id,
+            as_json=as_json,
+        )
+        return
+
+    _handle_local_conflicts_get(
+        db_url,
+        game_id=game_id,
+        as_json=as_json,
+    )
+
+
 @click.group("conflicts", invoke_without_command=True)
 @click.option(
     "--severity",
@@ -870,6 +1211,64 @@ def list_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-many-ar
         requires_review=requires_review,
         limit=limit,
         offset=offset,
+        as_json=as_json,
+        db_url=db_url,
+        api_url=api_url,
+        token=token,
+        prod=prod,
+    )
+
+
+@conflicts_command.command("get")
+@click.argument("game_id", required=True)
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    default=False,
+    help="Output conflict details as formatted JSON.",
+)
+@click.option(
+    "--db-url",
+    envvar="DATABASE_URL",
+    default=None,
+    help="Database connection URL override (defaults to local SQLite or DATABASE_URL).",
+)
+@click.option(
+    "--api-url",
+    envvar="ECU_HOCKEY_API_URL",
+    default=None,
+    help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
+)
+@click.option(
+    "--token",
+    envvar="ECU_HOCKEY_ADMIN_TOKEN",
+    default=None,
+    help="Administrative authentication Bearer token for protected remote endpoints.",
+)
+@click.option(
+    "--prod",
+    "--production",
+    "prod",
+    is_flag=True,
+    default=False,
+    help="Target production environment (https://ecu-hockey-api.onrender.com).",
+)
+@click.pass_context
+def get_command(  # pylint: disable=too-many-arguments
+    ctx: click.Context | None,
+    *,
+    game_id: str,
+    as_json: bool = False,
+    db_url: str | None = None,
+    api_url: str | None = None,
+    token: str | None = None,
+    prod: bool = False,
+) -> None:
+    """Inspect conflicting details for a game in rows without column truncation."""
+    _run_conflicts_get(
+        ctx,
+        game_id=game_id,
         as_json=as_json,
         db_url=db_url,
         api_url=api_url,
