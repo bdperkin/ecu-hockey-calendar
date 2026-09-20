@@ -1,6 +1,6 @@
 """Comprehensive unit tests for ReconciliationEngine and conflict resolution."""
 
-# pylint: disable=protected-access,too-many-arguments,too-many-locals
+# pylint: disable=protected-access,too-many-arguments,too-many-locals,too-many-lines
 
 from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
@@ -24,16 +24,23 @@ from ecu_hockey_calendar.reconciliation.engine import (
     _compute_cluster_confidence,
     _determine_reconciliation_status,
     _generate_canonical_game_id,
+    _has_both_scores,
+    _has_conflicting_scores,
     _has_differing_source_game_ids,
     _has_identical_game_ids,
     _has_review_requirement,
     _is_adjacent_day_rollover,
+    _is_candidate_prefiltered,
+    _is_distinct_by_date_or_score,
     _is_high_tier_source,
+    _is_identical_id_match,
     _is_same_source_distinct,
+    _is_team_compatible,
     _is_temporal_match,
     _mark_conflicts_resolved,
     _resolve_game_identity,
     _resolve_pairwise_severity,
+    _scores_equal,
 )
 from ecu_hockey_calendar.reconciliation.models import (
     ConflictField,
@@ -202,10 +209,46 @@ def test_match_criteria_and_helpers() -> None:
         is False
     )
 
-    # Match criteria: identical game IDs
+    # Match criteria: identical game IDs on same day
+    assert (
+        _check_record_match_criteria(r1, r2, 0.5, 0.8, time_aligned=False, days_diff=0)
+        is True
+    )
+    # Identical game IDs on different days (days_diff > 0) -> must NOT match
     assert (
         _check_record_match_criteria(r1, r2, 0.5, 0.8, time_aligned=False, days_diff=5)
+        is False
+    )
+    r_cross_same_id = _create_record(
+        "UNC",
+        t1,
+        game_id="G-1",
+        source_code="acchockey",
+        source_type=DataSourceType.LEAGUE,
+    )
+    assert (
+        _check_record_match_criteria(
+            r1,
+            r_cross_same_id,
+            0.5,
+            0.8,
+            time_aligned=True,
+            days_diff=1,
+            time_diff_minutes=30,
+        )
         is True
+    )
+    assert (
+        _check_record_match_criteria(
+            r1,
+            r_cross_same_id,
+            0.5,
+            0.8,
+            time_aligned=True,
+            days_diff=1,
+            time_diff_minutes=1440,
+        )
+        is False
     )
     # Low opponent similarity
     assert (
@@ -972,3 +1015,213 @@ def test_candidate_grouping_multiple_groups() -> None:
     prov_v: dict[str, str] = {}
     v = engine._resolve_venue_field([r_a, r_b, r_b2], prov_v)
     assert v == "Extreme Ice Center"
+
+
+def test_date_and_score_distinction_helpers() -> None:
+    """Verify all helper functions for score comparison and event distinction."""
+    t1 = datetime(2026, 10, 15, 19, 0, tzinfo=UTC)
+    t2 = datetime(2026, 10, 16, 19, 0, tzinfo=UTC)
+
+    r_none = _create_record("UNC", t1)
+    r_home_only = _create_record("UNC", t1, home_score=5)
+    r_score_a = _create_record("UNC", t1, home_score=4, away_score=6)
+    r_score_a_dup = _create_record("UNC", t1, home_score=4, away_score=6)
+    r_score_b = _create_record("UNC", t2, home_score=4, away_score=13)
+
+    # _has_both_scores
+    assert _has_both_scores(r_none) is False
+    assert _has_both_scores(r_home_only) is False
+    assert _has_both_scores(r_score_a) is True
+
+    # _scores_equal
+    assert _scores_equal(r_score_a, r_score_a_dup) is True
+    assert _scores_equal(r_score_a, r_score_b) is False
+
+    # _has_conflicting_scores
+    assert _has_conflicting_scores(r_none, r_score_a) is False
+    assert _has_conflicting_scores(r_score_a, r_score_a_dup) is False
+    assert _has_conflicting_scores(r_score_a, r_score_b) is True
+
+    # _is_distinct_by_date_or_score
+    assert (
+        _is_distinct_by_date_or_score(
+            r_none,
+            r_score_a,
+            days_diff=1,
+            time_diff_minutes=60,
+            near_tolerance_min=60,
+        )
+        is False
+    )
+    assert (
+        _is_distinct_by_date_or_score(
+            r_score_a,
+            r_score_b,
+            days_diff=1,
+            time_diff_minutes=60,
+            near_tolerance_min=60,
+        )
+        is True
+    )
+    assert (
+        _is_distinct_by_date_or_score(
+            r_score_a,
+            r_score_b,
+            days_diff=0,
+            time_diff_minutes=30,
+            near_tolerance_min=60,
+        )
+        is False
+    )
+    assert (
+        _is_distinct_by_date_or_score(
+            r_score_a,
+            r_score_b,
+            days_diff=0,
+            time_diff_minutes=120,
+            near_tolerance_min=60,
+        )
+        is True
+    )
+
+    # _is_identical_id_match
+    r_id1 = _create_record("UNC", t1, game_id="ID-1")
+    r_id2 = _create_record("UNC", t1, game_id="ID-2")
+    r_id1_dup = _create_record("UNC", t1, game_id="ID-1")
+    assert (
+        _is_identical_id_match(
+            r_id1,
+            r_id2,
+            days_diff=0,
+            time_diff_minutes=0,
+            near_tolerance_min=60,
+        )
+        is False
+    )
+    assert (
+        _is_identical_id_match(
+            r_id1,
+            r_id1_dup,
+            days_diff=0,
+            time_diff_minutes=0,
+            near_tolerance_min=60,
+        )
+        is True
+    )
+    assert (
+        _is_identical_id_match(
+            r_id1,
+            r_id1_dup,
+            days_diff=1,
+            time_diff_minutes=30,
+            near_tolerance_min=60,
+        )
+        is True
+    )
+    assert (
+        _is_identical_id_match(
+            r_id1,
+            r_id1_dup,
+            days_diff=1,
+            time_diff_minutes=120,
+            near_tolerance_min=60,
+        )
+        is False
+    )
+
+    # _is_team_compatible
+    r_home = _create_record("UNC", t1, is_home=True)
+    r_away = _create_record("UNC", t1, is_home=False)
+    assert _is_team_compatible(r_home, r_home, opp_sim=0.9, opp_thresh=0.8) is True
+    assert _is_team_compatible(r_home, r_home, opp_sim=0.7, opp_thresh=0.8) is False
+    assert _is_team_compatible(r_home, r_away, opp_sim=0.9, opp_thresh=0.8) is False
+
+    # _is_candidate_prefiltered
+    assert (
+        _is_candidate_prefiltered(
+            r_score_a,
+            r_score_b,
+            days_diff=1,
+            time_diff_minutes=60,
+            near_tolerance_min=60,
+        )
+        is True
+    )
+    assert (
+        _is_candidate_prefiltered(
+            r_none,
+            r_none,
+            days_diff=0,
+            time_diff_minutes=0,
+            near_tolerance_min=60,
+        )
+        is False
+    )
+
+
+def test_weekend_series_distinct_dates_and_scores_not_clustered() -> None:
+    """Verify weekend series on different days and scores are two unique events."""
+    engine = ReconciliationEngine()
+    t_sat = datetime(2025, 1, 11, 21, 0, tzinfo=UTC)
+    t_sun = datetime(2025, 1, 12, 16, 0, tzinfo=UTC)
+
+    # 1. Distinct IDs
+    r_sat = _create_record(
+        "UCF",
+        t_sat,
+        is_home=False,
+        home_score=4,
+        away_score=6,
+        game_id="game-vs-ucf-on-01112025-lyiwyiqy",
+        source_code="ecuhockey",
+    )
+    r_sun = _create_record(
+        "UCF",
+        t_sun,
+        is_home=False,
+        home_score=4,
+        away_score=13,
+        game_id="game-vs-ucf-on-01102025-lyiwxkmn",
+        source_code="ecuhockey",
+    )
+
+    is_same, _, discs = engine.match_records(r_sat, r_sun)
+    assert is_same is False
+    assert len(discs) == 0
+
+    clusters = engine.cluster_records([r_sat, r_sun])
+    assert len(clusters) == 2
+
+    cycle_res = engine.reconcile_games([r_sat, r_sun])
+    assert len(cycle_res.reconciled_games) == 2
+    assert cycle_res.total_conflicts_detected == 0
+
+    # 2. Identical game IDs across different days with different scores
+    r_sun_shared_id = _create_record(
+        "UCF",
+        t_sun,
+        is_home=False,
+        home_score=4,
+        away_score=13,
+        game_id="game-vs-ucf-on-01102025-lyiwxkmn",
+        source_code="ecuhockey",
+    )
+    r_sat_shared_id = _create_record(
+        "UCF",
+        t_sat,
+        is_home=False,
+        home_score=4,
+        away_score=6,
+        game_id="game-vs-ucf-on-01102025-lyiwxkmn",
+        source_code="ecuhockey",
+    )
+
+    is_same_shared, _, _ = engine.match_records(r_sat_shared_id, r_sun_shared_id)
+    assert is_same_shared is False
+
+    clusters_shared = engine.cluster_records([r_sat_shared_id, r_sun_shared_id])
+    assert len(clusters_shared) == 2
+
+    cycle_res_shared = engine.reconcile_games([r_sat_shared_id, r_sun_shared_id])
+    assert len(cycle_res_shared.reconciled_games) == 2
+    assert cycle_res_shared.total_conflicts_detected == 0
