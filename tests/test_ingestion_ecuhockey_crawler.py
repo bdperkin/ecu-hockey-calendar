@@ -18,8 +18,11 @@ from ecu_hockey_calendar.ingestion.ecuhockey_crawler import (
     DEFAULT_FIRESTORE_URL,
     DEFAULT_TEAM_ID,
     ECUHockeyCrawler,
+    _align_scores_with_outcome,
     _clean_title_opponent,
+    _compute_team_scores,
     _extract_firestore_value,
+    _is_outcome_mismatched,
     _parse_firestore_datetime,
     parse_firestore_game_document,
 )
@@ -101,6 +104,113 @@ def test_parse_firestore_game_document_valid() -> None:
     assert rec.home_score == 5
     assert rec.away_score == 3
     assert rec.calculate_result() == GameResult.WIN
+
+
+def test_is_outcome_mismatched() -> None:
+    """Verify outcome mismatch checks across home/away win/loss permutations."""
+    # Home games
+    assert not _is_outcome_mismatched(5, 3, is_home=True, win_or_loss="win")
+    assert _is_outcome_mismatched(3, 5, is_home=True, win_or_loss="win")
+    assert not _is_outcome_mismatched(3, 5, is_home=True, win_or_loss="loss")
+    assert _is_outcome_mismatched(5, 3, is_home=True, win_or_loss="loss")
+
+    # Away games
+    assert not _is_outcome_mismatched(3, 4, is_home=False, win_or_loss="win")
+    assert _is_outcome_mismatched(4, 3, is_home=False, win_or_loss="win")
+    assert not _is_outcome_mismatched(11, 4, is_home=False, win_or_loss="loss")
+    assert _is_outcome_mismatched(4, 11, is_home=False, win_or_loss="loss")
+
+    # Unrecognized outcome
+    assert not _is_outcome_mismatched(5, 3, is_home=True, win_or_loss="tie")
+
+
+def test_align_scores_with_outcome() -> None:
+    """Verify alignment of scores with recorded win/loss outcome."""
+    assert _align_scores_with_outcome(5, 3, is_home=True, win_or_loss=None) == (5, 3)
+    assert _align_scores_with_outcome(3, 3, is_home=True, win_or_loss="win") == (3, 3)
+    assert _align_scores_with_outcome(3, 5, is_home=True, win_or_loss="win") == (5, 3)
+    assert _align_scores_with_outcome(5, 3, is_home=True, win_or_loss="win") == (5, 3)
+
+
+def test_compute_team_scores() -> None:
+    """Verify team score computation and alignment."""
+    assert _compute_team_scores(None) == (None, None, None)
+    assert _compute_team_scores("invalid") == (None, None, None)
+    assert _compute_team_scores("5-3", is_home=True, win_or_loss="win") == (5, 3, None)
+    assert _compute_team_scores("4-3 (OT)", is_home=True, win_or_loss="win") == (
+        4,
+        3,
+        "OT",
+    )
+    assert _compute_team_scores("3-4", is_home=False, win_or_loss="win") == (
+        3,
+        4,
+        None,
+    )
+    assert _compute_team_scores("11-4", is_home=False, win_or_loss="loss") == (
+        11,
+        4,
+        None,
+    )
+    # Mismatched entries are auto-inverted to match outcome
+    assert _compute_team_scores("4-3", is_home=False, win_or_loss="win") == (
+        3,
+        4,
+        None,
+    )
+
+
+def test_parse_firestore_game_document_away_scores() -> None:
+    """Verify parsing Firestore away games with score and outcome alignment."""
+    doc_sep4 = {
+        "fields": {
+            "id": {"stringValue": "game-doc-sep4"},
+            "timeOfGame": {"stringValue": "2026-09-04T23:00:00Z"},
+            "title": {"stringValue": "@ University of Alabama (D2)"},
+            "venue": {"stringValue": "Pelham Civic Complex"},
+            "homeGame": {"booleanValue": False},
+            "status": {"stringValue": "final"},
+            "gameScore": {"stringValue": "3-4"},
+            "winOrLoss": {"stringValue": "win"},
+        },
+    }
+    rec_sep4 = parse_firestore_game_document(doc_sep4)
+    assert rec_sep4 is not None
+    assert rec_sep4.home_score == 3
+    assert rec_sep4.away_score == 4
+    assert rec_sep4.is_home is False
+    assert rec_sep4.calculate_result() == GameResult.WIN
+    domain_sep4 = rec_sep4.to_domain_game()
+    assert domain_sep4.result == GameResult.WIN
+    assert domain_sep4.home_score == 3
+    assert domain_sep4.away_score == 4
+    assert domain_sep4.away_team.name == "East Carolina University"
+    assert domain_sep4.home_team.name == "University of Alabama (D2)"
+
+    doc_sep6 = {
+        "fields": {
+            "id": {"stringValue": "game-doc-sep6"},
+            "timeOfGame": {"stringValue": "2026-09-06T18:00:00Z"},
+            "title": {"stringValue": "@ University of Alabama (D2)"},
+            "venue": {"stringValue": "Pelham Civic Complex"},
+            "homeGame": {"booleanValue": False},
+            "status": {"stringValue": "final"},
+            "gameScore": {"stringValue": "11-4"},
+            "winOrLoss": {"stringValue": "loss"},
+        },
+    }
+    rec_sep6 = parse_firestore_game_document(doc_sep6)
+    assert rec_sep6 is not None
+    assert rec_sep6.home_score == 11
+    assert rec_sep6.away_score == 4
+    assert rec_sep6.is_home is False
+    assert rec_sep6.calculate_result() == GameResult.LOSS
+    domain_sep6 = rec_sep6.to_domain_game()
+    assert domain_sep6.result == GameResult.LOSS
+    assert domain_sep6.home_score == 11
+    assert domain_sep6.away_score == 4
+    assert domain_sep6.away_team.name == "East Carolina University"
+    assert domain_sep6.home_team.name == "University of Alabama (D2)"
 
 
 def test_parse_firestore_game_document_defaults_and_away() -> None:

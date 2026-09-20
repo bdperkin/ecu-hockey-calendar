@@ -111,15 +111,64 @@ def _extract_opponent_and_home(
     return opponent_name, is_home
 
 
+def _is_outcome_mismatched(
+    home_score: int,
+    away_score: int,
+    *,
+    is_home: bool,
+    win_or_loss: str,
+) -> bool:
+    """Check whether score order contradicts win/loss outcome."""
+    wl = win_or_loss.strip().lower()
+    ecu_won = (home_score > away_score) if is_home else (away_score > home_score)
+    if wl == "win":
+        return not ecu_won
+
+    if wl == "loss":
+        return ecu_won
+
+    return False
+
+
+def _align_scores_with_outcome(
+    home_score: int,
+    away_score: int,
+    *,
+    is_home: bool,
+    win_or_loss: str | None,
+) -> tuple[int, int]:
+    """Ensure home and away scores align with recorded win/loss outcome."""
+    if not win_or_loss or home_score == away_score:
+        return home_score, away_score
+
+    if _is_outcome_mismatched(
+        home_score,
+        away_score,
+        is_home=is_home,
+        win_or_loss=win_or_loss,
+    ):
+        return away_score, home_score
+
+    return home_score, away_score
+
+
 def _compute_team_scores(
     raw_score: str | None,
     *,
-    is_home: bool,
+    is_home: bool = True,
+    win_or_loss: str | None = None,
 ) -> tuple[int | None, int | None, str | None]:
     """Compute home score, away score, and overtime note from raw score string."""
     s1, s2, ot_note = parse_game_score(raw_score)
-    home_score = s1 if is_home else s2
-    away_score = s2 if is_home else s1
+    if s1 is None or s2 is None:
+        return None, None, ot_note
+
+    home_score, away_score = _align_scores_with_outcome(
+        s1,
+        s2,
+        is_home=is_home,
+        win_or_loss=win_or_loss,
+    )
     return home_score, away_score, ot_note
 
 
@@ -180,7 +229,13 @@ def _build_firestore_game_record(  # pylint: disable=too-many-locals
     """Build ParsedGameRecord from validated Firestore components."""
     score_val = _extract_firestore_value(fields.get("gameScore"))
     raw_score = str(score_val) if score_val is not None else None
-    home_score, away_score, ot_note = _compute_team_scores(raw_score, is_home=is_home)
+    wl_val = _extract_firestore_value(fields.get("winOrLoss"))
+    win_or_loss = str(wl_val) if wl_val is not None else None
+    home_score, away_score, ot_note = _compute_team_scores(
+        raw_score,
+        is_home=is_home,
+        win_or_loss=win_or_loss,
+    )
     venue_val = _extract_firestore_value(fields.get("venue"))
     venue = str(venue_val) if venue_val else "Carolina Ice Zone"
     status_val = _extract_firestore_value(fields.get("status"))
