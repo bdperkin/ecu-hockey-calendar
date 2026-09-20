@@ -96,6 +96,45 @@ def _has_differing_source_game_ids(
     return rec_a.game_id != rec_b.game_id
 
 
+def _has_both_scores(rec: SourceGameRecord) -> bool:
+    """Check if a source record contains complete home and away scores."""
+    return rec.home_score is not None and rec.away_score is not None
+
+
+def _scores_equal(rec_a: SourceGameRecord, rec_b: SourceGameRecord) -> bool:
+    """Check if scores between two records match exactly."""
+    return rec_a.home_score == rec_b.home_score and rec_a.away_score == rec_b.away_score
+
+
+def _has_conflicting_scores(
+    rec_a: SourceGameRecord,
+    rec_b: SourceGameRecord,
+) -> bool:
+    """Check if both records possess complete scores that do not match."""
+    return (
+        _has_both_scores(rec_a)
+        and _has_both_scores(rec_b)
+        and not _scores_equal(rec_a, rec_b)
+    )
+
+
+def _is_distinct_by_date_or_score(
+    rec_a: SourceGameRecord,
+    rec_b: SourceGameRecord,
+    days_diff: int,
+    time_diff_minutes: int | None,
+    near_tolerance_min: int,
+) -> bool:
+    """Check if records must be treated as unique events due to dates or scores."""
+    if not _has_conflicting_scores(rec_a, rec_b):
+        return False
+
+    if days_diff > 0:
+        return True
+
+    return time_diff_minutes is not None and time_diff_minutes > near_tolerance_min
+
+
 def _is_same_source_distinct(
     rec_a: SourceGameRecord,
     rec_b: SourceGameRecord,
@@ -111,6 +150,26 @@ def _is_same_source_distinct(
     return days_diff > 0
 
 
+def _is_candidate_prefiltered(
+    rec_a: SourceGameRecord,
+    rec_b: SourceGameRecord,
+    days_diff: int,
+    time_diff_minutes: int | None,
+    near_tolerance_min: int,
+) -> bool:
+    """Check if candidate pair is disqualified by date, score, or source."""
+    if _is_distinct_by_date_or_score(
+        rec_a,
+        rec_b,
+        days_diff,
+        time_diff_minutes,
+        near_tolerance_min,
+    ):
+        return True
+
+    return _is_same_source_distinct(rec_a, rec_b, days_diff)
+
+
 def _is_adjacent_day_rollover(
     days_diff: int,
     time_diff_minutes: int | None,
@@ -124,6 +183,37 @@ def _is_adjacent_day_rollover(
         return False
 
     return time_diff_minutes <= tolerance_minutes
+
+
+def _is_identical_id_match(
+    rec_a: SourceGameRecord,
+    rec_b: SourceGameRecord,
+    days_diff: int,
+    time_diff_minutes: int | None,
+    near_tolerance_min: int,
+) -> bool:
+    """Check if records match via identical non-null game IDs."""
+    if not _has_identical_game_ids(rec_a, rec_b):
+        return False
+
+    if days_diff == 0:
+        return True
+
+    return _is_adjacent_day_rollover(
+        days_diff,
+        time_diff_minutes,
+        near_tolerance_min,
+    )
+
+
+def _is_team_compatible(
+    rec_a: SourceGameRecord,
+    rec_b: SourceGameRecord,
+    opp_sim: float,
+    opp_thresh: float,
+) -> bool:
+    """Check if opponent similarity and home/away designations match."""
+    return opp_sim >= opp_thresh and rec_a.is_home == rec_b.is_home
 
 
 def _is_temporal_match(
@@ -163,13 +253,25 @@ def _check_record_match_criteria(
     near_tolerance_min: int = DEFAULT_NEAR_TOLERANCE_MINUTES,
 ) -> bool:
     """Evaluate match criteria between two source records."""
-    if _has_identical_game_ids(rec_a, rec_b):
-        return True
-
-    if _is_same_source_distinct(rec_a, rec_b, days_diff):
+    if _is_candidate_prefiltered(
+        rec_a,
+        rec_b,
+        days_diff,
+        time_diff_minutes,
+        near_tolerance_min,
+    ):
         return False
 
-    if opp_sim < opp_thresh or rec_a.is_home != rec_b.is_home:
+    if _is_identical_id_match(
+        rec_a,
+        rec_b,
+        days_diff,
+        time_diff_minutes,
+        near_tolerance_min,
+    ):
+        return True
+
+    if not _is_team_compatible(rec_a, rec_b, opp_sim, opp_thresh):
         return False
 
     return _is_temporal_match(
@@ -339,25 +441,12 @@ def _build_home_away_discrepancy(
     )
 
 
-def _has_both_scores(rec: SourceGameRecord) -> bool:
-    """Check if a source record contains complete home and away scores."""
-    return rec.home_score is not None and rec.away_score is not None
-
-
-def _scores_equal(rec_a: SourceGameRecord, rec_b: SourceGameRecord) -> bool:
-    """Check if scores between two records match exactly."""
-    return rec_a.home_score == rec_b.home_score and rec_a.away_score == rec_b.away_score
-
-
 def _build_score_discrepancy(
     rec_a: SourceGameRecord,
     rec_b: SourceGameRecord,
 ) -> DiscrepancyRecord | None:
     """Check and construct final score discrepancy if both records have scores."""
-    if not (_has_both_scores(rec_a) and _has_both_scores(rec_b)):
-        return None
-
-    if _scores_equal(rec_a, rec_b):
+    if not _has_conflicting_scores(rec_a, rec_b):
         return None
 
     return DiscrepancyRecord(
