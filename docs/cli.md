@@ -383,6 +383,28 @@ ecu-hockey conflicts resolve <CONFLICT_ID> [OPTIONS]
 | `--db-url`              | `DATABASE_URL`           | `None`  | Database connection URL override.                                      |
 | `--json`                | —                        | `False` | Output resolution result as structured JSON.                           |
 
+##### 3.6.1.3. `ecu-hockey conflicts get`
+
+Inspects and displays all conflicting schedule discrepancies for a specific game ID in a detailed, vertical row-based layout without horizontal column truncation. Renders conflict properties, candidate sources, field diffs, and resolution details within formatted panels.
+
+```bash
+ecu-hockey conflicts get <GAME_ID> [OPTIONS]
+```
+
+**Arguments:**
+
+- `<GAME_ID>`: Canonical game identifier (e.g., `game-vs-charlotte-on-09192026-mrxgmz79`).
+
+**Options:**
+
+| Option                 | Environment Variable     | Default | Description                                                                    |
+| :--------------------- | :----------------------- | :------ | :----------------------------------------------------------------------------- |
+| `--prod, --production` | —                        | `False` | Target production environment (`https://ecu-hockey-api.onrender.com`).         |
+| `--api-url`            | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL.                                                |
+| `--token`              | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.     |
+| `--db-url`             | `DATABASE_URL`           | `None`  | Database connection URL override (defaults to local SQLite or `DATABASE_URL`). |
+| `--json`               | —                        | `False` | Output conflict details as formatted JSON.                                     |
+
 **Examples:**
 
 ```bash
@@ -403,6 +425,15 @@ ecu-hockey conflicts --json | jq .
 
 # Inspect discrepancies on remote production deployment (authenticated)
 ecu-hockey conflicts --prod --token secret-token-123 --requires-review
+
+# Inspect detailed discrepancies for a specific game in formatted rows
+ecu-hockey conflicts get game-vs-charlotte-on-09192026-mrxgmz79
+
+# Inspect game discrepancies on remote production deployment
+ecu-hockey conflicts get game-vs-charlotte-on-09192026-mrxgmz79 --prod --token secret-token-123
+
+# Output detailed game discrepancies as JSON
+ecu-hockey conflicts get game-vs-charlotte-on-09192026-mrxgmz79 --json | jq .
 
 # Resolve a conflict locally by accepting upstream source value
 ecu-hockey conflicts resolve change-12 --accept-source "ECU Hockey" --notes "Verified with head coach"

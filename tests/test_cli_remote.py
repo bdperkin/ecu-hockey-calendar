@@ -369,6 +369,149 @@ class TestCliRemoteConflicts:
                 offset=0,
             )
 
+    def test_conflicts_remote_get_success(self, runner: CliRunner) -> None:
+        """Verify 'conflicts get' fetches and renders game discrepancies."""
+        mock_client = MagicMock()
+        mock_client.get_conflicts.return_value = {
+            "conflicts": [
+                {
+                    "conflict_id": "c-remote-1",
+                    "game_id": "g-remote-100",
+                    "field": "start_time",
+                    "severity": "HIGH",
+                    "requires_review": True,
+                    "summary": "Time discrepancy between sources",
+                    "candidates": [
+                        {"source_code": "ecuhockey", "value": "19:00"},
+                        {"source_code": "achahockey", "value": "20:00"},
+                    ],
+                    "recorded_at": "2026-09-15T12:00:00Z",
+                },
+            ],
+            "total_conflicts": 1,
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "get",
+                    "g-remote-100",
+                    "--api-url",
+                    "https://remote.api",
+                    TOKEN_FLAG,
+                    MOCK_TOKEN,
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Remote API (https://remote.api)" in result.output
+            assert "SCHEDULE CONFLICT BREAKDOWN" in result.output
+            assert "g-remote-100" in result.output
+            assert "Candidate Sources" in result.output
+            assert "ecuhockey" in result.output
+            mock_client.get_conflicts.assert_called_once_with(
+                severity=None,
+                game_id="g-remote-100",
+                field_name=None,
+                review_only=False,
+                limit=None,
+                offset=0,
+            )
+
+    def test_conflicts_remote_get_clean(self, runner: CliRunner) -> None:
+        """Verify 'conflicts get' displays clean state when no conflicts exist."""
+        mock_client = MagicMock()
+        mock_client.get_conflicts.return_value = {
+            "conflicts": [],
+            "total_conflicts": 0,
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "get",
+                    "g-remote-clean",
+                    "--api-url",
+                    "https://remote.api",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Conflict Status Clean: g-remote-clean" in result.output
+
+    def test_conflicts_remote_get_json(self, runner: CliRunner) -> None:
+        """Verify 'conflicts get --json' outputs JSON without target header."""
+        mock_client = MagicMock()
+        mock_client.get_conflicts.return_value = {
+            "conflicts": [
+                {
+                    "conflict_id": "c-remote-2",
+                    "game_id": "g-remote-200",
+                    "field": "venue",
+                    "severity": "LOW",
+                    "summary": "Venue discrepancy",
+                },
+            ],
+            "total_conflicts": 1,
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ):
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "get",
+                    "g-remote-200",
+                    "--api-url",
+                    "https://remote.api",
+                    "--json",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Target: Remote API" not in result.output
+            assert '"game_id": "g-remote-200"' in result.output
+            assert '"total_conflicts": 1' in result.output
+
+    def test_conflicts_remote_get_prod(self, runner: CliRunner) -> None:
+        """Verify 'conflicts get --prod' targets production API URL."""
+        mock_client = MagicMock()
+        mock_client.get_conflicts.return_value = {
+            "conflicts": [],
+            "total_conflicts": 0,
+        }
+
+        with patch(
+            "ecu_hockey_calendar.cli.conflicts.RemoteApiClient",
+            return_value=mock_client,
+        ) as mock_cls:
+            result = runner.invoke(
+                cli,
+                [
+                    "conflicts",
+                    "get",
+                    "g-remote-prod",
+                    "--prod",
+                    TOKEN_FLAG,
+                    MOCK_TOKEN,
+                ],
+            )
+            assert result.exit_code == 0
+            mock_cls.assert_called_once_with(
+                "https://ecu-hockey-api.onrender.com",
+                token=MOCK_TOKEN,
+            )
+
     def test_conflicts_remote_resolve_accept_source(self, runner: CliRunner) -> None:
         """Verify remote resolve command with --accept-source."""
         mock_client = MagicMock()
