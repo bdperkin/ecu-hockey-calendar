@@ -5,9 +5,11 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING
 
-import click
+import rich_click as click
+from click.exceptions import Exit
 
 from ecu_hockey_calendar.cli.conflicts import conflicts_command
+from ecu_hockey_calendar.cli.console import configure_rich_click
 from ecu_hockey_calendar.cli.export import export_command
 from ecu_hockey_calendar.cli.health import health_command
 from ecu_hockey_calendar.cli.notify import notify_command
@@ -17,6 +19,9 @@ from ecu_hockey_calendar.cli.serve import serve_command
 from ecu_hockey_calendar.cli.status import status_command
 from ecu_hockey_calendar.cli.sync import sync_command
 from ecu_hockey_calendar.version import __version__
+
+# Ensure rich-click styling and command groups are active
+configure_rich_click()
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -33,12 +38,14 @@ if TYPE_CHECKING:
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g. 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
@@ -60,6 +67,7 @@ if TYPE_CHECKING:
 )
 @click.option(
     "--debug",
+    "-d",
     is_flag=True,
     default=False,
     help="Enable full HTTP wire tracing and diagnostic inspection.",
@@ -67,6 +75,7 @@ if TYPE_CHECKING:
 @click.option(
     "--prod",
     "--production",
+    "-p",
     "prod",
     is_flag=True,
     default=False,
@@ -109,14 +118,24 @@ cli.add_command(notify_command, "notify")
 cli.add_command(opponent_group, "opponent")
 
 
+def _format_click_error(exc: click.ClickException) -> None:
+    """Format and print ClickException using rich-click error formatting."""
+    try:
+        formatter = cli._error_formatter()  # noqa: SLF001 # pylint: disable=protected-access
+        formatter.write_error(exc)
+        sys.stderr.write(formatter.getvalue())
+    except Exception:  # noqa: BLE001 # pylint: disable=broad-exception-caught
+        exc.show()
+
+
 def _handle_exit(exc: Exception | SystemExit) -> int:
     """Handle Click and SystemExit exceptions and extract status code."""
     if isinstance(exc, click.ClickException):
-        exc.show()
-        return exc.exit_code
+        _format_click_error(exc)
+        return int(exc.exit_code)
 
-    if isinstance(exc, click.exceptions.Exit):
-        return exc.exit_code
+    if isinstance(exc, Exit):
+        return int(exc.exit_code)
 
     code = getattr(exc, "code", 0)
     return int(code) if code is not None else 0
@@ -139,7 +158,7 @@ def main(args: Sequence[str] | None = None) -> int:
             prog_name="ecu-hockey",
             standalone_mode=False,
         )
-    except (click.ClickException, click.exceptions.Exit, SystemExit) as exc:
+    except (click.ClickException, Exit, SystemExit) as exc:
         exit_code = _handle_exit(exc)
 
     return exit_code

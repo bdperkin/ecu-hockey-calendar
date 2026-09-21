@@ -9,7 +9,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-import click
+import rich_click as click
+from click.exceptions import Exit
 from rich.panel import Panel
 from rich.text import Text
 from sqlalchemy import select
@@ -191,18 +192,21 @@ def _fetch_remote_health(api_url: str, token: str | None) -> dict[str, Any]:
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
 )
 @click.option(
     "--json",
+    "-j",
     "as_json",
     is_flag=True,
     default=False,
@@ -249,4 +253,4 @@ def health_command(
         console.print(_render_sources_table(sources))
 
     if data.get("status") == "unhealthy":
-        raise click.exceptions.Exit(1)
+        raise Exit(1)

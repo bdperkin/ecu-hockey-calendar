@@ -35,6 +35,7 @@ dependencies = [
     "psycopg[binary]>=3.2.0",
     "pyyaml>=6.0.3",
     "rich>=13.0.0",
+    "rich-click>=1.9.9",
     "sqlalchemy>=2.0.0",
     "uvicorn>=0.52.4",
     "weasyprint>=70.0",
@@ -241,6 +242,7 @@ verbose = 2
 
 [tool.deptry]
 extend_exclude = [ "alembic", "docs", "src/ecu_hockey_calendar/_version.py", "tools" ]
+per_rule_ignores.DEP002 = [ "click" ]
 known_first_party = [ "ecu_hockey_calendar" ]
 optional_dependencies_dev_groups = [ "dev", "docs", "lint", "test" ]
 

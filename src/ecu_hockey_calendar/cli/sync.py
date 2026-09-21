@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import click
+import rich_click as click
 
 from ecu_hockey_calendar.api.client import (
     RemoteApiAuthError,
@@ -726,6 +726,7 @@ def _run_sync_status(  # pylint: disable=too-many-arguments
 )
 @click.option(
     "--dry-run",
+    "-n",
     is_flag=True,
     default=False,
     help=(
@@ -751,17 +752,20 @@ def _run_sync_status(  # pylint: disable=too-many-arguments
 )
 @click.option(
     "--season",
+    "-S",
     default=None,
     help="Optional season filter (e.g., '2026-2027').",
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
@@ -769,6 +773,7 @@ def _run_sync_status(  # pylint: disable=too-many-arguments
 @click.option(
     "--prod",
     "--production",
+    "-p",
     "prod",
     is_flag=True,
     default=False,
@@ -779,6 +784,7 @@ def _run_sync_status(  # pylint: disable=too-many-arguments
 )
 @click.option(
     "--method",
+    "-m",
     type=click.Choice(["auto", "api", "github", "render"], case_sensitive=False),
     default="auto",
     show_default=True,
@@ -796,6 +802,7 @@ def _run_sync_status(  # pylint: disable=too-many-arguments
 )
 @click.option(
     "--debug",
+    "-d",
     is_flag=True,
     default=False,
     help="Display all HTTP wire requests, responses, headers, and body snippets.",
@@ -880,6 +887,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
 )
 @click.option(
     "--dry-run",
+    "-n",
     is_flag=True,
     default=False,
     help=(
@@ -905,17 +913,20 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
 )
 @click.option(
     "--season",
+    "-S",
     default=None,
     help="Optional season filter (e.g., '2026-2027').",
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
@@ -923,6 +934,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
 @click.option(
     "--prod",
     "--production",
+    "-p",
     "prod",
     is_flag=True,
     default=False,
@@ -933,6 +945,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
 )
 @click.option(
     "--method",
+    "-m",
     type=click.Choice(["auto", "api", "github", "render"], case_sensitive=False),
     default="auto",
     show_default=True,
@@ -950,6 +963,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
 )
 @click.option(
     "--debug",
+    "-d",
     is_flag=True,
     default=False,
     help="Display all HTTP wire requests, responses, headers, and body snippets.",
@@ -1002,12 +1016,14 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
@@ -1015,6 +1031,7 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
 @click.option(
     "--prod",
     "--production",
+    "-p",
     "prod",
     is_flag=True,
     default=False,
@@ -1025,6 +1042,7 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
 )
 @click.option(
     "--json",
+    "-j",
     "as_json",
     is_flag=True,
     default=False,

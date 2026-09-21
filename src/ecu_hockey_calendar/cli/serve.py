@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import os
 
-import click
+import rich_click as click
 from rich.panel import Panel
 from rich.text import Text
 
@@ -46,6 +46,7 @@ from ecu_hockey_calendar.storage.migrations import run_migrations_upgrade
 )
 @click.option(
     "--migrate/--no-migrate",
+    "-m",
     default=False,
     envvar="AUTO_MIGRATE",
     show_default=True,
