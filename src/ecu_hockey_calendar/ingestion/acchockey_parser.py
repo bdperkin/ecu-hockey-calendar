@@ -615,6 +615,7 @@ def _build_split_record(
         overtime_note=ot,
         raw_text=f"{data.date_text} {data.opp_name}".strip(),
         league_game_id=data.league_game_id,
+        is_time_tbd=time_str is None,
         metadata=_build_game_metadata(
             data.league_game_id,
             se_game_id,
@@ -757,6 +758,7 @@ def _parse_standard_table_row(
         overtime_note=ot,
         raw_text=f"{data.date_text} {opp_name}".strip(),
         league_game_id=data.league_game_id,
+        is_time_tbd=time_str is None,
         metadata=_build_game_metadata(data.league_game_id, se_game_id, season, opp_url),
     )
 
@@ -999,6 +1001,7 @@ def parse_acchockey_game_html(
         home_score=home_score,
         away_score=away_score,
         league_game_id=league_id,
+        is_time_tbd=not details.get("time"),
         metadata=_build_game_metadata(league_id, None, season, ""),
     )
 

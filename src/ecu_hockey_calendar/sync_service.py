@@ -37,6 +37,7 @@ from ecu_hockey_calendar.ingestion.opponent_parser import (
 )
 from ecu_hockey_calendar.notifications.dispatcher import NotificationDispatcher
 from ecu_hockey_calendar.reconciliation.change_detector import ChangeDetector
+from ecu_hockey_calendar.reconciliation.date_aligner import is_start_time_tbd
 from ecu_hockey_calendar.reconciliation.engine import ReconciliationEngine
 from ecu_hockey_calendar.reconciliation.models import (
     ChangeDetectionCycleResult,
@@ -127,6 +128,7 @@ def _convert_parsed_to_source_record(
         game_id=record.game_id,
         is_home=record.is_home,
         venue=record.venue,
+        is_time_tbd=record.is_time_tbd or is_start_time_tbd(record.start_time),
         status=record.status,
         result=outcome,
         home_score=record.home_score,
@@ -234,6 +236,7 @@ def _convert_opponent_fixture_to_source_record(
         start_time=fixture.start_time,
         is_home=not fixture.is_opponent_home,
         venue=fixture.venue,
+        is_time_tbd=is_start_time_tbd(fixture.start_time),
         status=fixture.status,
         result=None,
         home_score=None,

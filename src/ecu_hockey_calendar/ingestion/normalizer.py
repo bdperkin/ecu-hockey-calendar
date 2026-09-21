@@ -84,6 +84,13 @@ _TEAM_NAME_MAP: dict[str, str] = {
     "rowan university": "Rowan University",
     "virginia": "University of Virginia",
     "uva": "University of Virginia",
+    "west virginia": "West Virginia University",
+    "west virginia university": "West Virginia University",
+    "west virginia universtiy": "West Virginia University",
+    "wvu": "West Virginia University",
+    "charleston": "College of Charleston",
+    "coll of charleston": "College of Charleston",
+    "college of charleston": "College of Charleston",
 }
 
 

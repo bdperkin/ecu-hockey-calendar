@@ -19,6 +19,8 @@ from ecu_hockey_calendar.reconciliation.date_aligner import (
 from ecu_hockey_calendar.reconciliation.fuzzy_matcher import (
     DEFAULT_OPPONENT_MATCH_THRESHOLD,
     compute_opponent_similarity,
+    is_opponent_match,
+    is_venue_match,
 )
 from ecu_hockey_calendar.reconciliation.models import (
     ChangeDetectionCycleResult,
@@ -84,6 +86,65 @@ def _describe_score_change(
     return f"{team_side} score updated from {old_s} to {new_s}"
 
 
+def _ensure_aware_utc(dt: datetime) -> datetime:
+    """Ensure datetime has UTC timezone if naive."""
+    return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+
+
+def _ensure_optional_utc(dt: datetime | None) -> datetime | None:
+    """Ensure optional datetime has UTC timezone if naive."""
+    if dt is None:
+        return None
+
+    return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+
+
+def _build_start_time_diff(
+    old_st: datetime,
+    new_st: datetime,
+    tz_name: str,
+) -> FieldDiff | None:
+    """Build diff if start times differ in UTC."""
+    u_old = _ensure_aware_utc(old_st)
+    u_new = _ensure_aware_utc(new_st)
+    if u_old != u_new:
+        return FieldDiff(
+            field_name="start_time",
+            old_value=u_old.isoformat(),
+            new_value=u_new.isoformat(),
+            human_description=_describe_time_change(
+                u_old,
+                u_new,
+                tz_name,
+            ),
+        )
+
+    return None
+
+
+def _build_end_time_diff(
+    old_et: datetime | None,
+    new_et: datetime | None,
+    tz_name: str,
+) -> FieldDiff | None:
+    """Build diff if end times differ."""
+    u_old = _ensure_optional_utc(old_et)
+    u_new = _ensure_optional_utc(new_et)
+    if u_old != u_new:
+        return FieldDiff(
+            field_name="end_time",
+            old_value=u_old.isoformat() if u_old else None,
+            new_value=u_new.isoformat() if u_new else None,
+            human_description=_describe_end_time_change(
+                u_old,
+                u_new,
+                tz_name,
+            ),
+        )
+
+    return None
+
+
 def _check_temporal_diffs(
     old_g: ReconciledGame,
     new_g: ReconciledGame,
@@ -91,33 +152,13 @@ def _check_temporal_diffs(
 ) -> list[FieldDiff]:
     """Check start and end time differences between games."""
     diffs: list[FieldDiff] = []
-    if old_g.start_time != new_g.start_time:
-        diffs.append(
-            FieldDiff(
-                field_name="start_time",
-                old_value=old_g.start_time.isoformat(),
-                new_value=new_g.start_time.isoformat(),
-                human_description=_describe_time_change(
-                    old_g.start_time,
-                    new_g.start_time,
-                    tz_name,
-                ),
-            ),
-        )
+    st_diff = _build_start_time_diff(old_g.start_time, new_g.start_time, tz_name)
+    if st_diff:
+        diffs.append(st_diff)
 
-    if old_g.end_time != new_g.end_time:
-        diffs.append(
-            FieldDiff(
-                field_name="end_time",
-                old_value=(old_g.end_time.isoformat() if old_g.end_time else None),
-                new_value=(new_g.end_time.isoformat() if new_g.end_time else None),
-                human_description=_describe_end_time_change(
-                    old_g.end_time,
-                    new_g.end_time,
-                    tz_name,
-                ),
-            ),
-        )
+    et_diff = _build_end_time_diff(old_g.end_time, new_g.end_time, tz_name)
+    if et_diff:
+        diffs.append(et_diff)
 
     return diffs
 
@@ -128,7 +169,7 @@ def _check_venue_and_status(
 ) -> list[FieldDiff]:
     """Check venue and status changes between games."""
     diffs: list[FieldDiff] = []
-    if old_g.venue != new_g.venue:
+    if old_g.venue != new_g.venue and not is_venue_match(old_g.venue, new_g.venue):
         diffs.append(
             FieldDiff(
                 field_name="venue",
@@ -156,13 +197,21 @@ def _check_venue_and_status(
     return diffs
 
 
+def _format_home_away(*, is_home: bool) -> str:
+    """Return Home or Away label."""
+    return "Home" if is_home else "Away"
+
+
 def _check_opponent_and_location(
     old_g: ReconciledGame,
     new_g: ReconciledGame,
 ) -> list[FieldDiff]:
     """Check opponent name and home/away location changes."""
     diffs: list[FieldDiff] = []
-    if old_g.opponent_name != new_g.opponent_name:
+    if old_g.opponent_name != new_g.opponent_name and not is_opponent_match(
+        old_g.opponent_name,
+        new_g.opponent_name,
+    ):
         diffs.append(
             FieldDiff(
                 field_name="opponent_name",
@@ -176,8 +225,8 @@ def _check_opponent_and_location(
         )
 
     if old_g.is_home != new_g.is_home:
-        old_h = "Home" if old_g.is_home else "Away"
-        new_h = "Home" if new_g.is_home else "Away"
+        old_h = _format_home_away(is_home=old_g.is_home)
+        new_h = _format_home_away(is_home=new_g.is_home)
         diffs.append(
             FieldDiff(
                 field_name="is_home",

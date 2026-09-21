@@ -12,6 +12,7 @@ from dataclasses import field as dataclass_field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any
+from zoneinfo import ZoneInfo
 
 from ecu_hockey_calendar.models import Game, GameResult, Team
 from ecu_hockey_calendar.storage.models import DataSourceType, GameStatus
@@ -235,6 +236,27 @@ def _parse_game_result(result_str: str | None) -> GameResult | None:
         return None
 
 
+def _ensure_utc_datetime(dt: datetime | None) -> datetime | None:
+    """Ensure datetime has UTC timezone if naive."""
+    if dt is None:
+        return None
+
+    return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+
+
+def _is_local_midnight(
+    dt: datetime | None,
+    tz_name: str = "America/New_York",
+) -> bool:
+    """Check if datetime represents midnight in local timezone (TBD placeholder)."""
+    if dt is None:
+        return False
+
+    u_dt = dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+    loc = u_dt.astimezone(ZoneInfo(tz_name))
+    return loc.hour == 0 and loc.minute == 0 and loc.second == 0
+
+
 @dataclass
 class SourceGameRecord:  # pylint: disable=too-many-instance-attributes
     """Normalized ingested game record from an upstream source."""
@@ -331,16 +353,16 @@ class SourceGameRecord:  # pylint: disable=too-many-instance-attributes
         )
         st = _parse_game_status(model.status)
         outcome = _parse_game_result(model.result)
-
+        start_dt = _ensure_utc_datetime(model.start_time) or model.start_time
         return cls(
             source_type=source_type,
             source_code=source_code,
             game_id=model.game_id,
             opponent_name=opponent,
-            start_time=model.start_time,
-            end_time=model.end_time,
+            start_time=start_dt,
+            end_time=_ensure_utc_datetime(model.end_time),
             is_home=is_home,
-            is_time_tbd=False,
+            is_time_tbd=_is_local_midnight(start_dt),
             venue=model.venue,
             status=st,
             result=outcome,
@@ -534,15 +556,15 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
         )
         st = _parse_game_status(model.status)
         outcome = _parse_game_result(model.result)
-
+        start_dt = _ensure_utc_datetime(model.start_time) or model.start_time
         return cls(
             canonical_game_id=model.game_id,
             opponent_name=opponent,
-            start_time=model.start_time,
+            start_time=start_dt,
             venue=model.venue,
             is_home=is_home,
-            is_time_tbd=False,
-            end_time=model.end_time,
+            is_time_tbd=_is_local_midnight(start_dt),
+            end_time=_ensure_utc_datetime(model.end_time),
             status=st,
             result=outcome,
             home_score=model.home_score,

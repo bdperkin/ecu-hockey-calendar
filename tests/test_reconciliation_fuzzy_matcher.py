@@ -7,6 +7,7 @@ from ecu_hockey_calendar.reconciliation.fuzzy_matcher import (
     DEFAULT_VENUE_MATCH_THRESHOLD,
     GENERIC_COLLEGE_TERMS,
     _evaluate_stripped_match,
+    _is_locality_compatible,
     _resolve_canonical_venue,
     _score_exact_canonical,
     _score_sequence_ratio,
@@ -202,3 +203,39 @@ def test_resolve_canonical_venue() -> None:
     )
     assert resolve_canonical_venue("Apex Ice Center") == "Apex Ice Center"
     assert _resolve_canonical_venue("wcc") == "Wake Competition Center"
+
+
+def test_co_located_and_locality_venues() -> None:
+    """Verify co-located facilities and municipality locality matching."""
+    assert is_venue_match("Invisalign Arena", "Wake Competition Center")
+    assert is_venue_match("Wake Competition Center", "Invisalign Arena")
+    assert (
+        compute_venue_similarity("Invisalign Arena", "Wake Competition Center") >= 0.90
+    )
+
+    # City matching
+    assert is_venue_match("Charleston, SC, USA", "Carolina Ice Palace")
+    assert is_venue_match("Carolina Ice Palace", "Charleston, SC")
+    assert is_venue_match("Springfield, VA, USA", "The St. James")
+    assert is_venue_match("Skate Nation Plus", "Richmond, VA, USA")
+    assert is_venue_match("SkateNation Plus, Glen Allen, VA", "Richmond, VA, USA")
+    assert is_venue_match("Hillsborough, NC, USA", "Orange County Sportsplex")
+    assert is_venue_match("Greenville, NC, USA", "Carolina Ice Zone")
+    assert is_venue_match("Winston-Salem, NC, USA", "Winston-Salem Fairgrounds Annex")
+    assert not _is_locality_compatible(None, "Carolina Ice Palace")
+    assert not _is_locality_compatible("Carolina Ice Palace", None)
+
+
+def test_unspecified_extended_venues() -> None:
+    """Verify tournament names, directional tags, and team names are
+    treated as unspecified."""
+    assert is_venue_unspecified("ACCHL FALL CLASSIC")
+    assert is_venue_unspecified("Away")
+    assert is_venue_unspecified("Home")
+    assert is_venue_unspecified("Neutral")
+    assert is_venue_unspecified("Duke")
+    assert is_venue_unspecified("Elon")
+    assert is_venue_unspecified("Wake Forest M2")
+    assert is_venue_unspecified("West Virginia M2")
+    assert is_venue_unspecified("St Joseph's")
+    assert not is_venue_unspecified("Carolina Ice Zone")

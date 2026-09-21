@@ -24,7 +24,9 @@ from ecu_hockey_calendar.reconciliation.models import (
     SourcePriority,
     TimingRelationship,
     _compare_numeric_precedence,
+    _ensure_utc_datetime,
     _extract_team_home_and_opponent,
+    _is_local_midnight,
     _lookup_tiebreaker_order,
     _normalize_source_key,
     _parse_game_result,
@@ -521,3 +523,16 @@ def test_change_detection_models() -> None:
     assert cyd["total_conflicts"] == 1
     assert cyd["total_unchanged"] == 1
     assert len(cyd["changes"]) == 5
+
+
+def test_ensure_utc_and_local_midnight_helpers() -> None:
+    """Verify _ensure_utc_datetime and _is_local_midnight edge cases."""
+    assert _ensure_utc_datetime(None) is None
+    dt_naive = datetime(2026, 10, 10, 19, 0)  # noqa: DTZ001
+    res = _ensure_utc_datetime(dt_naive)
+    assert res is not None
+    assert res.tzinfo == UTC
+
+    assert not _is_local_midnight(None)
+    dt_midnight = datetime(2026, 10, 10, 4, 0, tzinfo=UTC)
+    assert _is_local_midnight(dt_midnight)
