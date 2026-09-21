@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-import click
+import rich_click as click
 from rich.panel import Panel
 from rich.text import Text
 from sqlalchemy import func, select
@@ -371,17 +371,20 @@ def _render_status_diagnostics(
 )
 @click.option(
     "--season",
+    "-S",
     default=None,
     help="Optional season filter (e.g., '2026-2027').",
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",

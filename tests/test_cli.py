@@ -17,6 +17,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import click
 import pytest
+import rich_click as rc
 from click.testing import CliRunner
 from rich.console import Console
 from rich.table import Table
@@ -43,12 +44,18 @@ from ecu_hockey_calendar.cli.conflicts import (
     _slice_conflicts,
     conflicts_command,
     get_command,
+    resolve_command,
 )
 from ecu_hockey_calendar.cli.console import (
+    ECU_GOLD,
+    ECU_PURPLE,
+    configure_rich_click,
     create_table,
     format_severity_badge,
     format_status_badge,
     get_console,
+    get_rich_click_command_groups,
+    get_rich_click_option_groups,
     print_banner,
     print_error,
     print_panel,
@@ -64,7 +71,10 @@ from ecu_hockey_calendar.cli.health import (
     _render_health_panel,
     health_command,
 )
-from ecu_hockey_calendar.cli.main import cli, main
+from ecu_hockey_calendar.cli.main import _format_click_error, cli, main
+from ecu_hockey_calendar.cli.notify import notify_command
+from ecu_hockey_calendar.cli.opponent import opponent_group
+from ecu_hockey_calendar.cli.scrape import scrape_command
 from ecu_hockey_calendar.cli.serve import serve_command
 from ecu_hockey_calendar.cli.status import (
     _compute_schedule_stats,
@@ -2481,3 +2491,316 @@ class TestSyncOpponentsConfig:
             )
             assert res.exit_code == 0
             assert "DRY RUN" in res.output
+
+
+class TestRichClickIntegration:
+    """Tests for rich-click styling, grouping, and error formatting."""
+
+    def test_configure_rich_click_theme(self) -> None:
+        """Verify configure_rich_click applies the ECU branding theme."""
+        configure_rich_click()
+        assert rc.rich_click.TEXT_MARKUP == "markdown"
+        assert rc.rich_click.SHOW_ARGUMENTS is True
+        assert rc.rich_click.GROUP_ARGUMENTS_OPTIONS is True
+        assert rc.rich_click.STYLE_OPTIONS_PANEL_BORDER == ECU_PURPLE
+        assert rc.rich_click.STYLE_COMMANDS_PANEL_BORDER == ECU_PURPLE
+        assert rc.rich_click.STYLE_ERRORS_PANEL_BORDER == "bold red"
+        assert rc.rich_click.ERRORS_PANEL_TITLE == "ECU Hockey CLI Error"
+        assert rc.rich_click.STYLE_OPTIONS_TABLE_BOX == "ROUNDED"
+        assert rc.rich_click.STYLE_COMMANDS_TABLE_BOX == "ROUNDED"
+        assert rc.rich_click.STYLE_ERRORS_PANEL_BOX == "ROUNDED"
+        assert f"bold {ECU_GOLD}" == rc.rich_click.STYLE_HEADER_TEXT
+
+    def test_rich_click_command_groups(self) -> None:
+        """Verify command groups define expected sections and dual-path entries."""
+        groups = get_rich_click_command_groups()
+        assert "ecu-hockey" in groups
+        group_names = [g["name"] for g in groups["ecu-hockey"]]
+        assert "Schedule Management & Conflicts" in group_names
+        assert "Data Ingestion & Pipeline" in group_names
+        assert "Export & Syndication" in group_names
+        assert "Services & Diagnostics" in group_names
+        assert "sync" in groups
+        assert "ecu-hockey sync" in groups
+        assert "conflicts" in groups
+        assert "ecu-hockey conflicts" in groups
+        assert "opponent" in groups
+        assert "ecu-hockey opponent" in groups
+
+    def test_rich_click_option_groups(self) -> None:
+        """Verify option groups define expected sections and dual-path entries."""
+        groups = get_rich_click_option_groups()
+        assert "ecu-hockey" in groups
+        assert "sync" in groups
+        assert "ecu-hockey sync" in groups
+        assert "conflicts" in groups
+        assert "ecu-hockey conflicts" in groups
+        assert "export" in groups
+        assert "ecu-hockey export" in groups
+        assert "status" in groups
+        assert "ecu-hockey status" in groups
+        assert "health" in groups
+        assert "serve" in groups
+        assert "notify" in groups
+        assert "opponent discover" in groups
+        assert "ecu-hockey opponent discover" in groups
+
+    def test_cli_root_help_renders_rich_click_panels(
+        self,
+        runner: CliRunner,
+    ) -> None:
+        """Verify root CLI help renders categorized panels."""
+        res = runner.invoke(cli, ["--help"])
+        assert res.exit_code == 0
+        assert "Target & Remote API Options" in res.output
+        assert "Configuration & Diagnostics" in res.output
+        assert "Schedule Management & Conflicts" in res.output
+        assert "Data Ingestion & Pipeline" in res.output
+        assert "Export & Syndication" in res.output
+        assert "Services & Diagnostics" in res.output
+
+    def test_cli_subcommand_help_renders_rich_click_panels(
+        self,
+        runner: CliRunner,
+    ) -> None:
+        """Verify sync subcommand help renders categorized panels."""
+        res = runner.invoke(cli, ["sync", "--help"])
+        assert res.exit_code == 0
+        assert "Target & Environment Options" in res.output
+        assert "Ingestion & Filter Options" in res.output
+        assert "Execution & Notifications" in res.output
+        assert "Operations" in res.output
+
+    def test_cli_conflicts_help_renders_rich_click_panels(
+        self,
+        runner: CliRunner,
+    ) -> None:
+        """Verify conflicts subcommand help renders categorized panels."""
+        res = runner.invoke(cli, ["conflicts", "--help"])
+        assert res.exit_code == 0
+        assert "Filter & Scope Options" in res.output
+        assert "Format & Output" in res.output
+        assert "Target & Environment Options" in res.output
+        assert "Inspection & Diagnostics" in res.output
+        assert "Reconciliation & Resolution" in res.output
+
+    def test_format_click_error_panel(self) -> None:
+        """Verify _format_click_error prints a rich-click formatted error panel."""
+        err = click.UsageError("Unrecognized parameter provided.")
+        buf = io.StringIO()
+        with patch("sys.stderr", buf):
+            _format_click_error(err)
+
+        output = buf.getvalue()
+        assert "ECU Hockey CLI Error" in output
+        assert "Unrecognized parameter provided." in output
+
+    def test_format_click_error_fallback(self) -> None:
+        """Verify _format_click_error falls back to exc.show() on formatter failure."""
+        err = click.ClickException("Fallback test message")
+        with patch.object(
+            cli,
+            "_error_formatter",
+            side_effect=RuntimeError("formatter fail"),
+        ):
+            buf = io.StringIO()
+            with patch("sys.stderr", buf):
+                _format_click_error(err)
+
+            assert "Fallback test message" in buf.getvalue()
+
+    def test_main_click_error_renders_rich_panel(self) -> None:
+        """Verify main() entry point formats ClickException with rich panel."""
+        buf = io.StringIO()
+        with patch("sys.stderr", buf):
+            code = main(["--invalid-option-for-testing"])
+
+        assert code == 2
+        assert "ECU Hockey CLI Error" in buf.getvalue()
+
+
+def _has_short_option(cmd: click.Command, long_opt: str, short_opt: str) -> bool:
+    """Helper to verify a click command possesses a specific short option alias."""
+    for param in cmd.params:
+        if isinstance(param, click.Option) and long_opt in param.opts:
+            return short_opt in param.opts
+
+    return False
+
+
+class TestCliShortOptions:
+    """Tests for short option aliases across CLI commands."""
+
+    def test_root_short_options_registered(self) -> None:
+        """Verify root cli defines expected short option aliases."""
+        assert _has_short_option(cli, "--api-url", "-u")
+        assert _has_short_option(cli, "--token", "-t")
+        assert _has_short_option(cli, "--debug", "-d")
+        assert _has_short_option(cli, "--prod", "-p")
+        assert _has_short_option(cli, "--verbose", "-v")
+        assert _has_short_option(cli, "--opponents-config", "-O")
+
+    def test_root_short_options_execution(self, runner: CliRunner) -> None:
+        """Verify root short option flags populate context dictionary."""
+
+        @cli.command("test-short-opts-eval")
+        @click.pass_context
+        def _dummy_cmd(ctx: click.Context) -> None:
+            assert ctx.obj["api_url"] == "https://api.example.com"
+            assert ctx.obj["token"] == "test-token-123"
+            assert ctx.obj["debug"] is True
+            assert ctx.obj["prod"] is True
+
+        res = runner.invoke(
+            cli,
+            [
+                "-u",
+                "https://api.example.com",
+                "-t",
+                "test-token-123",
+                "-d",
+                "-p",
+                "test-short-opts-eval",
+            ],
+        )
+        assert res.exit_code == 0
+
+    def test_scrape_short_options_registered(self) -> None:
+        """Verify scrape command defines expected short option aliases."""
+        assert _has_short_option(scrape_command, "--source", "-s")
+        assert _has_short_option(scrape_command, "--opponents-config", "-O")
+        assert _has_short_option(scrape_command, "--verbose", "-v")
+        assert _has_short_option(scrape_command, "--debug", "-d")
+        assert _has_short_option(scrape_command, "--season", "-S")
+        assert _has_short_option(scrape_command, "--json", "-j")
+        assert _has_short_option(scrape_command, "--save", "-w")
+
+    def test_sync_short_options_registered(self) -> None:
+        """Verify sync command defines expected short option aliases."""
+        assert _has_short_option(sync_command, "--source", "-s")
+        assert _has_short_option(sync_command, "--opponents-config", "-O")
+        assert _has_short_option(sync_command, "--dry-run", "-n")
+        assert _has_short_option(sync_command, "--verbose", "-v")
+        assert _has_short_option(sync_command, "--debug", "-d")
+        assert _has_short_option(sync_command, "--season", "-S")
+        assert _has_short_option(sync_command, "--api-url", "-u")
+        assert _has_short_option(sync_command, "--token", "-t")
+        assert _has_short_option(sync_command, "--prod", "-p")
+        assert _has_short_option(sync_command, "--method", "-m")
+
+    def test_sync_status_short_options_registered(self) -> None:
+        """Verify sync status defines expected short option aliases."""
+        assert _has_short_option(sync_status_command, "--api-url", "-u")
+        assert _has_short_option(sync_status_command, "--token", "-t")
+        assert _has_short_option(sync_status_command, "--prod", "-p")
+        assert _has_short_option(sync_status_command, "--json", "-j")
+
+    def test_status_short_options_registered(self) -> None:
+        """Verify status command defines expected short option aliases."""
+        assert _has_short_option(status_command, "--season", "-S")
+        assert _has_short_option(status_command, "--api-url", "-u")
+        assert _has_short_option(status_command, "--token", "-t")
+
+    def test_health_short_options_registered(self) -> None:
+        """Verify health command defines expected short option aliases."""
+        assert _has_short_option(health_command, "--api-url", "-u")
+        assert _has_short_option(health_command, "--token", "-t")
+        assert _has_short_option(health_command, "--json", "-j")
+
+    def test_export_short_options_registered(self) -> None:
+        """Verify export command defines expected short option aliases."""
+        assert _has_short_option(export_command, "--format", "-f")
+        assert _has_short_option(export_command, "--output", "-o")
+        assert _has_short_option(export_command, "--season", "-S")
+        assert _has_short_option(export_command, "--embed", "-e")
+        assert _has_short_option(export_command, "--api-url", "-u")
+        assert _has_short_option(export_command, "--token", "-t")
+
+    def test_conflicts_short_options_registered(self) -> None:
+        """Verify conflicts command defines expected short option aliases."""
+        assert _has_short_option(conflicts_command, "--severity", "-s")
+        assert _has_short_option(conflicts_command, "--game-id", "-g")
+        assert _has_short_option(conflicts_command, "--field", "-f")
+        assert _has_short_option(conflicts_command, "--requires-review", "-r")
+        assert _has_short_option(conflicts_command, "--limit", "-l")
+        assert _has_short_option(conflicts_command, "--offset", "-o")
+        assert _has_short_option(conflicts_command, "--json", "-j")
+        assert _has_short_option(conflicts_command, "--api-url", "-u")
+        assert _has_short_option(conflicts_command, "--token", "-t")
+        assert _has_short_option(conflicts_command, "--prod", "-p")
+
+    def test_conflicts_get_short_options_registered(self) -> None:
+        """Verify conflicts get defines expected short option aliases."""
+        assert _has_short_option(get_command, "--json", "-j")
+        assert _has_short_option(get_command, "--api-url", "-u")
+        assert _has_short_option(get_command, "--token", "-t")
+        assert _has_short_option(get_command, "--prod", "-p")
+
+    def test_conflicts_resolve_short_options_registered(self) -> None:
+        """Verify conflicts resolve defines expected short option aliases."""
+        assert _has_short_option(resolve_command, "--accept-source", "-a")
+        assert _has_short_option(resolve_command, "--field", "-f")
+        assert _has_short_option(resolve_command, "--value", "-v")
+        assert _has_short_option(resolve_command, "--notes", "-n")
+        assert _has_short_option(resolve_command, "--resolved-by", "-r")
+        assert _has_short_option(resolve_command, "--prod", "-p")
+        assert _has_short_option(resolve_command, "--api-url", "-u")
+        assert _has_short_option(resolve_command, "--token", "-t")
+        assert _has_short_option(resolve_command, "--json", "-j")
+
+    def test_serve_short_options_registered(self) -> None:
+        """Verify serve command defines expected short option aliases."""
+        assert _has_short_option(serve_command, "--host", "-h")
+        assert _has_short_option(serve_command, "--port", "-p")
+        assert _has_short_option(serve_command, "--migrate", "-m")
+
+    def test_notify_short_options_registered(self) -> None:
+        """Verify notify command defines expected short option aliases."""
+        assert _has_short_option(notify_command, "--message", "-m")
+        assert _has_short_option(notify_command, "--title", "-t")
+        assert _has_short_option(notify_command, "--severity", "-s")
+        assert _has_short_option(notify_command, "--details", "-d")
+        assert _has_short_option(notify_command, "--url", "-u")
+        assert _has_short_option(notify_command, "--channel", "-c")
+
+    def test_opponent_discover_short_options_registered(self) -> None:
+        """Verify opponent discover defines expected short option aliases."""
+        discover_cmd = opponent_group.commands["discover"]
+        assert _has_short_option(discover_cmd, "--append-to", "-a")
+        assert _has_short_option(discover_cmd, "--json", "-j")
+        assert _has_short_option(discover_cmd, "--max-pages", "-m")
+
+    def test_health_short_options_execution(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify invoking health command with -j outputs valid JSON."""
+        res = runner.invoke(health_command, ["--db-url", db_url, "-j"])
+        assert res.exit_code == 0
+        data = json.loads(res.output)
+        assert "status" in data
+
+    def test_status_short_options_execution(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify invoking status command with -S executes cleanly."""
+        res = runner.invoke(status_command, ["--db-url", db_url, "-S", "2026-2027"])
+        assert res.exit_code == 0
+
+    def test_export_short_options_execution(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify invoking export command with -f and -S outputs JSON."""
+        res = runner.invoke(
+            export_command,
+            ["--db-url", db_url, "-f", "json", "-S", "2026-2027"],
+        )
+        assert res.exit_code == 0
+        data = json.loads(res.output)
+        assert isinstance(data, dict)
+        assert data.get("season") == "2026-2027"

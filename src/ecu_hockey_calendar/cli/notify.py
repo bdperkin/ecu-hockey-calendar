@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import click
+import rich_click as click
 
 from ecu_hockey_calendar.cli.console import (
     create_table,
@@ -189,6 +189,7 @@ def _handle_dispatch_summary(summary: MultiChannelDispatchSummary) -> None:
 )
 @click.option(
     "--url",
+    "-u",
     default=None,
     help="Associated action or workflow URL.",
 )

@@ -15,7 +15,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urlparse
 
-import click
+import rich_click as click
 from rich.console import Console
 
 from ecu_hockey_calendar.cli.console import (
@@ -767,6 +767,7 @@ def _resolve_scrape_cli_flags(
 )
 @click.option(
     "--debug",
+    "-d",
     is_flag=True,
     default=False,
     help="Display all HTTP wire requests, responses, headers, and body snippets.",
@@ -778,11 +779,13 @@ def _resolve_scrape_cli_flags(
 )
 @click.option(
     "--season",
+    "-S",
     default=None,
     help="Collegiate hockey athletic season (e.g., '2026-2027').",
 )
 @click.option(
     "--json",
+    "-j",
     "as_json",
     is_flag=True,
     default=False,
@@ -790,6 +793,7 @@ def _resolve_scrape_cli_flags(
 )
 @click.option(
     "--save/--no-save",
+    "-w",
     is_flag=True,
     default=False,
     help="Persist raw snapshots and fixtures into relational storage.",

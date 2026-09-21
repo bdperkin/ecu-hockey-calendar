@@ -6,8 +6,9 @@ and color-coded status badges for terminal output.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
+import rich_click as click
 from rich.console import Console, RenderableType
 from rich.panel import Panel
 from rich.table import Table
@@ -205,3 +206,328 @@ def print_panel(
             expand=False,
         ),
     )
+
+
+def _expand_dual_path_groups(
+    groups: dict[str, list[dict[str, Any]]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Ensure group definitions match both bare command names and prefixed paths.
+
+    Args:
+        groups: Mapping of command names or paths to panel definitions.
+
+    Returns:
+        Dictionary expanded with 'ecu-hockey ' prefixed command paths.
+    """
+    expanded: dict[str, list[dict[str, Any]]] = {}
+    for key, val in groups.items():
+        expanded[key] = val
+        if key != "ecu-hockey" and not key.startswith("ecu-hockey "):
+            expanded[f"ecu-hockey {key}"] = val
+
+    return expanded
+
+
+def get_rich_click_command_groups() -> dict[str, list[dict[str, Any]]]:
+    """Return command groupings for rich-click help display."""
+    base_groups = {
+        "ecu-hockey": [
+            {
+                "name": "Schedule Management & Conflicts",
+                "commands": ["status", "conflicts"],
+            },
+            {
+                "name": "Data Ingestion & Pipeline",
+                "commands": ["sync", "scrape", "opponent"],
+            },
+            {
+                "name": "Export & Syndication",
+                "commands": ["export", "notify"],
+            },
+            {
+                "name": "Services & Diagnostics",
+                "commands": ["serve", "health"],
+            },
+        ],
+        "conflicts": [
+            {
+                "name": "Inspection & Diagnostics",
+                "commands": ["list", "get"],
+            },
+            {
+                "name": "Reconciliation & Resolution",
+                "commands": ["resolve"],
+            },
+        ],
+        "sync": [
+            {
+                "name": "Operations",
+                "commands": ["trigger", "status"],
+            },
+        ],
+        "opponent": [
+            {
+                "name": "Opponent Operations",
+                "commands": ["discover"],
+            },
+        ],
+    }
+    return _expand_dual_path_groups(base_groups)
+
+
+def _get_root_and_sync_option_groups() -> dict[str, list[dict[str, Any]]]:
+    """Return option groups for root, sync, and scrape commands."""
+    sync_opts = [
+        {
+            "name": "Target & Environment Options",
+            "options": [
+                "--db-url",
+                "--api-url",
+                "--token",
+                "--prod",
+                "--method",
+            ],
+        },
+        {
+            "name": "Ingestion & Filter Options",
+            "options": [
+                "--source",
+                "--verify-opponents",
+                "--season",
+                "--opponents-config",
+            ],
+        },
+        {
+            "name": "Execution & Notifications",
+            "options": [
+                "--dry-run",
+                "--notify",
+                "--notify-individual",
+                "--verbose",
+                "--debug",
+            ],
+        },
+    ]
+    return {
+        "ecu-hockey": [
+            {
+                "name": "Target & Remote API Options",
+                "options": ["--api-url", "--token", "--prod"],
+            },
+            {
+                "name": "Configuration & Diagnostics",
+                "options": ["--opponents-config", "--verbose", "--debug"],
+            },
+        ],
+        "sync": sync_opts,
+        "sync trigger": sync_opts,
+        "sync status": [
+            {
+                "name": "Format & Output",
+                "options": ["--json"],
+            },
+            {
+                "name": "Target & Environment Options",
+                "options": ["--db-url", "--api-url", "--token", "--prod"],
+            },
+        ],
+        "scrape": [
+            {
+                "name": "Ingestion Sources & Filters",
+                "options": [
+                    "--source",
+                    "--season",
+                    "--subseasons",
+                    "--opponents-config",
+                    "--save",
+                    "--db-url",
+                ],
+            },
+            {
+                "name": "Format & Diagnostics",
+                "options": ["--json", "--verbose", "--debug"],
+            },
+        ],
+    }
+
+
+def _get_feature_option_groups() -> dict[str, list[dict[str, Any]]]:
+    """Return option groups for status, conflicts, export, and services."""
+    conflicts_list_opts = [
+        {
+            "name": "Filter & Scope Options",
+            "options": [
+                "--severity",
+                "--game-id",
+                "--field",
+                "--requires-review",
+                "--limit",
+                "--offset",
+            ],
+        },
+        {
+            "name": "Format & Output",
+            "options": ["--json"],
+        },
+        {
+            "name": "Target & Environment Options",
+            "options": ["--db-url", "--api-url", "--token", "--prod"],
+        },
+    ]
+    return {
+        "status": [
+            {
+                "name": "Filter Options",
+                "options": [
+                    "--season",
+                ],
+            },
+            {
+                "name": "Target & Environment Options",
+                "options": ["--db-url", "--api-url", "--token"],
+            },
+        ],
+        "conflicts": conflicts_list_opts,
+        "conflicts list": conflicts_list_opts,
+        "conflicts get": [
+            {
+                "name": "Format & Output",
+                "options": ["--json"],
+            },
+            {
+                "name": "Target & Environment Options",
+                "options": ["--db-url", "--api-url", "--token", "--prod"],
+            },
+        ],
+        "conflicts resolve": [
+            {
+                "name": "Resolution Strategy & Attributes",
+                "options": [
+                    "--field",
+                    "--value",
+                    "--accept-source",
+                    "--notes",
+                    "--resolved-by",
+                ],
+            },
+            {
+                "name": "Target & Environment Options",
+                "options": ["--db-url", "--api-url", "--token", "--prod"],
+            },
+            {
+                "name": "Format & Output",
+                "options": ["--json"],
+            },
+        ],
+        "export": [
+            {
+                "name": "Output Destination & Format",
+                "options": ["--format", "--output", "--embed"],
+            },
+            {
+                "name": "Data Filters",
+                "options": [
+                    "--season",
+                    "--opponent",
+                    "--home-only",
+                    "--status",
+                    "--include-past",
+                ],
+            },
+            {
+                "name": "Environment & Source Options",
+                "options": ["--db-url", "--api-url", "--token"],
+            },
+        ],
+        "health": [
+            {
+                "name": "Format & Output",
+                "options": ["--json"],
+            },
+            {
+                "name": "Target Environment Options",
+                "options": ["--db-url", "--api-url", "--token", "--prod"],
+            },
+        ],
+        "serve": [
+            {
+                "name": "Server Binding & Networking",
+                "options": ["--host", "--port", "--reload"],
+            },
+            {
+                "name": "Database & Lifecycle",
+                "options": ["--db-url", "--migrate"],
+            },
+        ],
+        "notify": [
+            {
+                "name": "Webhook Targets & Payload",
+                "options": [
+                    "--discord-webhook",
+                    "--slack-webhook",
+                    "--telegram-bot-token",
+                    "--telegram-chat-id",
+                    "--message",
+                ],
+            },
+        ],
+        "opponent discover": [
+            {
+                "name": "Target & Discovery Options",
+                "options": [
+                    "--append-to",
+                    "--max-pages",
+                    "--division",
+                    "--conference",
+                    "--enabled",
+                ],
+            },
+            {
+                "name": "Format & Output",
+                "options": ["--json"],
+            },
+        ],
+    }
+
+
+def get_rich_click_option_groups() -> dict[str, list[dict[str, Any]]]:
+    """Return consolidated option groups for rich-click help formatting."""
+    groups = _get_root_and_sync_option_groups()
+    groups.update(_get_feature_option_groups())
+    return _expand_dual_path_groups(groups)
+
+
+def _apply_rich_click_theme() -> None:
+    """Apply ECU Hockey branding and formatting rules to rich-click."""
+    click.rich_click.TEXT_MARKUP = "markdown"
+    click.rich_click.SHOW_ARGUMENTS = True
+    click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
+    click.rich_click.STYLE_OPTIONS_PANEL_BORDER = ECU_PURPLE
+    click.rich_click.STYLE_COMMANDS_PANEL_BORDER = ECU_PURPLE
+    click.rich_click.STYLE_ERRORS_PANEL_BORDER = "bold red"
+    click.rich_click.ERRORS_PANEL_TITLE = "ECU Hockey CLI Error"
+    click.rich_click.STYLE_OPTIONS_TABLE_BOX = "ROUNDED"
+    click.rich_click.STYLE_COMMANDS_TABLE_BOX = "ROUNDED"
+    click.rich_click.STYLE_ERRORS_PANEL_BOX = "ROUNDED"
+    click.rich_click.STYLE_HEADER_TEXT = f"bold {ECU_GOLD}"
+    click.rich_click.STYLE_OPTION = f"bold {ECU_GOLD}"
+    click.rich_click.STYLE_ARGUMENT = f"bold {ECU_GOLD}"
+    click.rich_click.STYLE_COMMAND = f"bold {ECU_GOLD}"
+    click.rich_click.STYLE_HELPTEXT_FIRST_LINE = "bold white"
+    click.rich_click.STYLE_HELPTEXT = "white"
+    click.rich_click.STYLE_USAGE = f"bold {ECU_PURPLE}"
+    click.rich_click.STYLE_USAGE_COMMAND = f"bold {ECU_GOLD}"
+    click.rich_click.STYLE_METAVAR = "bold cyan"
+    click.rich_click.STYLE_OPTION_DEFAULT = "dim"
+    click.rich_click.STYLE_OPTION_ENVVAR = "dim italic"
+    click.rich_click.COMMAND_GROUPS = cast("Any", get_rich_click_command_groups())
+    click.rich_click.OPTION_GROUPS = cast("Any", get_rich_click_option_groups())
+
+
+def configure_rich_click() -> None:
+    """Configure global rich-click formatting, ECU styling, and command groups."""
+    _apply_rich_click_theme()
+
+
+# Initialize rich-click styling on module load
+configure_rich_click()

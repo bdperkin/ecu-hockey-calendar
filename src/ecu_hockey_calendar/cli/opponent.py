@@ -11,8 +11,8 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
-import click
 import httpx
+import rich_click as click
 from rich.panel import Panel
 from rich.syntax import Syntax
 
@@ -198,12 +198,14 @@ def opponent_group() -> None:
 @click.argument("base_url")
 @click.option(
     "--append-to",
+    "-a",
     type=click.Path(dir_okay=False, writable=True, path_type=Path),
     default=None,
     help="Append candidate configuration to an existing YAML file.",
 )
 @click.option(
     "--json",
+    "-j",
     "as_json",
     is_flag=True,
     default=False,
@@ -211,6 +213,7 @@ def opponent_group() -> None:
 )
 @click.option(
     "--max-pages",
+    "-m",
     default=10,
     show_default=True,
     type=click.IntRange(min=1, max=50),

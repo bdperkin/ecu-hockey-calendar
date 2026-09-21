@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import click
+import rich_click as click
 from sqlalchemy import select
 
 from ecu_hockey_calendar.api.client import RemoteApiClient, RemoteApiError
@@ -359,6 +359,7 @@ def _execute_remote_export(  # noqa: PLR0913 # pylint: disable=too-many-argument
 )
 @click.option(
     "--season",
+    "-S",
     default=None,
     help="Optional season filter (e.g., '2026-2027').",
 )
@@ -381,6 +382,7 @@ def _execute_remote_export(  # noqa: PLR0913 # pylint: disable=too-many-argument
 )
 @click.option(
     "--embed",
+    "-e",
     is_flag=True,
     default=False,
     help="Export lightweight embeddable widget HTML view instead of full schedule.",
@@ -398,12 +400,14 @@ def _execute_remote_export(  # noqa: PLR0913 # pylint: disable=too-many-argument
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",

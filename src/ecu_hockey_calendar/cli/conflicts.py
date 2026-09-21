@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import click
+import rich_click as click
 from rich.panel import Panel
 from rich.table import Table
 
@@ -1006,18 +1006,21 @@ def _run_conflicts_get(  # pylint: disable=too-many-arguments
 @click.group("conflicts", invoke_without_command=True)
 @click.option(
     "--severity",
+    "-s",
     type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"], case_sensitive=False),
     default=None,
     help="Filter discrepancies by severity level.",
 )
 @click.option(
     "--game-id",
+    "-g",
     default=None,
     help="Filter discrepancies for a specific canonical game identifier.",
 )
 @click.option(
     "--field",
     "--field-name",
+    "-f",
     "field_name",
     default=None,
     help=(
@@ -1028,18 +1031,21 @@ def _run_conflicts_get(  # pylint: disable=too-many-arguments
 @click.option(
     "--requires-review/--all",
     "--review-only/--show-all",
+    "-r",
     "requires_review",
     default=False,
     help="Show only discrepancies flagged as requiring administrative review.",
 )
 @click.option(
     "--limit",
+    "-l",
     type=click.IntRange(min=1),
     default=None,
     help="Maximum number of discrepancies to return or display.",
 )
 @click.option(
     "--offset",
+    "-o",
     type=click.IntRange(min=0),
     default=0,
     show_default=True,
@@ -1047,6 +1053,7 @@ def _run_conflicts_get(  # pylint: disable=too-many-arguments
 )
 @click.option(
     "--json",
+    "-j",
     "as_json",
     is_flag=True,
     default=False,
@@ -1060,12 +1067,14 @@ def _run_conflicts_get(  # pylint: disable=too-many-arguments
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
@@ -1073,6 +1082,7 @@ def _run_conflicts_get(  # pylint: disable=too-many-arguments
 @click.option(
     "--prod",
     "--production",
+    "-p",
     "prod",
     is_flag=True,
     default=False,
@@ -1117,18 +1127,21 @@ def conflicts_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-ma
 @conflicts_command.command("list")
 @click.option(
     "--severity",
+    "-s",
     type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"], case_sensitive=False),
     default=None,
     help="Filter discrepancies by severity level.",
 )
 @click.option(
     "--game-id",
+    "-g",
     default=None,
     help="Filter discrepancies for a specific canonical game identifier.",
 )
 @click.option(
     "--field",
     "--field-name",
+    "-f",
     "field_name",
     default=None,
     help="Filter discrepancies by conflicting attribute name.",
@@ -1136,18 +1149,21 @@ def conflicts_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-ma
 @click.option(
     "--requires-review/--all",
     "--review-only/--show-all",
+    "-r",
     "requires_review",
     default=False,
     help="Show only discrepancies flagged as requiring administrative review.",
 )
 @click.option(
     "--limit",
+    "-l",
     type=click.IntRange(min=1),
     default=None,
     help="Maximum number of discrepancies to return or display.",
 )
 @click.option(
     "--offset",
+    "-o",
     type=click.IntRange(min=0),
     default=0,
     show_default=True,
@@ -1155,6 +1171,7 @@ def conflicts_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-ma
 )
 @click.option(
     "--json",
+    "-j",
     "as_json",
     is_flag=True,
     default=False,
@@ -1168,12 +1185,14 @@ def conflicts_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-ma
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
@@ -1181,6 +1200,7 @@ def conflicts_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-ma
 @click.option(
     "--prod",
     "--production",
+    "-p",
     "prod",
     is_flag=True,
     default=False,
@@ -1223,6 +1243,7 @@ def list_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-many-ar
 @click.argument("game_id", required=True)
 @click.option(
     "--json",
+    "-j",
     "as_json",
     is_flag=True,
     default=False,
@@ -1236,12 +1257,14 @@ def list_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-many-ar
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL (e.g., 'https://ecu-hockey-api.onrender.com').",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token for protected remote endpoints.",
@@ -1249,6 +1272,7 @@ def list_command(  # noqa: PLR0913 # pylint: disable=too-many-locals,too-many-ar
 @click.option(
     "--prod",
     "--production",
+    "-p",
     "prod",
     is_flag=True,
     default=False,
@@ -1282,35 +1306,41 @@ def get_command(  # pylint: disable=too-many-arguments
 @click.option(
     "--field",
     "--field-name",
+    "-f",
     "field",
     default=None,
     help="Attribute name to override (e.g. 'venue', 'start_time').",
 )
 @click.option(
     "--value",
+    "-v",
     "value",
     default=None,
     help="Explicit override value to apply to conflicting attribute.",
 )
 @click.option(
     "--accept-source",
+    "-a",
     "accept_source",
     default=None,
     help="Accept upstream data source value (e.g. 'ECU Hockey', 'achahockey').",
 )
 @click.option(
     "--notes",
+    "-n",
     default=None,
     help="Audit notes explaining the manual resolution decision.",
 )
 @click.option(
     "--resolved-by",
+    "-r",
     default=None,
     help="Username or administrator identifier performing the resolution.",
 )
 @click.option(
     "--prod",
     "--production",
+    "-p",
     "prod",
     is_flag=True,
     default=False,
@@ -1318,12 +1348,14 @@ def get_command(  # pylint: disable=too-many-arguments
 )
 @click.option(
     "--api-url",
+    "-u",
     envvar="ECU_HOCKEY_API_URL",
     default=None,
     help="Remote ECU Hockey API base URL.",
 )
 @click.option(
     "--token",
+    "-t",
     envvar="ECU_HOCKEY_ADMIN_TOKEN",
     default=None,
     help="Administrative authentication Bearer token.",
@@ -1336,6 +1368,7 @@ def get_command(  # pylint: disable=too-many-arguments
 )
 @click.option(
     "--json",
+    "-j",
     "as_json",
     is_flag=True,
     default=False,

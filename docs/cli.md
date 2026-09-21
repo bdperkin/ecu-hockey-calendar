@@ -1,6 +1,6 @@
 # Command-Line Interface (CLI)
 
-The `ecu-hockey-calendar` package includes a unified, terminal-first CLI tool named `ecu-hockey`. Powered by [Click](https://click.palletsprojects.com/) and styled with [Rich](https://rich.readthedocs.io/), it provides full control over data ingestion, schedule diagnostics, cross-source conflict inspection, multi-format calendar export, and API service hosting.
+The `ecu-hockey-calendar` package includes a unified, terminal-first CLI tool named `ecu-hockey`. Powered by [rich-click](https://github.com/ewels/rich-click) and [Rich](https://rich.readthedocs.io/), it provides full control over data ingestion, schedule diagnostics, cross-source conflict inspection, multi-format calendar export, and API service hosting with beautiful, categorized terminal help panels and branded error reporting.
 
 ## 1. Overview & Installation
 
@@ -38,7 +38,7 @@ export ECU_HOCKEY_ADMIN_TOKEN="your-admin-secret-token"
 ecu-hockey status
 ```
 
-Options `--api-url` and `--token` can be supplied globally before subcommands (e.g. `ecu-hockey --api-url ... status`) or directly on individual subcommands (e.g. `ecu-hockey status --api-url ...`).
+Options `--api-url` (`-u`), `--token` (`-t`), and `--prod` (`-p`) can be supplied globally before subcommands (e.g. `ecu-hockey -u ... status`) or directly on individual subcommands (e.g. `ecu-hockey status -u ...`).
 
 ### 2.1. Opponents Feed Configuration Override
 
@@ -72,31 +72,31 @@ ecu-hockey sync status [OPTIONS]
 
 **Options (`sync` / `sync trigger`):**
 
-| Option                   | Environment Variable     | Default    | Description                                                                                                                 |
-| :----------------------- | :----------------------- | :--------- | :-------------------------------------------------------------------------------------------------------------------------- |
-| `-s, --source`           | —                        | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`, `achahockey`, `instagram`, `opponent`, `social`). |
-| `-O, --opponents-config` | `OPPONENTS_CONFIG`       | `None`     | Path to custom YAML configuration file for opponent schedule feeds.                                                         |
-| `--dry-run`              | —                        | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.                                      |
-| `--notify / --no-notify` | —                        | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes.                                    |
-| `--notify-individual`    | —                        | `False`    | Dispatch individual alert messages for each detected schedule change.                                                       |
-| `-v, --verbose`          | —                        | `False`    | Display URLs being scraped and item extraction discovery statistics.                                                        |
-| `--debug`                | —                        | `False`    | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                                           |
-| `--db-url`               | `DATABASE_URL`           | `None`     | Database connection URL override.                                                                                           |
-| `--season`               | —                        | `None`     | Optional season filter (e.g., `2026-2027`).                                                                                 |
-| `--api-url`              | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                                |
-| `--token`                | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.                                                  |
-| `--prod, --production`   | —                        | `False`    | Target production environment (defaults API URL to `https://ecu-hockey-api.onrender.com`).                                  |
-| `--method`               | —                        | `auto`     | Production dispatch strategy (`auto`, `api`, `github`, `render`).                                                           |
+| Option                     | Environment Variable     | Default    | Description                                                                                                                 |
+| :------------------------- | :----------------------- | :--------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `-s, --source`             | —                        | `all`      | Restrict sync to a specific data source (`all`, `ecuhockey`, `acchockey`, `achahockey`, `instagram`, `opponent`, `social`). |
+| `-O, --opponents-config`   | `OPPONENTS_CONFIG`       | `None`     | Path to custom YAML configuration file for opponent schedule feeds.                                                         |
+| `-n, --dry-run`            | —                        | `False`    | Perform crawl, reconciliation, and diffing without committing changes to the database.                                      |
+| `--notify / --no-notify`   | —                        | `--notify` | Dispatch webhook notifications (Discord, Slack, Telegram) for detected schedule changes.                                    |
+| `--notify-individual`      | —                        | `False`    | Dispatch individual alert messages for each detected schedule change.                                                       |
+| `-v, --verbose`            | —                        | `False`    | Display URLs being scraped and item extraction discovery statistics.                                                        |
+| `-d, --debug`              | —                        | `False`    | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                                           |
+| `--db-url`                 | `DATABASE_URL`           | `None`     | Database connection URL override.                                                                                           |
+| `-S, --season`             | —                        | `None`     | Optional season filter (e.g., `2026-2027`).                                                                                 |
+| `-u, --api-url`            | `ECU_HOCKEY_API_URL`     | `None`     | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                                |
+| `-t, --token`              | `ECU_HOCKEY_ADMIN_TOKEN` | `None`     | Administrative authentication Bearer token for protected remote endpoints.                                                  |
+| `-p, --prod, --production` | —                        | `False`    | Target production environment (defaults API URL to `https://ecu-hockey-api.onrender.com`).                                  |
+| `-m, --method`             | —                        | `auto`     | Production dispatch strategy (`auto`, `api`, `github`, `render`).                                                           |
 
 **Options (`sync status`):**
 
-| Option                 | Environment Variable     | Default | Description                                                                                |
-| :--------------------- | :----------------------- | :------ | :----------------------------------------------------------------------------------------- |
-| `--db-url`             | `DATABASE_URL`           | `None`  | Database connection URL override.                                                          |
-| `--api-url`            | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).               |
-| `--token`              | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.                 |
-| `--prod, --production` | —                        | `False` | Target production environment (defaults API URL to `https://ecu-hockey-api.onrender.com`). |
-| `--json`               | —                        | `False` | Output raw synchronization telemetry as structured JSON.                                   |
+| Option                     | Environment Variable     | Default | Description                                                                                |
+| :------------------------- | :----------------------- | :------ | :----------------------------------------------------------------------------------------- |
+| `--db-url`                 | `DATABASE_URL`           | `None`  | Database connection URL override.                                                          |
+| `-u, --api-url`            | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).               |
+| `-t, --token`              | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.                 |
+| `-p, --prod, --production` | —                        | `False` | Target production environment (defaults API URL to `https://ecu-hockey-api.onrender.com`). |
+| `-j, --json`               | —                        | `False` | Output raw synchronization telemetry as structured JSON.                                   |
 
 **Examples:**
 
@@ -167,11 +167,11 @@ ecu-hockey scrape -s acchockey --debug
 | `-s, --source`           | —                    | `all`       | Target scraper(s) to run (`all`, `ecuhockey`, `acchockey`, `achahockey`, `instagram`, `opponent`, `tickets`, `social`). |
 | `-O, --opponents-config` | `OPPONENTS_CONFIG`   | `None`      | Path to custom YAML configuration file for opponent schedule feeds.                                                     |
 | `-v, --verbose`          | —                    | `False`     | List URLs being scraped and extraction discovery statistics in real time.                                               |
-| `--debug`                | —                    | `False`     | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                                       |
+| `-d, --debug`            | —                    | `False`     | Display all HTTP wire requests, responses, headers, body snippets, and latencies.                                       |
 | `--subseasons`           | —                    | `None`      | Comma-separated subseason IDs or URLs for multi-season traversal on league scrapers.                                    |
-| `--season`               | —                    | `None`      | Collegiate hockey athletic season filter (e.g. `2026-2027`).                                                            |
-| `--json`                 | —                    | `False`     | Output extracted fixtures and scraper telemetry as formatted JSON to stdout.                                            |
-| `--save / --no-save`     | —                    | `--no-save` | Persist raw snapshots and fixtures into relational storage.                                                             |
+| `-S, --season`           | —                    | `None`      | Collegiate hockey athletic season filter (e.g. `2026-2027`).                                                            |
+| `-j, --json`             | —                    | `False`     | Output extracted fixtures and scraper telemetry as formatted JSON to stdout.                                            |
+| `-w, --save / --no-save` | —                    | `--no-save` | Persist raw snapshots and fixtures into relational storage.                                                             |
 | `--db-url`               | `DATABASE_URL`       | `None`      | Database connection URL override when `--save` is used.                                                                 |
 
 **Examples:**
@@ -208,12 +208,12 @@ ecu-hockey status [OPTIONS]
 
 **Options:**
 
-| Option      | Environment Variable     | Default | Description                                                                  |
-| :---------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
-| `--db-url`  | `DATABASE_URL`           | `None`  | Database connection URL override.                                            |
-| `--season`  | —                        | `None`  | Optional season filter (e.g., `2026-2027`).                                  |
-| `--api-url` | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`). |
-| `--token`   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.   |
+| Option          | Environment Variable     | Default | Description                                                                  |
+| :-------------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
+| `--db-url`      | `DATABASE_URL`           | `None`  | Database connection URL override.                                            |
+| `-S, --season`  | —                        | `None`  | Optional season filter (e.g., `2026-2027`).                                  |
+| `-u, --api-url` | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`). |
+| `-t, --token`   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.   |
 
 **Examples:**
 
@@ -238,12 +238,12 @@ ecu-hockey health [OPTIONS]
 
 **Options:**
 
-| Option      | Environment Variable     | Default | Description                                                                  |
-| :---------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
-| `--db-url`  | `DATABASE_URL`           | `None`  | Database connection URL override.                                            |
-| `--api-url` | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`). |
-| `--token`   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.   |
-| `--json`    | —                        | `False` | Render health diagnostics payload as structured JSON to stdout.              |
+| Option          | Environment Variable     | Default | Description                                                                  |
+| :-------------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
+| `--db-url`      | `DATABASE_URL`           | `None`  | Database connection URL override.                                            |
+| `-u, --api-url` | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`). |
+| `-t, --token`   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.   |
+| `-j, --json`    | —                        | `False` | Render health diagnostics payload as structured JSON to stdout.              |
 
 **Examples:**
 
@@ -274,15 +274,15 @@ ecu-hockey export [OPTIONS] [OUTPUT_FILE]
 | :------------------------------- | :----------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------- |
 | `-f, --format`                   | —                        | Auto-detected / `ics` | Output serialization format (`ics`, `json`, `csv`, `html`, `pdf`, `rss`, `atom`). Auto-detected from `--output` extension. |
 | `-o, --output`                   | —                        | `None` (stdout)       | Destination file path (if omitted, writes to stdout).                                                                      |
-| `--season`                       | —                        | `None`                | Optional season filter (e.g., `2026-2027`).                                                                                |
+| `-S, --season`                   | —                        | `None`                | Optional season filter (e.g., `2026-2027`).                                                                                |
 | `--opponent`                     | —                        | `None`                | Filter games by opponent team name substring.                                                                              |
 | `--home-only`                    | —                        | `False`               | Filter games to only home matchups hosted by ECU.                                                                          |
 | `--status`                       | —                        | `None`                | Filter by fixture status (e.g., `scheduled`, `final`, `cancelled`).                                                        |
-| `--embed`                        | —                        | `False`               | Export lightweight embeddable widget HTML view instead of full schedule page.                                              |
+| `-e, --embed`                    | —                        | `False`               | Export lightweight embeddable widget HTML view instead of full schedule page.                                              |
 | `--include-past / --future-only` | —                        | `--include-past`      | Include completed and historical fixtures in export.                                                                       |
 | `--db-url`                       | `DATABASE_URL`           | `None`                | Database connection URL override.                                                                                          |
-| `--api-url`                      | `ECU_HOCKEY_API_URL`     | `None`                | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                               |
-| `--token`                        | `ECU_HOCKEY_ADMIN_TOKEN` | `None`                | Administrative authentication Bearer token for protected remote endpoints.                                                 |
+| `-u, --api-url`                  | `ECU_HOCKEY_API_URL`     | `None`                | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                                               |
+| `-t, --token`                    | `ECU_HOCKEY_ADMIN_TOKEN` | `None`                | Administrative authentication Bearer token for protected remote endpoints.                                                 |
 
 **Examples:**
 
@@ -342,19 +342,19 @@ ecu-hockey conflicts [OPTIONS]
 
 **Options:**
 
-| Option                      | Environment Variable     | Default      | Description                                                                                 |
-| :-------------------------- | :----------------------- | :----------- | :------------------------------------------------------------------------------------------ |
-| `--severity`                | —                        | `None` (all) | Filter discrepancies by severity level (`low`, `medium`, `high`, `critical`).               |
-| `--game-id`                 | —                        | `None`       | Filter discrepancies for a specific canonical game identifier.                              |
-| `--field, --field-name`     | —                        | `None` (all) | Filter discrepancies by conflicting attribute name (e.g., `venue`, `start_time`).           |
-| `--requires-review / --all` | —                        | `--all`      | Show only discrepancies flagged as requiring administrative review (`--review-only` alias). |
-| `--limit`                   | —                        | `None`       | Maximum number of discrepancy items to return.                                              |
-| `--offset`                  | —                        | `0`          | Zero-indexed offset for paginated discrepancy records.                                      |
-| `--json`                    | —                        | `False`      | Output raw conflict payload as structured JSON.                                             |
-| `--db-url`                  | `DATABASE_URL`           | `None`       | Database connection URL override.                                                           |
-| `--api-url`                 | `ECU_HOCKEY_API_URL`     | `None`       | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                |
-| `--token`                   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`       | Administrative authentication Bearer token for protected remote endpoints.                  |
-| `--prod, --production`      | —                        | `False`      | Target production environment (`https://ecu-hockey-api.onrender.com`).                      |
+| Option                          | Environment Variable     | Default      | Description                                                                                 |
+| :------------------------------ | :----------------------- | :----------- | :------------------------------------------------------------------------------------------ |
+| `-s, --severity`                | —                        | `None` (all) | Filter discrepancies by severity level (`low`, `medium`, `high`, `critical`).               |
+| `-g, --game-id`                 | —                        | `None`       | Filter discrepancies for a specific canonical game identifier.                              |
+| `-f, --field, --field-name`     | —                        | `None` (all) | Filter discrepancies by conflicting attribute name (e.g., `venue`, `start_time`).           |
+| `-r, --requires-review / --all` | —                        | `--all`      | Show only discrepancies flagged as requiring administrative review (`--review-only` alias). |
+| `-l, --limit`                   | —                        | `None`       | Maximum number of discrepancy items to return.                                              |
+| `-o, --offset`                  | —                        | `0`          | Zero-indexed offset for paginated discrepancy records.                                      |
+| `-j, --json`                    | —                        | `False`      | Output raw conflict payload as structured JSON.                                             |
+| `--db-url`                      | `DATABASE_URL`           | `None`       | Database connection URL override.                                                           |
+| `-u, --api-url`                 | `ECU_HOCKEY_API_URL`     | `None`       | Remote ECU Hockey API base URL (e.g. `https://ecu-hockey-api.onrender.com`).                |
+| `-t, --token`                   | `ECU_HOCKEY_ADMIN_TOKEN` | `None`       | Administrative authentication Bearer token for protected remote endpoints.                  |
+| `-p, --prod, --production`      | —                        | `False`      | Target production environment (`https://ecu-hockey-api.onrender.com`).                      |
 
 ##### 3.6.1.2. `ecu-hockey conflicts resolve`
 
@@ -370,18 +370,18 @@ ecu-hockey conflicts resolve <CONFLICT_ID> [OPTIONS]
 
 **Options:**
 
-| Option                  | Environment Variable     | Default | Description                                                            |
-| :---------------------- | :----------------------- | :------ | :--------------------------------------------------------------------- |
-| `--accept-source`       | —                        | `None`  | Accept upstream data source value (e.g., `ECU Hockey`, `achahockey`).  |
-| `--field, --field-name` | —                        | `None`  | Attribute name to override (e.g., `venue`, `start_time`).              |
-| `--value`               | —                        | `None`  | Explicit override value to apply to conflicting attribute.             |
-| `--notes`               | —                        | `None`  | Audit notes explaining the manual resolution decision.                 |
-| `--resolved-by`         | —                        | `admin` | Username or administrator identifier performing the resolution.        |
-| `--prod, --production`  | —                        | `False` | Target production environment (`https://ecu-hockey-api.onrender.com`). |
-| `--api-url`             | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL.                                        |
-| `--token`               | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token.                            |
-| `--db-url`              | `DATABASE_URL`           | `None`  | Database connection URL override.                                      |
-| `--json`                | —                        | `False` | Output resolution result as structured JSON.                           |
+| Option                      | Environment Variable     | Default | Description                                                            |
+| :-------------------------- | :----------------------- | :------ | :--------------------------------------------------------------------- |
+| `-a, --accept-source`       | —                        | `None`  | Accept upstream data source value (e.g., `ECU Hockey`, `achahockey`).  |
+| `-f, --field, --field-name` | —                        | `None`  | Attribute name to override (e.g., `venue`, `start_time`).              |
+| `-v, --value`               | —                        | `None`  | Explicit override value to apply to conflicting attribute.             |
+| `-n, --notes`               | —                        | `None`  | Audit notes explaining the manual resolution decision.                 |
+| `-r, --resolved-by`         | —                        | `admin` | Username or administrator identifier performing the resolution.        |
+| `-p, --prod, --production`  | —                        | `False` | Target production environment (`https://ecu-hockey-api.onrender.com`). |
+| `-u, --api-url`             | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL.                                        |
+| `-t, --token`               | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token.                            |
+| `--db-url`                  | `DATABASE_URL`           | `None`  | Database connection URL override.                                      |
+| `-j, --json`                | —                        | `False` | Output resolution result as structured JSON.                           |
 
 ##### 3.6.1.3. `ecu-hockey conflicts get`
 
@@ -397,13 +397,13 @@ ecu-hockey conflicts get <GAME_ID> [OPTIONS]
 
 **Options:**
 
-| Option                 | Environment Variable     | Default | Description                                                                    |
-| :--------------------- | :----------------------- | :------ | :----------------------------------------------------------------------------- |
-| `--prod, --production` | —                        | `False` | Target production environment (`https://ecu-hockey-api.onrender.com`).         |
-| `--api-url`            | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL.                                                |
-| `--token`              | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.     |
-| `--db-url`             | `DATABASE_URL`           | `None`  | Database connection URL override (defaults to local SQLite or `DATABASE_URL`). |
-| `--json`               | —                        | `False` | Output conflict details as formatted JSON.                                     |
+| Option                     | Environment Variable     | Default | Description                                                                    |
+| :------------------------- | :----------------------- | :------ | :----------------------------------------------------------------------------- |
+| `-p, --prod, --production` | —                        | `False` | Target production environment (`https://ecu-hockey-api.onrender.com`).         |
+| `-u, --api-url`            | `ECU_HOCKEY_API_URL`     | `None`  | Remote ECU Hockey API base URL.                                                |
+| `-t, --token`              | `ECU_HOCKEY_ADMIN_TOKEN` | `None`  | Administrative authentication Bearer token for protected remote endpoints.     |
+| `--db-url`                 | `DATABASE_URL`           | `None`  | Database connection URL override (defaults to local SQLite or `DATABASE_URL`). |
+| `-j, --json`               | —                        | `False` | Output conflict details as formatted JSON.                                     |
 
 **Examples:**
 
@@ -457,13 +457,13 @@ ecu-hockey serve [OPTIONS]
 
 **Options:**
 
-| Option                     | Environment Variable | Default        | Description                                                    |
-| :------------------------- | :------------------- | :------------- | :------------------------------------------------------------- |
-| `-h, --host`               | —                    | `127.0.0.1`    | Network interface host to bind the server.                     |
-| `-p, --port`               | —                    | `8000`         | TCP port number to listen on.                                  |
-| `--reload / --no-reload`   | —                    | `--no-reload`  | Enable auto-reload on filesystem changes (development mode).   |
-| `--db-url`                 | `DATABASE_URL`       | `None`         | Database connection URL override.                              |
-| `--migrate / --no-migrate` | —                    | `--no-migrate` | Run database schema migrations to head before starting server. |
+| Option                         | Environment Variable | Default        | Description                                                    |
+| :----------------------------- | :------------------- | :------------- | :------------------------------------------------------------- |
+| `-h, --host`                   | —                    | `127.0.0.1`    | Network interface host to bind the server.                     |
+| `-p, --port`                   | —                    | `8000`         | TCP port number to listen on.                                  |
+| `--reload / --no-reload`       | —                    | `--no-reload`  | Enable auto-reload on filesystem changes (development mode).   |
+| `--db-url`                     | `DATABASE_URL`       | `None`         | Database connection URL override.                              |
+| `-m, --migrate / --no-migrate` | —                    | `--no-migrate` | Run database schema migrations to head before starting server. |
 
 **Examples:**
 
@@ -493,7 +493,7 @@ ecu-hockey notify [OPTIONS]
 | `--title`       | `-t`  | `ECU Hockey Notification` | Title for the notification embed or message header.              |
 | `--severity`    | `-s`  | `info`                    | Alert severity (`info`, `success`, `warning`, `alert`, `error`). |
 | `--details`     | `-d`  | `None`                    | Extended details, context, or error trace.                       |
-| `--url`         | —     | `None`                    | Associated action, run, or fixture URL.                          |
+| `--url`         | `-u`  | `None`                    | Associated action, run, or fixture URL.                          |
 | `-c, --channel` | `-c`  | All configured            | Restrict dispatch to specific channel(s).                        |
 
 **Examples:**
@@ -527,9 +527,9 @@ ecu-hockey opponent discover <BASE_URL> [OPTIONS]
 
 | Option                 | Default   | Description                                                                |
 | :--------------------- | :-------- | :------------------------------------------------------------------------- |
-| `--append-to`          | `None`    | Append candidate configuration directly to an existing or new YAML file.   |
-| `--json`               | `False`   | Output candidate configuration as structured JSON for automated pipelines. |
-| `--max-pages`          | `10`      | Maximum number of internal pages to spider (range 1–50).                   |
+| `-a, --append-to`      | `None`    | Append candidate configuration directly to an existing or new YAML file.   |
+| `-j, --json`           | `False`   | Output candidate configuration as structured JSON for automated pipelines. |
+| `-m, --max-pages`      | `10`      | Maximum number of internal pages to spider (range 1–50).                   |
 | `--division`           | `ACHA M2` | League division for the discovered opponent.                               |
 | `--conference`         | `ACCHL`   | Conference for the discovered opponent.                                    |
 | `--enabled/--disabled` | `True`    | Set the initial enabled state in the generated configuration snippet.      |
@@ -553,4 +553,56 @@ ecu-hockey opponent discover https://wakehockey.com \
   --division "ACHA M3" \
   --conference "Independent" \
   --disabled
+```
+
+______________________________________________________________________
+
+## 4. Terminal Formatting & Styling with Rich-Click
+
+The CLI integrates `rich-click` to provide visual terminal output matching official ECU Pirates athletics branding.
+
+### 4.1. Visual Branding & Palette
+
+Help pages, usage text, and error dialogs follow ECU brand guidelines:
+
+- **ECU Purple (`#592a8a`)**: Used for command and option panel borders and usage labels.
+- **ECU Gold (`#fec923`)**: Used for headers, option flags, arguments, command names, and highlights.
+- **Rounded Box Borders (`ROUNDED`)**: Clean visual frame enclosing each logical group.
+- **Markdown & Ansi Support**: Help strings are rendered using rich Markdown formatting.
+
+### 4.2. Command Grouping
+
+Root CLI commands are grouped into logical operational categories:
+
+- **Schedule Management & Conflicts**: `status`, `conflicts`
+- **Data Ingestion & Pipeline**: `sync`, `scrape`, `opponent`
+- **Export & Syndication**: `export`, `notify`
+- **Services & Diagnostics**: `serve`, `health`
+
+Subcommands also provide nested command groups:
+
+- `conflicts`: `Inspection & Diagnostics` (`list`, `get`), `Reconciliation & Resolution` (`resolve`)
+- `sync`: `Operations` (`trigger`, `status`)
+- `opponent`: `Opponent Operations` (`discover`)
+
+### 4.3. Option Grouping
+
+Command options are split into categorized panels to prevent cognitive overload:
+
+- **Target & Remote API Options**: `--api-url`, `--token`, `--prod`
+- **Target & Environment Options**: `--db-url`, `--api-url`, `--token`, `--prod`, `--method`
+- **Ingestion & Filter Options**: `--source`, `--verify-opponents`, `--season`, `--opponents-config`
+- **Execution & Notifications**: `--dry-run`, `--notify`, `--notify-individual`, `--verbose`, `--debug`
+- **Output Destination & Format**: `--format`, `--output`, `--embed`
+- **Filter & Scope Options**: `--severity`, `--game-id`, `--field`, `--requires-review`, `--limit`, `--offset`
+- **Format & Output**: `--json`
+
+### 4.4. Error Panels
+
+Syntax and runtime parameter validation errors display in a styled red rounded panel titled **`ECU Hockey CLI Error`** rather than plain unformatted text:
+
+```text
+╭─ ECU Hockey CLI Error ───────────────────────────────────────────────────────╮
+│ No such option '--unknown-flag'.                                             │
+╰──────────────────────────────────────────────────────────────────────────────╯
 ```

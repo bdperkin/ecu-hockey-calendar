@@ -10,8 +10,8 @@ import os
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
-import click
 import httpx
+import rich_click as click
 
 from ecu_hockey_calendar.cli.console import get_console, print_error, print_success
 from ecu_hockey_calendar.version import __version__
