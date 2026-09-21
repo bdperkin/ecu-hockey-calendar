@@ -34,7 +34,7 @@ DEFAULT_ECU_TEAM = Team(
 
 
 @dataclass(frozen=True, slots=True)
-class ParsedGameRecord:
+class ParsedGameRecord:  # pylint: disable=too-many-instance-attributes
     """Intermediate parsed representation of a scraped game event.
 
     Attributes:
@@ -63,6 +63,7 @@ class ParsedGameRecord:
     overtime_note: str | None = None
     raw_text: str = ""
     league_game_id: str | None = None
+    is_time_tbd: bool = False
     metadata: dict[str, object] | None = None
 
     def _determine_loss_result(self) -> GameResult:

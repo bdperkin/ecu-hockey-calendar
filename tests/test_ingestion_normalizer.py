@@ -50,6 +50,11 @@ def test_normalize_team_name() -> None:
     assert normalize_team_name("Rowan") == "Rowan University"
     assert normalize_team_name("Virginia") == "University of Virginia"
     assert normalize_team_name("UVA") == "University of Virginia"
+    assert normalize_team_name("West Virginia") == "West Virginia University"
+    assert normalize_team_name("West Virginia Universtiy") == "West Virginia University"
+    assert normalize_team_name("WVU") == "West Virginia University"
+    assert normalize_team_name("Charleston") == "College of Charleston"
+    assert normalize_team_name("Coll of Charleston") == "College of Charleston"
 
     # Prefix handling
     assert normalize_team_name("vs. NC State") == "NC State University"

@@ -73,12 +73,18 @@ VENUE_ALIASES: dict[str, str] = {
     "orange county sportsplex": "Orange County Sportsplex",
     "oc sportsplex": "Orange County Sportsplex",
     "sportsplex": "Orange County Sportsplex",
+    "orange country sportsplex": "Orange County Sportsplex",
+    "orange county sports complex": "Orange County Sportsplex",
+    "orange county spirts plex": "Orange County Sportsplex",
     "wake competition center": "Wake Competition Center",
     "wake comp center": "Wake Competition Center",
     "wcc": "Wake Competition Center",
     "winston-salem fairgrounds annex": "Winston-Salem Fairgrounds Annex",
     "fairgrounds annex": "Winston-Salem Fairgrounds Annex",
     "annex": "Winston-Salem Fairgrounds Annex",
+    "the annex at winston salem fairgrounds": "Winston-Salem Fairgrounds Annex",
+    "winston salem fairgrounds the annex": "Winston-Salem Fairgrounds Annex",
+    "winston salem fairgrounds annex": "Winston-Salem Fairgrounds Annex",
     "invisalign arena": "Invisalign Arena",
     "invisalign": "Invisalign Arena",
     "polar ice house": "Invisalign Arena",
@@ -86,6 +92,7 @@ VENUE_ALIASES: dict[str, str] = {
     "lancerlot": "Lancerlot Sports Complex",
     "lancerlot sports complex": "Lancerlot Sports Complex",
     "wilmington ice house": "Wilmington Ice House",
+    "polar ice wilmington": "Wilmington Ice House",
     "appstate rink": "AppState Rink",
     "greensboro ice house": "Greensboro Ice House",
     "pineville icehouse": "Pineville IceHouse",
@@ -96,6 +103,60 @@ VENUE_ALIASES: dict[str, str] = {
     "extreme ice center": "Extreme Ice Center",
     "extreme ice": "Extreme Ice Center",
     "indian trail": "Extreme Ice Center",
+    "the saint james": "The St. James",
+    "the st james": "The St. James",
+    "the st james springfield va": "The St. James",
+    "the saint james sports complex": "The St. James",
+    "st james sports complex": "The St. James",
+    "st james place": "The St. James",
+    "skate nation plus": "SkateNation Plus",
+    "skatenation plus": "SkateNation Plus",
+    "skatenation": "SkateNation Plus",
+    "the pavilion recreation complex": "The Pavilion Recreation Complex",
+    "the pavilion": "The Pavilion Recreation Complex",
+    "pavilion recreation complex": "The Pavilion Recreation Complex",
+    "pavillion recreation complex": "The Pavilion Recreation Complex",
+    "pelham civic complex": "Pelham Civic Complex",
+    "pelham civic center": "Pelham Civic Complex",
+    "morgantown ice arena": "Morgantown Ice Arena",
+    "carolina ice palace": "Carolina Ice Palace",
+    "ice palace": "Carolina Ice Palace",
+    "carolina ice zone": "Carolina Ice Zone",
+    "chilled ponds": "Chilled Ponds",
+    "chilled ponds yorktown": "Chilled Ponds",
+    "cleland ice area": "Cleland Ice Rink",
+    "cleland ice area ft bragg": "Cleland Ice Rink",
+    "cleland ice arean ft bragg": "Cleland Ice Rink",
+    "cleland ice in line skating rink park": "Cleland Ice Rink",
+    "cleland ice rink": "Cleland Ice Rink",
+    "reisterstown sportsplex": "Reisterstown SportsPlex",
+    "polar ice garner": "Polar Ice Garner",
+    "garner ice house": "Polar Ice Garner",
+    "lahaye ice center": "LaHaye Ice Center",
+    "mcmullen arena": "McMullen Arena",
+    "mcmullen hockey arena": "McMullen Arena",
+}
+
+# Municipality to canonical arena association mappings
+ARENA_CITY_MAPPINGS: dict[str, set[str]] = {
+    "The Factory Ice House": {"wake forest"},
+    "Orange County Sportsplex": {"hillsborough"},
+    "Wake Competition Center": {"morrisville"},
+    "Invisalign Arena": {"morrisville"},
+    "Winston-Salem Fairgrounds Annex": {"winston salem"},
+    "Greensboro Ice House": {"greensboro"},
+    "Wilmington Ice House": {"wilmington"},
+    "Extreme Ice Center": {"charlotte", "indian trail"},
+    "Richmond Ice Zone": {"richmond"},
+    "The St. James": {"springfield"},
+    "SkateNation Plus": {"richmond", "glen allen"},
+    "Carolina Ice Palace": {"charleston"},
+    "Cleland Ice Rink": {"fayetteville", "fort bragg", "ft bragg"},
+    "Carolina Ice Zone": {"greenville"},
+    "McMullen Arena": {"annapolis"},
+    "The Pavilion Recreation Complex": {"greenville", "taylors"},
+    "Pelham Civic Complex": {"pelham", "birmingham"},
+    "Morgantown Ice Arena": {"morgantown"},
 }
 
 
@@ -278,6 +339,31 @@ def is_opponent_match(
     return compute_opponent_similarity(name_a, name_b) >= threshold
 
 
+UNSPECIFIED_VENUE_TERMS: tuple[str, ...] = (
+    "",
+    "tbd",
+    "tba",
+    "tbc",
+    "unknown",
+    "none",
+    "n a",
+    "to be determined",
+    "rink tbd",
+    "various",
+    "home",
+    "away",
+    "neutral",
+    "duke",
+    "east carolina",
+    "elon",
+    "st josephs",
+    "st joseph s",
+    "wake forest m2",
+    "west virginia m2",
+    "acchl fall classic",
+)
+
+
 def is_venue_unspecified(venue: str | None) -> bool:
     """Check if venue string denotes an unspecified, placeholder, or TBD venue.
 
@@ -291,17 +377,7 @@ def is_venue_unspecified(venue: str | None) -> bool:
         return True
 
     clean = clean_string_for_matching(venue)
-    return clean in {
-        "",
-        "tbd",
-        "tba",
-        "unknown",
-        "none",
-        "n a",
-        "to be determined",
-        "rink tbd",
-        "various",
-    }
+    return clean in UNSPECIFIED_VENUE_TERMS
 
 
 def _resolve_canonical_venue(venue: str | None) -> str:
@@ -311,7 +387,7 @@ def _resolve_canonical_venue(venue: str | None) -> str:
         return VENUE_ALIASES[clean]
 
     if venue:
-        prefix = re.split(r"[-,\u2013]", venue)[0].strip()
+        prefix = re.split(r"\s+[-\u2013\u2014]\s+|[,(]", venue)[0].strip()
         clean_prefix = clean_string_for_matching(prefix)
         if clean_prefix in VENUE_ALIASES:
             return VENUE_ALIASES[clean_prefix]
@@ -323,9 +399,63 @@ def _resolve_canonical_venue(venue: str | None) -> str:
 resolve_canonical_venue = _resolve_canonical_venue
 
 
+def _check_arena_city(canon_venue: str, candidate_text: str) -> bool:
+    """Check if candidate text contains host city for canonical arena."""
+    cities = ARENA_CITY_MAPPINGS.get(canon_venue, set())
+    return any(city in candidate_text for city in cities)
+
+
+def _is_arena_pair_compatible(canon_a: str, canon_b: str) -> bool:
+    """Check if two canonical arenas are known co-located facilities."""
+    co_located = {
+        ("Invisalign Arena", "Wake Competition Center"),
+        ("Wake Competition Center", "Invisalign Arena"),
+    }
+    return (canon_a, canon_b) in co_located
+
+
+def _is_locality_compatible(venue_a: str | None, venue_b: str | None) -> bool:
+    """Check if venues are co-located or refer to arena and its host city."""
+    if not venue_a or not venue_b:
+        return False
+
+    canon_a = _resolve_canonical_venue(venue_a)
+    canon_b = _resolve_canonical_venue(venue_b)
+    if _is_arena_pair_compatible(canon_a, canon_b):
+        return True
+
+    clean_a = clean_string_for_matching(venue_a)
+    clean_b = clean_string_for_matching(venue_b)
+    return _check_arena_city(canon_a, clean_b) or _check_arena_city(canon_b, clean_a)
+
+
 def _is_substring_match(str_a: str, str_b: str) -> bool:
     """Check if either non-empty string is contained within the other."""
     return str_a in str_b or str_b in str_a
+
+
+def _score_venue_strings(clean_a: str, clean_b: str) -> float:
+    """Score cleaned venue strings with substring and sequence matching."""
+    if _is_substring_match(clean_a, clean_b):
+        return PERFECT_MATCH_SCORE
+
+    return difflib.SequenceMatcher(None, clean_a, clean_b).ratio()
+
+
+def _score_matching_venues(venue_a: str, venue_b: str) -> float:
+    """Score similarity for specified venue strings."""
+    if _is_locality_compatible(venue_a, venue_b):
+        return TOKEN_SUBSET_MATCH_SCORE
+
+    canon_a = _resolve_canonical_venue(venue_a)
+    canon_b = _resolve_canonical_venue(venue_b)
+    if clean_string_for_matching(canon_a) == clean_string_for_matching(canon_b):
+        return PERFECT_MATCH_SCORE
+
+    return _score_venue_strings(
+        clean_string_for_matching(venue_a),
+        clean_string_for_matching(venue_b),
+    )
 
 
 def compute_venue_similarity(venue_a: str | None, venue_b: str | None) -> float:
@@ -341,17 +471,7 @@ def compute_venue_similarity(venue_a: str | None, venue_b: str | None) -> float:
     if is_venue_unspecified(venue_a) or is_venue_unspecified(venue_b):
         return NEUTRAL_VENUE_SCORE
 
-    canon_a = _resolve_canonical_venue(venue_a)
-    canon_b = _resolve_canonical_venue(venue_b)
-    if clean_string_for_matching(canon_a) == clean_string_for_matching(canon_b):
-        return PERFECT_MATCH_SCORE
-
-    clean_a = clean_string_for_matching(venue_a)
-    clean_b = clean_string_for_matching(venue_b)
-    if _is_substring_match(clean_a, clean_b):
-        return PERFECT_MATCH_SCORE
-
-    return difflib.SequenceMatcher(None, clean_a, clean_b).ratio()
+    return _score_matching_venues(venue_a or "", venue_b or "")
 
 
 def is_venue_match(
@@ -372,10 +492,14 @@ def is_venue_match(
     if is_venue_unspecified(venue_a) or is_venue_unspecified(venue_b):
         return True
 
+    if _is_locality_compatible(venue_a, venue_b):
+        return True
+
     return compute_venue_similarity(venue_a, venue_b) >= threshold
 
 
 __all__ = [
+    "ARENA_CITY_MAPPINGS",
     "DEFAULT_OPPONENT_MATCH_THRESHOLD",
     "DEFAULT_VENUE_MATCH_THRESHOLD",
     "GENERIC_COLLEGE_TERMS",
@@ -384,6 +508,7 @@ __all__ = [
     "PERFECT_MATCH_SCORE",
     "STRIPPED_MASCOT_MATCH_SCORE",
     "TOKEN_SUBSET_MATCH_SCORE",
+    "UNSPECIFIED_VENUE_TERMS",
     "VENUE_ALIASES",
     "clean_string_for_matching",
     "compute_opponent_similarity",

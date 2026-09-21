@@ -342,7 +342,6 @@ def test_change_detector_cycle_id_and_summary_helpers() -> None:
     )
     assert res_custom_cid.cycle_id == "custom-cid-100"
 
-    # Test _build_human_summary for updated without diffs
     empty_diff_summary = _build_human_summary(
         GameStateTransition.UPDATED,
         game,
@@ -350,3 +349,24 @@ def test_change_detector_cycle_id_and_summary_helpers() -> None:
         "America/New_York",
     )
     assert "updated" in empty_diff_summary
+
+
+def test_change_detector_matching_venue_and_opponent_no_diff() -> None:
+    """Verify equivalent venues and opponents do not generate spurious diffs."""
+    detector = ChangeDetector()
+    old_game = _create_reconciled_game(
+        "game-1",
+        opponent="NC State",
+        venue="Orange County Sportsplex",
+    )
+    curr_game = _create_reconciled_game(
+        "game-1",
+        opponent="NC State University",
+        venue="Orange Country Sportsplex",
+    )
+    result = detector.detect_changes(
+        previous_games=[old_game],
+        current_games=[curr_game],
+    )
+    assert len(result.updated_games) == 0
+    assert len(result.unchanged_games) == 1
