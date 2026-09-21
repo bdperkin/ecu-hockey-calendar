@@ -21,6 +21,7 @@ import rich_click as rc
 from click.testing import CliRunner
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
 from sqlalchemy import select
 
 from ecu_hockey_calendar.cli.conflicts import (
@@ -1235,7 +1236,7 @@ class TestConflictsCommand:
         assert res_field_only.exit_code != 0
         assert (
             "When specifying --field, --value must also be provided"
-            in res_field_only.output
+            in Text.from_ansi(res_field_only.output).plain
         )
 
         # 2. Neither accept-source nor field+value
@@ -1244,7 +1245,10 @@ class TestConflictsCommand:
             ["resolve", "change-1", "--db-url", db_url],
         )
         assert res_neither.exit_code != 0
-        assert "Must specify either --accept-source" in res_neither.output
+        assert (
+            "Must specify either --accept-source"
+            in Text.from_ansi(res_neither.output).plain
+        )
 
     def test_conflicts_resolve_local_workflow(
         self,
