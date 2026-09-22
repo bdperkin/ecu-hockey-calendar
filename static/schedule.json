@@ -20,14 +20,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Christopher Newport",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Christopher Newport",
       "designation": "Home",
@@ -50,14 +52,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Christopher Newport",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Christopher Newport",
       "designation": "Home",
@@ -80,14 +84,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "William & Mary",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "William & Mary",
       "designation": "Home",
@@ -110,14 +116,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -140,14 +148,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -170,14 +180,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Old Dominion",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Old Dominion",
       "designation": "Home",
@@ -200,14 +212,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Old Dominion",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Old Dominion",
       "designation": "Home",
@@ -230,14 +244,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "High Point M2A",
       "designation": "Away",
@@ -260,14 +276,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "High Point M2A",
       "designation": "Away",
@@ -290,14 +308,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -320,14 +340,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Citadel",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Citadel",
       "designation": "Home",
@@ -350,14 +372,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Liberty M2A",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Liberty M2A",
       "designation": "Home",
@@ -380,14 +404,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Liberty M2A",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Liberty M2A",
       "designation": "Home",
@@ -410,14 +436,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Liberty University",
       "designation": "Away",
@@ -440,14 +468,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Liberty University",
       "designation": "Away",
@@ -470,14 +500,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Naval Academy",
       "designation": "Away",
@@ -500,14 +532,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Navy",
       "designation": "Away",
@@ -530,14 +564,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Stevenson",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Stevenson",
       "designation": "Home",
@@ -560,14 +596,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Christopher Newport",
       "designation": "Away",
@@ -590,14 +628,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Christopher Newport",
       "designation": "Away",
@@ -620,14 +660,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Coastal",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Coastal",
       "designation": "Home",
@@ -650,14 +692,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Costal Carolina",
       "designation": "Away",
@@ -680,14 +724,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Coastal",
       "designation": "Away",
@@ -710,14 +756,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Costal Carolina",
       "designation": "Away",
@@ -740,14 +788,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "NC State University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "NC State University",
       "designation": "Home",
@@ -770,14 +820,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "NC State University",
       "designation": "Away",
@@ -803,14 +855,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "College of Charleston",
       "designation": "Away",
@@ -833,14 +887,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "College of Charleston",
       "designation": "Away",
@@ -863,14 +919,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "West Virginia University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Virginia University",
       "designation": "Home",
@@ -893,14 +951,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "West Virginia University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Virginia University",
       "designation": "Home",
@@ -923,14 +983,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "West Virginia University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Virginia University",
       "designation": "Home",
@@ -953,14 +1015,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Costal Carolina",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Costal Carolina",
       "designation": "Home",
@@ -983,14 +1047,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "St. Bonaventure",
       "designation": "Away",
@@ -1013,14 +1079,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Farmingdale State",
       "designation": "Away",
@@ -1043,14 +1111,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Penn State Harrisburg",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Penn State Harrisburg",
       "designation": "Home",
@@ -1073,14 +1143,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -1103,14 +1175,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -1133,14 +1207,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -1163,14 +1239,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -1193,14 +1271,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Chapel Hill",
       "designation": "Away",
@@ -1226,14 +1306,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "North Carolina",
       "designation": "Away",
@@ -1259,14 +1341,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -1289,14 +1373,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -1319,14 +1405,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Duke University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -1349,14 +1437,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -1382,14 +1472,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Stevenson",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Stevenson",
       "designation": "Home",
@@ -1412,14 +1504,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Stevenson",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Stevenson",
       "designation": "Home",
@@ -1442,14 +1536,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgetown University",
       "designation": "Away",
@@ -1472,14 +1568,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Georgetown University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgetown University",
       "designation": "Home",
@@ -1502,14 +1600,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Virginia University",
       "designation": "Away",
@@ -1532,14 +1632,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "West Virginia M2",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Virginia M2",
       "designation": "Home",
@@ -1562,14 +1664,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Denison University",
       "designation": "Away",
@@ -1592,14 +1696,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Denison",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Denison",
       "designation": "Home",
@@ -1622,14 +1728,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "High Point University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "High Point University",
       "designation": "Home",
@@ -1652,14 +1760,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "North Carolina",
       "designation": "Away",
@@ -1682,14 +1792,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Chapel Hill",
       "designation": "Away",
@@ -1715,14 +1827,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "South Carolina",
       "designation": "Away",
@@ -1745,14 +1859,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "South Carolina",
       "designation": "Away",
@@ -1775,14 +1891,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Elon University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -1808,14 +1926,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -1838,14 +1958,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -1868,14 +1990,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Elon University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -1898,14 +2022,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -1931,14 +2057,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -1961,14 +2089,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "NC State University",
       "designation": "Away",
@@ -1994,14 +2124,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -2027,14 +2159,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "2",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "2",
       "designation": "Home",
@@ -2057,14 +2191,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -2087,14 +2223,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Chapel Hill",
       "designation": "Away",
@@ -2120,14 +2258,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "North Carolina",
       "designation": "Away",
@@ -2153,14 +2293,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "High Point University",
       "designation": "Away",
@@ -2183,14 +2325,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Coastal Carolina",
       "designation": "Away",
@@ -2213,14 +2357,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Costal Carolina",
       "designation": "Away",
@@ -2243,14 +2389,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "7",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "7",
       "designation": "Home",
@@ -2273,14 +2421,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -2306,14 +2456,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "5",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "5",
       "designation": "Home",
@@ -2336,14 +2488,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -2369,14 +2523,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "UCF",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UCF",
       "designation": "Home",
@@ -2399,14 +2555,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -2429,14 +2587,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "UCF",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UCF",
       "designation": "Home",
@@ -2459,14 +2619,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "St. Joes",
       "designation": "Away",
@@ -2489,14 +2651,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Saint Josephs University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Saint Josephs University",
       "designation": "Home",
@@ -2519,14 +2683,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "3",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "3",
       "designation": "Home",
@@ -2549,14 +2715,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -2579,14 +2747,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "6",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "6",
       "designation": "Home",
@@ -2609,14 +2779,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -2639,14 +2811,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Duke University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -2669,14 +2843,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "4",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "4",
       "designation": "Home",
@@ -2699,14 +2875,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "2",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "2",
       "designation": "Home",
@@ -2729,14 +2907,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Virginia University",
       "designation": "Away",
@@ -2759,14 +2939,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Virginia University",
       "designation": "Away",
@@ -2789,14 +2971,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "7",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "7",
       "designation": "Home",
@@ -2819,14 +3003,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -2852,14 +3038,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Stevenson",
       "designation": "Away",
@@ -2882,14 +3070,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Stevenson",
       "designation": "Away",
@@ -2912,14 +3102,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -2942,14 +3134,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "6",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "6",
       "designation": "Home",
@@ -2972,14 +3166,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "5",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "5",
       "designation": "Home",
@@ -3002,14 +3198,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Elon University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -3032,14 +3230,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "3",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "3",
       "designation": "Home",
@@ -3062,14 +3262,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -3092,14 +3294,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -3122,14 +3326,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -3152,14 +3358,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -3182,14 +3390,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Wake Forest University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Wake Forest University",
       "designation": "Home",
@@ -3212,14 +3422,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Elon University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -3242,14 +3454,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -3272,14 +3486,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "George Washington University",
       "designation": "Away",
@@ -3302,14 +3518,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -3332,14 +3550,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "St. Joesph's",
       "designation": "Away",
@@ -3362,14 +3582,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Saint Josephs University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Saint Josephs University",
       "designation": "Home",
@@ -3392,14 +3614,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Saint Joseph's University",
       "designation": "Away",
@@ -3422,14 +3646,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "George Washington",
       "designation": "Away",
@@ -3452,14 +3678,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "George Washington University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "George Washington University",
       "designation": "Home",
@@ -3482,14 +3710,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Denison University",
       "designation": "Away",
@@ -3512,14 +3742,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Denison",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Denison",
       "designation": "Home",
@@ -3542,14 +3774,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Virginia",
       "designation": "Away",
@@ -3572,14 +3806,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Virginia",
       "designation": "Away",
@@ -3602,14 +3838,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "South Carolina",
       "designation": "Away",
@@ -3632,14 +3870,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "South Carolina",
       "designation": "Away",
@@ -3662,14 +3902,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "West Chester University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Chester University",
       "designation": "Home",
@@ -3692,14 +3934,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "West Chester University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "West Chester University",
       "designation": "Home",
@@ -3722,14 +3966,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UCF",
       "designation": "Away",
@@ -3752,14 +3998,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UCF",
       "designation": "Away",
@@ -3782,14 +4030,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -3812,14 +4062,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Duke University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -3842,14 +4094,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Citadel",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Citadel",
       "designation": "Home",
@@ -3872,14 +4126,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Citadel",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Citadel",
       "designation": "Home",
@@ -3902,14 +4158,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Duke University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -3932,14 +4190,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "High Point University",
       "designation": "Away",
@@ -3962,14 +4222,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "University of Richmond",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Richmond",
       "designation": "Home",
@@ -3992,14 +4254,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Richmond",
       "designation": "Away",
@@ -4022,14 +4286,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Richmond",
       "designation": "Away",
@@ -4052,14 +4318,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Richmond",
       "designation": "Away",
@@ -4082,14 +4350,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Alabama",
       "designation": "Away",
@@ -4112,14 +4382,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Alabama",
       "designation": "Away",
@@ -4142,14 +4414,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -4172,14 +4446,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Stevenson University",
       "designation": "Away",
@@ -4202,14 +4478,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "William & Mary",
       "designation": "Away",
@@ -4235,14 +4513,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -4265,14 +4545,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -4298,14 +4580,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Coastal Carolina",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Coastal Carolina",
       "designation": "Home",
@@ -4328,14 +4612,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Coastal Carolina",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Coastal Carolina",
       "designation": "Home",
@@ -4358,14 +4644,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -4388,14 +4676,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -4418,14 +4708,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Appalachian State University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -4448,14 +4740,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -4478,14 +4772,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -4508,14 +4804,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "University of North Carolina",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of North Carolina",
       "designation": "Home",
@@ -4538,14 +4836,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgetown University",
       "designation": "Away",
@@ -4568,14 +4868,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Georgetown University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgetown University",
       "designation": "Home",
@@ -4598,14 +4900,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "St. Joesph's",
       "designation": "Away",
@@ -4628,14 +4932,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Saint Josephs University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Saint Josephs University",
       "designation": "Home",
@@ -4658,14 +4964,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Saint Joseph's University",
       "designation": "Away",
@@ -4688,14 +4996,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "James Madison University (M2)",
       "designation": "Away",
@@ -4718,14 +5028,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "James Madison University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "James Madison University",
       "designation": "Home",
@@ -4748,14 +5060,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgia Tech",
       "designation": "Away",
@@ -4778,14 +5092,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Georgia Tech",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgia Tech",
       "designation": "Home",
@@ -4808,14 +5124,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Georgia Tech",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgia Tech",
       "designation": "Home",
@@ -4838,14 +5156,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -4868,14 +5188,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -4898,14 +5220,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "George Washington University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "George Washington University",
       "designation": "Home",
@@ -4928,14 +5252,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "George Washington University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "George Washington University",
       "designation": "Home",
@@ -4958,14 +5284,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -4988,14 +5316,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Home",
@@ -5018,14 +5348,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Elon University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -5048,14 +5380,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -5081,14 +5415,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -5111,14 +5447,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Alabama (D2)",
       "designation": "Away",
@@ -5141,14 +5479,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "University of Alabama (D2)",
       "designation": "Away",
@@ -5171,14 +5511,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Elon University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -5201,14 +5543,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -5231,14 +5575,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Duke University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -5261,14 +5607,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -5291,14 +5639,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Clemson University",
       "designation": "Away",
@@ -5321,14 +5671,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Clemson University",
       "designation": "Away",
@@ -5351,14 +5703,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "George Washington University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "George Washington University",
       "designation": "Home",
@@ -5381,14 +5735,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Christopher Newport",
       "designation": "Away",
@@ -5414,14 +5770,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "TBD",
       "designation": "Away",
@@ -5444,14 +5802,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "TBD",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "TBD",
       "designation": "Home",
@@ -5474,14 +5834,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "TBD",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "TBD",
       "designation": "Home",
@@ -5504,14 +5866,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "High Point University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "High Point University",
       "designation": "Home",
@@ -5534,14 +5898,16 @@
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "Duke University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -5564,14 +5930,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgia Tech",
       "designation": "Away",
@@ -5594,14 +5962,16 @@
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
         "city": "Greenville",
         "state": "NC",
         "division": "ACHA M2",
-        "conference": "ACCHL"
+        "conference": "ACCHL",
+        "logo_url": null
       },
       "opponent": "Georgia Tech",
       "designation": "Away",
