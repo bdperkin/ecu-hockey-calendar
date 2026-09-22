@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from ecu_hockey_calendar.ingestion.acchockey_parser import (
     _cell_text_or_default,
@@ -12,9 +12,11 @@ from ecu_hockey_calendar.ingestion.acchockey_parser import (
     _detect_column_indices,
     _detect_row_columns_by_count,
     _determine_division_and_game_type,
+    _extract_cell_logo_url,
     _extract_cell_team_and_url,
     _extract_header_names,
     _extract_header_scores,
+    _extract_img_src,
     _extract_opponent_info,
     _extract_row_basic_data,
     _extract_row_cells,
@@ -24,17 +26,20 @@ from ecu_hockey_calendar.ingestion.acchockey_parser import (
     _extract_sportengine_game_id,
     _extract_tag_classes,
     _extract_team_instance_schedule_link,
+    _extract_team_logo_from_row,
     _extract_time_and_status,
     _find_cell_team_link,
     _find_direct_schedule_links,
     _find_header_col,
     _find_header_indices,
+    _find_logo_in_element,
     _get_cell_at,
     _has_valid_scores,
     _is_cell_score_like,
     _is_ecu_name,
     _is_split_headers,
     _is_valid_date_text,
+    _is_valid_logo_src,
     _needs_fallback_columns,
     _parse_details_list,
     _parse_game_header,
@@ -51,6 +56,7 @@ from ecu_hockey_calendar.ingestion.acchockey_parser import (
     _resolve_split_opponent,
     _resolve_split_score_cols,
     _TableColumnIndices,
+    extract_acchockey_team_logos,
     extract_pagination_urls,
     extract_schedule_urls,
     extract_season_from_html,
@@ -1098,3 +1104,89 @@ def test_split_table_row_edge_cases() -> None:
     cells_short = _extract_row_cells(r_short)
     assert _extract_row_cells_tuple(cells_short, _TableColumnIndices()) is None
     assert _extract_row_basic_data(cells_short) is None
+
+
+def test_acchockey_logo_extraction_helpers() -> None:
+    """Test logo extraction helper functions and edge cases in ACCHL parser."""
+    assert not _is_valid_logo_src(None)
+    assert not _is_valid_logo_src("")
+    assert not _is_valid_logo_src("data:image/png;base64,123")
+    assert not _is_valid_logo_src("https://example.com/spacer.gif")
+    assert not _is_valid_logo_src("https://example.com/blank.png")
+    assert _is_valid_logo_src("https://example.com/team_crest.png")
+
+    soup = BeautifulSoup("<div><img src='/crest.png'/></div>", "html.parser")
+    img = soup.find("img")
+    assert img is not None
+    assert _extract_img_src(img) == "/crest.png"
+
+    soup_data = BeautifulSoup("<div><img data-src='/crest.png'/></div>", "html.parser")
+    img_data = soup_data.find("img")
+    assert img_data is not None
+    assert _extract_img_src(img_data) == "/crest.png"
+
+    soup_empty_img = BeautifulSoup("<div><img /></div>", "html.parser")
+    img_empty = soup_empty_img.find("img")
+    assert img_empty is not None
+    assert _extract_img_src(img_empty) is None
+
+    div_elem = soup.find("div")
+    assert isinstance(div_elem, Tag)
+    assert (
+        _find_logo_in_element(div_elem, "https://example.com")
+        == "https://example.com/crest.png"
+    )
+    div_empty = soup_empty_img.find("div")
+    assert isinstance(div_empty, Tag)
+    assert _find_logo_in_element(div_empty, "https://example.com") is None
+    assert _extract_cell_logo_url(None) is None
+
+    # _extract_team_logo_from_row without link
+    soup_no_link = BeautifulSoup(
+        "<tr><td><img src='/crest.png'/></td></tr>",
+        "html.parser",
+    )
+    row_no_link = soup_no_link.find("tr")
+    assert row_no_link is not None
+    assert _extract_team_logo_from_row(row_no_link, "https://example.com") is None
+
+    # _extract_team_logo_from_row with ECU name
+    soup_ecu = BeautifulSoup(
+        "<tr><td><a href='/team'>ECU</a><img src='/crest.png'/></td></tr>",
+        "html.parser",
+    )
+    row_ecu = soup_ecu.find("tr")
+    assert row_ecu is not None
+    assert _extract_team_logo_from_row(row_ecu, "https://example.com") is None
+
+    # _extract_team_logo_from_row with valid opponent and logo
+    soup_opp = BeautifulSoup(
+        "<tr><td><a href='/team'>UNC</a><img src='/unc.png'/></td></tr>",
+        "html.parser",
+    )
+    row_opp = soup_opp.find("tr")
+    assert row_opp is not None
+    res = _extract_team_logo_from_row(row_opp, "https://example.com")
+    assert res == ("UNC Chapel Hill", "https://example.com/unc.png")
+
+    # _extract_team_logo_from_row with valid team link but no valid logo
+    soup_no_logo = BeautifulSoup(
+        "<tr><td><a href='/team'>Duke</a></td></tr>",
+        "html.parser",
+    )
+    row_no_logo = soup_no_logo.find("tr")
+    assert row_no_logo is not None
+    assert _extract_team_logo_from_row(row_no_logo, "https://example.com") is None
+
+    # extract_acchockey_team_logos with duplicates
+    html = """
+    <table>
+        <tr><td><a href='/team/1'>Duke</a><img src='/duke.png'/></td></tr>
+        <tr><td><a href='/team/1'>Duke</a><img src='/duke_v2.png'/></td></tr>
+        <tr><td><a href='/team/2'>NC State</a><img src='/ncsu.png'/></td></tr>
+        <tr><td><span>No link</span></td></tr>
+    </table>
+    """
+    logos = extract_acchockey_team_logos(html, "https://acchockey.com")
+    assert logos["Duke University"] == "https://acchockey.com/duke.png"
+    assert logos["NC State University"] == "https://acchockey.com/ncsu.png"

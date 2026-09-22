@@ -18,6 +18,8 @@ from ecu_hockey_calendar.ingestion.achahockey_crawler import (
     DEFAULT_ACHA_SEASON,
     ACHAHockeyCrawler,
     _dedupe_records,
+    _enrich_achahockey_logos,
+    _enrich_single_acha_record,
     _resolve_crawl_targets,
     _resolve_page_season,
     _resolve_target_season_id,
@@ -40,6 +42,7 @@ from ecu_hockey_calendar.storage.models import (
     DataSourceModel,
     DataSourceType,
     GameModel,
+    GameStatus,
     RawSnapshotModel,
     SyncAuditModel,
     SyncStatus,
@@ -433,3 +436,83 @@ class TestACHAHockeyCrawlerAsync:
         )
         assert audit.status == SyncStatus.SUCCESS.value
         assert audit.games_created == 6
+
+    @pytest.mark.anyio
+    async def test_achahockey_crawler_logo_discovery(self) -> None:
+        """Test logo enrichment and logo fetching methods on ACHAHockeyCrawler."""
+        rec = ParsedGameRecord(
+            game_id="2026-10-10-unc",
+            opponent_name="UNC Chapel Hill",
+            is_home=True,
+            start_time=datetime(2026, 10, 10, 19, 0, tzinfo=UTC),
+            venue="The Factory",
+            status=GameStatus.SCHEDULED,
+            raw_text="Sat Oct 10 UNC",
+            metadata={"raw_opponent": "UNC"},
+        )
+        logo_map = {"UNC Chapel Hill": "https://example.com/unc.png"}
+        enriched = _enrich_single_acha_record(rec, logo_map)
+        assert enriched.opponent_logo_url == "https://example.com/unc.png"
+        assert enriched.metadata is not None
+        assert enriched.metadata["opponent_logo_url"] == "https://example.com/unc.png"
+
+        # Already has opponent_logo_url
+        rec_already = ParsedGameRecord(
+            game_id="2026-10-10-unc2",
+            opponent_name="UNC Chapel Hill",
+            is_home=True,
+            start_time=datetime(2026, 10, 10, 19, 0, tzinfo=UTC),
+            venue="The Factory",
+            status=GameStatus.SCHEDULED,
+            raw_text="Sat Oct 10 UNC",
+            opponent_logo_url="https://example.com/existing.png",
+            metadata={"opponent_logo_url": "https://example.com/existing.png"},
+        )
+        enriched_already = _enrich_single_acha_record(rec_already, logo_map)
+        assert enriched_already.opponent_logo_url == "https://example.com/existing.png"
+
+        # None metadata
+        rec_no_meta = ParsedGameRecord(
+            game_id="2026-10-10-unc3",
+            opponent_name="UNC Chapel Hill",
+            is_home=True,
+            start_time=datetime(2026, 10, 10, 19, 0, tzinfo=UTC),
+            venue="The Factory",
+            status=GameStatus.SCHEDULED,
+            raw_text="Sat Oct 10 UNC",
+            metadata=None,
+        )
+        enriched_no_meta = _enrich_single_acha_record(rec_no_meta, logo_map)
+        assert enriched_no_meta.opponent_logo_url == "https://example.com/unc.png"
+        assert enriched_no_meta.metadata is None
+
+        # Empty logo map
+        assert _enrich_achahockey_logos([rec], {}) == [rec]
+        recs = _enrich_achahockey_logos([rec], logo_map)
+        assert recs[0].opponent_logo_url == "https://example.com/unc.png"
+
+        # build_teams_feed_url
+        client = ResilientHttpClient()
+        crawler = ACHAHockeyCrawler(client=client)
+        feed_url = crawler.build_teams_feed_url("73")
+        assert "feed=statviewfeed" in feed_url
+        assert "view=teamsForSeason" in feed_url
+        assert "season=73" in feed_url
+
+        # fetch_team_logos success
+        teams_json = (
+            '{"teams": [{"id": "1", "name": "Duke University", '
+            '"logo": "https://example.com/duke.png"}]}'
+        )
+        client.fetch_text = AsyncMock(  # type: ignore[method-assign]
+            return_value=(teams_json, "hash"),
+        )
+        logos = await crawler.fetch_team_logos("73")
+        assert logos["Duke University"] == "https://example.com/duke.png"
+
+        # fetch_team_logos failure fallback
+        client.fetch_text = AsyncMock(  # type: ignore[method-assign]
+            side_effect=RuntimeError("Feed error"),
+        )
+        fallback_logos = await crawler.fetch_team_logos("73")
+        assert fallback_logos == {}

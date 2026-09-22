@@ -12,6 +12,7 @@ from ecu_hockey_calendar.ingestion.html_parser import (
     _generate_game_id,
 )
 from ecu_hockey_calendar.ingestion.normalizer import (
+    normalize_logo_url,
     normalize_team_name,
     parse_game_datetime,
 )
@@ -303,11 +304,48 @@ def _extract_game_items(payload: object) -> list[dict[str, Any]]:
     return []
 
 
+def _find_dict_key_value(data: dict[str, Any], keys: tuple[str, ...]) -> str | None:
+    """Find first matching string value for given keys."""
+    for key in keys:
+        val = data.get(key)
+        if isinstance(val, str) and val.strip():
+            return str(val).strip()
+
+    return None
+
+
+def _format_cdn_team_logo(team_id: str) -> str | None:
+    """Construct HockeyTech CDN team logo URL if team ID is numeric."""
+    return (
+        f"https://assets.leaguestat.com/acha/logos/{team_id}.png"
+        if team_id.isdigit()
+        else None
+    )
+
+
+def _extract_achahockey_opponent_logo(
+    game: dict[str, Any],
+    *,
+    is_home: bool,
+) -> str | None:
+    """Extract or construct opponent logo URL from game record."""
+    pfx = "visiting" if is_home else "home"
+    keys = (f"{pfx}_team_logo", f"{pfx}_team_image", f"{pfx}_logo", "opponent_logo")
+    raw_logo = _find_dict_key_value(game, keys)
+    norm = normalize_logo_url(raw_logo)
+    if norm:
+        return norm
+
+    team_id = str(game.get(f"{pfx}_team", "")).strip()
+    return _format_cdn_team_logo(team_id)
+
+
 def _build_game_metadata(
     game: dict[str, Any],
     league_game_id: str,
     season_id: str,
     season: str,
+    opponent_logo_url: str | None = None,
 ) -> dict[str, Any]:
     """Assemble supplementary verification metadata dictionary."""
     return {
@@ -315,6 +353,7 @@ def _build_game_metadata(
         "season_id": season_id,
         "season": season,
         "source": "achahockey",
+        "opponent_logo_url": opponent_logo_url,
         "venue_name": game.get("venue_name", ""),
         "venue_location": game.get("venue_location", ""),
         "venue_url": game.get("venue_url", ""),
@@ -349,7 +388,14 @@ def _parse_game_item(  # pylint: disable=too-many-locals
         season_map,
     )
 
-    metadata = _build_game_metadata(game, league_game_id, season_id, season)
+    opp_logo_url = _extract_achahockey_opponent_logo(game, is_home=is_home)
+    metadata = _build_game_metadata(
+        game,
+        league_game_id,
+        season_id,
+        season,
+        opponent_logo_url=opp_logo_url,
+    )
     game_id = _generate_game_id(start_time, opp_name, is_home=is_home)
     return ParsedGameRecord(
         game_id=game_id,
@@ -363,6 +409,7 @@ def _parse_game_item(  # pylint: disable=too-many-locals
         overtime_note=ot_note,
         raw_text=json.dumps(game, sort_keys=True),
         league_game_id=league_game_id,
+        opponent_logo_url=opp_logo_url,
         metadata=metadata,
     )
 
@@ -508,6 +555,93 @@ def parse_achahockey_seasons_json(
     return seasons
 
 
+def _clean_jsonp_payload(payload: str) -> str:
+    """Strip JSONP wrapper if present."""
+    trimmed = payload.strip()
+    match = re.search(r"^[a-zA-Z0-9_$.]+\s*\(([\s\S]*)\)\s*;?$", trimmed)
+    if match:
+        return str(match.group(1)).strip()
+
+    return trimmed
+
+
+def _extract_dict_team_items(data: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract list of team dictionary entries from dictionary wrapper."""
+    for key in ("teams", "teamsNoAll", "Teams", "team_list", "data"):
+        val = data.get(key)
+        if isinstance(val, list):
+            return [x for x in val if isinstance(x, dict)]
+
+    return []
+
+
+def _extract_team_items_from_data(data: object) -> list[dict[str, Any]]:
+    """Extract list of team dictionary entries from parsed JSON structure."""
+    if isinstance(data, list):
+        return [x for x in data if isinstance(x, dict)]
+
+    if isinstance(data, dict):
+        return _extract_dict_team_items(data)
+
+    return []
+
+
+def _resolve_team_logo_from_dict(team_dict: dict[str, Any]) -> str | None:
+    """Resolve normalized logo URL or CDN fallback from team dictionary."""
+    keys = ("logo", "team_logo", "logo_url", "Logo")
+    raw_logo = _find_dict_key_value(team_dict, keys)
+    norm = normalize_logo_url(raw_logo)
+    if norm:
+        return norm
+
+    team_id = str(team_dict.get("id") or team_dict.get("team_id") or "").strip()
+    return _format_cdn_team_logo(team_id)
+
+
+def _parse_single_team_logo(
+    team_dict: dict[str, Any],
+) -> tuple[str, str] | None:
+    """Extract cleaned name and resolved logo for single team dictionary."""
+    keys = ("name", "team_name", "Name")
+    raw_name = _find_dict_key_value(team_dict, keys)
+    if not raw_name:
+        return None
+
+    cleaned_name = clean_team_name(raw_name)
+    logo = _resolve_team_logo_from_dict(team_dict)
+    if logo and cleaned_name:
+        return cleaned_name, logo
+
+    return None
+
+
+def parse_achahockey_teams_json(payload: object) -> dict[str, str]:
+    """Parse HockeyTech teams feed JSON or JSONP payload into logo mapping.
+
+    Args:
+        payload: JSON string, JSONP string, or parsed dict/list.
+
+    Returns:
+        Mapping of cleaned normalized team name to canonical logo URL.
+    """
+    raw_obj = payload
+    if isinstance(payload, str):
+        cleaned_json = _clean_jsonp_payload(payload)
+        raw_obj = _safe_json_loads(cleaned_json)
+
+    if not raw_obj:
+        return {}
+
+    items = _extract_team_items_from_data(raw_obj)
+    logos: dict[str, str] = {}
+    for t_dict in items:
+        pair = _parse_single_team_logo(t_dict)
+        if pair is not None:
+            logos[pair[0]] = pair[1]
+
+    return logos
+
+
 __all__ = [
     "CLIENT_CODE",
     "COLLEGIATE_SEASON_START_MONTH",
@@ -526,6 +660,7 @@ __all__ = [
     "parse_achahockey_schedule_json",
     "parse_achahockey_scores",
     "parse_achahockey_seasons_json",
+    "parse_achahockey_teams_json",
     "resolve_achahockey_season",
     "resolve_achahockey_teams",
 ]

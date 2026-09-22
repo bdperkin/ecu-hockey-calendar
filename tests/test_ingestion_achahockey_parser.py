@@ -18,9 +18,13 @@ from ecu_hockey_calendar.ingestion.achahockey_parser import (
     ECU_TEAM_ID,
     KNOWN_SEASON_IDS,
     KNOWN_SEASONS,
+    _clean_jsonp_payload,
+    _extract_achahockey_opponent_logo,
+    _extract_dict_team_items,
     _extract_game_items,
     _extract_overtime_note,
     _extract_season_items,
+    _extract_team_items_from_data,
     _filter_dict_items,
     _is_final_game,
     _is_in_progress_game,
@@ -29,6 +33,7 @@ from ecu_hockey_calendar.ingestion.achahockey_parser import (
     _parse_int_score,
     _parse_iso_string,
     _parse_single_season,
+    _parse_single_team_logo,
     clean_team_name,
     format_achahockey_venue,
     parse_achahockey_datetime,
@@ -36,6 +41,7 @@ from ecu_hockey_calendar.ingestion.achahockey_parser import (
     parse_achahockey_schedule_json,
     parse_achahockey_scores,
     parse_achahockey_seasons_json,
+    parse_achahockey_teams_json,
     resolve_achahockey_season,
     resolve_achahockey_teams,
 )
@@ -458,3 +464,79 @@ class TestACHAHockeyParserHelpers:
         assert DEFAULT_ACHA_PORTAL_URL == "https://www.achahockey.org"
         assert len(KNOWN_SEASONS) == 5
         assert len(KNOWN_SEASON_IDS) == 5
+
+    def test_extract_achahockey_opponent_logo(self) -> None:
+        """Test extraction of opponent logo from game dictionary."""
+        game_direct = {
+            "visiting_team": "123",
+            "visiting_team_logo": "https://assets.hockeytech.com/logos/123.png",
+        }
+        assert (
+            _extract_achahockey_opponent_logo(game_direct, is_home=True)
+            == "https://assets.hockeytech.com/logos/123.png"
+        )
+
+        game_cdn = {"home_team": "456"}
+        assert (
+            _extract_achahockey_opponent_logo(game_cdn, is_home=False)
+            == "https://assets.leaguestat.com/acha/logos/456.png"
+        )
+
+        game_empty: dict[str, object] = {}
+        assert _extract_achahockey_opponent_logo(game_empty, is_home=True) is None
+
+    def test_parse_achahockey_teams_json(self) -> None:
+        """Test parsing of HockeyTech teams JSON and JSONP payloads."""
+        jsonp = (
+            'angular.callbacks._0({"teams": [{"id": "10", "name": "Duke University", '
+            '"logo": "https://example.com/duke.png"}]});'
+        )
+        res_jsonp = parse_achahockey_teams_json(jsonp)
+        assert res_jsonp.get("Duke University") == "https://example.com/duke.png"
+
+        dict_payload = {
+            "teamsNoAll": [
+                {
+                    "id": "20",
+                    "team_name": "UNC Chapel Hill",
+                    "team_logo": "https://example.com/unc.png",
+                },
+                {"id": "30", "name": "NC State", "logo": ""},
+                {"id": "40"},
+                {"name": "   "},
+            ],
+        }
+        res_dict = parse_achahockey_teams_json(dict_payload)
+        assert res_dict.get("UNC Chapel Hill") == "https://example.com/unc.png"
+        assert (
+            res_dict.get("NC State University")
+            == "https://assets.leaguestat.com/acha/logos/30.png"
+        )
+        assert "40" not in res_dict
+
+        list_payload = [
+            {
+                "id": "50",
+                "name": "Wake Forest",
+                "logo_url": "https://example.com/wf.png",
+            },
+            "not-a-dict",
+        ]
+        res_list = parse_achahockey_teams_json(list_payload)
+        assert res_list.get("Wake Forest University") == "https://example.com/wf.png"
+
+        assert not parse_achahockey_teams_json("")
+        assert not parse_achahockey_teams_json("null")
+        assert not parse_achahockey_teams_json("invalid json {")
+        assert not parse_achahockey_teams_json(None)
+        assert not parse_achahockey_teams_json(12345)
+
+        assert _clean_jsonp_payload("var x = 1;") == "var x = 1;"
+        assert _extract_dict_team_items({"other": [1, 2]}) == []
+        assert _extract_dict_team_items({"teams": "not-a-list"}) == []
+        assert _extract_team_items_from_data([{"id": "1"}]) == [{"id": "1"}]
+        assert _extract_team_items_from_data("string") == []
+        assert _parse_single_team_logo(
+            {"id": "1", "name": "team", "logo": ""},
+        ) == ("team", "https://assets.leaguestat.com/acha/logos/1.png")
+        assert _parse_single_team_logo({"id": "", "name": "team", "logo": ""}) is None

@@ -11,6 +11,7 @@ import pytest
 from sqlalchemy import create_engine, select
 
 from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
+from ecu_hockey_calendar.ingestion.opponent_config import OpponentDirectory
 from ecu_hockey_calendar.ingestion.opponent_parser import (
     OpponentEndpointConfig,
     OpponentFeedType,
@@ -38,6 +39,9 @@ from ecu_hockey_calendar.sync_service import (
     DEFAULT_COOLDOWN_SECONDS,
     MIN_COOLDOWN_SECONDS,
     SyncManager,
+    _apply_curated_logo,
+    _apply_discovered_logo,
+    _build_opponent_crawler,
     _collect_stale_game_ids,
     _convert_opponent_fixture_to_source_record,
     _convert_parsed_to_source_record,
@@ -46,6 +50,7 @@ from ecu_hockey_calendar.sync_service import (
     _execute_crawlers,
     _execute_sync_post_checks,
     _get_or_create_team,
+    _has_curated_logo,
     _load_baseline_games_from_db,
     _persist_sync_results,
     _prune_stale_fixtures,
@@ -59,6 +64,7 @@ from ecu_hockey_calendar.sync_service import (
     _stale_ids_from_baseline,
     _stale_ids_from_deleted,
     _update_existing_audit_record,
+    _update_team_logo_from_record,
     _upsert_reconciled_game,
     execute_sync_pipeline,
     run_sync_pipeline,
@@ -1325,3 +1331,114 @@ async def test_execute_sync_post_checks_sync_logos(sqlite_engine: Any) -> None:
                 logo_manager=None,
             )
             assert mock_logos.await_count == 0
+
+
+def test_build_opponent_crawler_defaults() -> None:
+    """Test _build_opponent_crawler instantiates crawler with defaults."""
+    crawler = _build_opponent_crawler(None, None)
+    assert crawler is not None
+    assert crawler.directory is not None
+
+
+def test_has_curated_logo() -> None:
+    """Test _has_curated_logo helper with various inputs."""
+    assert not _has_curated_logo(None)
+    assert not _has_curated_logo(MagicMock())
+    assert _has_curated_logo(
+        OpponentEndpointConfig("Test", "https://feed", logo_url="https://logo.png"),
+    )
+    assert _has_curated_logo(
+        OpponentEndpointConfig(
+            "Test",
+            "https://feed",
+            local_logo_url="/static/logo.png",
+        ),
+    )
+
+
+def test_update_team_logo_from_record_curated_and_discovered() -> None:
+    """Test team logo assignment respecting curated precedence over discovered."""
+    directory = OpponentDirectory()
+    directory.register(
+        OpponentEndpointConfig(
+            canonical_name="UNC Chapel Hill",
+            feed_url="https://example.com/feed",
+            logo_url="https://curated.com/unc.png",
+            local_logo_url="/static/logos/unc.png",
+        ),
+    )
+    directory.register(
+        OpponentEndpointConfig(
+            canonical_name="Local Only Opponent",
+            feed_url="https://example.com/feed",
+            local_logo_url="/static/logos/local.png",
+        ),
+    )
+
+    # 1. Curated team overrides scraped logo
+    team_curated = TeamModel(name="UNC Chapel Hill", city="Chapel Hill", state="NC")
+    _update_team_logo_from_record(
+        team_curated,
+        "UNC Chapel Hill",
+        "https://scraped.com/unc_thumb.png",
+        directory=directory,
+    )
+    curated_cfg = directory.get("UNC Chapel Hill")
+    assert curated_cfg is not None
+    _apply_curated_logo(team_curated, curated_cfg)
+    assert team_curated.remote_logo_url == "https://curated.com/unc.png"
+    assert team_curated.local_logo_url == "/static/logos/unc.png"
+    assert team_curated.logo_url == "https://curated.com/unc.png"
+
+    # 2. Curated with local only
+    team_local = TeamModel(name="Local Only Opponent", city="City", state="NC")
+    _update_team_logo_from_record(
+        team_local,
+        "Local Only Opponent",
+        "https://scraped.com/thumb.png",
+        directory=directory,
+    )
+    assert team_local.local_logo_url == "/static/logos/local.png"
+    assert team_local.logo_url == "/static/logos/local.png"
+
+    # 3. Discovered logo for non-curated opponent
+    team_disc = TeamModel(name="New Opponent", city="City", state="NC")
+    _update_team_logo_from_record(
+        team_disc,
+        "New Opponent",
+        "https://scraped.com/new.png",
+        directory=directory,
+    )
+    assert team_disc.remote_logo_url == "https://scraped.com/new.png"
+    assert team_disc.logo_url == "https://scraped.com/new.png"
+
+    # 4. Discovered logo when remote_logo_url or logo_url already exists
+    team_existing = TeamModel(
+        name="Existing Opponent",
+        city="City",
+        state="NC",
+        remote_logo_url="https://existing.com/logo.png",
+        logo_url="https://existing.com/logo.png",
+    )
+    _update_team_logo_from_record(
+        team_existing,
+        "Existing Opponent",
+        "https://scraped.com/another.png",
+        directory=directory,
+    )
+    assert team_existing.remote_logo_url == "https://existing.com/logo.png"
+
+    # 5. Discovered logo when logo_url already exists but remote does not
+    team_logo_only = TeamModel(
+        name="Logo Only Opponent",
+        city="City",
+        state="NC",
+        logo_url="/static/custom.png",
+    )
+    _apply_discovered_logo(team_logo_only, "https://scraped.com/new.png")
+    assert team_logo_only.remote_logo_url == "https://scraped.com/new.png"
+    assert team_logo_only.logo_url == "/static/custom.png"
+
+    # 6. Invalid / empty record logo
+    _apply_discovered_logo(team_disc, "")
+    _apply_discovered_logo(team_disc, None)

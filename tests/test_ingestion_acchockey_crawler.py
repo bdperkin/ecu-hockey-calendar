@@ -17,6 +17,8 @@ from ecu_hockey_calendar.ingestion.acchockey_crawler import (
     DEFAULT_PAGINATION_LIMIT,
     ACCHockeyCrawler,
     _dedupe_records,
+    _enrich_record_logo,
+    _enrich_records_with_logos,
     _resolve_page_season,
 )
 from ecu_hockey_calendar.ingestion.client import ResilientHttpClient
@@ -498,3 +500,76 @@ def test_crawler_observer_integration() -> None:
     assert event.sublinks_found == 1
     assert event.details == "Test details"
     assert event.source_code == "acchockey"
+
+
+@pytest.mark.anyio
+async def test_acchockey_crawler_logo_discovery() -> None:
+    """Test logo enrichment and logo discovery methods on ACCHockeyCrawler."""
+    rec = ParsedGameRecord(
+        game_id="2026-10-10-unc",
+        opponent_name="UNC Chapel Hill",
+        is_home=True,
+        start_time=datetime(2026, 10, 10, 19, 0, tzinfo=UTC),
+        venue="The Factory",
+        status=GameStatus.SCHEDULED,
+        raw_text="Sat Oct 10 UNC",
+        metadata={"raw_opponent": "UNC"},
+    )
+    logo_map = {"UNC Chapel Hill": "https://example.com/unc.png"}
+    enriched = _enrich_record_logo(rec, logo_map)
+    assert enriched.opponent_logo_url == "https://example.com/unc.png"
+    assert enriched.metadata is not None
+    assert enriched.metadata["opponent_logo_url"] == "https://example.com/unc.png"
+
+    # Already has opponent_logo_url
+    rec_already = ParsedGameRecord(
+        game_id="2026-10-10-unc2",
+        opponent_name="UNC Chapel Hill",
+        is_home=True,
+        start_time=datetime(2026, 10, 10, 19, 0, tzinfo=UTC),
+        venue="The Factory",
+        status=GameStatus.SCHEDULED,
+        raw_text="Sat Oct 10 UNC",
+        opponent_logo_url="https://example.com/existing.png",
+        metadata={"opponent_logo_url": "https://example.com/existing.png"},
+    )
+    enriched_already = _enrich_record_logo(rec_already, logo_map)
+    assert enriched_already.opponent_logo_url == "https://example.com/existing.png"
+
+    # None metadata
+    rec_no_meta = ParsedGameRecord(
+        game_id="2026-10-10-unc3",
+        opponent_name="UNC Chapel Hill",
+        is_home=True,
+        start_time=datetime(2026, 10, 10, 19, 0, tzinfo=UTC),
+        venue="The Factory",
+        status=GameStatus.SCHEDULED,
+        raw_text="Sat Oct 10 UNC",
+        metadata=None,
+    )
+    enriched_no_meta = _enrich_record_logo(rec_no_meta, logo_map)
+    assert enriched_no_meta.opponent_logo_url == "https://example.com/unc.png"
+    assert enriched_no_meta.metadata is None
+
+    assert _enrich_records_with_logos([rec], {}) == [rec]
+    records = _enrich_records_with_logos([rec], logo_map)
+    assert records[0].opponent_logo_url == "https://example.com/unc.png"
+
+    # discover_team_logos with html provided
+    crawler = ACCHockeyCrawler()
+    sample_html = (
+        "<table><tr><td><a href='/team'>Duke</a>"
+        "<img src='/duke.png'/></td></tr></table>"
+    )
+    logos = await crawler.discover_team_logos(html=sample_html)
+    assert "Duke University" in logos
+
+    # discover_team_logos fetching via client
+    crawler.client.fetch_text = AsyncMock(  # type: ignore[method-assign]
+        return_value=(sample_html, "hash123"),
+    )
+    logos_fetched = await crawler.discover_team_logos(
+        url="https://acchockey.com/teams",
+    )
+    assert "Duke University" in logos_fetched
+    crawler.client.fetch_text.assert_called_with("https://acchockey.com/teams")

@@ -10,6 +10,7 @@ from ecu_hockey_calendar.ingestion.acchockey_crawler import (
 from ecu_hockey_calendar.ingestion.acchockey_parser import (
     DEFAULT_ACCHL_SEASON,
     DEFAULT_BASE_URL,
+    extract_acchockey_team_logos,
     extract_pagination_urls,
     extract_schedule_urls,
     extract_season_from_html,
@@ -35,6 +36,7 @@ from ecu_hockey_calendar.ingestion.achahockey_parser import (
     parse_achahockey_schedule_json,
     parse_achahockey_scores,
     parse_achahockey_seasons_json,
+    parse_achahockey_teams_json,
     resolve_achahockey_season,
     resolve_achahockey_teams,
 )
@@ -94,6 +96,7 @@ from ecu_hockey_calendar.ingestion.logo_manager import (
 )
 from ecu_hockey_calendar.ingestion.normalizer import (
     DEFAULT_TIMEZONE,
+    normalize_logo_url,
     normalize_team_name,
     parse_game_datetime,
     parse_game_score,
@@ -238,6 +241,7 @@ __all__ = [
     "detect_aliases",
     "detect_canonical_name",
     "detect_home_venue",
+    "extract_acchockey_team_logos",
     "extract_achahockey_season_id_from_url",
     "extract_date_from_caption",
     "extract_google_calendar_feed",
@@ -257,6 +261,7 @@ __all__ = [
     "identify_ticketing_vendor",
     "is_ecu_match",
     "normalize_discovery_url",
+    "normalize_logo_url",
     "normalize_season_label",
     "normalize_team_name",
     "parse_acchockey_game_html",
@@ -267,6 +272,7 @@ __all__ = [
     "parse_achahockey_scores",
     "parse_achahockey_seasons_json",
     "parse_achahockey_subseasons",
+    "parse_achahockey_teams_json",
     "parse_firestore_game_document",
     "parse_firestore_ticket_doc",
     "parse_firestore_tickets_response",

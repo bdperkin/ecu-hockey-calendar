@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
@@ -11,6 +12,7 @@ from sqlalchemy import select
 from ecu_hockey_calendar.ingestion.acchockey_parser import (
     DEFAULT_ACCHL_SEASON,
     DEFAULT_BASE_URL,
+    extract_acchockey_team_logos,
     extract_pagination_urls,
     extract_schedule_urls,
     extract_subseason_urls,
@@ -55,6 +57,37 @@ def _dedupe_records(
             deduped.append(rec)
 
     return deduped
+
+
+def _enrich_record_logo(
+    rec: ParsedGameRecord,
+    logo_map: dict[str, str],
+) -> ParsedGameRecord:
+    """Assign discovered logo to record if missing."""
+    if rec.opponent_logo_url or rec.opponent_name not in logo_map:
+        return rec
+
+    discovered = logo_map[rec.opponent_name]
+    new_meta = dict(rec.metadata) if rec.metadata is not None else None
+    if new_meta is not None:
+        new_meta["opponent_logo_url"] = discovered
+
+    return dataclasses.replace(
+        rec,
+        opponent_logo_url=discovered,
+        metadata=new_meta,
+    )
+
+
+def _enrich_records_with_logos(
+    records: list[ParsedGameRecord],
+    logo_map: dict[str, str],
+) -> list[ParsedGameRecord]:
+    """Populate opponent_logo_url for records missing table cell logos."""
+    if not logo_map:
+        return records
+
+    return [_enrich_record_logo(rec, logo_map) for rec in records]
 
 
 def _resolve_page_season(
@@ -227,7 +260,7 @@ class ACCHockeyCrawler:
 
         Returns:
             Tuple of (parsed_records, aggregated_html, content_hash).
-        """
+        """  # pylint: disable=too-many-locals
         target_url = url or self.schedule_url
         visited: set[str] = {target_url}
 
@@ -253,7 +286,9 @@ class ACCHockeyCrawler:
 
         deduped = _dedupe_records(records)
         aggregated = "\n".join(all_html)
-        return deduped, aggregated, compute_content_hash(aggregated)
+        logo_map = extract_acchockey_team_logos(aggregated, self.base_url)
+        enriched = _enrich_records_with_logos(deduped, logo_map)
+        return enriched, aggregated, compute_content_hash(aggregated)
 
     async def crawl(
         self,
@@ -278,6 +313,27 @@ class ACCHockeyCrawler:
             max_pages=max_pages,
         )
         return records, html, content_hash, "text/html"
+
+    async def discover_team_logos(
+        self,
+        html: str | None = None,
+        url: str | None = None,
+    ) -> dict[str, str]:
+        """Discover team logos from page HTML or target URL.
+
+        Args:
+            html: Optional HTML string to parse.
+            url: Optional URL to fetch if html not provided.
+
+        Returns:
+            Dictionary of team names to logo URLs.
+        """
+        if html is not None:
+            return extract_acchockey_team_logos(html, self.base_url)
+
+        target = url or self.schedule_url
+        page_html, _ = await self.client.fetch_text(target)
+        return extract_acchockey_team_logos(page_html, self.base_url)
 
     @staticmethod
     def _finalize_audit(

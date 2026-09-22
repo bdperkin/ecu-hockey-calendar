@@ -282,6 +282,7 @@ class SourceGameRecord:  # pylint: disable=too-many-instance-attributes
     confidence_score: float = 1.0
     raw_snapshot_id: int | None = None
     scraped_at: datetime | None = None
+    opponent_logo_url: str | None = None
     metadata: dict[str, Any] = dataclass_field(default_factory=dict)
 
     @classmethod
@@ -316,6 +317,8 @@ class SourceGameRecord:  # pylint: disable=too-many-instance-attributes
             game.home_team.name,
             game.away_team.name,
         )
+        opp_team = game.away_team if is_home else game.home_team
+        opp_logo = opp_team.remote_logo_url or opp_team.logo_url
         return cls(
             source_type=source_type,
             source_code=source_code,
@@ -333,6 +336,7 @@ class SourceGameRecord:  # pylint: disable=too-many-instance-attributes
             confidence_score=confidence_score,
             raw_snapshot_id=raw_snapshot_id,
             scraped_at=scraped_at or datetime.now(UTC),
+            opponent_logo_url=opp_logo,
         )
 
     @classmethod
@@ -356,6 +360,12 @@ class SourceGameRecord:  # pylint: disable=too-many-instance-attributes
             model.home_team.name,
             model.away_team.name,
         )
+        opp_model = model.away_team if is_home else model.home_team
+        opp_logo = getattr(opp_model, "remote_logo_url", None) or getattr(
+            opp_model,
+            "logo_url",
+            None,
+        )
         st = _parse_game_status(model.status)
         outcome = _parse_game_result(model.result)
         start_dt = _ensure_utc_datetime(model.start_time) or model.start_time
@@ -375,6 +385,7 @@ class SourceGameRecord:  # pylint: disable=too-many-instance-attributes
             away_score=model.away_score,
             confidence_score=1.0,
             scraped_at=model.updated_at,
+            opponent_logo_url=opp_logo,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -396,6 +407,7 @@ class SourceGameRecord:  # pylint: disable=too-many-instance-attributes
             "confidence_score": self.confidence_score,
             "raw_snapshot_id": self.raw_snapshot_id,
             "scraped_at": self.scraped_at.isoformat() if self.scraped_at else None,
+            "opponent_logo_url": self.opponent_logo_url,
             "metadata": self.metadata,
         }
 
@@ -500,6 +512,7 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
     conflicts: list[DetectedConflict] = dataclass_field(default_factory=list)
     requires_admin_review: bool = False
     confidence_score: float = 1.0
+    opponent_logo_url: str | None = None
 
     def to_domain_game(self) -> Game:
         """Convert reconciled game to standard domain Game dataclass.
@@ -517,6 +530,8 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
             name=self.opponent_name,
             city="Unknown",
             state="NC",
+            remote_logo_url=self.opponent_logo_url,
+            logo_url=self.opponent_logo_url,
         )
         home, away = (ecu_team, opp_team) if self.is_home else (opp_team, ecu_team)
 
@@ -560,6 +575,12 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
             model.home_team.name,
             model.away_team.name,
         )
+        opp_model = model.away_team if is_home else model.home_team
+        opp_logo = getattr(opp_model, "remote_logo_url", None) or getattr(
+            opp_model,
+            "logo_url",
+            None,
+        )
         st = _parse_game_status(model.status)
         outcome = _parse_game_result(model.result)
         start_dt = _ensure_utc_datetime(model.start_time) or model.start_time
@@ -581,6 +602,7 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
             conflicts=[],
             requires_admin_review=False,
             confidence_score=1.0,
+            opponent_logo_url=opp_logo,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -603,6 +625,7 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
             "conflicts": [c.to_dict() for c in self.conflicts],
             "requires_admin_review": self.requires_admin_review,
             "confidence_score": round(self.confidence_score, 2),
+            "opponent_logo_url": self.opponent_logo_url,
         }
 
 
