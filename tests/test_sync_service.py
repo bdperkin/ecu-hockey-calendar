@@ -44,6 +44,7 @@ from ecu_hockey_calendar.sync_service import (
     _ensure_crawl_data_sources,
     _ensure_data_source,
     _execute_crawlers,
+    _execute_sync_post_checks,
     _get_or_create_team,
     _load_baseline_games_from_db,
     _persist_sync_results,
@@ -61,6 +62,7 @@ from ecu_hockey_calendar.sync_service import (
     _upsert_reconciled_game,
     execute_sync_pipeline,
     run_sync_pipeline,
+    sync_team_logos,
 )
 
 # pylint: disable=protected-access
@@ -1254,3 +1256,72 @@ async def test_run_sync_pipeline_prunes_synthetic_duplicate(sqlite_engine: Any) 
         assert (
             "ecu-away-university-of-north-carolina-charlotte-20260920" not in game_ids
         )
+
+
+@pytest.mark.anyio
+async def test_sync_team_logos_defaults_and_custom(sqlite_engine: Any) -> None:
+    """Test sync_team_logos with default and custom directory/manager."""
+    with get_sync_session(sqlite_engine) as session:
+        mock_result = MagicMock(team_name="UNC Chapel Hill", updated=True)
+        mock_manager = MagicMock()
+        mock_manager.sync_directory_logos = AsyncMock(return_value=[mock_result])
+        mock_dir = MagicMock()
+
+        # Custom manager and directory
+        res_custom = await sync_team_logos(
+            session,
+            opponent_directory=mock_dir,
+            logo_manager=mock_manager,
+        )
+        assert len(res_custom) == 1
+        assert res_custom[0].team_name == "UNC Chapel Hill"
+
+        # Default manager and directory
+        with (
+            patch(
+                "ecu_hockey_calendar.sync_service.LogoAssetManager",
+                return_value=mock_manager,
+            ),
+            patch(
+                "ecu_hockey_calendar.sync_service.get_default_opponent_directory",
+                return_value=mock_dir,
+            ),
+        ):
+            res_default = await sync_team_logos(session)
+            assert len(res_default) == 1
+
+
+@pytest.mark.anyio
+async def test_execute_sync_post_checks_sync_logos(sqlite_engine: Any) -> None:
+    """Test _execute_sync_post_checks triggers logo sync when not dry_run."""
+    with get_sync_session(sqlite_engine) as session:
+        mock_logos = AsyncMock(return_value=[])
+        with patch("ecu_hockey_calendar.sync_service._execute_sync_logos", mock_logos):
+            # dry_run=False, sync_logos=True -> should call _execute_sync_logos
+            await _execute_sync_post_checks(
+                session,
+                verify_opponents=False,
+                dry_run=False,
+                sync_logos=True,
+                season=None,
+                reconciled_games=[],
+                opponent_crawler_cls=None,
+                opponent_directory=None,
+                logo_manager=None,
+            )
+            assert mock_logos.await_count == 1
+
+            # dry_run=True, sync_logos=True -> should NOT call _execute_sync_logos
+            mock_logos.reset_mock()
+            await _execute_sync_post_checks(
+                session,
+                verify_opponents=False,
+                dry_run=True,
+                sync_logos=True,
+                season=None,
+                reconciled_games=[],
+                opponent_crawler_cls=None,
+                opponent_directory=None,
+                logo_manager=None,
+            )
+            assert mock_logos.await_count == 0

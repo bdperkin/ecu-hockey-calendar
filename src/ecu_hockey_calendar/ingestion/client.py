@@ -328,6 +328,24 @@ class ResilientHttpClient:
         content_hash = compute_content_hash(response.content)
         return response.json(), content_hash
 
+    async def fetch_bytes(
+        self,
+        url: str,
+        headers: dict[str, str] | None = None,
+    ) -> tuple[bytes, str, int]:
+        """Fetch raw binary content, SHA-256 digest, and HTTP status code.
+
+        Args:
+            url: Target asset URL.
+            headers: Optional request headers.
+
+        Returns:
+            Tuple of (binary_content, content_hash, status_code).
+        """
+        response = await self._request_with_retry("GET", url, headers=headers)
+        content_hash = compute_content_hash(response.content)
+        return response.content, content_hash, response.status_code
+
     async def post_json(
         self,
         url: str,

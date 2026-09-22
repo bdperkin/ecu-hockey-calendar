@@ -45,22 +45,37 @@ class RemoteSyncAudit:
     conflicts_detected: int = 0
 
 
+def _extract_optional_url(data: dict[str, Any], key: str) -> str | None:
+    """Extract string URL from dictionary if present."""
+    val = data.get(key)
+    return str(val) if val is not None else None
+
+
+def _parse_dict_team(
+    raw: dict[str, Any],
+    default_name: str,
+    default_city: str,
+) -> Team:
+    """Parse Team entity from dictionary mapping."""
+    return Team(
+        name=str(raw.get("name", default_name)),
+        city=str(raw.get("city", default_city)),
+        state=str(raw.get("state", "NC")),
+        division=str(raw.get("division", "ACHA M2")),
+        conference=str(raw.get("conference", "ACCHL")),
+        remote_logo_url=_extract_optional_url(raw, "remote_logo_url"),
+        local_logo_url=_extract_optional_url(raw, "local_logo_url"),
+        logo_url=_extract_optional_url(raw, "logo_url"),
+    )
+
+
 def _parse_team(raw: object, *, default_name: str, default_city: str) -> Team:
     """Parse team dictionary or name string into domain Team object."""
     if isinstance(raw, dict):
-        raw_logo = raw.get("logo_url")
-        logo_url = str(raw_logo) if raw_logo is not None else None
-        return Team(
-            name=str(raw.get("name", default_name)),
-            city=str(raw.get("city", default_city)),
-            state=str(raw.get("state", "NC")),
-            division=str(raw.get("division", "ACHA M2")),
-            conference=str(raw.get("conference", "ACCHL")),
-            logo_url=logo_url,
-        )
+        return _parse_dict_team(raw, default_name, default_city)
 
     return Team(
-        name=str(raw or default_name),
+        name=str(raw) if raw else default_name,
         city=default_city,
         state="NC",
     )

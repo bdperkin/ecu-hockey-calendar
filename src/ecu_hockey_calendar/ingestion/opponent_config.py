@@ -103,14 +103,19 @@ def _extract_str_field(data: dict[str, Any], key: str, default: str) -> str:
     return cleaned or default
 
 
-def _extract_website(data: dict[str, Any]) -> str | None:
-    """Extract optional website URL from data dictionary."""
-    val = data.get("website")
+def _extract_optional_str(data: dict[str, Any], key: str) -> str | None:
+    """Extract optional stripped string field from data dictionary."""
+    val = data.get(key)
     if not val:
         return None
 
     cleaned = str(val).strip()
     return cleaned or None
+
+
+def _extract_website(data: dict[str, Any]) -> str | None:
+    """Extract optional website URL from data dictionary."""
+    return _extract_optional_str(data, "website")
 
 
 @dataclass(frozen=True)
@@ -125,6 +130,8 @@ class OpponentEndpointConfig:
     conference: str = "ACCHL"
     aliases: tuple[str, ...] = ()
     website: str | None = None
+    logo_url: str | None = None
+    local_logo_url: str | None = None
     enabled: bool = True
 
     def to_dict(self) -> dict[str, Any]:
@@ -142,6 +149,8 @@ class OpponentEndpointConfig:
             "conference": self.conference,
             "aliases": list(self.aliases),
             "website": self.website,
+            "logo_url": self.logo_url,
+            "local_logo_url": self.local_logo_url,
             "enabled": self.enabled,
         }
 
@@ -169,6 +178,11 @@ class OpponentEndpointConfig:
             msg = f"Opponent '{name}' missing required field: 'feed_type'"
             raise OpponentConfigError(msg)
 
+        remote_logo = _extract_optional_str(
+            data,
+            "logo_url",
+        ) or _extract_optional_str(data, "remote_logo_url")
+
         return cls(
             canonical_name=name,
             feed_url=feed_url,
@@ -178,6 +192,8 @@ class OpponentEndpointConfig:
             conference=_extract_str_field(data, "conference", "ACCHL"),
             aliases=_parse_aliases(data.get("aliases"), name),
             website=_extract_website(data),
+            logo_url=remote_logo,
+            local_logo_url=_extract_optional_str(data, "local_logo_url"),
             enabled=bool(data.get("enabled", True)),
         )
 
@@ -296,6 +312,11 @@ class OpponentDirectory:
         normalized = normalize_team_name(name).lower()
         canonical_key = self._alias_map.get(normalized, normalized)
         return self._endpoints.get(canonical_key)
+
+    @property
+    def opponents(self) -> list[OpponentEndpointConfig]:
+        """Return list of all registered opponent configurations."""
+        return self.list_endpoints()
 
     def list_endpoints(
         self,

@@ -87,6 +87,11 @@ from ecu_hockey_calendar.ingestion.instagram_parser import (
     parse_public_feed_json,
     resolve_game_status_from_announcement,
 )
+from ecu_hockey_calendar.ingestion.logo_manager import (
+    LogoAssetManager,
+    LogoSyncResult,
+    team_name_to_slug,
+)
 from ecu_hockey_calendar.ingestion.normalizer import (
     DEFAULT_TIMEZONE,
     normalize_team_name,
@@ -200,6 +205,8 @@ __all__ = [
     "ECUHockeyCrawler",
     "HttpWireEvent",
     "InstagramCrawler",
+    "LogoAssetManager",
+    "LogoSyncResult",
     "NullScrapeObserver",
     "OpponentConfigError",
     "OpponentCrawler",
@@ -280,4 +287,5 @@ __all__ = [
     "resolve_achahockey_teams",
     "resolve_game_status_from_announcement",
     "resolve_opponent_directory",
+    "team_name_to_slug",
 ]

@@ -85,14 +85,18 @@ from ecu_hockey_calendar.cli.status import (
 from ecu_hockey_calendar.cli.sync import (
     _convert_parsed_to_source_record,
     _ensure_data_source,
+    _format_logo_status,
     _populate_ctx_params,
+    _render_logo_sync_results,
     _resolve_cli_opponent_directory,
     _resolve_remote_credentials,
     sync_command,
+    sync_logos_command,
     sync_status_command,
     sync_trigger_command,
 )
 from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
+from ecu_hockey_calendar.ingestion.logo_manager import LogoSyncResult
 from ecu_hockey_calendar.models import Game, GameResult, Team
 from ecu_hockey_calendar.reconciliation.models import (
     DataSourceType,
@@ -2244,6 +2248,128 @@ class TestSyncCommand:
             assert res_d.exit_code == 0
             assert "DRY RUN" in res_d.output
 
+    def test_sync_logos_command_success(
+        self,
+        runner: CliRunner,
+        db_url: str,
+        tmp_path: Path,
+    ) -> None:
+        """Verify sync logos command successfully executes and displays table."""
+        sample_result = LogoSyncResult(
+            team_name="UNC Chapel Hill",
+            slug="unc-chapel-hill",
+            remote_url="https://example.com/unc.png",
+            local_path=tmp_path / "unc.png",
+            local_web_url="/static/logos/unc-chapel-hill.png",
+            updated=True,
+        )
+        with patch(
+            "ecu_hockey_calendar.cli.sync.sync_team_logos",
+            new_callable=AsyncMock,
+            return_value=[sample_result],
+        ):
+            res = runner.invoke(
+                sync_logos_command,
+                ["--db-url", db_url, "--static-dir", str(tmp_path)],
+            )
+            assert res.exit_code == 0
+            assert "Opponent Logo Assets Synchronization" in res.output
+            assert "UNC Chapel Hill" in res.output
+            assert "Updated" in res.output
+
+            # Also invoke without explicit static_dir
+            res_default = runner.invoke(sync_logos_command, ["--db-url", db_url])
+            assert res_default.exit_code == 0
+
+    def test_sync_logos_command_error_handling(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify sync logos handles exception gracefully and reports failure."""
+        with patch(
+            "ecu_hockey_calendar.cli.sync.sync_team_logos",
+            new_callable=AsyncMock,
+            side_effect=RuntimeError("Download exploded"),
+        ):
+            res = runner.invoke(sync_logos_command, ["--db-url", db_url])
+            assert res.exit_code != 0
+            assert "Logo synchronization encountered a fatal error" in res.output
+
+    def test_sync_logos_formatting_and_rendering(self, tmp_path: Path) -> None:
+        """Test _format_logo_status and _render_logo_sync_results."""
+        res_err = LogoSyncResult(
+            team_name="Team Error",
+            slug="team-error",
+            remote_url="https://example.com/e.png",
+            local_path=None,
+            local_web_url=None,
+            updated=False,
+            error="Connection refused",
+        )
+        res_up = LogoSyncResult(
+            team_name="Team Up",
+            slug="team-up",
+            remote_url="https://example.com/u.png",
+            local_path=tmp_path / "u.png",
+            local_web_url="/static/logos/team-up.png",
+            updated=True,
+        )
+        res_unchanged = LogoSyncResult(
+            team_name="Team Same",
+            slug="team-same",
+            remote_url="https://example.com/s.png",
+            local_path=tmp_path / "s.png",
+            local_web_url="/static/logos/team-same.png",
+            updated=False,
+        )
+
+        assert "Error: Connection refused" in _format_logo_status(res_err)
+        assert "Updated" in _format_logo_status(res_up)
+        assert "Unchanged" in _format_logo_status(res_unchanged)
+
+        _render_logo_sync_results([res_err, res_up, res_unchanged])
+
+    def test_sync_command_no_sync_logos_flag(
+        self,
+        runner: CliRunner,
+        db_url: str,
+    ) -> None:
+        """Verify --no-sync-logos flag propagates sync_logos=False."""
+        with patch("ecu_hockey_calendar.cli.sync._run_sync_trigger") as mock_trigger:
+            res = runner.invoke(
+                sync_command,
+                [
+                    "--no-sync-logos",
+                    "--dry-run",
+                    "--source",
+                    "ecuhockey",
+                    "--db-url",
+                    db_url,
+                ],
+            )
+            assert res.exit_code == 0
+            mock_trigger.assert_called_once()
+            _, kwargs = mock_trigger.call_args
+            assert kwargs.get("sync_logos") is False
+
+            mock_trigger.reset_mock()
+            res_trigger = runner.invoke(
+                sync_trigger_command,
+                [
+                    "--no-sync-logos",
+                    "--dry-run",
+                    "--source",
+                    "ecuhockey",
+                    "--db-url",
+                    db_url,
+                ],
+            )
+            assert res_trigger.exit_code == 0
+            mock_trigger.assert_called_once()
+            _, kwargs_trigger = mock_trigger.call_args
+            assert kwargs_trigger.get("sync_logos") is False
+
 
 class TestSyncOpponentsConfig:
     """Tests for opponent configuration overrides in sync and trigger commands."""
@@ -2691,6 +2817,7 @@ class TestCliShortOptions:
         assert _has_short_option(sync_command, "--token", "-t")
         assert _has_short_option(sync_command, "--prod", "-p")
         assert _has_short_option(sync_command, "--method", "-m")
+        assert _has_short_option(sync_logos_command, "--opponents-config", "-O")
 
     def test_sync_status_short_options_registered(self) -> None:
         """Verify sync status defines expected short option aliases."""

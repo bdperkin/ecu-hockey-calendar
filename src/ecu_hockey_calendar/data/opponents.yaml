@@ -8,6 +8,7 @@ opponents:
     conference: ACCHL
     aliases: [unc, north carolina, tar heels]
     website: https://unchockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/153.png
     enabled: true
   - canonical_name: NC State University
     feed_url: >-
@@ -18,6 +19,7 @@ opponents:
     conference: ACCHL
     aliases: [nc state, icepack, pack, wolfpack]
     website: https://www.icepackhockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/152.png
     enabled: true
   - canonical_name: Virginia Tech
     feed_url: http://vticehockey.pointstreaksites.com/view/vticehockey/schedule
@@ -27,6 +29,7 @@ opponents:
     conference: ACCHL
     aliases: [vt, virginia tech, hokies]
     website: https://virginiatechicehockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/259.png
     enabled: true
   - canonical_name: Wake Forest University
     feed_url: https://wsfairgrounds.com/arena-ice-rink/wake-forest-hockey-schedule/
@@ -36,6 +39,7 @@ opponents:
     conference: ACCHL
     aliases: [wake forest, demon deacons, deacons]
     website: https://wsfairgrounds.com/arena-ice-rink/wake-forest-hockey-schedule/
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/154.png
     enabled: true
   - canonical_name: Duke University
     feed_url: https://www.dukehockey.org/blank-1
@@ -45,6 +49,7 @@ opponents:
     conference: ACCHL
     aliases: [duke, blue devils]
     website: https://www.dukehockey.org
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/150.png
     enabled: true
   - canonical_name: UNC Wilmington
     feed_url: https://uncwclubhockey.com/schedule/upcoming
@@ -54,6 +59,7 @@ opponents:
     conference: ACCHL
     aliases: [uncw, wilmington, seahawks]
     website: https://uncwclubhockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/350.png
     enabled: true
   - canonical_name: Appalachian State University
     feed_url: https://www.appstatehockey.com/schedule/upcoming
@@ -63,6 +69,7 @@ opponents:
     conference: ACCHL
     aliases: [app state, appalachian, mountaineers]
     website: https://www.appstatehockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png
     enabled: true
   - canonical_name: High Point University
     feed_url: https://hpuclubsports.com/sports/mens-ice-hockey/schedule
@@ -72,6 +79,7 @@ opponents:
     conference: ACCHL
     aliases: [high point, hpu, panthers]
     website: https://hpuclubsports.com/sports/mens-ice-hockey
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png
     enabled: true
   - canonical_name: Elon University
     feed_url: https://elonuhockey.com/schedule/upcoming
@@ -81,6 +89,7 @@ opponents:
     conference: ACCHL
     aliases: [elon, phoenix]
     website: https://elonuhockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png
     enabled: true
   - canonical_name: UNC Charlotte
     feed_url: https://www.charlotteicehockey.com/schedule/upcoming
@@ -90,6 +99,7 @@ opponents:
     conference: ACCHL
     aliases: [charlotte, 49ers, uncc]
     website: https://www.charlotteicehockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png
     enabled: true
   - canonical_name: James Madison University
     feed_url: https://www.jmuicehockey.com/schedule/upcoming
@@ -99,6 +109,7 @@ opponents:
     conference: ACCHL
     aliases: [jmu, dukes]
     website: https://www.jmuicehockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/256.png
     enabled: true
   - canonical_name: University of Richmond
     feed_url: https://www.uofrhockey.com/schedule/upcoming
@@ -108,6 +119,7 @@ opponents:
     conference: ACCHL
     aliases: [richmond, spiders]
     website: https://www.uofrhockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/257.png
     enabled: true
   - canonical_name: University of Virginia
     feed_url: https://www.uvamenshockey.com/schedule
@@ -117,6 +129,7 @@ opponents:
     conference: ACCHL
     aliases: [uva, virginia, cavaliers, hoos, wahoos]
     website: https://www.uvamenshockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/258.png
     enabled: true
   - canonical_name: Georgetown University
     feed_url: https://www.georgetownhockey.com/schedule/upcoming
@@ -126,4 +139,5 @@ opponents:
     conference: ACCHL
     aliases: [georgetown, hoyas]
     website: https://www.georgetownhockey.com
+    logo_url: https://a.espncdn.com/i/teamlogos/ncaa/500/46.png
     enabled: true
