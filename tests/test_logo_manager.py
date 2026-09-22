@@ -14,11 +14,13 @@ from sqlalchemy.orm import Session
 from ecu_hockey_calendar.ingestion.client import ResilientHttpClient
 from ecu_hockey_calendar.ingestion.logo_manager import (
     LogoAssetManager,
+    LogoSyncResult,
     _extract_logo_extension,
     _find_team_by_name_or_aliases,
     _get_http_mtime_header,
     _resolve_root_logos_dir,
     _save_logo_bytes,
+    _update_discovered_team_model,
     _update_team_model_logos,
     team_name_to_slug,
 )
@@ -348,6 +350,7 @@ async def test_sync_directory_logos(tmp_path: Path) -> None:
             feed_url="https://example.com/unc",
             feed_type=OpponentFeedType.ICAL,
             logo_url="https://example.com/unc.png",
+            aliases=("UNC",),
         ),
     )
     directory.register(
@@ -365,12 +368,24 @@ async def test_sync_directory_logos(tmp_path: Path) -> None:
     mgr = LogoAssetManager(static_dir=tmp_path, http_client=mock_client)
 
     with Session(engine) as session:
+        session.add(
+            TeamModel(
+                name="Discovered Opponent",
+                city="Greenville",
+                state="NC",
+                remote_logo_url="https://example.com/disc.png",
+            ),
+        )
+        session.commit()
+
+    with Session(engine) as session:
         results = await mgr.sync_directory_logos(directory, session)
         session.commit()
 
-    assert len(results) == 1
+    assert len(results) == 2
     assert results[0].team_name == "UNC Chapel Hill"
     assert results[0].updated
+    assert results[1].team_name == "Discovered Opponent"
 
     with Session(engine) as session:
         team = session.scalar(
@@ -380,3 +395,42 @@ async def test_sync_directory_logos(tmp_path: Path) -> None:
         assert team.remote_logo_url == "https://example.com/unc.png"
         assert team.local_logo_url == "/static/logos/unc-chapel-hill.png"
         assert team.logo_url == "https://example.com/unc.png"
+
+        disc_team = session.scalar(
+            select(TeamModel).where(TeamModel.name == "Discovered Opponent"),
+        )
+        assert disc_team is not None
+        assert disc_team.local_logo_url == "/static/logos/discovered-opponent.png"
+
+
+def test_update_discovered_team_model() -> None:
+    """Test updating discovered team model when local_web_url is None vs provided."""
+    team = TeamModel(
+        name="Discovered Team",
+        city="Greenville",
+        state="NC",
+        remote_logo_url="https://example.com/logo.png",
+    )
+    res_none = LogoSyncResult(
+        team_name="Discovered Team",
+        slug="discovered-team",
+        remote_url="https://example.com/logo.png",
+        local_path=None,
+        local_web_url=None,
+        updated=False,
+    )
+    _update_discovered_team_model(team, res_none)
+    assert team.local_logo_url is None
+    assert team.logo_url == "https://example.com/logo.png"
+
+    res_with_local = LogoSyncResult(
+        team_name="Discovered Team",
+        slug="discovered-team",
+        remote_url="https://example.com/logo.png",
+        local_path=Path("/var/data/logos/discovered-team.png"),
+        local_web_url="/static/logos/discovered-team.png",
+        updated=True,
+    )
+    _update_discovered_team_model(team, res_with_local)
+    assert team.local_logo_url == "/static/logos/discovered-team.png"
+    assert team.logo_url == "https://example.com/logo.png"

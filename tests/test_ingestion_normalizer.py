@@ -9,6 +9,7 @@ import pytest
 
 from ecu_hockey_calendar.ingestion.normalizer import (
     DEFAULT_TIMEZONE,
+    normalize_logo_url,
     normalize_team_name,
     parse_game_datetime,
     parse_game_score,
@@ -209,3 +210,31 @@ def test_parse_game_status() -> None:
     assert parse_game_status(None, has_score=False) == GameStatus.SCHEDULED
     assert parse_game_status("", has_score=False) == GameStatus.SCHEDULED
     assert parse_game_status("unknown", has_score=False) == GameStatus.SCHEDULED
+
+
+def test_normalize_logo_url() -> None:
+    """Verify logo URL normalization including scheme upgrade and resolution."""
+    assert normalize_logo_url(None) is None
+    assert normalize_logo_url("") is None
+    assert normalize_logo_url("   ") is None
+    assert (
+        normalize_logo_url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...") is None
+    )
+    assert (
+        normalize_logo_url("//cdn.example.com/logo.png")
+        == "https://cdn.example.com/logo.png"
+    )
+    assert normalize_logo_url("/static/img/logo.png") is None
+    assert (
+        normalize_logo_url("/static/img/logo.png", "https://example.com/teams")
+        == "https://example.com/static/img/logo.png"
+    )
+    assert (
+        normalize_logo_url("http://example.com/logo.png")
+        == "https://example.com/logo.png"
+    )
+    assert (
+        normalize_logo_url("https://example.com/logo.png")
+        == "https://example.com/logo.png"
+    )
+    assert normalize_logo_url("ftp://example.com/logo.png") is None

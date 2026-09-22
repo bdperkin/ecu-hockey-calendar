@@ -1225,3 +1225,31 @@ def test_weekend_series_distinct_dates_and_scores_not_clustered() -> None:
     cycle_res_shared = engine.reconcile_games([r_sat_shared_id, r_sun_shared_id])
     assert len(cycle_res_shared.reconciled_games) == 2
     assert cycle_res_shared.total_conflicts_detected == 0
+
+
+def test_resolve_cluster_opponent_logo() -> None:
+    """Test resolution and propagation of opponent_logo_url in reconciled cluster."""
+    engine = ReconciliationEngine()
+    t = datetime(2026, 10, 15, 19, 0, tzinfo=UTC)
+    r1 = _create_record("UNC Chapel Hill", t, source_code="ecuhockey")
+    r2 = _create_record(
+        "UNC",
+        t,
+        source_type=DataSourceType.LEAGUE,
+        source_code="acchockey",
+    )
+    r2.opponent_logo_url = "https://example.com/unc.png"
+
+    # Static helper
+    assert (
+        ReconciliationEngine._resolve_cluster_logo([r1, r2])
+        == "https://example.com/unc.png"
+    )
+    assert ReconciliationEngine._resolve_cluster_logo([r1]) is None
+
+    # Full resolve_cluster
+    reconciled = engine.resolve_cluster([r1, r2])
+    assert reconciled.opponent_logo_url == "https://example.com/unc.png"
+
+    rec_dict = reconciled.to_dict()
+    assert rec_dict["opponent_logo_url"] == "https://example.com/unc.png"

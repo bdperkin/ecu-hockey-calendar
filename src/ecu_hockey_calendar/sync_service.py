@@ -80,6 +80,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
     from ecu_hockey_calendar.ingestion.html_parser import ParsedGameRecord
+    from ecu_hockey_calendar.ingestion.opponent_config import OpponentEndpointConfig
     from ecu_hockey_calendar.ingestion.telemetry import ScrapeObserver
     from ecu_hockey_calendar.models import GameResult
 
@@ -142,6 +143,7 @@ def _convert_parsed_to_source_record(
         home_score=record.home_score,
         away_score=record.away_score,
         confidence_score=1.0,
+        opponent_logo_url=record.opponent_logo_url,
         metadata=dict(record.metadata) if record.metadata else {},
     )
 
@@ -485,10 +487,73 @@ def _get_or_create_team(
     return team
 
 
+def _set_team_logo_fields(
+    team: TeamModel,
+    remote: str | None,
+    local: str | None,
+) -> None:
+    """Assign non-empty remote and local logo URLs to team."""
+    if remote:
+        team.remote_logo_url = remote
+
+    if local:
+        team.local_logo_url = local
+
+    team.logo_url = team.remote_logo_url or team.local_logo_url
+
+
+def _apply_curated_logo(team: TeamModel, curated: OpponentEndpointConfig) -> None:
+    """Apply curated logo and local path to team model."""
+    remote = curated.logo_url if isinstance(curated.logo_url, str) else None
+    local = curated.local_logo_url if isinstance(curated.local_logo_url, str) else None
+    _set_team_logo_fields(team, remote, local)
+
+
+def _apply_discovered_logo(team: TeamModel, record_logo_url: str | None) -> None:
+    """Apply discovered logo to team model if remote logo not already set."""
+    if (
+        isinstance(record_logo_url, str)
+        and record_logo_url
+        and not team.remote_logo_url
+    ):
+        team.remote_logo_url = record_logo_url
+        if not team.logo_url:
+            team.logo_url = record_logo_url
+
+
+def _has_curated_logo(curated: object) -> bool:
+    """Check if curated config contains a valid string logo URL."""
+    if curated is None:
+        return False
+
+    remote = getattr(curated, "logo_url", None)
+    local = getattr(curated, "local_logo_url", None)
+    has_remote = isinstance(remote, str) and bool(remote)
+    has_local = isinstance(local, str) and bool(local)
+    return has_remote or has_local
+
+
+def _update_team_logo_from_record(
+    team: TeamModel,
+    opponent_name: str,
+    record_logo_url: str | None,
+    directory: OpponentDirectory | None = None,
+) -> None:
+    """Assign discovered or curated logo URL respecting curated precedence."""
+    dir_to_use = directory or get_default_opponent_directory()
+    curated = dir_to_use.get(opponent_name)
+    if curated is not None and _has_curated_logo(curated):
+        _apply_curated_logo(team, curated)
+        return
+
+    _apply_discovered_logo(team, record_logo_url)
+
+
 def _upsert_reconciled_game(
     session: Session,
     rec_game: ReconciledGame,
     ecu_team_id: int,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Upsert a single reconciled game model.
 
@@ -496,8 +561,15 @@ def _upsert_reconciled_game(
         session: Active database session.
         rec_game: Reconciled game domain entity.
         ecu_team_id: Foreign key ID of East Carolina University team.
+        opponent_directory: Optional OpponentDirectory for curated logo precedence.
     """
     opp_team = _get_or_create_team(session, rec_game.opponent_name)
+    _update_team_logo_from_record(
+        opp_team,
+        rec_game.opponent_name,
+        rec_game.opponent_logo_url,
+        directory=opponent_directory,
+    )
     home_id = ecu_team_id if rec_game.is_home else opp_team.id
     away_id = opp_team.id if rec_game.is_home else ecu_team_id
 
@@ -623,10 +695,16 @@ def _persist_reconciled_fixtures(
     session: Session,
     reconciled_games: Sequence[ReconciledGame],
     ecu_team_id: int,
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Upsert all reconciled game records into the database."""
     for rg in reconciled_games:
-        _upsert_reconciled_game(session, rg, ecu_team_id)
+        _upsert_reconciled_game(
+            session,
+            rg,
+            ecu_team_id,
+            opponent_directory=opponent_directory,
+        )
 
 
 def _stale_ids_from_baseline(
@@ -734,6 +812,7 @@ def _persist_sync_results(  # pylint: disable=too-many-arguments
     initial_audit_exists: bool = False,
     baseline_games: Sequence[GameModel] | None = None,
     source_filter: str = "all",
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Persist reconciled fixtures, active data sources, and audit record.
 
@@ -745,6 +824,7 @@ def _persist_sync_results(  # pylint: disable=too-many-arguments
         initial_audit_exists: Whether an initial RUNNING audit record exists.
         baseline_games: Optional baseline games loaded prior to sync.
         source_filter: Source filter string for conditional pruning.
+        opponent_directory: Optional custom OpponentDirectory instance.
     """
     ecu_team = _get_or_create_team(
         session,
@@ -752,7 +832,12 @@ def _persist_sync_results(  # pylint: disable=too-many-arguments
         "Greenville",
         "NC",
     )
-    _persist_reconciled_fixtures(session, reconciled_games, ecu_team.id)
+    _persist_reconciled_fixtures(
+        session,
+        reconciled_games,
+        ecu_team.id,
+        opponent_directory=opponent_directory,
+    )
     _prune_stale_fixtures(
         session,
         reconciled_games,
@@ -826,7 +911,7 @@ def _dispatch_sync_notifications(
     dispatcher.dispatch_cycle(change_result, individual_changes=notify_individual)
 
 
-def _execute_db_persistence(  # pylint: disable=too-many-arguments
+def _execute_db_persistence(  # noqa: PLR0913  # pylint: disable=too-many-arguments
     session: Session,
     reconciled_games: Sequence[ReconciledGame],
     crawl_telemetry: Sequence[dict[str, Any]],
@@ -836,6 +921,7 @@ def _execute_db_persistence(  # pylint: disable=too-many-arguments
     initial_audit_exists: bool,
     baseline_games: Sequence[GameModel] | None = None,
     source_filter: str = "all",
+    opponent_directory: OpponentDirectory | None = None,
 ) -> None:
     """Persist reconciliation and change detection results if not dry run."""
     if not dry_run:
@@ -847,6 +933,7 @@ def _execute_db_persistence(  # pylint: disable=too-many-arguments
             initial_audit_exists=initial_audit_exists,
             baseline_games=baseline_games,
             source_filter=source_filter,
+            opponent_directory=opponent_directory,
         )
         session.commit()
 
@@ -1063,6 +1150,7 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
             initial_audit_exists=initial_audit_exists,
             baseline_games=baseline_games,
             source_filter=source_filter,
+            opponent_directory=opponent_directory,
         )
 
         await _execute_sync_post_checks(

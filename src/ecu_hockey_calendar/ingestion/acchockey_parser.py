@@ -17,6 +17,7 @@ from ecu_hockey_calendar.ingestion.html_parser import (
     _parse_home_away,
 )
 from ecu_hockey_calendar.ingestion.normalizer import (
+    normalize_logo_url,
     normalize_team_name,
     parse_game_datetime,
     parse_game_score,
@@ -193,11 +194,60 @@ def _extract_time_and_status(
     return time_str, status
 
 
+def _has_logo_indicator(lower: str) -> bool:
+    """Check for image extension or logo indicator substring."""
+    return (
+        any(ext in lower for ext in (".png", ".jpg", ".jpeg", ".webp", ".svg"))
+        or "logo" in lower
+    )
+
+
+def _is_valid_logo_src(src: str | None) -> bool:
+    """Validate image source is likely a team logo and not tracking/layout pixel."""
+    if not isinstance(src, str) or not src:
+        return False
+
+    lower = src.lower()
+    excluded = ("loader", "spacer", "blank", "white_logo", "1x1")
+    if any(p in lower for p in excluded):
+        return False
+
+    return _has_logo_indicator(lower)
+
+
+def _extract_img_src(img: Tag) -> str | None:
+    """Extract src or data-src from img tag."""
+    src = img.get("src") or img.get("data-src")
+    return str(src) if isinstance(src, str) else None
+
+
+def _find_logo_in_element(element: Tag, base_url: str) -> str | None:
+    """Find first valid logo image URL in an element."""
+    for img in element.find_all("img"):
+        src = _extract_img_src(img)
+        if src and _is_valid_logo_src(src):
+            return normalize_logo_url(src, base_url=base_url)
+
+    return None
+
+
+def _extract_cell_logo_url(
+    cell: Tag | None,
+    base_url: str = DEFAULT_BASE_URL,
+) -> str | None:
+    """Extract and normalize logo image URL from a table cell if present."""
+    if cell is None:
+        return None
+
+    return _find_logo_in_element(cell, base_url)
+
+
 def _build_game_metadata(
     league_game_id: str | None,
     se_game_id: str | None,
     season: str,
     opp_url: str,
+    opponent_logo_url: str | None = None,
 ) -> dict[str, object]:
     """Construct structured league verification metadata."""
     division, game_type = _determine_division_and_game_type(league_game_id)
@@ -208,6 +258,7 @@ def _build_game_metadata(
         "game_type": game_type,
         "season": season,
         "opponent_url": opp_url,
+        "opponent_logo_url": opponent_logo_url,
         "source": "acchockey.com",
     }
 
@@ -287,6 +338,7 @@ class _SplitRowData:
     status_cell: Tag | None
     away_score_cell: Tag | None
     home_score_cell: Tag | None
+    opp_logo_url: str | None = None
 
 
 def _is_split_headers(headers: list[str]) -> bool:
@@ -564,12 +616,17 @@ def _extract_split_row_data(
     if not _is_valid_date_text(date_text):
         return None
 
+    away_cell = _get_cell_at(cells, cols.away_team)
+    home_cell = _get_cell_at(cells, cols.home_team)
     is_home, opp_name, opp_url = _resolve_split_opponent(
-        _get_cell_at(cells, cols.away_team),
-        _get_cell_at(cells, cols.home_team),
+        away_cell,
+        home_cell,
     )
     if not opp_name:
         return None
+
+    opp_cell = away_cell if is_home else home_cell
+    opp_logo_url = _extract_cell_logo_url(opp_cell)
 
     return _SplitRowData(
         date_text=date_text,
@@ -581,6 +638,7 @@ def _extract_split_row_data(
         status_cell=_get_cell_at(cells, cols.status),
         away_score_cell=_get_cell_at(cells, cols.away_score),
         home_score_cell=_get_cell_at(cells, cols.home_score),
+        opp_logo_url=opp_logo_url,
     )
 
 
@@ -616,11 +674,13 @@ def _build_split_record(
         raw_text=f"{data.date_text} {data.opp_name}".strip(),
         league_game_id=data.league_game_id,
         is_time_tbd=time_str is None,
+        opponent_logo_url=data.opp_logo_url,
         metadata=_build_game_metadata(
             data.league_game_id,
             se_game_id,
             season,
             data.opp_url,
+            opponent_logo_url=data.opp_logo_url,
         ),
     )
 
@@ -721,7 +781,7 @@ def _parse_standard_table_row(
     season: str,
     cols: _TableColumnIndices,
 ) -> ParsedGameRecord | None:
-    """Parse single standard SportEngine schedule table row."""
+    """Parse single standard SportEngine schedule table row."""  # pylint: disable=too-many-locals
     data = _extract_row_basic_data(cells, cols)
     if data is None:
         return None
@@ -746,6 +806,7 @@ def _parse_standard_table_row(
         return None
 
     se_game_id = _extract_sportengine_game_id(row)
+    opp_logo_url = _extract_cell_logo_url(data.opp_cell)
     return ParsedGameRecord(
         game_id=_generate_game_id(start_time, opp_name, is_home=is_home),
         opponent_name=opp_name,
@@ -759,7 +820,14 @@ def _parse_standard_table_row(
         raw_text=f"{data.date_text} {opp_name}".strip(),
         league_game_id=data.league_game_id,
         is_time_tbd=time_str is None,
-        metadata=_build_game_metadata(data.league_game_id, se_game_id, season, opp_url),
+        opponent_logo_url=opp_logo_url,
+        metadata=_build_game_metadata(
+            data.league_game_id,
+            se_game_id,
+            season,
+            opp_url,
+            opponent_logo_url=opp_logo_url,
+        ),
     )
 
 
@@ -1110,9 +1178,69 @@ def extract_pagination_urls(
     return urls
 
 
+def _extract_team_logo_from_row(
+    row: Tag,
+    base_url: str,
+) -> tuple[str, str] | None:
+    """Extract normalized team name and logo URL from a row element if present."""
+    team_link = _find_cell_team_link(row)
+    if team_link is None:
+        return None
+
+    name = normalize_team_name(_clean_text(team_link))
+    if not name or _is_ecu_name(name):
+        return None
+
+    logo_url = _find_logo_in_element(row, base_url)
+    if not logo_url:
+        return None
+
+    return name, logo_url
+
+
+def _should_inspect_element(elem: Tag) -> bool:
+    """Check if element potentially contains team link and crest."""
+    return bool(elem.find("img") and elem.find("a"))
+
+
+def _find_logo_candidate_elements(soup: BeautifulSoup) -> list[Tag]:
+    """Find container elements likely containing team name and crest."""
+    return [
+        elem
+        for elem in soup.find_all(["tr", "div", "li"])
+        if _should_inspect_element(elem)
+    ]
+
+
+def extract_acchockey_team_logos(
+    html: str,
+    base_url: str = DEFAULT_BASE_URL,
+) -> dict[str, str]:
+    """Extract opponent team names and their discovered logo URLs from HTML.
+
+    Scans standings tables, team directories, and schedule tables for team crests.
+
+    Args:
+        html: Raw HTML page markup.
+        base_url: Base URL for resolving relative image URLs.
+
+    Returns:
+        Mapping of normalized team names to canonical HTTPS logo URLs.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    logos: dict[str, str] = {}
+    for elem in _find_logo_candidate_elements(soup):
+        result = _extract_team_logo_from_row(elem, base_url)
+        if result is not None and result[0] not in logos:
+            logos[result[0]] = result[1]
+
+    return logos
+
+
 __all__ = [
     "DEFAULT_ACCHL_SEASON",
     "DEFAULT_BASE_URL",
+    "extract_acchockey_team_logos",
     "extract_pagination_urls",
     "extract_schedule_urls",
     "extract_season_from_html",

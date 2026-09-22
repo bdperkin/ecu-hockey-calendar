@@ -186,6 +186,17 @@ def _build_error_result(
     )
 
 
+def _update_discovered_team_model(
+    team: TeamModel,
+    res: LogoSyncResult,
+) -> None:
+    """Update team model with sync result local web URL."""
+    if res.local_web_url is not None:
+        team.local_logo_url = res.local_web_url
+
+    team.logo_url = team.remote_logo_url or team.local_logo_url
+
+
 class LogoAssetManager:
     """Manages downloading, local caching, and synchronization of team logos."""
 
@@ -326,12 +337,44 @@ class LogoAssetManager:
                 exc=exc,
             )
 
+    async def _sync_single_discovered_team(
+        self,
+        team: TeamModel,
+        session: Session,
+    ) -> LogoSyncResult:
+        """Sync and persist logo for a single discovered team."""
+        res = await self.sync_logo(team.name, str(team.remote_logo_url))
+        _update_discovered_team_model(team, res)
+        session.flush()
+        return res
+
+    async def _sync_discovered_teams(
+        self,
+        session: Session,
+        handled_names: set[str],
+    ) -> list[LogoSyncResult]:
+        """Synchronize logos for database teams with discovered remote URLs."""
+        extra_teams = session.scalars(
+            select(TeamModel).where(
+                TeamModel.remote_logo_url.is_not(None),
+            ),
+        ).all()
+
+        results: list[LogoSyncResult] = []
+        for team in extra_teams:
+            if team.name not in handled_names and team.remote_logo_url:
+                handled_names.add(team.name)
+                res = await self._sync_single_discovered_team(team, session)
+                results.append(res)
+
+        return results
+
     async def sync_directory_logos(
         self,
         directory: OpponentDirectory,
         session: Session,
     ) -> list[LogoSyncResult]:
-        """Synchronize logos for all configured opponents in directory.
+        """Synchronize logos for all configured opponents and discovered database teams.
 
         Args:
             directory: OpponentDirectory with configured opponent endpoints.
@@ -341,16 +384,23 @@ class LogoAssetManager:
             List of LogoSyncResult instances.
         """
         results: list[LogoSyncResult] = []
+        handled_names: set[str] = set()
         for opponent in directory.opponents:
             if not opponent.logo_url:
                 continue
 
             result = await self.sync_logo(opponent.canonical_name, opponent.logo_url)
             results.append(result)
+            handled_names.add(opponent.canonical_name)
+            for alias in opponent.aliases:
+                handled_names.add(alias)
+
             _update_team_model_logos(
                 session,
                 opponent,
                 result.local_web_url,
             )
 
+        discovered = await self._sync_discovered_teams(session, handled_names)
+        results.extend(discovered)
         return results

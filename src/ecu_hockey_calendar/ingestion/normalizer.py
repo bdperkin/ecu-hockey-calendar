@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import UTC, datetime
+from urllib.parse import urljoin
 from zoneinfo import ZoneInfo
 
 from ecu_hockey_calendar.storage.models import GameStatus
@@ -384,8 +385,49 @@ def parse_game_status(
     return STATUS_MAPPING.get(cleaned, default_status)
 
 
+def _resolve_relative_logo_url(cleaned: str, base_url: str) -> str | None:
+    """Resolve scheme-relative or path-relative image URL."""
+    if cleaned.startswith("//"):
+        return f"https:{cleaned}"
+
+    if not cleaned.startswith(("http://", "https://")):
+        return urljoin(base_url, cleaned) if base_url else None
+
+    return cleaned
+
+
+def _upgrade_to_https(url: str) -> str | None:
+    """Ensure URL uses secure HTTPS protocol."""
+    if url.startswith("http://"):
+        return f"https://{url[7:]}"
+
+    return url if url.startswith("https://") else None
+
+
+def normalize_logo_url(url: str | None, base_url: str = "") -> str | None:
+    """Normalize discovered image URL to a canonical absolute HTTPS URL.
+
+    Args:
+        url: Raw image URL or path.
+        base_url: Optional base URL for resolving relative paths.
+
+    Returns:
+        Canonical absolute HTTPS URL string or None if invalid.
+    """
+    if not url:
+        return None
+
+    cleaned = url.strip()
+    if not cleaned or cleaned.startswith("data:"):
+        return None
+
+    resolved = _resolve_relative_logo_url(cleaned, base_url)
+    return _upgrade_to_https(resolved) if resolved else None
+
+
 __all__ = [
     "DEFAULT_TIMEZONE",
+    "normalize_logo_url",
     "normalize_team_name",
     "parse_game_datetime",
     "parse_game_score",

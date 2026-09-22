@@ -56,6 +56,7 @@ class ParsedGameRecord:  # pylint: disable=too-many-instance-attributes
         raw_text: Raw unparsed text line for reference.
         league_game_id: Official league game identifier (e.g., 'ME-6').
         metadata: Supplementary verification metadata dictionary.
+        opponent_logo_url: Optional remote URL to opponent logo image.
     """
 
     game_id: str
@@ -71,6 +72,7 @@ class ParsedGameRecord:  # pylint: disable=too-many-instance-attributes
     league_game_id: str | None = None
     is_time_tbd: bool = False
     metadata: dict[str, object] | None = None
+    opponent_logo_url: str | None = None
 
     def _determine_loss_result(self) -> GameResult:
         """Helper to distinguish regular loss from overtime/shootout loss."""

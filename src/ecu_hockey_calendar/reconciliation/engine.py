@@ -1011,6 +1011,17 @@ class ReconciliationEngine:
             "away_score": ascore,
         }
 
+    @staticmethod
+    def _resolve_cluster_logo(
+        records: Sequence[SourceGameRecord],
+    ) -> str | None:
+        """Find first available opponent logo from sorted records."""
+        for r in records:
+            if r.opponent_logo_url:
+                return r.opponent_logo_url
+
+        return None
+
     def resolve_cluster(
         self,
         cluster: Sequence[SourceGameRecord],
@@ -1073,6 +1084,7 @@ class ReconciliationEngine:
             conflicts=conflicts,
             requires_admin_review=requires_review,
             confidence_score=_compute_cluster_confidence(cluster),
+            opponent_logo_url=self._resolve_cluster_logo(sorted_recs),
         )
 
     def reconcile_games(

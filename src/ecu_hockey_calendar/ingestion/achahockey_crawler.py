@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import logging
 import re
@@ -21,6 +22,7 @@ from ecu_hockey_calendar.ingestion.achahockey_parser import (
     SHORT_YEAR_LENGTH,
     parse_achahockey_schedule_json,
     parse_achahockey_seasons_json,
+    parse_achahockey_teams_json,
 )
 from ecu_hockey_calendar.ingestion.client import (
     ResilientHttpClient,
@@ -263,8 +265,40 @@ def _to_source_game_record(
         home_score=record.home_score,
         away_score=record.away_score,
         confidence_score=1.0,
+        opponent_logo_url=record.opponent_logo_url,
         metadata=meta,
     )
+
+
+def _enrich_single_acha_record(
+    rec: ParsedGameRecord,
+    logo_map: dict[str, str],
+) -> ParsedGameRecord:
+    """Assign discovered ACHA logo to record if missing."""
+    if rec.opponent_logo_url or rec.opponent_name not in logo_map:
+        return rec
+
+    discovered = logo_map[rec.opponent_name]
+    new_meta = dict(rec.metadata) if rec.metadata is not None else None
+    if new_meta is not None:
+        new_meta["opponent_logo_url"] = discovered
+
+    return dataclasses.replace(
+        rec,
+        opponent_logo_url=discovered,
+        metadata=new_meta,
+    )
+
+
+def _enrich_achahockey_logos(
+    records: list[ParsedGameRecord],
+    logo_map: dict[str, str],
+) -> list[ParsedGameRecord]:
+    """Enrich records with discovered team logos where missing."""
+    if not logo_map:
+        return records
+
+    return [_enrich_single_acha_record(rec, logo_map) for rec in records]
 
 
 class ACHAHockeyCrawler:
@@ -399,6 +433,40 @@ class ACHAHockeyCrawler:
         )
         return records, payload, content_hash
 
+    def build_teams_feed_url(self, season_id: str) -> str:
+        """Construct HockeyTech teams feed URL for a specific season."""
+        return (
+            f"{self.base_url}?feed=statviewfeed&view=teamsForSeason"
+            f"&season={season_id}&key={self.app_key}&client_code={self.client_code}&fmt=json"
+        )
+
+    async def fetch_team_logos(self, season_id: str) -> dict[str, str]:
+        """Fetch discovered team logos from HockeyTech teams feed for a season."""
+        url = self.build_teams_feed_url(season_id)
+        try:
+            payload, _ = await self.client.fetch_text(url)
+            discovered = parse_achahockey_teams_json(payload)
+        except Exception as exc:  # pylint: disable=broad-exception-caught # noqa: BLE001
+            logger.warning(
+                "Dynamic team logo discovery failed for season %s: %s",
+                season_id,
+                exc,
+            )
+            self._notify_scrape(
+                url,
+                status_code=500,
+                records_found=0,
+                details=f"Logo discovery failure: {exc}",
+            )
+            return {}
+
+        self._notify_scrape(
+            url,
+            records_found=len(discovered),
+            details=f"Team logo discovery for season {season_id}",
+        )
+        return discovered
+
     async def _execute_target_crawls(
         self,
         targets: dict[str, str],
@@ -414,7 +482,9 @@ class ACHAHockeyCrawler:
                 season_hint=s_name,
                 season_map=season_map,
             )
-            all_records.extend(records)
+            logo_map = await self.fetch_team_logos(s_id)
+            enriched = _enrich_achahockey_logos(records, logo_map)
+            all_records.extend(enriched)
             payloads.append(
                 {
                     "season": s_name,
