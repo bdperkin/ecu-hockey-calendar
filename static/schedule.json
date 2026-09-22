@@ -1,7 +1,7 @@
 {
   "primary_team": "East Carolina University",
   "season": null,
-  "total_games": 185,
+  "total_games": 186,
   "filters": {
     "season": null,
     "opponent": null,
@@ -21,7 +21,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Christopher Newport",
@@ -29,6 +31,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Christopher Newport",
@@ -53,7 +57,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Christopher Newport",
@@ -61,6 +67,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Christopher Newport",
@@ -85,7 +93,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "William & Mary",
@@ -93,6 +103,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "William & Mary",
@@ -117,7 +129,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Appalachian State University",
@@ -125,7 +139,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -149,7 +165,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Appalachian State University",
@@ -157,7 +175,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -181,7 +201,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Old Dominion",
@@ -189,6 +211,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Old Dominion",
@@ -213,7 +237,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Old Dominion",
@@ -221,6 +247,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Old Dominion",
@@ -245,6 +273,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -253,7 +283,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "High Point M2A",
       "designation": "Away",
@@ -277,6 +309,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -285,7 +319,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "High Point M2A",
       "designation": "Away",
@@ -309,7 +345,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png",
+        "local_logo_url": "/static/logos/unc-wilmington.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -317,7 +355,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -341,7 +381,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Citadel",
@@ -349,6 +391,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Citadel",
@@ -373,7 +417,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Liberty M2A",
@@ -381,6 +427,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Liberty M2A",
@@ -405,7 +453,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Liberty M2A",
@@ -413,6 +463,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Liberty M2A",
@@ -437,6 +489,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -445,7 +499,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Liberty University",
       "designation": "Away",
@@ -469,6 +525,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -477,7 +535,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Liberty University",
       "designation": "Away",
@@ -501,6 +561,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -509,7 +571,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Naval Academy",
       "designation": "Away",
@@ -533,6 +597,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -541,7 +607,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Navy",
       "designation": "Away",
@@ -565,7 +633,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Stevenson",
@@ -573,7 +643,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/335.png",
+        "local_logo_url": "/static/logos/stevenson.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/335.png"
       },
       "opponent": "Stevenson",
       "designation": "Home",
@@ -597,6 +669,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -605,7 +679,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Christopher Newport",
       "designation": "Away",
@@ -629,6 +705,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -637,7 +715,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Christopher Newport",
       "designation": "Away",
@@ -661,7 +741,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Coastal",
@@ -669,6 +751,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Coastal",
@@ -693,6 +777,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -701,7 +787,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Costal Carolina",
       "designation": "Away",
@@ -725,6 +813,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -733,7 +823,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Coastal",
       "designation": "Away",
@@ -757,6 +849,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -765,7 +859,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Costal Carolina",
       "designation": "Away",
@@ -789,7 +885,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "NC State University",
@@ -797,7 +895,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/152.png",
+        "local_logo_url": "/static/logos/nc-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/152.png"
       },
       "opponent": "NC State University",
       "designation": "Home",
@@ -821,7 +921,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/152.png",
+        "local_logo_url": "/static/logos/nc-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/152.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -829,7 +931,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "NC State University",
       "designation": "Away",
@@ -856,6 +960,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -864,7 +970,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "College of Charleston",
       "designation": "Away",
@@ -888,6 +996,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -896,7 +1006,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "College of Charleston",
       "designation": "Away",
@@ -920,7 +1032,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "West Virginia University",
@@ -928,7 +1042,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/375.png",
+        "local_logo_url": "/static/logos/west-virginia-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/375.png"
       },
       "opponent": "West Virginia University",
       "designation": "Home",
@@ -952,7 +1068,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "West Virginia University",
@@ -960,7 +1078,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/375.png",
+        "local_logo_url": "/static/logos/west-virginia-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/375.png"
       },
       "opponent": "West Virginia University",
       "designation": "Home",
@@ -984,7 +1104,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "West Virginia University",
@@ -992,7 +1114,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/375.png",
+        "local_logo_url": "/static/logos/west-virginia-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/375.png"
       },
       "opponent": "West Virginia University",
       "designation": "Home",
@@ -1016,7 +1140,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Costal Carolina",
@@ -1024,6 +1150,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Costal Carolina",
@@ -1048,6 +1176,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -1056,7 +1186,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "St. Bonaventure",
       "designation": "Away",
@@ -1080,6 +1212,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -1088,7 +1222,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Farmingdale State",
       "designation": "Away",
@@ -1112,7 +1248,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Penn State Harrisburg",
@@ -1120,6 +1258,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Penn State Harrisburg",
@@ -1144,7 +1284,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1152,7 +1294,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -1176,7 +1320,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1184,7 +1330,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -1208,7 +1356,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1216,7 +1366,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -1240,7 +1392,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png",
+        "local_logo_url": "/static/logos/unc-wilmington.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1248,7 +1402,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -1272,7 +1428,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",
+        "local_logo_url": "/static/logos/unc-chapel-hill.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1280,7 +1438,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Chapel Hill",
       "designation": "Away",
@@ -1307,7 +1467,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",
+        "local_logo_url": "/static/logos/north-carolina.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1315,7 +1477,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "North Carolina",
       "designation": "Away",
@@ -1342,7 +1506,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1350,7 +1516,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -1374,7 +1542,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png",
+        "local_logo_url": "/static/logos/unc-wilmington.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1382,7 +1552,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -1406,7 +1578,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Duke University",
@@ -1414,7 +1588,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -1438,7 +1614,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1446,7 +1624,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -1473,7 +1653,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Stevenson",
@@ -1481,7 +1663,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/335.png",
+        "local_logo_url": "/static/logos/stevenson.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/335.png"
       },
       "opponent": "Stevenson",
       "designation": "Home",
@@ -1505,7 +1689,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Stevenson",
@@ -1513,7 +1699,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/335.png",
+        "local_logo_url": "/static/logos/stevenson.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/335.png"
       },
       "opponent": "Stevenson",
       "designation": "Home",
@@ -1537,7 +1725,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png",
+        "local_logo_url": "/static/logos/georgetown-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1545,7 +1735,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Georgetown University",
       "designation": "Away",
@@ -1569,7 +1761,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Georgetown University",
@@ -1577,7 +1771,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png",
+        "local_logo_url": "/static/logos/georgetown-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png"
       },
       "opponent": "Georgetown University",
       "designation": "Home",
@@ -1601,7 +1797,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/375.png",
+        "local_logo_url": "/static/logos/west-virginia-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/375.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1609,7 +1807,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "West Virginia University",
       "designation": "Away",
@@ -1633,7 +1833,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "West Virginia M2",
@@ -1641,6 +1843,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "West Virginia M2",
@@ -1665,7 +1869,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/284.png",
+        "local_logo_url": "/static/logos/denison-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/284.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1673,7 +1879,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Denison University",
       "designation": "Away",
@@ -1697,7 +1905,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Denison",
@@ -1705,6 +1915,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Denison",
@@ -1729,7 +1941,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "High Point University",
@@ -1737,7 +1951,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png",
+        "local_logo_url": "/static/logos/high-point-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png"
       },
       "opponent": "High Point University",
       "designation": "Home",
@@ -1761,7 +1977,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",
+        "local_logo_url": "/static/logos/north-carolina.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1769,7 +1987,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "North Carolina",
       "designation": "Away",
@@ -1793,7 +2013,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",
+        "local_logo_url": "/static/logos/unc-chapel-hill.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -1801,7 +2023,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Chapel Hill",
       "designation": "Away",
@@ -1828,6 +2052,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -1836,7 +2062,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "South Carolina",
       "designation": "Away",
@@ -1860,6 +2088,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -1868,7 +2098,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "South Carolina",
       "designation": "Away",
@@ -1892,7 +2124,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Elon University",
@@ -1900,7 +2134,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -1927,7 +2163,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Appalachian State University",
@@ -1935,7 +2173,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -1959,7 +2199,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Appalachian State University",
@@ -1967,7 +2209,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -1991,7 +2235,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Elon University",
@@ -1999,7 +2245,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -2023,7 +2271,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2031,7 +2281,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -2058,7 +2310,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2066,7 +2320,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -2090,7 +2346,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/152.png",
+        "local_logo_url": "/static/logos/nc-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/152.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2098,7 +2356,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "NC State University",
       "designation": "Away",
@@ -2125,7 +2385,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2133,7 +2395,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -2160,7 +2424,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "2",
@@ -2168,6 +2434,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "2",
@@ -2192,7 +2460,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2200,7 +2470,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -2224,7 +2496,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",
+        "local_logo_url": "/static/logos/unc-chapel-hill.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2232,7 +2506,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Chapel Hill",
       "designation": "Away",
@@ -2259,7 +2535,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",
+        "local_logo_url": "/static/logos/north-carolina.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2267,7 +2545,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "North Carolina",
       "designation": "Away",
@@ -2294,7 +2574,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png",
+        "local_logo_url": "/static/logos/high-point-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2302,7 +2584,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "High Point University",
       "designation": "Away",
@@ -2326,6 +2610,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -2334,7 +2620,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Coastal Carolina",
       "designation": "Away",
@@ -2358,6 +2646,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -2366,7 +2656,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Costal Carolina",
       "designation": "Away",
@@ -2390,7 +2682,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "7",
@@ -2398,6 +2692,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "7",
@@ -2422,7 +2718,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2430,7 +2728,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -2457,7 +2757,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "5",
@@ -2465,6 +2767,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "5",
@@ -2489,7 +2793,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2497,7 +2803,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -2524,7 +2832,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "UCF",
@@ -2532,6 +2842,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "UCF",
@@ -2556,7 +2868,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png",
+        "local_logo_url": "/static/logos/unc-wilmington.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2564,7 +2878,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -2588,7 +2904,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "UCF",
@@ -2596,6 +2914,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "UCF",
@@ -2620,6 +2940,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -2628,7 +2950,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "St. Joes",
       "designation": "Away",
@@ -2652,7 +2976,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Saint Josephs University",
@@ -2660,7 +2986,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/327.png",
+        "local_logo_url": "/static/logos/saint-josephs-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/327.png"
       },
       "opponent": "Saint Josephs University",
       "designation": "Home",
@@ -2684,7 +3012,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "3",
@@ -2692,6 +3022,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "3",
@@ -2716,7 +3048,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2724,7 +3058,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -2748,7 +3084,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "6",
@@ -2756,6 +3094,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "6",
@@ -2780,7 +3120,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2788,7 +3130,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -2812,7 +3156,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Duke University",
@@ -2820,7 +3166,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -2844,7 +3192,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "4",
@@ -2852,6 +3202,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "4",
@@ -2876,7 +3228,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "2",
@@ -2884,6 +3238,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "2",
@@ -2908,7 +3264,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/375.png",
+        "local_logo_url": "/static/logos/west-virginia-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/375.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2916,7 +3274,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "West Virginia University",
       "designation": "Away",
@@ -2940,7 +3300,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/375.png",
+        "local_logo_url": "/static/logos/west-virginia-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/375.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -2948,7 +3310,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "West Virginia University",
       "designation": "Away",
@@ -2972,7 +3336,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "7",
@@ -2980,6 +3346,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "7",
@@ -3004,7 +3372,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3012,7 +3382,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -3039,7 +3411,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/335.png",
+        "local_logo_url": "/static/logos/stevenson.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/335.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3047,7 +3421,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Stevenson",
       "designation": "Away",
@@ -3071,7 +3447,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/335.png",
+        "local_logo_url": "/static/logos/stevenson.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/335.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3079,7 +3457,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Stevenson",
       "designation": "Away",
@@ -3103,7 +3483,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png",
+        "local_logo_url": "/static/logos/wake-forest-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3111,7 +3493,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -3135,7 +3519,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "6",
@@ -3143,6 +3529,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "6",
@@ -3167,7 +3555,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "5",
@@ -3175,6 +3565,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "5",
@@ -3199,7 +3591,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Elon University",
@@ -3207,7 +3601,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -3231,7 +3627,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "3",
@@ -3239,6 +3637,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "3",
@@ -3263,7 +3663,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png",
+        "local_logo_url": "/static/logos/wake-forest-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3271,7 +3673,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -3295,7 +3699,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3303,7 +3709,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -3327,7 +3735,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png",
+        "local_logo_url": "/static/logos/unc-wilmington.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3335,7 +3745,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -3359,7 +3771,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png",
+        "local_logo_url": "/static/logos/unc-wilmington.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3367,7 +3781,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -3391,7 +3807,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Wake Forest University",
@@ -3399,7 +3817,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png",
+        "local_logo_url": "/static/logos/wake-forest-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png"
       },
       "opponent": "Wake Forest University",
       "designation": "Home",
@@ -3423,7 +3843,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Elon University",
@@ -3431,7 +3853,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -3455,7 +3879,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3463,7 +3889,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -3487,7 +3915,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/225.png",
+        "local_logo_url": "/static/logos/george-washington-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/225.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3495,7 +3925,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "George Washington University",
       "designation": "Away",
@@ -3519,7 +3951,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png",
+        "local_logo_url": "/static/logos/wake-forest-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3527,7 +3961,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -3551,6 +3987,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -3559,7 +3997,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "St. Joesph's",
       "designation": "Away",
@@ -3583,7 +4023,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Saint Josephs University",
@@ -3591,7 +4033,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/327.png",
+        "local_logo_url": "/static/logos/saint-josephs-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/327.png"
       },
       "opponent": "Saint Josephs University",
       "designation": "Home",
@@ -3615,6 +4059,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -3623,7 +4069,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Saint Joseph's University",
       "designation": "Away",
@@ -3647,6 +4095,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -3655,7 +4105,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "George Washington",
       "designation": "Away",
@@ -3679,7 +4131,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "George Washington University",
@@ -3687,7 +4141,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/225.png",
+        "local_logo_url": "/static/logos/george-washington-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/225.png"
       },
       "opponent": "George Washington University",
       "designation": "Home",
@@ -3711,7 +4167,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/284.png",
+        "local_logo_url": "/static/logos/denison-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/284.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3719,7 +4177,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Denison University",
       "designation": "Away",
@@ -3743,7 +4203,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Denison",
@@ -3751,6 +4213,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Denison",
@@ -3775,7 +4239,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/258.png",
+        "local_logo_url": "/static/logos/university-of-virginia.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/258.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3783,7 +4249,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Virginia",
       "designation": "Away",
@@ -3807,7 +4275,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/258.png",
+        "local_logo_url": "/static/logos/university-of-virginia.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/258.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -3815,7 +4285,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Virginia",
       "designation": "Away",
@@ -3839,6 +4311,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -3847,7 +4321,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "South Carolina",
       "designation": "Away",
@@ -3871,6 +4347,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -3879,7 +4357,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "South Carolina",
       "designation": "Away",
@@ -3903,7 +4383,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "West Chester University",
@@ -3911,6 +4393,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "West Chester University",
@@ -3935,7 +4419,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "West Chester University",
@@ -3943,6 +4429,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "West Chester University",
@@ -3967,6 +4455,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -3975,7 +4465,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UCF",
       "designation": "Away",
@@ -3999,6 +4491,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -4007,7 +4501,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UCF",
       "designation": "Away",
@@ -4031,7 +4527,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4039,7 +4537,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Duke University",
       "designation": "Away",
@@ -4063,7 +4563,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Duke University",
@@ -4071,7 +4573,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -4095,7 +4599,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Citadel",
@@ -4103,6 +4609,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Citadel",
@@ -4127,7 +4635,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Citadel",
@@ -4135,6 +4645,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Citadel",
@@ -4159,7 +4671,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Duke University",
@@ -4167,7 +4681,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -4191,7 +4707,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png",
+        "local_logo_url": "/static/logos/high-point-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4199,7 +4717,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "High Point University",
       "designation": "Away",
@@ -4223,7 +4743,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "University of Richmond",
@@ -4231,7 +4753,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/257.png",
+        "local_logo_url": "/static/logos/university-of-richmond.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/257.png"
       },
       "opponent": "University of Richmond",
       "designation": "Home",
@@ -4255,7 +4779,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/257.png",
+        "local_logo_url": "/static/logos/university-of-richmond.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/257.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4263,7 +4789,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Richmond",
       "designation": "Away",
@@ -4287,7 +4815,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/257.png",
+        "local_logo_url": "/static/logos/university-of-richmond.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/257.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4295,7 +4825,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Richmond",
       "designation": "Away",
@@ -4319,7 +4851,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/257.png",
+        "local_logo_url": "/static/logos/university-of-richmond.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/257.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4327,7 +4861,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Richmond",
       "designation": "Away",
@@ -4351,7 +4887,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1025.png",
+        "local_logo_url": "/static/logos/university-of-alabama.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1025.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4359,7 +4897,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Alabama",
       "designation": "Away",
@@ -4383,7 +4923,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1025.png",
+        "local_logo_url": "/static/logos/university-of-alabama.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1025.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4391,7 +4933,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Alabama",
       "designation": "Away",
@@ -4415,7 +4959,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png",
+        "local_logo_url": "/static/logos/unc-wilmington.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/350.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4423,7 +4969,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Wilmington",
       "designation": "Away",
@@ -4447,7 +4995,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/479.png",
+        "local_logo_url": "/static/logos/stevenson-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/479.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4455,7 +5005,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Stevenson University",
       "designation": "Away",
@@ -4479,6 +5031,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -4487,7 +5041,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "William & Mary",
       "designation": "Away",
@@ -4514,7 +5070,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png",
+        "local_logo_url": "/static/logos/wake-forest-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4522,7 +5080,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -4546,7 +5106,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4554,7 +5116,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -4581,7 +5145,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Coastal Carolina",
@@ -4589,6 +5155,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Coastal Carolina",
@@ -4613,7 +5181,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Coastal Carolina",
@@ -4621,6 +5191,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "Coastal Carolina",
@@ -4645,7 +5217,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4653,7 +5227,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -4677,7 +5253,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Appalachian State University",
@@ -4685,7 +5263,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -4709,7 +5289,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Appalachian State University",
@@ -4717,7 +5299,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Home",
@@ -4741,7 +5325,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4749,7 +5335,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -4773,7 +5361,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4781,7 +5371,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -4805,7 +5397,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "University of North Carolina",
@@ -4813,7 +5407,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/356.png",
+        "local_logo_url": "/static/logos/university-of-north-carolina.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/356.png"
       },
       "opponent": "University of North Carolina",
       "designation": "Home",
@@ -4837,7 +5433,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png",
+        "local_logo_url": "/static/logos/georgetown-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -4845,7 +5443,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Georgetown University",
       "designation": "Away",
@@ -4869,7 +5469,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Georgetown University",
@@ -4877,7 +5479,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png",
+        "local_logo_url": "/static/logos/georgetown-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png"
       },
       "opponent": "Georgetown University",
       "designation": "Home",
@@ -4901,6 +5505,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -4909,7 +5515,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "St. Joesph's",
       "designation": "Away",
@@ -4933,7 +5541,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Saint Josephs University",
@@ -4941,7 +5551,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/327.png",
+        "local_logo_url": "/static/logos/saint-josephs-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/327.png"
       },
       "opponent": "Saint Josephs University",
       "designation": "Home",
@@ -4965,6 +5577,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -4973,7 +5587,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Saint Joseph's University",
       "designation": "Away",
@@ -4997,6 +5613,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -5005,7 +5623,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "James Madison University (M2)",
       "designation": "Away",
@@ -5029,7 +5649,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "James Madison University",
@@ -5037,7 +5659,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/256.png",
+        "local_logo_url": "/static/logos/james-madison-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/256.png"
       },
       "opponent": "James Madison University",
       "designation": "Home",
@@ -5061,7 +5685,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1061.png",
+        "local_logo_url": "/static/logos/georgia-tech.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1061.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5069,7 +5695,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Georgia Tech",
       "designation": "Away",
@@ -5093,7 +5721,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Georgia Tech",
@@ -5101,7 +5731,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1061.png",
+        "local_logo_url": "/static/logos/georgia-tech.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1061.png"
       },
       "opponent": "Georgia Tech",
       "designation": "Home",
@@ -5125,7 +5757,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Georgia Tech",
@@ -5133,7 +5767,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1061.png",
+        "local_logo_url": "/static/logos/georgia-tech.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1061.png"
       },
       "opponent": "Georgia Tech",
       "designation": "Home",
@@ -5157,7 +5793,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png",
+        "local_logo_url": "/static/logos/wake-forest-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5165,7 +5803,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -5189,7 +5829,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png",
+        "local_logo_url": "/static/logos/wake-forest-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/154.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5197,7 +5839,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Wake Forest University",
       "designation": "Away",
@@ -5221,7 +5865,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "George Washington University",
@@ -5229,7 +5875,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/225.png",
+        "local_logo_url": "/static/logos/george-washington-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/225.png"
       },
       "opponent": "George Washington University",
       "designation": "Home",
@@ -5253,7 +5901,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "George Washington University",
@@ -5261,7 +5911,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/225.png",
+        "local_logo_url": "/static/logos/george-washington-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/225.png"
       },
       "opponent": "George Washington University",
       "designation": "Home",
@@ -5285,7 +5937,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5293,7 +5947,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -5317,7 +5973,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "UNC Charlotte",
@@ -5325,7 +5983,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Home",
@@ -5349,7 +6009,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Elon University",
@@ -5357,7 +6019,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -5381,7 +6045,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5389,7 +6055,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Elon University",
       "designation": "Away",
@@ -5416,7 +6084,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png",
+        "local_logo_url": "/static/logos/appalachian-state-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5424,7 +6094,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Appalachian State University",
       "designation": "Away",
@@ -5448,6 +6120,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -5456,7 +6130,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Alabama (D2)",
       "designation": "Away",
@@ -5480,6 +6156,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -5488,7 +6166,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "University of Alabama (D2)",
       "designation": "Away",
@@ -5512,7 +6192,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Elon University",
@@ -5520,7 +6202,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png",
+        "local_logo_url": "/static/logos/elon-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png"
       },
       "opponent": "Elon University",
       "designation": "Home",
@@ -5544,7 +6228,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5552,7 +6238,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -5576,7 +6264,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Duke University",
@@ -5584,7 +6274,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -5608,7 +6300,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png",
+        "local_logo_url": "/static/logos/unc-charlotte.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5616,7 +6310,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "UNC Charlotte",
       "designation": "Away",
@@ -5640,7 +6336,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1040.png",
+        "local_logo_url": "/static/logos/clemson-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1040.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5648,7 +6346,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Clemson University",
       "designation": "Away",
@@ -5672,7 +6372,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1040.png",
+        "local_logo_url": "/static/logos/clemson-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1040.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5680,7 +6382,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Clemson University",
       "designation": "Away",
@@ -5704,7 +6408,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "George Washington University",
@@ -5712,7 +6418,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/225.png",
+        "local_logo_url": "/static/logos/george-washington-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/225.png"
       },
       "opponent": "George Washington University",
       "designation": "Home",
@@ -5727,6 +6435,42 @@
       "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
+      "game_id": "ecu-away-george-washington-university-20261024",
+      "season": "2026-2027",
+      "start_time": "2026-10-24T01:00:00Z",
+      "home_team": {
+        "name": "George Washington University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL",
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/225.png",
+        "local_logo_url": "/static/logos/george-washington-university.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/225.png"
+      },
+      "away_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL",
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
+      },
+      "opponent": "George Washington University",
+      "designation": "Away",
+      "is_home": false,
+      "venue": "The St. James Sports, Wellness and Entertainment, 6805 Industrial Rd, Springfield, VA 22151",
+      "location": "The St. James Sports, Wellness and Entertainment, 6805 Industrial Rd, Springfield, VA 22151",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": null
+    },
+    {
       "game_id": "game-vs-christopher-newport-on-10242026-mrxh2ee5",
       "season": "2026-2027",
       "start_time": "2026-10-24T17:45:00Z",
@@ -5736,6 +6480,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -5744,7 +6490,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Christopher Newport",
       "designation": "Away",
@@ -5771,6 +6519,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "away_team": {
@@ -5779,7 +6529,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "TBD",
       "designation": "Away",
@@ -5803,7 +6555,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "TBD",
@@ -5811,6 +6565,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "TBD",
@@ -5835,7 +6591,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "TBD",
@@ -5843,6 +6601,8 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
         "logo_url": null
       },
       "opponent": "TBD",
@@ -5867,7 +6627,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "High Point University",
@@ -5875,7 +6637,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png",
+        "local_logo_url": "/static/logos/high-point-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png"
       },
       "opponent": "High Point University",
       "designation": "Home",
@@ -5899,7 +6663,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
         "name": "Duke University",
@@ -5907,7 +6673,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",
+        "local_logo_url": "/static/logos/duke-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"
       },
       "opponent": "Duke University",
       "designation": "Home",
@@ -5931,7 +6699,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1061.png",
+        "local_logo_url": "/static/logos/georgia-tech.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1061.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5939,7 +6709,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Georgia Tech",
       "designation": "Away",
@@ -5963,7 +6735,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1061.png",
+        "local_logo_url": "/static/logos/georgia-tech.png",
+        "logo_url": "https://assets.leaguestat.com/acha/logos/1061.png"
       },
       "away_team": {
         "name": "East Carolina University",
@@ -5971,7 +6745,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "opponent": "Georgia Tech",
       "designation": "Away",
