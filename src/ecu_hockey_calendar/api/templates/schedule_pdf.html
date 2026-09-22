@@ -50,6 +50,22 @@
     margin-bottom: 10px;
   }
 
+  .pdf-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pdf-header-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 4px;
+    background-color: #ffffff;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
   .pdf-title-block h1 {
     font-size: 14pt;
     font-weight: 800;
@@ -64,6 +80,42 @@
     font-weight: 700;
     color: #fec923;
     margin-top: 2px;
+  }
+
+  .pdf-opponent-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pdf-team-logo {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    border-radius: 2px;
+    background-color: #ffffff;
+    border: 0.5px solid #d4d4d4;
+    padding: 1px;
+    flex-shrink: 0;
+  }
+
+  .pdf-team-logo-fallback {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    background-color: #592a8a;
+    color: #ffffff;
+    font-size: 6pt;
+    font-weight: 700;
+    text-align: center;
+    border-radius: 2px;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .pdf-opponent-info {
+    min-width: 0;
   }
 
   .pdf-meta-block {
@@ -184,11 +236,18 @@
 
 {% block content %}
     <header class="pdf-header-banner">
-        <div class="pdf-title-block">
-            <h1>East Carolina University Men's Ice Hockey</h1>
-            <div class="pdf-subtitle">
-                {% if selected_season %}{{ selected_season }} Season Schedule{% else %}Master Team Schedule{% endif %}
-                {% if selected_home_only %}• Home Games Only{% endif %}
+        <div class="pdf-header-left">
+            {% if ecu_logo_url %}
+                <img src="{{ ecu_logo_url }}"
+                     alt="ECU Men's Ice Hockey Crest"
+                     class="pdf-header-logo">
+            {% endif %}
+            <div class="pdf-title-block">
+                <h1>East Carolina University Men's Ice Hockey</h1>
+                <div class="pdf-subtitle">
+                    {% if selected_season %}{{ selected_season }} Season Schedule{% else %}Master Team Schedule{% endif %}
+                    {% if selected_home_only %}• Home Games Only{% endif %}
+                </div>
             </div>
         </div>
         <div class="pdf-meta-block">
@@ -216,12 +275,23 @@
                         <td><strong>{{ game.date_str }}</strong></td>
                         <td>{{ game.time_str }}</td>
                         <td>
-                            <div><strong>{{ game.opponent_name }}</strong></div>
-                            {% if game.opponent_division or game.opponent_conference %}
-                                <div style="font-size: 7pt; color: #555555;">
-                                    {{ game.opponent_division }}{% if game.opponent_division and game.opponent_conference %} • {% endif %}{{ game.opponent_conference }}
+                            <div class="pdf-opponent-cell">
+                                {% if game.opponent_logo_url %}
+                                    <img src="{{ game.opponent_logo_url }}"
+                                         alt="{{ game.opponent_name }} logo"
+                                         class="pdf-team-logo">
+                                {% else %}
+                                    <span class="pdf-team-logo-fallback">{{ game.opponent_initials }}</span>
+                                {% endif %}
+                                <div class="pdf-opponent-info">
+                                    <div><strong>{{ game.opponent_name }}</strong></div>
+                                    {% if game.opponent_division or game.opponent_conference %}
+                                        <div style="font-size: 7pt; color: #555555;">
+                                            {{ game.opponent_division }}{% if game.opponent_division and game.opponent_conference %} • {% endif %}{{ game.opponent_conference }}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
+                            </div>
                         </td>
                         <td style="text-align: center;">
                             <span class="pdf-badge {% if game.is_home %}pdf-badge-home{% else %}pdf-badge-away{% endif %}">

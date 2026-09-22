@@ -13,7 +13,13 @@ import json
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
-from ecu_hockey_calendar.models import Game, GameResult, Schedule, Team
+from ecu_hockey_calendar.models import (
+    DEFAULT_ECU_LOGO_URL,
+    Game,
+    GameResult,
+    Schedule,
+    Team,
+)
 from ecu_hockey_calendar.syndication import (
     SyndicationConfig,
     SyndicationFeedService,
@@ -28,6 +34,7 @@ ECU_DEFAULT_TEAM = Team(
     state="NC",
     division="ACHA M2",
     conference="ACCHL",
+    logo_url=DEFAULT_ECU_LOGO_URL,
 )
 
 

@@ -44,6 +44,7 @@ class TestGameParsing:
                 "state": "NC",
                 "division": "ACHA M2",
                 "conference": "ACCHL",
+                "logo_url": "https://example.com/ncstate.png",
             },
             "start_time": "2026-10-15T20:00:00Z",
             "venue": "The Factory Ice House",
@@ -54,8 +55,10 @@ class TestGameParsing:
         game = parse_game_dict(raw)
         assert game.game_id == "game_123"
         assert game.home_team.name == "East Carolina University"
+        assert game.home_team.logo_url is None
         assert game.away_team.name == "NC State Icepack"
         assert game.away_team.city == "Raleigh"
+        assert game.away_team.logo_url == "https://example.com/ncstate.png"
         assert game.start_time.tzinfo is not None
         assert game.result == GameResult.WIN
         assert game.home_score == 5

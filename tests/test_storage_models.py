@@ -93,7 +93,22 @@ def test_team_model_lifecycle(sync_memory_engine, ecu_team: Team) -> None:
 
         # Domain conversion
         domain = team_orm.to_domain()
-        assert domain == ecu_team
+        assert domain.name == ecu_team.name
+        assert domain.city == ecu_team.city
+        assert domain.state == ecu_team.state
+        assert domain.division == ecu_team.division
+        assert domain.conference == ecu_team.conference
+        assert domain.logo_url == "https://example.com/logo.png"
+
+        # Verify from_domain fallback to team.logo_url
+        team_with_logo = Team(
+            name="UNC Chapel Hill",
+            city="Chapel Hill",
+            state="NC",
+            logo_url="https://example.com/unc.png",
+        )
+        orm_fallback = TeamModel.from_domain(team_with_logo)
+        assert orm_fallback.logo_url == "https://example.com/unc.png"
 
         # Dictionary serialization
         d = team_orm.to_dict()
