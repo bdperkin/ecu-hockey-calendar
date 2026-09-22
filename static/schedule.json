@@ -1,7 +1,7 @@
 {
   "primary_team": "East Carolina University",
   "season": null,
-  "total_games": 184,
+  "total_games": 185,
   "filters": {
     "season": null,
     "opponent": null,
@@ -5221,6 +5221,36 @@
       "home_score": null,
       "away_score": null,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-duke-university-20260925",
+      "season": "2026-2027",
+      "start_time": "2026-09-25T21:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "away_team": {
+        "name": "Duke University",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL"
+      },
+      "opponent": "Duke University",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "Polar Ice Garner",
+      "location": "Polar Ice Garner",
+      "coordinates": null,
+      "status": "Scheduled",
+      "result": "SCHEDULED",
+      "home_score": null,
+      "away_score": null,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-charlotte-on-10092026-msyx0jgc",
