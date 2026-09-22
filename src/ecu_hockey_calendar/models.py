@@ -26,7 +26,9 @@ class GameResult(StrEnum):
     POSTPONED = "POSTPONED"
 
 
-DEFAULT_ECU_LOGO_URL = "/static/ecu_hockey_logo.png"
+DEFAULT_ECU_REMOTE_LOGO_URL = "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
+DEFAULT_ECU_LOCAL_LOGO_URL = "/static/ecu_hockey_logo.png"
+DEFAULT_ECU_LOGO_URL = DEFAULT_ECU_REMOTE_LOGO_URL
 
 KNOWN_TEAM_INITIALS: dict[str, str] = {
     "east carolina university": "ECU",
@@ -91,6 +93,71 @@ def get_team_initials(name: str) -> str:
     return _extract_initials_from_words(_filter_team_words(cleaned))
 
 
+def _is_remote_url(url: str | None) -> bool:
+    """Check if URL points to remote HTTP/HTTPS resource."""
+    return url is not None and url.startswith(("http://", "https://"))
+
+
+def _is_local_url(url: str | None) -> bool:
+    """Check if URL points to local path or file URI."""
+    return url is not None and url.startswith(("/", "file://"))
+
+
+def _derive_remote_logo(remote: str | None, logo: str | None) -> str | None:
+    """Derive remote logo URL from explicit or active logo URL."""
+    if remote is not None:
+        return remote
+
+    return logo if _is_remote_url(logo) else None
+
+
+def _derive_local_logo(local: str | None, logo: str | None) -> str | None:
+    """Derive local logo URL from explicit or active logo URL."""
+    if local is not None:
+        return local
+
+    return logo if _is_local_url(logo) else None
+
+
+def _derive_team_logos(
+    remote: str | None,
+    local: str | None,
+    logo: str | None,
+) -> tuple[str | None, str | None, str | None]:
+    """Derive remote, local, and active logo URLs."""
+    rem = _derive_remote_logo(remote, logo)
+    loc = _derive_local_logo(local, logo)
+    act = logo or rem or loc
+    return rem, loc, act
+
+
+def _validate_team_strings(name: str, city: str, state: str) -> None:
+    """Validate mandatory team string fields."""
+    if not name.strip():
+        msg = "Team name cannot be empty."
+        raise ValueError(msg)
+
+    if not city.strip():
+        msg = "Team city cannot be empty."
+        raise ValueError(msg)
+
+    if not state.strip():
+        msg = "Team state cannot be empty."
+        raise ValueError(msg)
+
+
+def _assign_team_logos(
+    team: Team,
+    remote: str | None,
+    local: str | None,
+    active: str | None,
+) -> None:
+    """Assign derived logo URLs onto frozen dataclass instance."""
+    object.__setattr__(team, "remote_logo_url", remote)
+    object.__setattr__(team, "local_logo_url", local)
+    object.__setattr__(team, "logo_url", active)
+
+
 @dataclass(frozen=True, slots=True)
 class Team:
     """Represents a collegiate ice hockey team.
@@ -101,7 +168,9 @@ class Team:
         state: The two-letter state abbreviation or region code.
         division: The league competition division (e.g., ACHA M2, ACHA M3).
         conference: The conference name (e.g., ACCHL).
-        logo_url: Optional URL or path to the team's logo icon.
+        remote_logo_url: Optional remote HTTP/HTTPS URL to the team's logo.
+        local_logo_url: Optional local web path or file URI to the cached logo.
+        logo_url: Active URL or path to the team's logo icon.
     """
 
     name: str
@@ -109,6 +178,8 @@ class Team:
     state: str
     division: str = "ACHA M2"
     conference: str = "ACCHL"
+    remote_logo_url: str | None = None
+    local_logo_url: str | None = None
     logo_url: str | None = None
 
     def __post_init__(self) -> None:
@@ -117,17 +188,13 @@ class Team:
         Raises:
             ValueError: If team name, city, or state is empty.
         """
-        if not self.name.strip():
-            msg = "Team name cannot be empty."
-            raise ValueError(msg)
-
-        if not self.city.strip():
-            msg = "Team city cannot be empty."
-            raise ValueError(msg)
-
-        if not self.state.strip():
-            msg = "Team state cannot be empty."
-            raise ValueError(msg)
+        _validate_team_strings(self.name, self.city, self.state)
+        remote, local, active = _derive_team_logos(
+            self.remote_logo_url,
+            self.local_logo_url,
+            self.logo_url,
+        )
+        _assign_team_logos(self, remote, local, active)
 
     @property
     def initials(self) -> str:
@@ -146,6 +213,8 @@ class Team:
             "state": self.state,
             "division": self.division,
             "conference": self.conference,
+            "remote_logo_url": self.remote_logo_url,
+            "local_logo_url": self.local_logo_url,
             "logo_url": self.logo_url,
         }
 

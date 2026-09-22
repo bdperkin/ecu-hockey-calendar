@@ -81,6 +81,8 @@ class TeamModel(Base):
         nullable=False,
     )
     logo_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    remote_logo_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    local_logo_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     website: Mapped[str | None] = mapped_column(String(512), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -121,6 +123,8 @@ class TeamModel(Base):
             state=self.state,
             division=self.division,
             conference=self.conference,
+            remote_logo_url=self.remote_logo_url,
+            local_logo_url=self.local_logo_url,
             logo_url=self.logo_url,
         )
 
@@ -129,18 +133,32 @@ class TeamModel(Base):
         cls,
         team: Team,
         logo_url: str | None = None,
+        remote_logo_url: str | None = None,
+        local_logo_url: str | None = None,
         website: str | None = None,
     ) -> TeamModel:
         """Construct an ORM instance from a domain Team object.
 
         Args:
             team: Domain Team instance.
-            logo_url: Optional team logo URL (falls back to team.logo_url if None).
+            logo_url: Optional team logo URL (falls back to team.logo_url).
+            remote_logo_url: Optional remote logo URL (falls back to team).
+            local_logo_url: Optional local logo URL (falls back to team).
             website: Optional team website URL.
 
         Returns:
             New TeamModel instance.
         """
+        remote_logo = (
+            remote_logo_url
+            if remote_logo_url is not None
+            else getattr(team, "remote_logo_url", None)
+        )
+        local_logo = (
+            local_logo_url
+            if local_logo_url is not None
+            else getattr(team, "local_logo_url", None)
+        )
         actual_logo = (
             logo_url if logo_url is not None else getattr(team, "logo_url", None)
         )
@@ -150,6 +168,8 @@ class TeamModel(Base):
             state=team.state,
             division=team.division,
             conference=team.conference,
+            remote_logo_url=remote_logo,
+            local_logo_url=local_logo,
             logo_url=actual_logo,
             website=website,
         )
@@ -168,6 +188,8 @@ class TeamModel(Base):
             "division": self.division,
             "conference": self.conference,
             "logo_url": self.logo_url,
+            "remote_logo_url": self.remote_logo_url,
+            "local_logo_url": self.local_logo_url,
             "website": self.website,
             "created_at": (self.created_at.isoformat() if self.created_at else None),
             "updated_at": (self.updated_at.isoformat() if self.updated_at else None),

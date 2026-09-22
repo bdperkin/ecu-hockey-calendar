@@ -606,7 +606,9 @@ def _resolve_pdf_ecu_logo_url(custom_url: str | None = None) -> str | None:
 def _format_pdf_game(game: Game, primary_team: str) -> dict[str, Any]:
     """Format a Game dictionary for PDF template rendering."""
     formatted = _format_html_game(game, primary_team)
-    raw_logo = formatted.get("opponent_logo_url")
+    is_home = game.home_team.name == primary_team
+    opp = game.away_team if is_home else game.home_team
+    raw_logo = opp.local_logo_url or formatted.get("opponent_logo_url")
     formatted["opponent_logo_url"] = _resolve_pdf_logo_url(raw_logo)
     return formatted
 

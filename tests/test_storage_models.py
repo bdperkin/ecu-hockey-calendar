@@ -110,6 +110,29 @@ def test_team_model_lifecycle(sync_memory_engine, ecu_team: Team) -> None:
         orm_fallback = TeamModel.from_domain(team_with_logo)
         assert orm_fallback.logo_url == "https://example.com/unc.png"
 
+        # Verify dual remote and local logo storage and conversion
+        team_dual = Team(
+            name="Duke University",
+            city="Durham",
+            state="NC",
+            remote_logo_url="https://example.com/duke.png",
+            local_logo_url="/static/logos/duke-university.png",
+        )
+        orm_dual = TeamModel.from_domain(team_dual)
+        assert orm_dual.remote_logo_url == "https://example.com/duke.png"
+        assert orm_dual.local_logo_url == "/static/logos/duke-university.png"
+        assert orm_dual.logo_url == "https://example.com/duke.png"
+
+        domain_dual = orm_dual.to_domain()
+        assert domain_dual.remote_logo_url == "https://example.com/duke.png"
+        assert domain_dual.local_logo_url == "/static/logos/duke-university.png"
+        assert domain_dual.logo_url == "https://example.com/duke.png"
+
+        dict_dual = orm_dual.to_dict()
+        assert dict_dual["remote_logo_url"] == "https://example.com/duke.png"
+        assert dict_dual["local_logo_url"] == "/static/logos/duke-university.png"
+        assert dict_dual["logo_url"] == "https://example.com/duke.png"
+
         # Dictionary serialization
         d = team_orm.to_dict()
         assert d["name"] == "East Carolina University"

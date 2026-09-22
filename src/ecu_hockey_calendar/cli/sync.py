@@ -8,6 +8,8 @@ detects state transitions, and persists updates to relational storage.
 
 from __future__ import annotations
 
+import asyncio
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import rich_click as click
@@ -44,6 +46,10 @@ from ecu_hockey_calendar.ingestion.acchockey_crawler import ACCHockeyCrawler
 from ecu_hockey_calendar.ingestion.achahockey_crawler import ACHAHockeyCrawler
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
+from ecu_hockey_calendar.ingestion.logo_manager import (
+    LogoAssetManager,
+    LogoSyncResult,
+)
 from ecu_hockey_calendar.ingestion.opponent_config import (
     OpponentConfigError,
     OpponentDirectory,
@@ -67,11 +73,10 @@ from ecu_hockey_calendar.sync_service import (
     _execute_crawlers,
     _load_baseline_games_from_db,
     execute_sync_pipeline,
+    sync_team_logos,
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from rich.console import Console
     from sqlalchemy.engine import Engine
 
@@ -96,12 +101,14 @@ __all__ = [
     "_execute_sync_pipeline",
     "_extract_ctx_str",
     "_fetch_remote_sync_status",
+    "_format_logo_status",
     "_handle_remote_sync_result",
     "_load_baseline_games_from_db",
     "_maybe_dispatch_remote_sync",
     "_normalize_source_filter",
     "_populate_ctx_params",
     "_render_local_sync_status",
+    "_render_logo_sync_results",
     "_render_remote_sync_status",
     "_render_sync_details",
     "_render_sync_results",
@@ -116,6 +123,7 @@ __all__ = [
     "get_sync_database_url",
     "get_sync_session",
     "sync_command",
+    "sync_logos_command",
     "sync_status_command",
     "sync_trigger_command",
 ]
@@ -221,6 +229,7 @@ def _execute_sync_pipeline(  # noqa: PLR0913 # pylint: disable=too-many-argument
     verify_opponents: bool = False,
     observer: ScrapeObserver | None = None,
     opponent_directory: OpponentDirectory | None = None,
+    sync_logos: bool = True,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous core pipeline orchestrating crawl, reconciliation, and storage."""
     return execute_sync_pipeline(
@@ -237,6 +246,7 @@ def _execute_sync_pipeline(  # noqa: PLR0913 # pylint: disable=too-many-argument
         verify_opponents=verify_opponents,
         observer=observer,
         opponent_directory=opponent_directory,
+        sync_logos=sync_logos,
     )
 
 
@@ -362,6 +372,36 @@ def _render_sync_results(
         )
 
 
+def _format_logo_status(result: LogoSyncResult) -> str:
+    """Format logo synchronization outcome as a styled status string."""
+    if result.error:
+        return f"[red]Error: {result.error}[/red]"
+
+    if result.updated:
+        return "[green]Updated[/green]"
+
+    return "[dim]Unchanged[/dim]"
+
+
+def _render_logo_sync_results(results: list[LogoSyncResult]) -> None:
+    """Render Rich table displaying opponent logo synchronization outcomes."""
+    console = get_console()
+    table = create_table(
+        "Opponent Logo Assets Synchronization",
+        [
+            ("Opponent", "bold cyan"),
+            ("Status", "bold"),
+            ("Local Asset Path", "dim"),
+        ],
+    )
+    for res in results:
+        local_display = str(res.local_path) if res.local_path else "—"
+        table.add_row(res.team_name, _format_logo_status(res), local_display)
+
+    console.print(table)
+    console.print()
+
+
 def _populate_ctx_params(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     ctx: click.Context | None,
     api_url: str | None,
@@ -445,6 +485,7 @@ def _run_sync_pipeline_with_progress(  # noqa: PLR0913 # pylint: disable=too-man
     observer: ScrapeObserver | None,
     console: Console,
     opponent_directory: OpponentDirectory | None = None,
+    sync_logos: bool = True,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Execute sync pipeline with spinner or live observer telemetry."""
     if observer is not None:
@@ -458,6 +499,7 @@ def _run_sync_pipeline_with_progress(  # noqa: PLR0913 # pylint: disable=too-man
             verify_opponents=verify_opponents,
             observer=observer,
             opponent_directory=opponent_directory,
+            sync_logos=sync_logos,
         )
 
     with console.status(
@@ -474,6 +516,7 @@ def _run_sync_pipeline_with_progress(  # noqa: PLR0913 # pylint: disable=too-man
             verify_opponents=verify_opponents,
             observer=None,
             opponent_directory=opponent_directory,
+            sync_logos=sync_logos,
         )
 
 
@@ -528,6 +571,7 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
     opponents_config: str | Path | None = None,
     prod: bool = False,
     method: str = "auto",
+    sync_logos: bool = True,
 ) -> None:
     """Execute schedule crawl, reconciliation, and diffing pipeline."""
     console = get_console()
@@ -573,6 +617,7 @@ def _run_sync_trigger(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too
             observer=observer,
             console=console,
             opponent_directory=opponent_directory,
+            sync_logos=sync_logos,
         )
     except Exception as exc:
         print_error(f"Synchronization pipeline encountered a fatal error: {exc}")
@@ -794,6 +839,13 @@ def _run_sync_status(  # pylint: disable=too-many-arguments
     ),
 )
 @click.option(
+    "--sync-logos/--no-sync-logos",
+    "sync_logos",
+    default=True,
+    show_default=True,
+    help="Check for updates and cache opponent logo assets locally.",
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -825,6 +877,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     debug: bool = False,
     prod: bool = False,
     method: str = "auto",
+    sync_logos: bool = True,
 ) -> None:
     """Ingest upstream schedules, reconcile conflicts, and detect changes."""
     _populate_ctx_params(ctx, api_url, token, db_url, opponents_config, prod=prod)
@@ -847,6 +900,7 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
         opponents_config=opponents_config,
         prod=prod,
         method=method,
+        sync_logos=sync_logos,
     )
 
 
@@ -955,6 +1009,13 @@ def sync_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,too-many
     ),
 )
 @click.option(
+    "--sync-logos/--no-sync-logos",
+    "sync_logos",
+    default=True,
+    show_default=True,
+    help="Check for updates and cache opponent logo assets locally.",
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -986,6 +1047,7 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
     debug: bool = False,
     prod: bool = False,
     method: str = "auto",
+    sync_logos: bool = True,
 ) -> None:
     """Trigger schedule crawl, reconciliation, and change detection pipeline."""
     _run_sync_trigger(
@@ -1004,7 +1066,74 @@ def sync_trigger_command(  # noqa: PLR0913 # pylint: disable=too-many-arguments,
         opponents_config=opponents_config,
         prod=prod,
         method=method,
+        sync_logos=sync_logos,
     )
+
+
+@sync_command.command("logos")
+@click.option(
+    "--opponents-config",
+    "-O",
+    "opponents_config",
+    envvar="OPPONENTS_CONFIG",
+    default=None,
+    help="Path to YAML configuration file for opponent schedule feeds.",
+)
+@click.option(
+    "--db-url",
+    envvar="DATABASE_URL",
+    default=None,
+    help="Database connection URL override (defaults to local SQLite or DATABASE_URL).",
+)
+@click.option(
+    "--static-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Directory to store downloaded logo assets (defaults to static/logos).",
+)
+@click.pass_context
+def sync_logos_command(
+    ctx: click.Context | None,
+    *,
+    opponents_config: str | None = None,
+    db_url: str | None = None,
+    static_dir: Path | None = None,
+) -> None:
+    """Download, cache, and update opponent team logo assets."""
+    _populate_ctx_params(ctx, None, None, db_url, opponents_config)
+    opponent_directory = _resolve_cli_opponent_directory(ctx, opponents_config)
+    obj = ctx.obj if ctx else None
+    resolved_db_url = db_url or _extract_ctx_str(obj, "db_url")
+    db_url_resolved = get_sync_database_url(resolved_db_url)
+    engine = create_sync_engine(db_url_resolved)
+    Base.metadata.create_all(engine)
+
+    logo_mgr = (
+        LogoAssetManager(static_dir=static_dir) if static_dir else LogoAssetManager()
+    )
+    console = get_console()
+    print_banner("OPPONENT LOGO ASSETS SYNCHRONIZATION")
+    spinner_text = (
+        "[bold #fec923]Downloading and synchronizing opponent logos...[/bold #fec923]"
+    )
+    try:
+        with (
+            console.status(spinner_text, spinner="dots"),
+            get_sync_session(engine) as session,
+        ):
+            results = asyncio.run(
+                sync_team_logos(
+                    session,
+                    opponent_directory=opponent_directory,
+                    logo_manager=logo_mgr,
+                ),
+            )
+            session.commit()
+    except Exception as exc:
+        print_error(f"Logo synchronization encountered a fatal error: {exc}")
+        raise click.ClickException(str(exc)) from exc
+
+    _render_logo_sync_results(results)
 
 
 @sync_command.command("status")

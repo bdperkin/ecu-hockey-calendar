@@ -28,12 +28,20 @@ from ecu_hockey_calendar.ingestion.achahockey_crawler import ACHAHockeyCrawler
 from ecu_hockey_calendar.ingestion.client import ResilientHttpClient
 from ecu_hockey_calendar.ingestion.ecuhockey_crawler import ECUHockeyCrawler
 from ecu_hockey_calendar.ingestion.instagram_crawler import InstagramCrawler
+from ecu_hockey_calendar.ingestion.logo_manager import (
+    LogoAssetManager,
+    LogoSyncResult,
+)
 from ecu_hockey_calendar.ingestion.opponent_crawler import OpponentCrawler
 from ecu_hockey_calendar.ingestion.opponent_parser import (
     OpponentDirectory,
     OpponentFixture,
     filter_ecu_fixtures,
     get_default_opponent_directory,
+)
+from ecu_hockey_calendar.models import (
+    DEFAULT_ECU_LOCAL_LOGO_URL,
+    DEFAULT_ECU_REMOTE_LOGO_URL,
 )
 from ecu_hockey_calendar.notifications.dispatcher import NotificationDispatcher
 from ecu_hockey_calendar.reconciliation.change_detector import ChangeDetector
@@ -442,6 +450,14 @@ def _load_baseline_games_from_db(
     return list(session.scalars(stmt).all())
 
 
+def _populate_ecu_team_defaults(team: TeamModel) -> None:
+    """Ensure East Carolina University team has default logo URLs."""
+    if team.name == "East Carolina University" and not team.remote_logo_url:
+        team.remote_logo_url = DEFAULT_ECU_REMOTE_LOGO_URL
+        team.local_logo_url = DEFAULT_ECU_LOCAL_LOGO_URL
+        team.logo_url = DEFAULT_ECU_REMOTE_LOGO_URL
+
+
 def _get_or_create_team(
     session: Session,
     name: str,
@@ -463,8 +479,9 @@ def _get_or_create_team(
     if not team:
         team = TeamModel(name=name, city=city, state=state)
         session.add(team)
-        session.flush()
 
+    _populate_ecu_team_defaults(team)
+    session.flush()
     return team
 
 
@@ -882,6 +899,81 @@ async def _execute_opponent_verification(
     )
 
 
+async def _execute_sync_logos(
+    session: Session,
+    *,
+    opponent_directory: OpponentDirectory | None = None,
+    logo_manager: LogoAssetManager | None = None,
+) -> list[LogoSyncResult]:
+    """Synchronize opponent logos from directory to local cache and database.
+
+    Args:
+        session: Active database session.
+        opponent_directory: Optional custom OpponentDirectory instance.
+        logo_manager: Optional custom LogoAssetManager instance.
+
+    Returns:
+        List of LogoSyncResult instances.
+    """
+    directory = opponent_directory or get_default_opponent_directory()
+    manager = logo_manager or LogoAssetManager()
+    return await manager.sync_directory_logos(directory, session)
+
+
+async def sync_team_logos(
+    session: Session,
+    *,
+    opponent_directory: OpponentDirectory | None = None,
+    logo_manager: LogoAssetManager | None = None,
+) -> list[LogoSyncResult]:
+    """Synchronize opponent logos to local cache and update database records.
+
+    Args:
+        session: Active database session.
+        opponent_directory: Optional custom OpponentDirectory instance.
+        logo_manager: Optional custom LogoAssetManager instance.
+
+    Returns:
+        List of LogoSyncResult instances.
+    """
+    return await _execute_sync_logos(
+        session,
+        opponent_directory=opponent_directory,
+        logo_manager=logo_manager,
+    )
+
+
+async def _execute_sync_post_checks(  # noqa: PLR0913 # pylint: disable=too-many-arguments
+    session: Session,
+    *,
+    verify_opponents: bool,
+    dry_run: bool,
+    sync_logos: bool,
+    season: str | None,
+    reconciled_games: Sequence[ReconciledGame],
+    opponent_crawler_cls: type[OpponentCrawler] | None,
+    opponent_directory: OpponentDirectory | None,
+    logo_manager: LogoAssetManager | None,
+) -> None:
+    """Execute optional opponent verification and logo synchronization."""
+    if verify_opponents:
+        await _execute_opponent_verification(
+            session,
+            dry_run=dry_run,
+            season=season,
+            reconciled_games=reconciled_games,
+            opponent_crawler_cls=opponent_crawler_cls,
+            opponent_directory=opponent_directory,
+        )
+
+    if not dry_run and sync_logos:
+        await _execute_sync_logos(
+            session,
+            opponent_directory=opponent_directory,
+            logo_manager=logo_manager,
+        )
+
+
 async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-arguments # noqa: PLR0913
     *,
     engine: Engine,
@@ -900,6 +992,8 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
     opponent_crawler_cls: type[OpponentCrawler] | None = None,
     observer: ScrapeObserver | None = None,
     opponent_directory: OpponentDirectory | None = None,
+    sync_logos: bool = False,
+    logo_manager: LogoAssetManager | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Asynchronously execute core crawl, reconciliation, diffing, and storage.
 
@@ -922,6 +1016,8 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
         opponent_crawler_cls: Optional custom OpponentCrawler class.
         observer: Optional telemetry observer interface.
         opponent_directory: Optional custom OpponentDirectory instance.
+        sync_logos: If True and not dry_run, check for updates and cache logos.
+        logo_manager: Optional custom LogoAssetManager instance.
 
     Returns:
         Tuple of (crawl_telemetry, change_detection_result, detected_conflicts).
@@ -969,15 +1065,17 @@ async def run_sync_pipeline(  # pylint: disable=too-many-locals,too-many-argumen
             source_filter=source_filter,
         )
 
-        if verify_opponents:
-            await _execute_opponent_verification(
-                session,
-                dry_run=dry_run,
-                season=season,
-                reconciled_games=reconciled_cycle.reconciled_games,
-                opponent_crawler_cls=opponent_crawler_cls,
-                opponent_directory=opponent_directory,
-            )
+        await _execute_sync_post_checks(
+            session,
+            verify_opponents=verify_opponents,
+            dry_run=dry_run,
+            sync_logos=sync_logos,
+            season=season,
+            reconciled_games=reconciled_cycle.reconciled_games,
+            opponent_crawler_cls=opponent_crawler_cls,
+            opponent_directory=opponent_directory,
+            logo_manager=logo_manager,
+        )
 
     # 4. Webhook notifications
     _dispatch_sync_notifications(
@@ -1009,6 +1107,8 @@ def execute_sync_pipeline(  # pylint: disable=too-many-locals,too-many-arguments
     opponent_crawler_cls: type[OpponentCrawler] | None = None,
     observer: ScrapeObserver | None = None,
     opponent_directory: OpponentDirectory | None = None,
+    sync_logos: bool = False,
+    logo_manager: LogoAssetManager | None = None,
 ) -> tuple[list[dict[str, Any]], ChangeDetectionCycleResult, list[DetectedConflict]]:
     """Synchronous entrypoint executing core sync pipeline via asyncio.run.
 
@@ -1030,6 +1130,8 @@ def execute_sync_pipeline(  # pylint: disable=too-many-locals,too-many-arguments
         opponent_crawler_cls: Optional custom OpponentCrawler class.
         observer: Optional telemetry observer interface.
         opponent_directory: Optional custom OpponentDirectory instance.
+        sync_logos: If True, check and cache opponent logo assets.
+        logo_manager: Optional custom LogoAssetManager instance.
 
     Returns:
         Tuple of (crawl_telemetry, change_detection_result, detected_conflicts).
@@ -1052,6 +1154,8 @@ def execute_sync_pipeline(  # pylint: disable=too-many-locals,too-many-arguments
             opponent_crawler_cls=opponent_crawler_cls,
             observer=observer,
             opponent_directory=opponent_directory,
+            sync_logos=sync_logos,
+            logo_manager=logo_manager,
         ),
     )
 

@@ -5,7 +5,9 @@ from datetime import UTC, datetime
 import pytest
 
 from ecu_hockey_calendar.models import (
+    DEFAULT_ECU_LOCAL_LOGO_URL,
     DEFAULT_ECU_LOGO_URL,
+    DEFAULT_ECU_REMOTE_LOGO_URL,
     Game,
     GameResult,
     Schedule,
@@ -177,4 +179,64 @@ def test_team_logo_and_initials(ecu_team: Team) -> None:
     assert get_team_initials("Coastal Carolina University") == "CCU"
     assert get_team_initials("Wake Forest") == "WFU"
     assert get_team_initials("Unknown Mysterious Hockey Squad") == "UMHS"
-    assert DEFAULT_ECU_LOGO_URL == "/static/ecu_hockey_logo.png"
+    assert DEFAULT_ECU_LOCAL_LOGO_URL == "/static/ecu_hockey_logo.png"
+    assert (
+        DEFAULT_ECU_REMOTE_LOGO_URL
+        == "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
+    )
+    assert DEFAULT_ECU_LOGO_URL == DEFAULT_ECU_REMOTE_LOGO_URL
+
+
+def test_team_dual_logo_derivation() -> None:
+    """Test auto-derivation of remote, local, and active logo URLs."""
+    t1 = Team(
+        name="Team Remote",
+        city="City",
+        state="NC",
+        logo_url="https://example.com/r.png",
+    )
+    assert t1.remote_logo_url == "https://example.com/r.png"
+    assert t1.local_logo_url is None
+    assert t1.logo_url == "https://example.com/r.png"
+
+    t2 = Team(
+        name="Team Local",
+        city="City",
+        state="NC",
+        logo_url="/static/logos/l.png",
+    )
+    assert t2.remote_logo_url is None
+    assert t2.local_logo_url == "/static/logos/l.png"
+    assert t2.logo_url == "/static/logos/l.png"
+
+    t2_file = Team(
+        name="Team Local File",
+        city="City",
+        state="NC",
+        logo_url="file:///path/to/logo.png",
+    )
+    assert t2_file.local_logo_url == "file:///path/to/logo.png"
+
+    t3 = Team(
+        name="Team Both",
+        city="City",
+        state="NC",
+        remote_logo_url="https://example.com/r.png",
+        local_logo_url="/static/logos/l.png",
+    )
+    assert t3.remote_logo_url == "https://example.com/r.png"
+    assert t3.local_logo_url == "/static/logos/l.png"
+    assert t3.logo_url == "https://example.com/r.png"
+
+    data = t3.to_dict()
+    assert data["remote_logo_url"] == "https://example.com/r.png"
+    assert data["local_logo_url"] == "/static/logos/l.png"
+    assert data["logo_url"] == "https://example.com/r.png"
+
+    t4 = Team(
+        name="Team Only Local",
+        city="City",
+        state="NC",
+        local_logo_url="/static/logos/l.png",
+    )
+    assert t4.logo_url == "/static/logos/l.png"

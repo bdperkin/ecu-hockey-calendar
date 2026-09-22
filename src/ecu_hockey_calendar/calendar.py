@@ -14,7 +14,8 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
 from ecu_hockey_calendar.models import (
-    DEFAULT_ECU_LOGO_URL,
+    DEFAULT_ECU_LOCAL_LOGO_URL,
+    DEFAULT_ECU_REMOTE_LOGO_URL,
     Game,
     GameResult,
     Schedule,
@@ -34,7 +35,9 @@ ECU_DEFAULT_TEAM = Team(
     state="NC",
     division="ACHA M2",
     conference="ACCHL",
-    logo_url=DEFAULT_ECU_LOGO_URL,
+    remote_logo_url=DEFAULT_ECU_REMOTE_LOGO_URL,
+    local_logo_url=DEFAULT_ECU_LOCAL_LOGO_URL,
+    logo_url=DEFAULT_ECU_REMOTE_LOGO_URL,
 )
 
 
