@@ -29,6 +29,8 @@ if TYPE_CHECKING:
 
 AUGUST_MONTH_CUTOFF = 8
 DEFAULT_TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+ECU_LOGO_FILE = STATIC_DIR / "ecu_hockey_logo.png"
 EASTERN_TZ = ZoneInfo("America/New_York")
 
 FINAL_RESULTS = frozenset(
@@ -409,6 +411,8 @@ def _format_html_game(game: Game, primary_team: str) -> dict[str, Any]:
         "is_home": is_home,
         "designation": "Home" if is_home else "Away",
         "opponent_name": opp.name,
+        "opponent_logo_url": opp.logo_url,
+        "opponent_initials": opp.initials,
         "opponent_location": f"{opp.city}, {opp.state}",
         "opponent_division": opp.division,
         "opponent_conference": opp.conference,
@@ -575,16 +579,51 @@ def _resolve_pdf_selected_season(raw_season: object, games: Sequence[Game]) -> s
     return clean
 
 
+def _resolve_pdf_logo_url(url: str | None) -> str | None:
+    """Resolve static or local logo URLs to file URIs for PDF generation."""
+    if not url:
+        return None
+
+    if url.startswith("/static/"):
+        candidate = (STATIC_DIR / url.removeprefix("/static/")).resolve()
+        if candidate.is_file():
+            return candidate.as_uri()
+
+    return url
+
+
+def _resolve_pdf_ecu_logo_url(custom_url: str | None = None) -> str | None:
+    """Resolve ECU header logo URL for printable PDF documents."""
+    if custom_url is not None:
+        return _resolve_pdf_logo_url(custom_url)
+
+    if ECU_LOGO_FILE.is_file():
+        return ECU_LOGO_FILE.as_uri()
+
+    return None
+
+
+def _format_pdf_game(game: Game, primary_team: str) -> dict[str, Any]:
+    """Format a Game dictionary for PDF template rendering."""
+    formatted = _format_html_game(game, primary_team)
+    raw_logo = formatted.get("opponent_logo_url")
+    formatted["opponent_logo_url"] = _resolve_pdf_logo_url(raw_logo)
+    return formatted
+
+
 def _build_pdf_render_context(
     games: Sequence[Game],
     formatted_games: list[dict[str, Any]],
     filters: dict[str, str | bool | None],
     generated_date: str | None = None,
+    ecu_logo_url: str | None = None,
 ) -> dict[str, Any]:
     """Build context dictionary for printable PDF schedule rendering."""
     if generated_date is None:
         last_mod = CalendarFeedService.get_last_modified(games)
         generated_date = last_mod.astimezone(EASTERN_TZ).strftime("%b %d, %Y")
+
+    resolved_ecu_logo = _resolve_pdf_ecu_logo_url(ecu_logo_url)
 
     return {
         "primary_team": str(filters.get("primary_team") or ""),
@@ -595,6 +634,7 @@ def _build_pdf_render_context(
         "selected_home_only": bool(filters.get("home_only")),
         "generated_date": generated_date,
         "tickets_url": DEFAULT_TICKETS_URL,
+        "ecu_logo_url": resolved_ecu_logo,
         "is_pdf": True,
         "is_embed": False,
     }
@@ -702,7 +742,7 @@ class ScheduleDataService:
         template = self._jinja_env.get_template(template_name)
         return template.render(context)
 
-    def generate_pdf_schedule(
+    def generate_pdf_schedule(  # noqa: PLR0913 # pylint: disable=too-many-arguments
         self,
         games: Sequence[Game],
         *,
@@ -713,6 +753,7 @@ class ScheduleDataService:
         future_only: bool = False,
         include_past: bool | None = None,
         generated_date: str | None = None,
+        ecu_logo_url: str | None = None,
     ) -> bytes:
         """Render printable high-contrast PDF schedule grid for parents and coaches.
 
@@ -725,6 +766,7 @@ class ScheduleDataService:
             future_only: If True, include only future games.
             include_past: If False, include only future games.
             generated_date: Optional explicit date string displayed on document header.
+            ecu_logo_url: Optional custom ECU crest logo URL or file path.
 
         Returns:
             Binary PDF document bytes starting with %PDF-1.
@@ -739,25 +781,29 @@ class ScheduleDataService:
             include_past=include_past,
             primary_team=self.primary_team_name,
         )
-        formatted_games = [
-            _format_html_game(g, self.primary_team_name) for g in filtered
-        ]
-        filters: dict[str, str | bool | None] = {
-            "primary_team": self.primary_team_name,
-            "season": season,
-            "opponent": opponent,
-            "home_only": home_only,
-            "status": status,
-        }
         context = _build_pdf_render_context(
             filtered,
-            formatted_games,
-            filters,
+            [_format_pdf_game(g, self.primary_team_name) for g in filtered],
+            {
+                "primary_team": self.primary_team_name,
+                "season": season,
+                "opponent": opponent,
+                "home_only": home_only,
+                "status": status,
+            },
             generated_date=generated_date,
+            ecu_logo_url=ecu_logo_url,
         )
-        template = self._jinja_env.get_template("schedule_pdf.html")
-        rendered_html = template.render(context)
-        return cast("bytes", weasyprint.HTML(string=rendered_html).write_pdf())
+        rendered_html = self._jinja_env.get_template("schedule_pdf.html").render(
+            context,
+        )
+        return cast(
+            "bytes",
+            weasyprint.HTML(
+                string=rendered_html,
+                base_url=str(STATIC_DIR.parent),
+            ).write_pdf(),
+        )
 
     def generate_json_feed(
         self,

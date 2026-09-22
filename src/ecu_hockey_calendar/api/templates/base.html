@@ -573,10 +573,55 @@
       font-weight: 600;
     }
 
+    .matchup-team-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .matchup-team-info {
+      min-width: 0;
+    }
+
+    .matchup-opponent-name {
+      font-weight: 600;
+      color: var(--text-dark);
+      line-height: 1.25;
+    }
+
     .matchup-opp-details {
       font-size: 0.8rem;
       color: var(--text-muted);
       font-weight: 400;
+      line-height: 1.25;
+    }
+
+    .team-logo {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      border-radius: 4px;
+      background-color: #ffffff;
+      border: 1px solid var(--border-light);
+      padding: 1px;
+      flex-shrink: 0;
+    }
+
+    .team-logo-fallback {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      background-color: var(--ecu-purple);
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      flex-shrink: 0;
+      user-select: none;
     }
 
     .venue-details {
@@ -695,14 +740,32 @@
 
     .card-matchup {
       display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .card-matchup .team-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+    }
+
+    .card-matchup .team-logo-fallback {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .card-opponent-info {
+      min-width: 0;
     }
 
     .card-opponent-name {
       font-size: 1.05rem;
       font-weight: 700;
       color: var(--text-dark);
+      line-height: 1.25;
     }
 
     .card-venue {

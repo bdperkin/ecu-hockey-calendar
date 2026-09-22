@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,6 +12,9 @@ from fastapi.testclient import TestClient
 from ecu_hockey_calendar.api.app import create_app
 from ecu_hockey_calendar.api.schedule_service import (
     ScheduleDataService,
+    _format_pdf_game,
+    _resolve_pdf_ecu_logo_url,
+    _resolve_pdf_logo_url,
     resolve_pdf_filename,
 )
 from ecu_hockey_calendar.models import Game, GameResult, Team
@@ -20,9 +24,6 @@ from ecu_hockey_calendar.storage.engine import (
     init_db,
 )
 from ecu_hockey_calendar.storage.models import GameModel, TeamModel
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 @pytest.fixture
@@ -366,3 +367,113 @@ def test_schedule_views_contain_pdf_links(
     root_json = populated_db_app.get("/", headers={"accept": "application/json"})
     assert root_json.status_code == 200
     assert root_json.json()["endpoints"]["schedule_pdf"] == "/schedule.pdf"
+
+
+def test_resolve_pdf_logo_urls() -> None:
+    """Verify PDF logo resolution for static files, remote URLs, and empty input."""
+    assert _resolve_pdf_logo_url(None) is None
+    assert _resolve_pdf_logo_url("") is None
+
+    # Static path that exists
+    static_resolved = _resolve_pdf_logo_url("/static/ecu_hockey_logo.png")
+    assert static_resolved is not None
+    assert static_resolved.startswith("file://")
+    assert "ecu_hockey_logo.png" in static_resolved
+
+    # Static path that does not exist
+    non_existent = _resolve_pdf_logo_url("/static/non_existent_logo.png")
+    assert non_existent == "/static/non_existent_logo.png"
+
+    # Remote URL preserved as-is
+    remote_url = "https://example.com/logo.png"
+    assert _resolve_pdf_logo_url(remote_url) == remote_url
+
+
+def test_resolve_pdf_ecu_logo_url_branches() -> None:
+    """Verify ECU crest logo resolution branches with custom and fallback."""
+    # Default resolution when ECU_LOGO_FILE exists
+    default_uri = _resolve_pdf_ecu_logo_url()
+    assert default_uri is not None
+    assert default_uri.startswith("file://")
+
+    # Custom URL passed
+    custom = _resolve_pdf_ecu_logo_url("https://custom.example.com/crest.png")
+    assert custom == "https://custom.example.com/crest.png"
+
+    # When file does not exist
+    with patch(
+        "ecu_hockey_calendar.api.schedule_service.ECU_LOGO_FILE",
+        Path("/non/existent/ecu_hockey_logo.png"),
+    ):
+        assert _resolve_pdf_ecu_logo_url() is None
+
+
+def test_pdf_rendering_with_logos_and_fallbacks(
+    ecu_team: Team,
+    unc_team: Team,
+) -> None:
+    """Verify PDF rendering includes ECU header logo and team logos or fallback."""
+    team_with_logo = Team(
+        name="Appalachian State University",
+        city="Boone",
+        state="NC",
+        logo_url="https://example.com/asu.png",
+    )
+    games = [
+        Game(
+            game_id="PDF-LOGO-01",
+            home_team=ecu_team,
+            away_team=team_with_logo,
+            start_time=datetime(2026, 11, 14, 19, 30, tzinfo=UTC),
+            venue="The Factory Ice House",
+        ),
+        Game(
+            game_id="PDF-LOGO-02",
+            home_team=unc_team,
+            away_team=ecu_team,
+            start_time=datetime(2026, 11, 21, 19, 0, tzinfo=UTC),
+            venue="Orange County Sportsplex",
+        ),
+    ]
+
+    service = ScheduleDataService()
+
+    # Verify _format_pdf_game helper
+    formatted = _format_pdf_game(games[0], "East Carolina University")
+    assert formatted["opponent_logo_url"] == "https://example.com/asu.png"
+    assert formatted["opponent_initials"] == "ASU"
+
+    # Verify full PDF binary generation
+    pdf_bytes = service.generate_pdf_schedule(games)
+    assert pdf_bytes.startswith(b"%PDF-1.")
+    assert len(pdf_bytes) > 2000
+
+    # Verify template HTML rendering contains expected elements
+    pdf_games = [_format_pdf_game(g, service.primary_team_name) for g in games]
+    context = {
+        "primary_team": service.primary_team_name,
+        "games": pdf_games,
+        "total_games": len(pdf_games),
+        "available_seasons": ["2026-2027"],
+        "selected_season": "2026-2027",
+        "selected_home_only": False,
+        "generated_date": "Nov 14, 2026",
+        "tickets_url": "https://ecuhockey.com/tickets",
+        "ecu_logo_url": _resolve_pdf_ecu_logo_url(),
+        "is_pdf": True,
+        "is_embed": False,
+    }
+    rendered_html = service.jinja_env.get_template("schedule_pdf.html").render(context)
+
+    # Check ECU crest in header banner
+    assert "pdf-header-logo" in rendered_html
+    assert 'alt="ECU Men\'s Ice Hockey Crest"' in rendered_html
+
+    # Check opponent logo for Appalachian State
+    assert "pdf-team-logo" in rendered_html
+    assert 'alt="Appalachian State University logo"' in rendered_html
+    assert 'src="https://example.com/asu.png"' in rendered_html
+
+    # Check fallback initials badge for UNC
+    assert "pdf-team-logo-fallback" in rendered_html
+    assert "UNC" in rendered_html

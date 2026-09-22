@@ -15,7 +15,12 @@ from ecu_hockey_calendar.ingestion.normalizer import (
     parse_game_score,
     parse_game_status,
 )
-from ecu_hockey_calendar.models import Game, GameResult, Team
+from ecu_hockey_calendar.models import (
+    DEFAULT_ECU_LOGO_URL,
+    Game,
+    GameResult,
+    Team,
+)
 from ecu_hockey_calendar.storage.models import GameStatus
 
 if TYPE_CHECKING:
@@ -30,6 +35,7 @@ DEFAULT_ECU_TEAM = Team(
     state="NC",
     division="ACHA M2",
     conference="ACCHL",
+    logo_url=DEFAULT_ECU_LOGO_URL,
 )
 
 

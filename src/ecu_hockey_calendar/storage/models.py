@@ -121,6 +121,7 @@ class TeamModel(Base):
             state=self.state,
             division=self.division,
             conference=self.conference,
+            logo_url=self.logo_url,
         )
 
     @classmethod
@@ -134,19 +135,22 @@ class TeamModel(Base):
 
         Args:
             team: Domain Team instance.
-            logo_url: Optional team logo URL.
+            logo_url: Optional team logo URL (falls back to team.logo_url if None).
             website: Optional team website URL.
 
         Returns:
             New TeamModel instance.
         """
+        actual_logo = (
+            logo_url if logo_url is not None else getattr(team, "logo_url", None)
+        )
         return cls(
             name=team.name,
             city=team.city,
             state=team.state,
             division=team.division,
             conference=team.conference,
-            logo_url=logo_url,
+            logo_url=actual_logo,
             website=website,
         )
 

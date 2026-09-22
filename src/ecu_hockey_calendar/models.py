@@ -26,6 +26,71 @@ class GameResult(StrEnum):
     POSTPONED = "POSTPONED"
 
 
+DEFAULT_ECU_LOGO_URL = "/static/ecu_hockey_logo.png"
+
+KNOWN_TEAM_INITIALS: dict[str, str] = {
+    "east carolina university": "ECU",
+    "unc chapel hill": "UNC",
+    "unc charlotte": "UNCC",
+    "unc wilmington": "UNCW",
+    "nc state": "NCSU",
+    "nc state university": "NCSU",
+    "north carolina state university": "NCSU",
+    "virginia tech": "VT",
+    "appalachian state": "ASU",
+    "appalachian state university": "ASU",
+    "coastal carolina": "CCU",
+    "coastal carolina university": "CCU",
+    "wake forest": "WFU",
+    "wake forest university": "WFU",
+    "high point": "HPU",
+    "high point university": "HPU",
+    "george mason": "GMU",
+    "george mason university": "GMU",
+    "james madison": "JMU",
+    "james madison university": "JMU",
+    "penn state": "PSU",
+    "penn state university": "PSU",
+}
+
+STOP_WORDS: frozenset[str] = frozenset({"of", "the", "at", "&", "and"})
+
+
+def _filter_team_words(name: str) -> list[str]:
+    """Filter stop words from a team name string."""
+    raw_words = name.split()
+    filtered = [w for w in raw_words if w.lower() not in STOP_WORDS]
+    return filtered or raw_words
+
+
+def _extract_initials_from_words(words: list[str]) -> str:
+    """Extract uppercase initials from word list."""
+    if len(words) == 1:
+        return words[0][:3].upper()
+
+    return "".join(w[0].upper() for w in words[:4])
+
+
+def get_team_initials(name: str) -> str:
+    """Compute fallback initials for a hockey team name.
+
+    Args:
+        name: Full team name string.
+
+    Returns:
+        Short abbreviation or initials (1-4 characters, uppercase).
+    """
+    cleaned = name.strip()
+    if not cleaned:
+        return "TBD"
+
+    known = KNOWN_TEAM_INITIALS.get(cleaned.lower())
+    if known:
+        return known
+
+    return _extract_initials_from_words(_filter_team_words(cleaned))
+
+
 @dataclass(frozen=True, slots=True)
 class Team:
     """Represents a collegiate ice hockey team.
@@ -36,6 +101,7 @@ class Team:
         state: The two-letter state abbreviation or region code.
         division: The league competition division (e.g., ACHA M2, ACHA M3).
         conference: The conference name (e.g., ACCHL).
+        logo_url: Optional URL or path to the team's logo icon.
     """
 
     name: str
@@ -43,6 +109,7 @@ class Team:
     state: str
     division: str = "ACHA M2"
     conference: str = "ACCHL"
+    logo_url: str | None = None
 
     def __post_init__(self) -> None:
         """Validate team attributes after initialization.
@@ -62,7 +129,12 @@ class Team:
             msg = "Team state cannot be empty."
             raise ValueError(msg)
 
-    def to_dict(self) -> dict[str, str]:
+    @property
+    def initials(self) -> str:
+        """Return abbreviated initials for fallback logo display."""
+        return get_team_initials(self.name)
+
+    def to_dict(self) -> dict[str, str | None]:
         """Convert the team instance into a plain dictionary representation.
 
         Returns:
@@ -74,6 +146,7 @@ class Team:
             "state": self.state,
             "division": self.division,
             "conference": self.conference,
+            "logo_url": self.logo_url,
         }
 
 

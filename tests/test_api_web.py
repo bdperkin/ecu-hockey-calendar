@@ -1,4 +1,5 @@
 """Comprehensive tests for responsive HTML schedule views and embed widget routes."""
+# pylint: disable=too-many-lines
 
 from __future__ import annotations
 
@@ -951,3 +952,76 @@ def test_schedule_now_divider_with_future_tie_games(  # pylint: disable=too-many
     assert 'id="now-divider"' in res_embed.text
     assert "--- NOW ---" in res_embed.text
     assert "scrollToNowDivider()" in res_embed.text
+
+
+def test_web_and_embed_team_logos_and_fallbacks(  # pylint: disable=too-many-locals
+    tmp_path: Path,
+    ecu_team: Team,
+    unc_team: Team,
+) -> None:
+    """Verify team logos and fallback initials render in schedule and embed views."""
+    team_with_logo = Team(
+        name="Appalachian State University",
+        city="Boone",
+        state="NC",
+        logo_url="https://example.com/asu_logo.png",
+    )
+    game_with_logo = Game(
+        game_id="WEB-LOGO-01",
+        home_team=ecu_team,
+        away_team=team_with_logo,
+        start_time=datetime(2026, 11, 14, 19, 30, tzinfo=UTC),
+        venue="The Factory Ice House",
+    )
+    game_without_logo = Game(
+        game_id="WEB-LOGO-02",
+        home_team=unc_team,
+        away_team=ecu_team,
+        start_time=datetime(2026, 11, 21, 19, 0, tzinfo=UTC),
+        venue="Orange County Sportsplex",
+    )
+
+    db_url = f"sqlite:///{tmp_path / 'logos_test.db'}"
+    engine = create_sync_engine(db_url)
+    init_db(engine)
+
+    with get_sync_session(engine) as session:
+        t_ecu = session.merge(TeamModel.from_domain(ecu_team))
+        t_asu = session.merge(TeamModel.from_domain(team_with_logo))
+        t_unc = session.merge(TeamModel.from_domain(unc_team))
+        session.flush()
+        session.add(
+            GameModel.from_domain(
+                game_with_logo,
+                home_team_id=t_ecu.id,
+                away_team_id=t_asu.id,
+            ),
+        )
+        session.add(
+            GameModel.from_domain(
+                game_without_logo,
+                home_team_id=t_unc.id,
+                away_team_id=t_ecu.id,
+            ),
+        )
+        session.commit()
+
+    app = create_app(database_url=db_url)
+    client = TestClient(app)
+
+    # Schedule view
+    res = client.get("/schedule")
+    assert res.status_code == 200
+    assert 'class="team-logo"' in res.text
+    assert 'src="https://example.com/asu_logo.png"' in res.text
+    assert 'alt="Appalachian State University logo"' in res.text
+    assert 'class="team-logo-fallback"' in res.text
+    assert 'aria-label="UNC Chapel Hill initials">UNC</span>' in res.text
+
+    # Embed view
+    res_embed = client.get("/schedule/embed")
+    assert res_embed.status_code == 200
+    assert 'class="team-logo"' in res_embed.text
+    assert 'src="https://example.com/asu_logo.png"' in res_embed.text
+    assert 'class="team-logo-fallback"' in res_embed.text
+    assert 'aria-label="UNC Chapel Hill initials">UNC</span>' in res_embed.text

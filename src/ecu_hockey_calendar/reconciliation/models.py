@@ -14,7 +14,12 @@ from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
-from ecu_hockey_calendar.models import Game, GameResult, Team
+from ecu_hockey_calendar.models import (
+    DEFAULT_ECU_LOGO_URL,
+    Game,
+    GameResult,
+    Team,
+)
 from ecu_hockey_calendar.storage.models import DataSourceType, GameStatus
 
 if TYPE_CHECKING:
@@ -506,6 +511,7 @@ class ReconciledGame:  # pylint: disable=too-many-instance-attributes
             name="East Carolina University",
             city="Greenville",
             state="NC",
+            logo_url=DEFAULT_ECU_LOGO_URL,
         )
         opp_team = Team(
             name=self.opponent_name,

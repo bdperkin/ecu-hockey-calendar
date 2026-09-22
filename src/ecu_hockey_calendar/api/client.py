@@ -48,12 +48,15 @@ class RemoteSyncAudit:
 def _parse_team(raw: object, *, default_name: str, default_city: str) -> Team:
     """Parse team dictionary or name string into domain Team object."""
     if isinstance(raw, dict):
+        raw_logo = raw.get("logo_url")
+        logo_url = str(raw_logo) if raw_logo is not None else None
         return Team(
             name=str(raw.get("name", default_name)),
             city=str(raw.get("city", default_city)),
             state=str(raw.get("state", "NC")),
             division=str(raw.get("division", "ACHA M2")),
             conference=str(raw.get("conference", "ACCHL")),
+            logo_url=logo_url,
         )
 
     return Team(

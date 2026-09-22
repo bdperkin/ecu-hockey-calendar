@@ -4,7 +4,14 @@ from datetime import UTC, datetime
 
 import pytest
 
-from ecu_hockey_calendar.models import Game, GameResult, Schedule, Team
+from ecu_hockey_calendar.models import (
+    DEFAULT_ECU_LOGO_URL,
+    Game,
+    GameResult,
+    Schedule,
+    Team,
+    get_team_initials,
+)
 
 
 def test_team_creation_and_to_dict(ecu_team: Team) -> None:
@@ -138,3 +145,36 @@ def test_schedule_empty_season_raises() -> None:
     """Test Schedule raises ValueError if season string is empty."""
     with pytest.raises(ValueError, match="Season cannot be empty"):
         Schedule(season="  ")
+
+
+def test_team_logo_and_initials(ecu_team: Team) -> None:
+    """Test logo_url attribute, serialization, and initials computation."""
+    assert ecu_team.logo_url is None
+    assert ecu_team.initials == "ECU"
+    assert ecu_team.to_dict()["logo_url"] is None
+
+    team_with_logo = Team(
+        name="UNC Chapel Hill",
+        city="Chapel Hill",
+        state="NC",
+        logo_url="https://example.com/unc.png",
+    )
+    assert team_with_logo.logo_url == "https://example.com/unc.png"
+    assert team_with_logo.initials == "UNC"
+    assert team_with_logo.to_dict()["logo_url"] == "https://example.com/unc.png"
+
+    # Single-word team name
+    rowan = Team(name="Rowan", city="Glassboro", state="NJ")
+    assert rowan.initials == "ROW"
+
+    # Team name with only stop words
+    stop_team = Team(name="The At And", city="City", state="NC")
+    assert stop_team.initials == "TAA"
+
+    # get_team_initials direct testing
+    assert get_team_initials("") == "TBD"
+    assert get_team_initials("   ") == "TBD"
+    assert get_team_initials("Coastal Carolina University") == "CCU"
+    assert get_team_initials("Wake Forest") == "WFU"
+    assert get_team_initials("Unknown Mysterious Hockey Squad") == "UMHS"
+    assert DEFAULT_ECU_LOGO_URL == "/static/ecu_hockey_logo.png"

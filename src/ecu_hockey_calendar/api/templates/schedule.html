@@ -120,8 +120,21 @@
                                 <span class="badge {% if game.is_home %}badge-home{% else %}badge-away{% endif %}">{{ game.designation }}</span>
                             </td>
                             <td class="matchup-col">
-                                <div>{{ game.opponent_name }}</div>
-                                <div class="matchup-opp-details">{{ game.opponent_location }} • {{ game.opponent_division }}</div>
+                                <div class="matchup-team-wrapper">
+                                    {% if game.opponent_logo_url %}
+                                        <img src="{{ game.opponent_logo_url }}"
+                                             alt="{{ game.opponent_name }} logo"
+                                             class="team-logo"
+                                             loading="lazy">
+                                    {% else %}
+                                        <span class="team-logo-fallback"
+                                              aria-label="{{ game.opponent_name }} initials">{{ game.opponent_initials }}</span>
+                                    {% endif %}
+                                    <div class="matchup-team-info">
+                                        <div class="matchup-opponent-name">{{ game.opponent_name }}</div>
+                                        <div class="matchup-opp-details">{{ game.opponent_location }} • {{ game.opponent_division }}</div>
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 <div>{{ game.venue }}</div>
@@ -176,7 +189,16 @@
                         <span class="badge {% if game.is_home %}badge-home{% else %}badge-away{% endif %}">{{ game.designation }}</span>
                     </div>
                     <div class="card-matchup">
-                        <div>
+                        {% if game.opponent_logo_url %}
+                            <img src="{{ game.opponent_logo_url }}"
+                                 alt="{{ game.opponent_name }} logo"
+                                 class="team-logo"
+                                 loading="lazy">
+                        {% else %}
+                            <span class="team-logo-fallback"
+                                  aria-label="{{ game.opponent_name }} initials">{{ game.opponent_initials }}</span>
+                        {% endif %}
+                        <div class="card-opponent-info">
                             <div class="card-opponent-name">{{ game.opponent_name }}</div>
                             <div class="matchup-opp-details">{{ game.opponent_location }} • {{ game.opponent_division }}</div>
                         </div>
