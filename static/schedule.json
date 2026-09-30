@@ -1,7 +1,7 @@
 {
   "primary_team": "East Carolina University",
   "season": null,
-  "total_games": 177,
+  "total_games": 174,
   "filters": {
     "season": null,
     "opponent": null,
@@ -5897,7 +5897,7 @@
     {
       "game_id": "game-vs-charlotte-on-09192026-mrxgmz79",
       "season": "2026-2027",
-      "start_time": "2026-09-20T01:30:00Z",
+      "start_time": "2026-09-20T00:00:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -5924,10 +5924,10 @@
       "venue": "Extreme Ice Center",
       "location": "Extreme Ice Center",
       "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 3,
+      "away_score": 2,
       "tickets_url": null
     },
     {
@@ -5969,7 +5969,7 @@
     {
       "game_id": "game-vs-charlotte-on-10092026-msyx0jgc",
       "season": "2026-2027",
-      "start_time": "2026-10-10T01:00:00Z",
+      "start_time": "2026-10-10T00:29:00Z",
       "home_team": {
         "name": "UNC Charlotte",
         "city": "Unknown",
@@ -6012,9 +6012,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1040.png",
-        "local_logo_url": "/static/logos/clemson-university.png",
-        "logo_url": "https://assets.leaguestat.com/acha/logos/1040.png"
+        "remote_logo_url": null,
+        "local_logo_url": null,
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
@@ -6048,9 +6048,9 @@
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1040.png",
-        "local_logo_url": "/static/logos/clemson-university.png",
-        "logo_url": "https://assets.leaguestat.com/acha/logos/1040.png"
+        "remote_logo_url": null,
+        "local_logo_url": null,
+        "logo_url": null
       },
       "away_team": {
         "name": "East Carolina University",
@@ -6109,42 +6109,6 @@
       "home_score": null,
       "away_score": null,
       "tickets_url": "https://www.ecuhockey.com/tickets"
-    },
-    {
-      "game_id": "ecu-away-george-washington-university-20261024",
-      "season": "2026-2027",
-      "start_time": "2026-10-24T01:00:00Z",
-      "home_team": {
-        "name": "George Washington University",
-        "city": "Unknown",
-        "state": "NC",
-        "division": "ACHA M2",
-        "conference": "ACCHL",
-        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/225.png",
-        "local_logo_url": "/static/logos/george-washington-university.png",
-        "logo_url": "https://assets.leaguestat.com/acha/logos/225.png"
-      },
-      "away_team": {
-        "name": "East Carolina University",
-        "city": "Greenville",
-        "state": "NC",
-        "division": "ACHA M2",
-        "conference": "ACCHL",
-        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
-        "local_logo_url": "/static/logos/east-carolina-university.png",
-        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
-      },
-      "opponent": "George Washington University",
-      "designation": "Away",
-      "is_home": false,
-      "venue": "The St. James Sports, Wellness and Entertainment, 6805 Industrial Rd, Springfield, VA 22151",
-      "location": "The St. James Sports, Wellness and Entertainment, 6805 Industrial Rd, Springfield, VA 22151",
-      "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
-      "tickets_url": null
     },
     {
       "game_id": "game-vs-christopher-newport-on-10242026-mrxh2ee5",
@@ -6364,78 +6328,6 @@
       "home_score": null,
       "away_score": null,
       "tickets_url": "https://www.ecuhockey.com/tickets"
-    },
-    {
-      "game_id": "ecu-away-georgia-tech-20270123",
-      "season": "2026-2027",
-      "start_time": "2027-01-23T01:00:00Z",
-      "home_team": {
-        "name": "Georgia Tech",
-        "city": "Unknown",
-        "state": "NC",
-        "division": "ACHA M2",
-        "conference": "ACCHL",
-        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1061.png",
-        "local_logo_url": "/static/logos/georgia-tech.png",
-        "logo_url": "https://assets.leaguestat.com/acha/logos/1061.png"
-      },
-      "away_team": {
-        "name": "East Carolina University",
-        "city": "Greenville",
-        "state": "NC",
-        "division": "ACHA M2",
-        "conference": "ACCHL",
-        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
-        "local_logo_url": "/static/logos/east-carolina-university.png",
-        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
-      },
-      "opponent": "Georgia Tech",
-      "designation": "Away",
-      "is_home": false,
-      "venue": "Atlanta Ice Forum, Duluth, GA.",
-      "location": "Atlanta Ice Forum, Duluth, GA.",
-      "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
-      "tickets_url": null
-    },
-    {
-      "game_id": "ecu-away-georgia-tech-20270124",
-      "season": "2026-2027",
-      "start_time": "2027-01-24T01:00:00Z",
-      "home_team": {
-        "name": "Georgia Tech",
-        "city": "Unknown",
-        "state": "NC",
-        "division": "ACHA M2",
-        "conference": "ACCHL",
-        "remote_logo_url": "https://assets.leaguestat.com/acha/logos/1061.png",
-        "local_logo_url": "/static/logos/georgia-tech.png",
-        "logo_url": "https://assets.leaguestat.com/acha/logos/1061.png"
-      },
-      "away_team": {
-        "name": "East Carolina University",
-        "city": "Greenville",
-        "state": "NC",
-        "division": "ACHA M2",
-        "conference": "ACCHL",
-        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
-        "local_logo_url": "/static/logos/east-carolina-university.png",
-        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
-      },
-      "opponent": "Georgia Tech",
-      "designation": "Away",
-      "is_home": false,
-      "venue": "Atlanta Ice Forum, Duluth, GA.",
-      "location": "Atlanta Ice Forum, Duluth, GA.",
-      "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
-      "tickets_url": null
     }
   ]
 }
