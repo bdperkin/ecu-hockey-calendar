@@ -5996,10 +5996,10 @@
       "venue": "Extreme Ice Center",
       "location": "Extreme Ice Center",
       "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 3,
+      "away_score": 5,
       "tickets_url": null
     },
     {
