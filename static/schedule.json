@@ -6032,16 +6032,16 @@
       "venue": "The Pavilion Recreation Complex",
       "location": "The Pavilion Recreation Complex",
       "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 4,
+      "away_score": 5,
       "tickets_url": null
     },
     {
       "game_id": "game-vs-clemson-on-10182026-mrxgyqol",
       "season": "2026-2027",
-      "start_time": "2026-10-18T14:00:00Z",
+      "start_time": "2026-10-18T14:30:00Z",
       "home_team": {
         "name": "Clemson University",
         "city": "Unknown",
@@ -6068,10 +6068,10 @@
       "venue": "The Pavilion Recreation Complex",
       "location": "The Pavilion Recreation Complex",
       "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 6,
+      "away_score": 5,
       "tickets_url": null
     },
     {
@@ -6143,8 +6143,8 @@
         "latitude": 36.7584,
         "longitude": -76.2427
       },
-      "status": "Scheduled",
-      "result": "SCHEDULED",
+      "status": "Cancelled",
+      "result": "CANCELLED",
       "home_score": null,
       "away_score": null,
       "tickets_url": null
