@@ -35,7 +35,7 @@ repos:
     hooks:
       - id: sync-pre-commit-deps
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.17
+    rev: 0.13.5
     hooks:
       - id: uv-lock
       - id: uv-export
@@ -105,15 +105,15 @@ repos:
       - id: yamllint
         args: [-c, .yamllint.yaml]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.29.4
+    rev: v2.30.3
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: '0.26'
+    rev: 'v0.27'
     hooks:
       - id: validate-pyproject
   - repo: https://github.com/regebro/pyroma
-    rev: '4.2'
+    rev: '5.1b1'
     hooks:
       - id: pyroma
   - repo: https://github.com/jsh9/markdown-heading-numbering
@@ -129,13 +129,13 @@ repos:
         args: [--number]
         exclude: ^CHANGELOG\.md$
   - repo: https://github.com/jackdewinter/pymarkdown
-    rev: v0.9.40
+    rev: v0.9.41
     hooks:
       - id: pymarkdown
         args: [scan]
         exclude: ^CHANGELOG\.md$
   - repo: https://github.com/djlint/djLint
-    rev: v1.46.2
+    rev: v1.47.1
     hooks:
       - id: djlint-reformat
       - id: djlint
@@ -148,7 +148,7 @@ repos:
     hooks:
       - id: actionlint
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.38.0
+    rev: 0.38.2
     hooks:
       - id: check-compose-spec
       - id: check-github-workflows
@@ -159,11 +159,11 @@ repos:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
   - repo: https://github.com/semgrep/pre-commit
-    rev: v1.177.0
+    rev: v1.181.1
     hooks:
       - id: semgrep-ci
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 1.4.0
+    rev: 1.5.0
     hooks:
       - id: unimport
         args: [--remove]
@@ -184,7 +184,7 @@ repos:
     hooks:
       - id: blank-line-after-blocks
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.8
+    rev: v0.17.2
     hooks:
       - id: ruff-check
         args: [--fix]
