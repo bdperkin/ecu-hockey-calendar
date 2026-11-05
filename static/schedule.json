@@ -6104,10 +6104,10 @@
       "venue": "The St. James",
       "location": "The St. James",
       "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 8,
+      "away_score": 9,
       "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
@@ -6154,7 +6154,7 @@
       "season": "2026-2027",
       "start_time": "2026-11-06T15:30:00Z",
       "home_team": {
-        "name": "TBD",
+        "name": "Alvernia",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
@@ -6173,7 +6173,7 @@
         "local_logo_url": "/static/logos/east-carolina-university.png",
         "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
-      "opponent": "TBD",
+      "opponent": "Alvernia",
       "designation": "Away",
       "is_home": false,
       "venue": "The St. James",
@@ -6200,16 +6200,16 @@
         "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
-        "name": "TBD",
+        "name": "Georgetown University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "remote_logo_url": null,
-        "local_logo_url": null,
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png",
+        "local_logo_url": "/static/logos/georgetown-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/46.png"
       },
-      "opponent": "TBD",
+      "opponent": "Georgetown University",
       "designation": "Home",
       "is_home": true,
       "venue": "The St. James",
@@ -6224,7 +6224,7 @@
     {
       "game_id": "game-vs-tbd-on-11082026-mry1a33y",
       "season": "2026-2027",
-      "start_time": "2026-11-08T15:00:00Z",
+      "start_time": "2026-11-09T00:00:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
@@ -6236,16 +6236,16 @@
         "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
       },
       "away_team": {
-        "name": "TBD",
+        "name": "James Madison University",
         "city": "Unknown",
         "state": "NC",
         "division": "ACHA M2",
         "conference": "ACCHL",
-        "remote_logo_url": null,
-        "local_logo_url": null,
-        "logo_url": null
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/256.png",
+        "local_logo_url": "/static/logos/james-madison-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/256.png"
       },
-      "opponent": "TBD",
+      "opponent": "James Madison University",
       "designation": "Home",
       "is_home": true,
       "venue": "The St. James",
@@ -6260,7 +6260,7 @@
     {
       "game_id": "game-vs-high-point-on-11142026-mrxh6oid",
       "season": "2026-2027",
-      "start_time": "2026-11-14T23:45:00Z",
+      "start_time": "2026-11-15T02:15:00Z",
       "home_team": {
         "name": "East Carolina University",
         "city": "Greenville",
