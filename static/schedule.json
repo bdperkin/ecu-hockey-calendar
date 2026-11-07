@@ -1,7 +1,7 @@
 {
   "primary_team": "East Carolina University",
   "season": null,
-  "total_games": 174,
+  "total_games": 175,
   "filters": {
     "season": null,
     "opponent": null,
@@ -6184,6 +6184,42 @@
       "home_score": null,
       "away_score": null,
       "tickets_url": null
+    },
+    {
+      "game_id": "ecu-home-alvernia-20261107",
+      "season": "2026-2027",
+      "start_time": "2026-11-07T00:00:00Z",
+      "home_team": {
+        "name": "East Carolina University",
+        "city": "Greenville",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL",
+        "remote_logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png",
+        "local_logo_url": "/static/logos/east-carolina-university.png",
+        "logo_url": "https://a.espncdn.com/i/teamlogos/ncaa/500/151.png"
+      },
+      "away_team": {
+        "name": "Alvernia",
+        "city": "Unknown",
+        "state": "NC",
+        "division": "ACHA M2",
+        "conference": "ACCHL",
+        "remote_logo_url": null,
+        "local_logo_url": null,
+        "logo_url": null
+      },
+      "opponent": "Alvernia",
+      "designation": "Home",
+      "is_home": true,
+      "venue": "The St. James",
+      "location": "The St. James",
+      "coordinates": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 5,
+      "away_score": 3,
+      "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
       "game_id": "game-vs-tbd-on-11072026-mry18jcr",
