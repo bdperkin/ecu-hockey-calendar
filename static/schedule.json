@@ -6179,10 +6179,10 @@
       "venue": "The St. James",
       "location": "The St. James",
       "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
+      "status": "W",
+      "result": "W",
+      "home_score": 3,
+      "away_score": 5,
       "tickets_url": null
     },
     {
@@ -6251,10 +6251,10 @@
       "venue": "The St. James",
       "location": "The St. James",
       "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 4,
+      "away_score": 8,
       "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
@@ -6287,10 +6287,10 @@
       "venue": "The St. James",
       "location": "The St. James",
       "coordinates": null,
-      "status": "Scheduled",
-      "result": "SCHEDULED",
-      "home_score": null,
-      "away_score": null,
+      "status": "L",
+      "result": "L",
+      "home_score": 4,
+      "away_score": 9,
       "tickets_url": "https://www.ecuhockey.com/tickets"
     },
     {
